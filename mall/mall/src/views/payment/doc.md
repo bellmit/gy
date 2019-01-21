@@ -1,0 +1,8 @@
+payment:付款单管理,
+  --confirmOfflinePay:待确认线下付款单,
+  --paymentList:付款单查询页,
+  --paymentDetail:付款单详情页,
+  --moneyAccount:资金账户,
+  --collectionConfirm:收款单确认页,
+  --toPay:（线上支付）财务付款,
+  --confirmPay:（线上支付）支付确认,

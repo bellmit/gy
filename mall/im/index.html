@@ -1,0 +1,817 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
+    <title>国烨惠聊</title>
+    <!--<link rel="stylesheet" href="styles/main.css">-->
+    <link rel="stylesheet" href="static/styles/gyim.css">
+    <link rel="stylesheet" href="static/styles/index.css">
+</head>
+
+<body>
+    <div id='gyim-container' class='wrap clearfix' v-cloak>
+        <div class="left fl" id="">
+            <div class="search-box">
+                <div class="search-in">
+                    <input type="text" name="serarch" id="serarch" value="" placeholder="搜索企业名" v-model="searchVal" />
+                </div>
+            </div>
+            <div class="conversations">
+                <ul class="conversations-ul">
+                    <li :data-id="item.touser" v-for='(item,index) in list' v-bind:class="{active:index == currentActiveConver,redpoint:item.red}"
+                        v-on:click="addClass(index,item)">
+                        <img :src="item.touser_head" />
+                        <div class="conver_c">
+                            <p class="conver_compname">{{item.coname}}</p>
+                            <p class="conver_lastmsg">{{item.lastTxt}}</p>
+                        </div>
+                        <p class="conver_time">{{item.time}}</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="center fl" id="content">
+            <div class="c_top  clearfix">
+                <p class="fl"><img src="static/images/logo2.png" /><span>国烨惠聊</span></p>
+                <p class="fr">正在与<span id="curcomp"></span>聊天</p>
+            </div>
+            <div class="c_center">
+                <div class="chat_win">
+                    <div v-for="hisitem in history" class="chat_item">
+                        <div class="chatitem_cent" v-if="hisitem.from == LOGUSER">
+                            <img :src="LOGUSER_HEAD" class='headimg' />
+                            <p>
+                                <span class="msg-date" v-if="hisitem.date">{{hisitem.date}}</span>
+                                {{hisitem.content}}
+                            </p>
+                        </div>
+                        <div class="chatitem_res" v-if="hisitem.from != LOGUSER">
+                            <img :src="touserobj.touser_head" class='headimg' />
+                            <p>
+                                <span class="msg-date" v-if="hisitem.date">{{hisitem.date}}</span>
+                                {{hisitem.content}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="c_bottom">
+                <div class="inpbox clearfix">
+                    <textarea name="" rows="" cols="" name="entry" id="entry" value="" placeholder="在此输入" class="fl"
+                        style="resize:none;padding-top: 4px;"></textarea>
+                    <div class="fr" id="sent">
+                        <p>发送</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right fr" id="orders">
+            <div class="or_cur">
+                <p class="p_top">当前咨询资源信息</p>
+                <p class="p_title" v-if="offer_id != 0">{{offers.skuName}}</p>
+                <ul class="p_ul" v-if="offer_id != 0">
+                    <li>
+                        <span class="ul_l">单价：</span><span class="ul_r" style="color: #e0370f;">{{offers.intCurrencyMark}}{{offers.skuPrice}}</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">交割库：</span><span class="ul_r">{{offers.deliveryWarehouseName}}</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">交割时间：</span>
+                        <span class="ul_r" v-if="offers.deliveryDateFlag === 2">{{offers.deliveryBeginDate}}之前</span>
+                        <span class="ul_r" v-else-if="offers.deliveryDateFlag === 3">{{offers.deliveryDateText}}</span>
+                        <span class="ul_r" v-else>{{offers.deliveryBeginDate}} 至 {{offers.deliveryEndDate}}</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">交割库地址：</span><span class="ul_r">{{offers.deliveryDetailedAddress}}</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">起订量(吨)：</span><span class="ul_r">{{offers.skuMinQuantity}}</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">货源：</span><span class="ul_r">{{offers.skuOrigin}}</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">保证金：</span><span class="ul_r">{{offers.depositRatio}}%</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">交货方式：</span>
+                        <span class="ul_r" v-if="offers.deliveryType == 0">买家自提、卖家代运</span>
+                        <span class="ul_r" v-if="offers.deliveryType == 1">买家自提</span>
+                        <span class="ul_r" v-if="offers.deliveryType == 2">卖家代运</span>
+                    </li>
+                    <li>
+                        <span class="ul_l">发票：</span>
+                        <span class="ul_r" v-if="offers.provideInvoiceType == 0">交割当月发票</span>
+                        <span class="ul_r" v-if="offers.provideInvoiceType == 1">交割次月发票</span>
+                    </li>
+                    <li>
+                        <div class="orderBox clearfix">
+                            <p v-if="!ismyoffer && order_id" class="fl">卖家已向你发起订单</p>
+                            <div id="sponsor_odr" class="fr" v-if="ismyoffer" v-on:click="sponsor()">
+                                <p>发起订单</p>
+                            </div>
+                            <div id="check_odr" class="fr" v-if="!ismyoffer && order_id" v-on:click="check()">
+                                <p>查看订单</p>
+                            </div>
+                            <div id="odr_cen" class="fl" v-if="!ismyoffer" v-on:click="checkcenter()">
+                                <p>订单中心</p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="emptybox" v-if="offer_id == 0">
+                    <p>暂无资源单信息</p>
+                </div>
+            </div>
+            <div class="or_his">
+                <p class="or_his_tit">与对方的历史订单</p>
+                <div class="or_his_item">
+                    <ul v-for="(list, index) in historyOrderList" :key="index">
+                        <li>订单号：{{list.odrOrderSn}}</li>
+                        <li>品名：{{list.orderItemList[0].skuName}}</li>
+                        <li>数量：{{list.orderItemList[0].skuQuantity +
+                            list.orderItemList[0].infUnitOfMeasureDisplayName}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/scripts/jquery.js"></script>
+    <script src="static/assets/sdk/webim.config.js"></script>
+    <script src="static/assets/sdk/strophe-1.2.8.js"></script>
+    <script src='static/assets/sdk/websdk-1.4.13.js'></script>
+    <script src='static/scripts/gyim.js'></script>
+    <script src="static/scripts/vue.min.js"></script>
+    <script src="static/scripts/socket.io-1.2.0.js"></script>
+    <script>
+        var chatwindow = document.getElementsByClassName("chat_win")[0];
+        var inpele = document.getElementById("entry");
+        var conversationsUl = document.getElementsByClassName("conversations-ul")[0];
+        myidObj = getId(LOGUSER);
+        var touserobj = {}; // 当前用户目标
+        var vueIM = new Vue({
+            el: '#gyim-container',
+            data: {
+                currentActiveConver: 0,
+                chatContentList: [], // 会话列表
+                history: [],
+                searchVal: '', //默认输入为空
+                letter: '', //默认不排序
+                original: false, //默认从小到大排列
+                offers: {},
+                order_id: 0,
+                offer_id: 0,
+                ismyoffer: false,
+                historyOrderList: []
+            },
+            created() {
+                // 获取用户名，用户头像，公司头像，历史聊天记录
+                let that = this;
+                $.ajax({
+                    type: "post",
+                    url: COMP_API,
+                    data: JSON.stringify({
+                        mobile: LOGUSER,
+                        userType: 0
+                    }),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    contentType: 'application/json',
+                    async: true,
+                    success: function (datame) {
+                        var datame_head = datame.data.profileImg;
+                        LOGUSER_HEAD = datame_head;
+                        user_companyid = datame.data.companyId;
+                        $.ajax({
+                            type: "post",
+                            url: COMP_API,
+                            data: JSON.stringify({
+                                mobile: URL_TOSER,
+                                userType: 0
+                            }),
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            contentType: 'application/json',
+                            async: true,
+                            success: function (datatouser) {
+                                touser_companyid = datatouser.data.companyId;
+                                $.ajax({
+                                    type: "post",
+                                    url: historyOrder,
+                                    data: JSON.stringify({
+                                        "sellerCompanyId": touser_companyid,
+                                        "buyerCompanyId": user_companyid
+                                    }),
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
+                                    contentType: 'application/json',
+                                    async: true,
+                                    success: function (order) {
+                                        that.historyOrderList = order.data;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            },
+            methods: {
+                // 取的什么鬼名字，根本就不是添加类的方法，切换当前会话的时候用的来获取聊天记录的
+                addClass: function (index, item) {
+                    let that = this;
+                    this.currentActiveConver = index;
+                    item.red = false;
+                    this.offer_id = item.last_offerid;
+                    this.order_id = item.last_orderid;
+                    this.ismyoffer = item.myoffer;
+                    console.log("myoffer:" + item.myoffer)
+                    var tocid = getId(item.touser).cid;
+                    if (item.touser != 1) {
+                        $.ajax({
+                            type: "post",
+                            url: historyOrder,
+                            data: JSON.stringify({
+                                "sellerCompanyId": myidObj.cid,
+                                "buyerCompanyId": tocid
+                            }),
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            contentType: 'application/json',
+                            async: true,
+                            success: function (order) {
+                                that.historyOrderList = order.data;
+                            }
+                        });
+                    } else {
+                        that.historyOrderList = ""
+                    }
+                },
+                // 添加当前会话的聊天记录，顺便滚动一下聊天窗口，保持最后一条消息在最底下
+                push: function (newdata) {
+                    this.history.push(newdata);
+                    this.$nextTick(function () {
+                        $(".c_center").scrollTop($(".c_center")[0].scrollHeight);
+                    })
+                },
+                // 添加会话列表
+                push_conver: function (newdata) {
+                    this.chatContentList.unshift(newdata);
+                },
+                // 和 push 差不多，这个是直接替换聊天窗口的内容
+                render: function (lists) {
+                    this.history = lists;
+                    this.$nextTick(function () {
+                        $(".c_center").scrollTop($(".c_center")[0].scrollHeight);
+                    })
+                },
+                // 替换会话列表，给第一个会话添加 active 状态
+                render_contact: function (list) {
+                    this.chatContentList = list;
+                    this.$nextTick(function () {
+                        $(".conversations-ul li:first").addClass("active");
+                    });
+                },
+                render_newConList: function (list) {
+                    this.chatContentList = list;
+                },
+                // 时间格式化 YYYY-M-D
+                format: function (fmt) {
+                    var d = new Date(fmt); //根据时间戳生成的时间对象
+                    var datestr = (d.getFullYear()) + "-" +
+                        (d.getMonth() + 1) + "-" +
+                        (d.getDate());
+                    return datestr;
+                },
+                // 新消息提醒的小红点
+                addRed: function (index) {
+                    this.chatContentList[index].red = true;
+                },
+                removeRed: function (index) {
+                    this.chatContentList[index].red = false;
+                },
+                // 发起订单
+                sponsor: function () {
+                    if (!this.offers.id) {
+                        alert("无效的资源单")
+                    } else {
+                        window.open(SPONSOR_ODR + this.offers.id);
+                    }
+                },
+                // 订单详情
+                check: function () {
+                    if (this.order_id) {
+                        window.open(CHECK_ODR + this.order_id);
+                    }
+                },
+                // 订单列表
+                checkcenter: function () {
+                    window.open(ORDER_CENTER);
+                }
+            },
+            // 通过计算属性过滤数据
+            computed: {
+                // 被搜索企业名的输入字段过滤后的会话列表
+                list: function () {
+                    return this.chatContentList.filter(function (item) {
+                        return item.coname.search(this.searchVal) != -1;
+                    }, this);
+                }
+            }
+        });
+        // 根据号码获取 id 和公司 id，同步操作
+        function getId(phone) {
+            var ids = {
+                uid: "",
+                cid: ""
+            };
+            $.ajax({
+                type: "post",
+                url: COMP_API,
+                data: JSON.stringify({
+                    mobile: phone,
+                    userType: 0
+                }),
+                contentType: 'application/json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                async: false,
+                success: function (data) {
+                    if (!data.code) {
+                        ids.uid = data.data.id;
+                        ids.cid = data.data.companyId;
+                    };
+                }
+            });
+            return ids;
+        };
+
+        function init () { // 首次加载渲染
+            var firstlist = "static/scripts/api_converlist1.json";
+            // 获取本地写好的数据，也是同步的
+            $.ajax({
+                type: "get",
+                url: firstlist,
+                async: false,
+                success: function (data) {
+                    var conevrList = data.data;
+                    var localConverList = JSON.parse(localStorage.getItem("coverList_" + LOGUSER));
+                    var sentstr = "您好，我想咨询与资源单(id:" + URL_OFFERS + ")有关的信息"; // 发送一条去卖家触发对方的资源单信息
+                    var textobj = {
+                        "from": LOGUSER,
+                        "to": URL_TOSER,
+                        "content": sentstr,
+                        "time": new Date().Format("hh:mm"),
+                        date: new Date().Format("yyyy/MM/dd hh:mm:ss")
+                    };
+                    if (localConverList && localConverList.length > conevrList.length) {
+                        conevrList = localConverList;
+                    };
+                    if (USER_TYPE == 1) {
+                        init_his(URL_TOSER); // 展示历史记录
+                        var hashis = false;
+                        vueIM.offer_id = URL_OFFERS;
+                        renderOffer(); //（买家身份）渲染初始的资源单
+                        conevrList.map(function (currentValue, index, arr) {
+                            if (currentValue.touser == URL_TOSER) {
+                                arr.splice(index, 1);
+                                currentValue.last_offerid = URL_OFFERS;
+                                currentValue.lastTxt = sentstr;
+                                vueIM.chatContentList[index] = currentValue;
+                                arr.unshift(currentValue);
+                                hashis = true;
+                                touserobj = currentValue;
+                                touserobj.last_offerid = URL_OFFERS;
+                                touserobj.lastTxt = sentstr;
+                                return arr
+                            }
+                        });
+                        if (!hashis) {
+                            $.ajax({
+                                type: "post",
+                                url: COMP_API,
+                                data: JSON.stringify({
+                                    mobile: URL_TOSER,
+                                    userType: 0
+                                }),
+                                xhrFields: {
+                                    withCredentials: true
+                                },
+                                contentType: 'application/json',
+                                async: false,
+                                success: function (data) {
+                                    console.log(JSON.stringify(data))
+                                    var data_name = data.data.companyName;
+                                    var data_head = data.data.profileImg;
+                                    var data_myphone = data.data.phone;
+                                    touserobj.touser = URL_TOSER;
+                                    touserobj.touser_head = data_head;
+                                    touserobj.coname = data_name;
+                                    touserobj.lastTxt = sentstr;
+                                    touserobj.time = new Date().Format("hh:mm");
+                                    touserobj.red = false;
+                                    touserobj.last_offerid = URL_OFFERS;
+                                    touserobj.last_orderid = 0;
+                                    touserobj.myoffer = false;
+                                    conevrList.unshift(touserobj);
+                                    gyim.addHisSingle(URL_TOSER, textobj);
+                                }
+                            });
+                        };
+                        localStorage.setItem("coverList_" + LOGUSER, JSON.stringify(conevrList));
+                        vueIM.render_contact(conevrList);
+                        setTimeout(function () {
+                            sent(sentstr)
+                        }, 1500);
+                        $("#curcomp").html(touserobj.coname);
+                    } else if (USER_TYPE == 2) { // type为2的时候是向承运商咨询
+                        init_his(URL_TOSER); // 展示历史记录
+                        var hashis = false;
+                        conevrList.map(function (currentValue, index, arr) {
+                            if (currentValue.touser == URL_TOSER) {
+                                arr.splice(index, 1);
+                                currentValue.lastTxt = "你好，请问有什么需要帮助？";
+                                vueIM.chatContentList[index] = currentValue;
+                                arr.unshift(currentValue);
+                                hashis = true;
+                                touserobj = currentValue;
+                                touserobj.last_offerid = 0;
+                                touserobj.lastTxt = "你好，请问有什么需要帮助？";
+                                return arr
+                            }
+                        });
+                        if (!hashis) {
+                            $.ajax({
+                                type: "post",
+                                url: COMP_API,
+                                data: JSON.stringify({
+                                    mobile: URL_TOSER,
+                                    userType: 0
+                                }),
+                                xhrFields: {
+                                    withCredentials: true
+                                },
+                                contentType: 'application/json',
+                                async: false,
+                                success: function (data) {
+                                    var data_name = data.data.companyName;
+                                    var data_head = data.data.profileImg;
+                                    var data_myphone = data.data.phone;
+                                    touserobj.touser = URL_TOSER;
+                                    touserobj.touser_head = data_head;
+                                    touserobj.coname = data_name;
+                                    touserobj.lastTxt = "你好，请问有什么需要帮助？";
+                                    touserobj.time = new Date().Format("hh:mm");
+                                    touserobj.red = false;
+                                    touserobj.last_offerid = 0;
+                                    touserobj.last_orderid = 0;
+                                    touserobj.myoffer = false;
+                                    var textobjnooffer = {
+                                        "from": LOGUSER,
+                                        "to": URL_TOSER,
+                                        "content": "你好，请问有什么需要帮助？",
+                                        "time": new Date().Format("hh:mm")
+                                    };
+                                    conevrList.unshift(touserobj);
+                                    gyim.addHisSingle(URL_TOSER, textobjnooffer);
+                                }
+                            });
+                        };
+                        localStorage.setItem("coverList_" + LOGUSER, JSON.stringify(conevrList));
+                        vueIM.render_contact(conevrList);
+                        var resfirstobj = {
+                            "from": URL_TOSER,
+                            "to": LOGUSER,
+                            "content": "你好，请问有什么需要帮助？",
+                            "time": new Date().Format("hh:mm")
+                        };
+                        vueIM.push(resfirstobj);
+                        $("#curcomp").html(touserobj.coname)
+                    } else if (USER_TYPE == 0) {
+                        touserobj = conevrList[0];
+                        vueIM.render_contact(conevrList);
+                        vueIM.currentActiveConver = 0;
+                        init_his(touserobj.touser);
+                        $("#curcomp").html(touserobj.coname);
+                    }
+                },
+                error: function (data) {
+                    console.log(data)
+                }
+            });
+        };
+
+        function renderFristConver(touser) { //渲染第一条
+            if (touser == 1) {
+                touserobj.touser = URL_TOSER;
+                touserobj.touser_head =
+                    "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1533103834130&di=61a5730df73a91717c09326166f75cd5&imgtype=0&src=http%3A%2F%2Fimg07.tooopen.com%2Fimages%2F20170706%2Ftooopen_sy_215440799889.jpg";
+                touserobj.coname = "国烨";
+                touserobj.lastTxt = "欢迎使用国烨聊天系统，这里是示例聊天窗口，看见我，您就可以跟别人聊天了哦，请勿回复";
+                touserobj.time = new Date().Format("hh:mm");
+                touserobj.red = false;
+                touserobj.last_offerid = 0;
+                touserobj.last_orderid = 0;
+                touserobj.myoffer = false;
+            } else {
+                $.ajax({
+                    type: "post",
+                    url: COMP_API,
+                    data: JSON.stringify({
+                        mobile: touser,
+                        userType: 0
+                    }),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    contentType: 'application/json',
+                    async: false,
+                    success: function (data) {
+                        var data_name = data.data.companyName;
+                        var data_head = data.data.profileImg;
+                        var data_myphone = data.data.phone;
+                        touserobj.touser = URL_TOSER;
+                        touserobj.touser_head = data_head;
+                        touserobj.coname = data_name;
+                        touserobj.lastTxt = "您好";
+                        touserobj.time = new Date().Format("hh:mm");
+                        touserobj.red = false;
+                        touserobj.last_offerid = URL_OFFERS;
+                        touserobj.last_orderid = 0;
+                        touserobj.myoffer = false;
+                    }
+                });
+            }
+        };
+
+        function init_his (converuser) {
+            // 会话列表中如果有会话记录，渲染资源单数据
+            vueIM.chatContentList.forEach(function (currentValue) {
+                if (currentValue.touser == converuser) {
+                    vueIM.offer_id = currentValue.last_offerid;
+                    renderOffer();
+                }
+            });
+            // 本地有存聊天记录就渲染本地记录，如果没有就新增一条默认聊天记录
+            var localhistory = localStorage.getItem("localhis_" + LOGUSER);
+            if (localhistory && (converuser in JSON.parse(localhistory))) {
+                vueIM.render(JSON.parse(localhistory)[converuser]);
+            } else {
+                var content = '欢迎使用国烨聊天系统，这里是示例聊天窗口，看见我，您就可以跟别人聊天了哦，请勿回复';
+                var firstchat = {
+                    "from": touserobj.touser,
+                    "to": LOGUSER,
+                    "content": converuser == 1 ? content : '您好',
+                    "time": new Date().Format("hh:mm")
+                };
+                var chatAry = [firstchat];
+                vueIM.render(chatAry);
+                gyim.addHisSingle(converuser, chatAry[0]);
+            }
+        };
+        $(".conversations-ul").on('click', 'li', function () { // 切换会话
+            var thisid = $(this).attr("data-id");
+            var datalist = localStorage.getItem("coverList_" + LOGUSER);
+            var listobj = JSON.parse(datalist);
+            $(".c_center").scrollTop($(".c_center")[0].scrollHeight);
+            for (var i = 0; i < listobj.length; i++) {
+                if (listobj[i].touser == thisid) {
+                    touserobj = listobj[i];
+                }
+            }
+            init_his(thisid);
+            $("#curcomp").html(touserobj.coname);
+            localStorage.setItem("coverList_" + LOGUSER, JSON.stringify(vueIM.chatContentList));
+        });
+        gyim.conn.listen({
+            onOpened: function (message) { //连接成功回调，连接成功后才可以发送消息
+                console.log("%c [opened] 连接已成功建立", "color: green");
+            },
+            onTextMessage: function (message) {
+                var messageobj = {
+                    from: message.from,
+                    to: LOGUSER,
+                    content: message.data,
+                    time: new Date().Format("hh:mm"),
+                    date: new Date().Format("yyyy/MM/dd hh:mm:ss")
+                };
+                //添加进历史记录
+                gyim.addHisSingle(message.from, messageobj);
+
+                function judgeAndRender() {
+                    var hasconvert = false;
+                    // 当前会话列表中已经有消息来源的会话时，资源单、消息的同步
+                    for (var i = 0; i < vueIM.chatContentList.length; i++) {
+                        var thisid = vueIM.chatContentList[i].touser;
+                        if (thisid == message.from) {
+                            vueIM.chatContentList[i].lastTxt = message.data;
+                            hasconvert = true;
+                            if (message.data.indexOf("资源单(id:") != -1) {
+                                var chatstrid = message.data.split("资源单(id:")[1].split(")")[0];
+                                vueIM.chatContentList[i].last_offerid = chatstrid;
+                                vueIM.chatContentList[i].myoffer = true;
+                                if (touserobj.touser == message.from) {
+                                    vueIM.offer_id = chatstrid;
+                                    renderOffer();
+                                    vueIM.ismyoffer = true;
+                                }
+                            };
+                            if (touserobj.touser == message.from) { //当前聊天与接收信息是同一个人
+                                vueIM.push(messageobj);
+                                $(".chat_win").scrollTop = $(".chat_win").scrollHeight;
+                            } else if (touserobj.touser != message.from) { //当前聊天与接收信息非同一个人
+                                vueIM.chatContentList[i].red = true;
+                            }
+                        }
+                    }
+                    // 当前会话列表中没有消息来源的会话时，同步获取公司信息，然后添加会话，添加消息，添加记录
+                    if (hasconvert == false) {
+                        $.ajax({
+                            type: "post",
+                            url: COMP_API,
+                            data: JSON.stringify({
+                                mobile: message.from,
+                                userType: 0
+                            }),
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            contentType: 'application/json',
+                            async: false,
+                            success: function (data) {
+                                var data_name = data.data.companyName;
+                                var data_head = data.data.profileImg;
+                                var data_myphone = data.data.phone;
+                                var chatstrid;
+                                if (message.data.indexOf("资源单(id:") != -1) {
+                                    chatstrid = message.data.split("资源单(id:")[1].split(")")[0];
+                                };
+                                var newconver = {
+                                    "touser": data_myphone,
+                                    "touser_head": data_head,
+                                    "coname": data_name,
+                                    "lastTxt": message.data,
+                                    "time": new Date().Format("hh:mm"),
+                                    "red": true,
+                                    "last_offerid": chatstrid,
+                                    "last_orderid": 0,
+                                    "myoffer": true
+                                };
+                                vueIM.push_conver(newconver);
+                                vueIM.currentActiveConver += 1;
+                                vueIM.render_newConList(vueIM.chatContentList);
+                                // gyim.addHisSingle(data_myphone, messageobj);
+                            }
+                        });
+                    };
+                    localStorage.setItem("coverList_" + LOGUSER, JSON.stringify(vueIM.chatContentList));
+                };
+                judgeAndRender()
+            },
+            onPictureMessage: function (message) {
+                console.log("收到来自" + message.from + "的图片消息：" + message.url);
+            },
+            onAudioMessage: function (message) {
+                console.log("收到来自" + message.from + "的音频消息：" + message.url);
+            },
+            onError: function (message) {
+                if (message.type == 8) {
+                    var r = confirm("您的聊天已在其他地方打开,本窗口已失效，点击确定关闭")
+                    if (r == true) {
+                        window.close();
+                    }
+                }
+            }
+        });
+        document.getElementById("sent").addEventListener("click", function () {
+            sent();
+        });
+        //  禁止回车换行
+        document.getElementById("entry").onkeydown = function (e) {
+            var code = e.charCode || e.keyCode;
+            if (!e.ctrlkey && code === 13) {
+                event.cancelBubble = true;
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        };
+        // 回车发送消息，Ctrl + 回车换行
+        document.getElementById("entry").onkeyup = function (e) {
+            var code = e.charCode || e.keyCode;
+            if (e.ctrlKey && code == 13) {
+                var newtext = this.value + '\n';
+                this.value = newtext;
+                this.innerHTML = newtext;
+            } else if (!e.ctrlkey && code == 13) {
+                sent();
+            }
+        };
+        // 发送消息，保存到本地然后顺手保存到服务器，其实应该先保存到服务器，成功了再保存到本地，不然消息不一致怎么办
+        function sent(str) {
+            var entryele = document.getElementById("entry");
+            var myDate = new Date().Format("hh:mm:ss MM-dd");
+            var senttxt = str || entryele.value;
+            if (senttxt.replace(/^\s+|\s+$/g,"") === '' || senttxt.replace(/^\s+|\s+$/g,"") === null) {
+                return;
+            }
+            gyim.sendPrivateText(senttxt, touserobj.touser, function () {
+                var messageobj = {
+                    from: LOGUSER,
+                    to: touserobj.touser,
+                    content: senttxt,
+                    date: myDate,
+                    time: new Date().Format("hh:mm")
+                };
+                vueIM.push(messageobj);
+                gyim.addHisSingle(touserobj.touser, messageobj);
+                vueIM.chatContentList[vueIM.currentActiveConver].lastTxt = senttxt;
+                document.getElementById("entry").value = "";
+                localStorage.setItem("coverList_" + LOGUSER, JSON.stringify(vueIM.chatContentList));
+                //保存记录到服务器
+                var saveobj = {
+                    fromUserId: getId(messageobj.from).uid,
+                    toUserId: getId(messageobj.to).uid,
+                    fromMobile: messageobj.from,
+                    toMobile: messageobj.to,
+                    chatType: 0,
+                    content: messageobj.content
+                };
+                var jsonsave = JSON.stringify(saveobj);
+                $.ajax({
+                    type: "POST",
+                    url: SAVE_HIS,
+                    async: true,
+                    dataType: "json",
+                    data: jsonsave,
+                    contentType: "application/json",
+                    success: function (datas) {},
+                    error: function (data) {}
+                });
+            });
+        };
+        // 资源单 ID 获取资源单信息，同步接口，为什么又是同步接口？
+        function renderOffer () {
+            var renderofferid = vueIM.offer_id;
+            if (renderofferid != 0) {
+                $.ajax({
+                    type: "get",
+                    url: OFFERS_API + renderofferid,
+                    async: false,
+                    dataType: "json",
+                    success: function (datas) {
+                        var offerinfodata = datas.data;
+                        var res = datas.data;
+                        if (!datas.code) {
+                            res.offerInfo.deliveryBeginDate = vueIM.format(res.offerInfo.deliveryBeginDate);
+                            res.offerInfo.deliveryEndDate = vueIM.format(res.offerInfo.deliveryEndDate);
+                            vueIM.offers = res.offerInfo;
+                        } else {
+                            vueIM.offer_id = 0;
+                        }
+                    }
+                });
+            };
+        };
+        var socket;
+
+        function listenNewId() {
+            var ids = getId(LOGUSER);
+            var socket = io(SCOKET + 'userId=' + ids.uid + "&companyId=" + ids.cid);
+            console.log('userId=' + ids.uid + "&companyId=" + ids.cid)
+            socket.on('connect', function (e) {
+                console.log("打开scoket")
+            });
+            socket.on('order_status_notify', function (data) {
+                var dataobj = JSON.parse(data);
+                console.log(data)
+                vueIM.chatContentList.map(
+                    function (currentValue, index, arr) {
+                        if (currentValue.last_offerid == dataobj.offerId && !currentValue.myoffer) {
+                            currentValue.last_orderid = dataobj.orderId;
+                            if (index == vueIM.currentActiveConver) {
+                                vueIM.order_id = dataobj.orderId
+                            }
+                        }
+                    }
+                );
+            });
+        };
+        if (USER_TYPE == 1) {
+            listenNewId();
+        };
+        gyim.reg(LOGUSER);
+        init();
+    </script>
+
+</body>
+
+</html>

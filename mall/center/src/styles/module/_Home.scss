@@ -1,0 +1,95 @@
+.userCenter{
+    .btn {
+      height: 30px;
+      line-height: 30px;
+      padding: 0 13px;
+      border: 1px solid #E7ECF1;
+      border-radius: 2px;
+      font-size: 12px;
+      color: #333333;
+      background: rgba(0,0,0,0);
+    }
+  .btn-active {
+    background: #E0370F;
+    border-radius: 2px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 13px;
+    font-size: 12px;
+    color: #FFFFFF;
+  }
+}
+// 页面的标题栏
+.new-title-public{
+    line-height: 35px;
+    padding: 0 16px;
+    border-bottom: 1px solid #e6eaea;
+    font-size: 16px;
+    font-weight: bold;
+    color: $color-title;
+}
+// 尾部总条数
+.departmentName{
+    margin-top: 20px;
+    font-size: 12px;
+    color: #666;
+}
+.el-range-separator{
+    width: 6% !important;
+}
+.container-fluid .el-tabs__item.is-active{
+    color: #e0370f!important;
+}
+.container-fluid .el-tabs__active-bar{
+    background-color: #e0370f!important;
+}
+.el-tabs__nav-wrap::after{
+    background: none!important;
+}
+.el-tabs__item:hover{
+    color: #e0370f!important;
+}
+.el-message-box__wrapper .el-button--primary{
+    background: #e0370f!important;
+    border-color: #e0370f!important;
+}
+.el-card__header{
+    padding: 9px 15px;
+    font-size: 14px;
+    font-weight: normal;
+    color: #666;
+}
+.seven_top{
+    margin-top: 7px;
+}
+.mewmyicon{
+    font-size: 12px;
+    color: #333;
+    vertical-align: middle;
+}
+.mewmyfont{
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+.mewmyp{
+    margin: 20px 7px
+}
+.mynewtabs{
+    padding: 10px 16px;
+}
+.left_spanmy{
+    color: #333333;
+}
+.el-dialog__header{
+    border-bottom: 1px solid #dce0e4;
+    padding: 0;
+    height: 35px;
+    line-height: 35px;
+    padding-left: 16px;
+}
+.el-dialog__headerbtn{
+    top:10px;
+}

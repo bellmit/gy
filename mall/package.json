@@ -1,0 +1,24 @@
+{
+  "name": "guoyie",
+  "version": "1.0.0",
+  "description": "the guoye project",
+  "author": "GY IT FRONT",
+  "private": true,
+  "scripts": {
+    "build:test": "cross-env NODE_ENV=production env_config=test node gyhome/build/build.js && cross-env NODE_ENV=production env_config=test node gymycenter/build/build.js && cross-env NODE_ENV=production env_config=test node gywarehouse/build/build.js && cross-env NODE_ENV=production env_config=test node gylogistics/build/build.js && cross-env NODE_ENV=production env_config=test node gymall/build/build.js",
+    "build:prod": "cross-env NODE_ENV=production env_config=prod node gyhome/build/build.js && cross-env NODE_ENV=production env_config=prod node gymycenter/build/build.js && cross-env NODE_ENV=production env_config=prod node gywarehouse/build/build.js && cross-env NODE_ENV=production env_config=prod node gylogistics/build/build.js && cross-env NODE_ENV=production env_config=prod node gymall/build/build.js && cross-env NODE_ENV=production env_config=prod node gypoint/build/build.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "cross-env": "^5.2.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}

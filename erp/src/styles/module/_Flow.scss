@@ -1,0 +1,49 @@
+.flow-list {
+  header {
+    div {
+      display: inline-block;
+    }
+    .title {
+      font-size: 18px;
+      color: #333333;
+      margin: 20px 16px;
+    }
+    .search {
+      float: right;
+      position: relative;
+      padding-right: 20px;
+      input {
+        padding-right: 30px;
+      }
+      span {
+        position: absolute;
+        right: 0;
+        top: 2px;
+        cursor: pointer;
+      }
+    }
+  }
+  .add-wrap {
+    text-align: right;
+    margin: 20px 16px 30px;
+  }
+  .div {
+    margin: 0 16px;
+  }
+  .gy-table {
+    .edit {
+      background-color: #fff;
+    }
+  }
+  .search {
+    position: relative;
+    // margin: 0 30px;
+    margin-right: 30px;
+    margin-bottom: 30px;
+    .searchicon {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  }
+}

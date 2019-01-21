@@ -1,0 +1,153 @@
+@mixin m-tips{
+  display:block;
+  padding:8px 10px;
+  border-radius: 2px;
+  color: #a0a4af;
+  background:#f6f6f8;
+  animation: showit .3s;
+  &.error{
+    background:#ffecec;
+    color:#e25663;
+  }
+  &.warning{
+    background:#fef8e0;
+    color:#d98031;
+  }
+  &.success{
+    background:#ecfbf2;
+    color:#5ac357;
+  }
+  &.inline{
+    display: inline-block;
+    vertical-align: middle;
+  }
+  &.small{
+    height:28px;
+    line-height: 28px;
+    padding: 0 10px;
+  }
+}
+
+//.m-tips{
+//  @include m-tips;
+//}
+
+
+@keyframes loading {
+  0% {transform: translateX(0)}
+  100% {transform: translateX(-50%)}
+}
+
+@keyframes showit {
+  0% {opacity: 0; transform: translate(0, -8px)}
+  70% {opacity: 1; transform: translate(0, 4px)}
+  100% {opacity: 1; transform: translate(0, 0)}
+}
+
+
+
+.g-loading{
+  width:160px;
+  overflow: hidden;
+  display: inline-block;
+  text-align:center;
+  .bar{
+    height:30px;
+    width:300%;
+    background: url(assets/images/loading.png) 0 0 repeat-x;
+    background-size: auto 16px;
+    animation: loading 10s linear infinite;
+  }
+  &.black .bar{
+    background-image: url(assets/images/loading-black.png)
+  }
+}
+
+
+.g-login{
+  height:100%;
+  width:100%;
+  overflow:hidden;
+  position:relative;
+  &:after{
+    content:"";
+    position:absolute;
+    width:100%;
+    top:0px;
+    left:0;
+    z-index:1;
+    height:520px;
+    background-color: #4b4f54;
+  }
+  .m-form{
+    margin-bottom: 30px;
+  }
+  .m-login{
+    color:#fff;
+    position: relative;
+    z-index: 2;
+    width:280px;
+    margin:90px auto 0;
+    transition: all .4s;
+    .logo{
+      border-bottom:solid 1px rgba(255,255,255,.2);
+      padding-bottom:20px;
+      margin-bottom:25px;
+      position: relative;
+      h1{
+        font-size: 24px;
+      }
+      h2{
+        font-size: 12px;
+        margin-top:10px;
+        opacity: .8;
+      }
+      span{
+        position: absolute;
+        right: 0;
+        bottom: 20px;
+        transform: scale(.8);
+        transform-origin: right bottom;
+        opacity: .5;
+      }
+    }
+    .title{
+      opacity: .8;
+    }
+    .m-tips{
+      position: absolute;
+      width:100%;
+      top:96px;
+    }
+    &.loading{
+      transform: translate(0, -20px)
+    }
+  }
+  .m-login .form-group{
+    padding: 0 0 10px 0;
+    label{
+        position: initial;
+    }
+  }
+
+  .foot{
+    position:absolute;
+    top:420px;
+    width:100%;
+    left:0;
+    margin-top:20px;
+    text-align:center;
+  }
+  .g-loading{
+    width:100%;
+    margin:40px auto 0;
+  }
+}
+
+
+
+
+
+
+
+

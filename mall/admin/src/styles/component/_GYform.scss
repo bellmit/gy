@@ -1,0 +1,87 @@
+.gy-form{
+    padding: 20px 0 20px 20px;
+    &:after{
+        content: "";
+        display: block;
+        clear: both;
+    }
+}
+.gy-form-box-14 {
+   padding: 0 14px;
+}
+.gy-form-group{
+    width: 50%;
+    float: left;
+    position: relative;
+    padding: 0 14px 12px 108px;
+    min-height: 46px;
+    line-height: 30px;
+    color: $color-main;
+    .l{
+        position: absolute;
+        left: 0;
+        top: 0;
+        line-height: 1.1;
+        padding-top: 7px;
+        color: $color-title;
+        width: 98px;
+        strong{
+            color: $color-highlight;
+            font-size: 12px;
+            font-weight: normal;
+            width: 8px;
+            position: absolute;
+            left: 0;
+            text-align: left;
+            top: 7px;
+        }
+    }
+    &.single-row{
+        width: 100%;
+    }
+}
+.gy-form-group-50 {
+  padding-right: 50px;
+}
+.gy-form-button{
+  clear: both;
+  text-align: right;
+  padding-right: 40px;
+}
+input[type=text], input[type=password], .gy-input, .gy-textarea, .gy-select{
+    width: 100%;
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #e7ecf1;
+    padding: 0 10px;
+    font-size: 14px;
+    color: $color-main !important;
+    height: 30px;
+    line-height: 29px;
+    vertical-align: middle;
+    &:hover{
+        border-color: #c0c4cc;
+    }
+    &:focus{
+        border-color: $color-extra !important;
+    }
+    &:disabled{
+        cursor: not-allowed;
+    }
+}
+.gy-textarea{
+  resize: none;
+  height: 60px;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-small;
+}
+.gy-radio{
+  border: 1px solid #e7ecf1;
+}
+.gy-checkbox{
+  border: 1px solid #e7ecf1;
+}
+::placeholder {
+  font-size: 14px !important;
+  color: $color-minor !important;
+}

@@ -1,0 +1,166 @@
+.essential-wrapper {
+    padding: 15px 0 25px 0;
+    &:after {
+        display: block;
+        clear: both;
+        content: ' ';
+    }
+}
+
+.essential-row-float {
+    .essential-item {
+        float: left;
+        width: 50%;
+        display: flex;
+        min-height: 42px;
+        padding: 6px 0;
+        line-height: 22px;
+        position: relative;
+        .essential-title {
+            flex: 0 0 136px;
+            position: relative;
+            padding: 0 11px 0 0;
+            color: $color-title;
+            .el-checkbox {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+        .essential-text {
+            flex: 1;
+            display: flex;
+            margin-right: 40px;
+            color: $color-main;
+            position: relative;
+            .unit {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+            }
+            .d {
+                flex: 1;
+            }
+            .c {
+                flex: 0 0 30px;
+                text-align: center;
+            }
+        }
+    }
+}
+
+.essential-row {
+    display: flex;
+    min-height: 42px;
+    padding: 6px 0;
+    line-height: 22px;
+    .essential-item {
+        flex: 1;
+        display: flex;
+        position: relative;
+        .essential-title {
+            flex: 0 0 105px;
+            position: relative;
+            padding: 0 11px 0 0;
+            color: $color-title;
+            .el-checkbox {
+                position: absolute;
+                left: -10px;
+                top: 0;
+            }
+        }
+        .essential-text {
+            flex: 1;
+            display: flex;
+            position: relative;
+            margin-right: 40px;
+            color: $color-main;
+            word-break: break-word;
+            .unit {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+            }
+            .d {
+                flex: 1;
+            }
+            .c {
+                flex: 0 0 30px;
+                text-align: center;
+            }
+        }
+    }
+}
+
+.foot {
+    margin-top: 20px;
+    margin-right: 40px;
+    text-align: right;
+}
+
+.isMust {
+    color: $color-highlight;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.paydetail-title {
+    font-size: 18px;
+    color: $color-title;
+    font-weight: 600;
+}
+
+.pay-wrapper {
+    display: flex;
+    .receivables-information {
+        flex: 1;
+    }
+    .essential-information {
+        flex: 1;
+    }
+}
+
+.contImgItem {
+    float: left;
+    position: relative;
+    width: 52px;
+    height: 52px;
+    margin-right: 12px;
+    div {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        line-height: 52px;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, .3);
+        font-size: 18px;
+        color: $color-highlight;
+        text-align: center;
+    }
+    &:hover div {
+        display: block;
+    }
+}
+
+.dialog-erp-cont {
+    min-height: 600px;
+    & .el-dialog__body div {
+        min-height: 500px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
+::placeholder {
+    color: #c0c4cc;
+}
+
+.container-fluid .el-upload--picture-card {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+}

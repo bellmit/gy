@@ -1,0 +1,27 @@
+.gy-table{
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    text-align: center;
+    border-top: 1px solid #f2f2f2;
+    border-right: 1px solid #f2f2f2;
+    border-left: 1px solid #f2f2f2;
+    th{
+        font-weight: normal;
+    }
+    td, th{
+        border-bottom: 1px solid #f2f2f2;
+        padding: 10px 0 10px 20px;
+        line-height: 1.8;
+        text-align: left;
+    }
+    thead{
+        td, th{
+            background-color: #edf3f7;
+            color: $color-title;
+        }
+    }
+    tr.selected, tr:hover{
+        background-color: #f9f9f9;
+    }
+}
