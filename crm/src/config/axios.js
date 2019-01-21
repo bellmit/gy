@@ -5,8 +5,8 @@ import { Loading } from 'element-ui';
 Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 1000 * 10;
-axios.defaults.baseURL = process.env.API_ROOT_MAIN;
-// axios.defaults.baseURL = 'http://uat1.chinayie.com:8091';
+// axios.defaults.baseURL = process.env.API_ROOT_MAIN;
+axios.defaults.baseURL = 'http://uat1.chinayie.com:8091';
 
 let loading;
 
