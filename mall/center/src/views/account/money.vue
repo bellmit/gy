@@ -1,3 +1,4 @@
+<!--<script src="../../config/api.js"></script>-->
 <template>
     <div class="money-account">
         <div class="new-title-public">
@@ -34,15 +35,100 @@
                             <button class="createPayment-status-right-cancel gy-button-normal"
                                     @click="roolout(account.bankAccId)">转出
                             </button>
-                            <button class="createPayment-status-right-cancel gy-button-normal"
-                                    @click="detail(account.fundAccId,account.bankName)">明细记录
-                            </button>
                         </div>
                     </div>
                 </div>
+                <!-- <div class="money-accounts-right fr">
+                  <div><i class="iconfont icon-Download"></i></div>
+                  <div></div>
+                </div> -->
             </div>
         </div>
         <div style="margin-bottom: 20px;color: #f00;font-size: 20px;text-align: center;">系统升级中，暂停转入，开通时间另行通知！</div>
+        <div class="money-account-common common-padding">
+            <div>
+                <i class="el-icon-tickets"></i>
+                <span class="createPayment-seller-tit">交易对账</span>
+            </div>
+            <div>
+                <el-radio-group v-model="period" @change="changeDuratoin">
+                    <el-radio :label="7">1周</el-radio>
+                    <el-radio :label="1">1个月</el-radio>
+                    <el-radio :label="3">3个月</el-radio>
+                    <el-radio :label="6">6个月</el-radio>
+                </el-radio-group>
+            </div>
+            <div class="money-account-query clearfix">
+                <div class="date-picker-box clearfix">
+                    <div class="date-picker fl">
+                        <span>交易时间 </span>
+                        <el-date-picker
+                            v-model="startDate"
+                            type="date"
+                            style="width: 40%;"
+                            placeholder="开始日期"
+                            @change='startDateChange'
+                        >
+                        </el-date-picker>
+                        <span>  至  </span>
+                        <el-date-picker
+                            v-model="endDate"
+                            type="date"
+                            style="width: 40%;"
+                            @change='endDateChange'
+                            placeholder="结束日期">
+                        </el-date-picker>
+                    </div>
+                    <div class="money-account-query-bank fl clearfix">
+                        <span class="payment-list-content-item-tit fl">交易银行</span>
+                        <el-select class="fl" value-key="bankName" v-model="selectedBank" placeholder="请选择" @change="selectVal">
+                            <el-option
+                                v-for="bank in accounts"
+                                :key="bank.bankCode"
+                                :label="bank.bankName"
+                                :value="bank">
+                            </el-option>
+                        </el-select>
+                        <i class="iconfont icon-search" @click="getTransactionList"></i>
+                    </div>
+                </div>
+                <div class="money-account-query-btns">
+                    <button class="gy-button-extra" @click="exportBtn">导出</button>
+                </div>
+                <div class="money-accounts-result">
+                    <div class="money-accounts-result-th">
+                        <span class="money-accounts-result-th-item result-item-width10">银行名称</span>
+                        <span class="money-accounts-result-th-item result-item-width10">交易类型</span>
+                        <span class="money-accounts-result-th-item result-item-width10">对方账户信息</span>
+                        <span class="money-accounts-result-th-item result-item-width10">交易金额</span>
+                        <span class="money-accounts-result-th-item result-item-width10">资金流向</span>
+                        <span class="money-accounts-result-th-item result-item-width10">交易日期</span>
+                        <span class="money-accounts-result-th-item result-item-width10">操作</span>
+                    </div>
+                    <div class="money-accounts-result-tb">
+                        <div class="money-accounts-result-tb-item" v-for="(item,index) in resultList"
+                             :key="item.dateUpdated" :class="{hoveredRow:index%2}">
+                            <span
+                                class="money-accounts-result-tb-item-colum result-item-width10">{{item.accBnkNm}}</span>
+                            <span class="money-accounts-result-tb-item-colum result-item-width10">{{item.tranTypeString}}</span>
+                            <span class="money-accounts-result-tb-item-colum result-item-width10">{{item.accountNm}}</span>
+                            <span class="money-accounts-result-tb-item-colum result-item-width10">{{item.tranAmt}}</span>
+                            <span class="money-accounts-result-tb-item-colum result-item-width10">{{item.transDirection}}</span>
+                            <span class="money-accounts-result-tb-item-colum result-item-width10">{{item.tranDate | formatDate}}</span>
+                            <span class="money-accounts-result-tb-item-colum result-item-width10"><button class="gy-button-view" @click="look(item)">查看</button></span>
+                        </div>
+                    </div>
+                </div>
+                <el-pagination
+                    class="pagination-box"
+                    background
+                    @current-change="changeSelect"
+                    layout="prev, pager, next"
+                    :current-page.sync="pageNo"
+                    :page-size="pageSize">
+                </el-pagination>
+            </div>
+        </div>
         <el-dialog title="转入资金提示" :visible.sync="isShiftto">
             <div class="shifttoDia">
                 <div>
@@ -336,16 +422,6 @@ export default {
             this.$router.push({name: 'rollOut', query: bankAccId});
             localStorage.setItem('bankAccId', JSON.stringify(bankAccId));
         },
-        // 明细记录查询
-        detail (id, name) {
-            this.$router.push({
-                name: 'newBank',
-                query: {
-                    fundAccId: id
-                }
-            });
-            sessionStorage.setItem('newBankValue', name);
-        },
         changeSelect (pageNo) {
             this.pageNo = pageNo;
             this.getTransactionList();
@@ -434,7 +510,6 @@ export default {
         }
         .money-account-query-bank {
             width: 40%;
-            // margin-left: 20px;
             .el-select {
                 width: 60%;
             }

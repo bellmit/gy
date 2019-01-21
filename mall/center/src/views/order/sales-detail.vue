@@ -5,8 +5,8 @@
     <div class="order-detail">
         <el-card class="box-card">
             <div slot="header" class="clearfix">
-                <span class="title">销售订单</span>
-                <span>订单号：{{info.odrOrderSn}}</span>
+                <div class="title">销售订单</div>
+                <div class="title2">订单号：{{info.odrOrderSn}}</div>
                 <div class="bright">
                     <ul class="order-state">
                         <li :class="{active:info.orderStatus===1}">签约 ></li>
@@ -225,12 +225,20 @@ export default {
             margin-left: 3px
         }
         .el-card__header {
-            padding: 10px 20px;
+            padding: 0 16px;
+            height: 35px;
+            line-height: 35px;
             .title {
                 color: $color-title;
                 font-size: 16px;
                 font-weight: 700;
-                margin-right: 24px
+                margin-right: 24px;
+                float: left;
+            }
+            .title2{
+                float: left;
+                font-size: 12px;
+                color: #666666;
             }
         }
         .im-talk {

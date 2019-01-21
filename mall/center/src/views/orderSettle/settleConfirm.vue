@@ -2,8 +2,8 @@
     <div class="order">
         <el-card class="box-card">
             <div slot="header" class="order-header">
-                <span class="title">采购订单</span>
-                <span>订单号：{{info.odrOrderSn}}</span>
+                <div class="title">采购订单</div>
+                <div class="title2">订单号：{{info.odrOrderSn}}</div>
                 <div class="right">
                     <ul class="order-state">
                         <li>签约 ></li>
@@ -489,7 +489,7 @@ export default {
                     that.settleBalance = res.data.data.settleBalance;
                     that.payClick();
                     if (res.data.data.approveStatus === 0 || res.data.data.approveStatus === 3) {
-                        console.log('1111111111');
+                        that.resour = false;
                     } else {
                         if (res.data.data.orderSettleStatus === 20) {
                             that.orderSure = true;
@@ -737,12 +737,20 @@ export default {
             }
         }
         .el-card__header {
-            padding: 10px 20px;
+            padding: 0 16px;
+            height: 35px;
+            line-height: 35px;
             .title {
                 color: $color-title;
                 font-size: 16px;
                 font-weight: 700;
-                margin-right: 24px
+                margin-right: 24px;
+                float: left;
+            }
+            .title2{
+                float: left;
+                font-size: 12px;
+                color: #666666;
             }
         }
         .order-header > .right {

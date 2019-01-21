@@ -303,91 +303,76 @@
                     </form>
                 </div>
                 <div v-show="tabMenuSelected === 2" class="pop-inner ca-wrap">
-                    <!--<div class="newbank">-->
-                        <!--<div class="div1">-->
-                            <!--开通银行-->
-                        <!--</div>-->
-                        <!--<div class="div2">-->
-                            <!--<el-radio-group v-model="radio2">-->
-                                <!--<el-radio :label="1">-->
-                                    <!--<img class="img-bank" src="@/assets/images/cncb.jpg">-->
-                                    <!--<span>未认证</span>-->
-                                <!--</el-radio>-->
-                                <!--<el-radio :label="2">-->
-                                    <!--<img class="img-bank" src="@/assets/images/pab.png">-->
-                                <!--</el-radio>-->
-                            <!--</el-radio-group>-->
-                        <!--</div>-->
-                        <!--<div class="div3"></div>-->
-                    <!--</div>-->
-                    <!--显示选的值-->
-                    <!--<form action="javascript:;" name="bankcompany">-->
-                        <!--<div class="gy-form">-->
-                            <!--<div class="gy-form-group single-row">-->
-                                <!--<span class="l">开通资金帐户</span>-->
-                                <!--<div class="form-group-wrapper">-->
-                                    <!--<el-checkbox-->
-                                        <!--class="form-section"-->
-                                        <!--v-model="bankInfo.infPayEbankId"-->
-                                        <!--v-for="item of bankList"-->
-                                        <!--:disabled="bankInfo.infPayEbankIdList.includes(item.value)||item.authStatus"-->
-                                        <!--:key="item.value"-->
-                                        <!--:label="item.value">-->
-                                        <!--<img class="img-bank" :src="item.img" :alt="item.name">-->
-                                    <!--</el-checkbox>-->
-                                    <!--&lt;!&ndash;中信银行&ndash;&gt;-->
-                                <!--</div>-->
-                            <!--</div>-->
-                            <!--&lt;!&ndash; <div class="gy-form-group single-row" v-if="bankInfo.infPayEbankId.includes(2)">-->
-                                <!--<span class="l">平安银行信息</span>-->
-                                <!--<el-input placeholder="银行卡号" v-model="PABData.card"></el-input>-->
-                            <!--</div> &ndash;&gt;-->
-                            <!--<div class="gy-form-group single-row card-group">-->
-                                    <!--<span class="l" v-if="bankInfo.infPayEbankId.includes(1)">-->
-                                        <!--<span  v-show="sfzShow">-->
-                                           <!--法人身份证-->
-                                        <!--</span>-->
-                                    <!--</span>-->
-                                <!--<div class="form-group-wrapper">-->
-                                       <!--<div class="form-section" v-if="bankInfo.infPayEbankId.includes(1)">-->
-                                           <!--<div v-show="sfzShow">-->
-                                            <!--<gy-upload-->
-                                                <!--:url="imgApi"-->
-                                                <!--v-model="imgList.idCard.list"-->
-                                                <!--:limit="2"-->
-                                                <!--:upload-data="{filetype: imgList.idCard.type}">-->
-                                            <!--</gy-upload>-->
-                                           <!--</div>-->
-                                            <!--<span  v-show="imgList.idCard.list.length < 2" class="card-tips">请上传正反面身份证。</span>-->
-                                       <!--</div>-->
-                                    <!--<div style="position: absolute;top: 10px;left: 500px;width: 300px;" class="form-section" v-if="bankInfo.infPayEbankId.includes(2)">-->
-                                        <!--<div class="form-section-label" v-if="!selectedPa">-->
-                                            <!--<span class="l">鉴权银行账号</span>-->
-                                            <!--<el-input placeholder="证件号码" disabled v-model="PABData.socialCode"></el-input>-->
-                                        <!--</div>-->
-                                        <!--<div class="form-section-label" v-if="!selectedPa">-->
-                                            <!--（用于银行开户鉴权及身份验证)-->
-                                        <!--</div>-->
-                                        <!--<div class="form-section-label" v-if="!selectedPa">-->
-                                            <!--<span class="l">企业证件类型</span>-->
-                                            <!--<el-select v-model="PABData.type" :disabled="bankInfo.infPayEbankIdList.includes(2)">-->
-                                                <!--<el-option v-for="(item, index) of companyCardTypeList" :key="index" :value="item.value" :label="item.label"></el-option>-->
-                                            <!--</el-select>-->
-                                        <!--</div>-->
-                                        <!--<div class="form-section-label" v-if="!selectedPa">-->
-                                            <!--<span class="l">银行账号</span>-->
-                                            <!--<el-input placeholder="请输入银行卡号" :disabled="bankInfo.infPayEbankIdList.includes(2)" v-model="PABData.cardNo"></el-input>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                            <!--</div>-->
-                            <!--<div class="gy-form-button">-->
-                                <!--<button v-if="bankInfo.bankStatus!=2" style="margin-top: 90px" class="gy-button-extra" @click="bankSubmit" :disabled="infPayEbankIdBtn">-->
-                                    <!--提交-->
-                                <!--</button>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</form>-->
+                    <form action="javascript:;" name="bankcompany">
+                        <div class="gy-form">
+                            <div class="gy-form-group single-row">
+                                <span class="l">开通资金帐户</span>
+                                <div class="form-group-wrapper">
+                                    <el-checkbox
+                                        class="form-section"
+                                        v-model="bankInfo.infPayEbankId"
+                                        v-for="item of bankList"
+                                        :disabled="bankInfo.infPayEbankIdList.includes(item.value)||item.authStatus"
+                                        :key="item.value"
+                                        :label="item.value">
+                                        <img class="img-bank" :src="item.img" :alt="item.name">
+                                    </el-checkbox>
+                                    <!--中信银行-->
+                                </div>
+                            </div>
+                            <!-- <div class="gy-form-group single-row" v-if="bankInfo.infPayEbankId.includes(2)">
+                                <span class="l">平安银行信息</span>
+                                <el-input placeholder="银行卡号" v-model="PABData.card"></el-input>
+                            </div> -->
+                            <div class="gy-form-group single-row card-group">
+                                    <span class="l" v-if="bankInfo.infPayEbankId.includes(1)">
+                                        <span  v-show="sfzShow">
+                                           法人身份证
+                                        </span>
+                                    </span>
+                                <div class="form-group-wrapper">
+                                    <div class="form-section" v-if="bankInfo.infPayEbankId.includes(1)">
+                                        <div v-show="sfzShow">
+                                            <gy-upload
+                                                :url="imgApi"
+                                                v-model="imgList.idCard.list"
+                                                :limit="2"
+                                                :upload-data="{filetype: imgList.idCard.type}">
+                                            </gy-upload>
+                                        </div>
+                                        <span  v-show="imgList.idCard.list.length < 2" class="card-tips">请上传正反面身份证。</span>
+                                    </div>
+                                    <div style="position: absolute;top: 10px;left: 500px;width: 300px;" class="form-section" v-if="bankInfo.infPayEbankId.includes(2)">
+                                        <div class="form-section-label" v-if="!selectedPa">
+                                            <span class="l">鉴权银行账号</span>
+                                            <el-input placeholder="证件号码" disabled v-model="PABData.socialCode"></el-input>
+                                        </div>
+                                        <div class="form-section-label" v-if="!selectedPa">
+                                            （用于银行开户鉴权及身份验证)
+                                        </div>
+                                        <div class="form-section-label" v-if="!selectedPa">
+                                            <span class="l">企业证件类型</span>
+                                            <el-select v-model="PABData.type" :disabled="bankInfo.infPayEbankIdList.includes(2)">
+                                                <el-option v-for="(item, index) of companyCardTypeList" :key="index" :value="item.value" :label="item.label"></el-option>
+                                            </el-select>
+                                        </div>
+                                        <div class="form-section-label" v-if="!selectedPa">
+                                            <span class="l">银行账号</span>
+                                            <el-input placeholder="请输入银行卡号" :disabled="bankInfo.infPayEbankIdList.includes(2)" v-model="PABData.cardNo"></el-input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gy-form-button">
+                                <!-- <button class="gy-button-extra" @click="bankSubmit" v-if="bankInfo.bankStatus === 3">
+                                    修改
+                                </button> -->
+                                <button v-if="bankInfo.bankStatus!=2" style="margin-top: 90px" class="gy-button-extra" @click="bankSubmit" :disabled="infPayEbankIdBtn">
+                                    提交
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </template>
             <template v-else>
@@ -551,22 +536,24 @@ export default {
                 caAuthen: process.env.API_ROOT_MAIN + '/trade/v1/companies/templates/3'
             },
             isShowTemplate: false,
-            // bankList: [ // 可选银行
-            //     {
-            //         name: '中信银行',
-            //         img: require('@/assets/images/cncb.jpg'),
-            //         code: 'CNCB',
-            //         value: 1,
-            //         authStatus: false
-            //     },
-            //     {
-            //         name: '平安银行',
-            //         img: require('@/assets/images/pab.png'),
-            //         code: 'PAB',
-            //         value: 2,
-            //         authStatus: true
-            //     }
-            // ],
+            bankList: [ // 可选银行
+                {
+                    name: '中信银行',
+                    img: require('@/assets/images/cncb.jpg'),
+                    code: 'CNCB',
+                    value: 1,
+                    authStatus: false
+                }
+                //  平安银行隐藏修改
+                // ,
+                // {
+                //     name: '平安银行',
+                //     img: require('@/assets/images/pab.png'),
+                //     code: 'PAB',
+                //     value: 2,
+                //     authStatus: true
+                // }
+            ],
             companyCardTypeList: [
                 {
                     value: '989',
@@ -894,7 +881,7 @@ export default {
                 //  两个都选择了
                 //  判断之前有没有选择过平安银行
                 if (this.selectedPa === true) {
-                //    之前有选择过平安银行
+                    //    之前有选择过平安银行
                     //  如果只选择了中信银行
                     if (this.selectedZX === true) {
                         // 以前勾选过了
@@ -915,7 +902,7 @@ export default {
                         this.funcmyhs();
                     }
                 } else {
-                //    之前有选择过平安银行
+                    //    之前有选择过平安银行
                     //  如果只选择了中信银行
                     if (this.selectedZX === true) {
                         // 以前勾选过了
@@ -970,7 +957,7 @@ export default {
                                 .then(res => {
                                     if (res.data.code === 0) {
                                         this.$alert('<div>   \n' +
-                                            '  <div>中信银行: 已提交申请，请等待后台审核。</div>', '操作成功', {
+                                                '  <div>中信银行: 已提交申请，请等待后台审核。</div>', '操作成功', {
                                             dangerouslyUseHTMLString: true
                                         }).then(() => {
                                             this.funPA();
@@ -1048,17 +1035,21 @@ export default {
             color: #fff;
         }
     }
+
     .gy-form-group.single-row.authen-apply {
         min-height: 100px;
     }
+
     .template-file {
         color: $color-extra;
     }
+
     .gy-form-group-tips {
         padding-left: 10px;
         padding-top: 40px;
         width: 100%;
     }
+
     .email-tips {
         & > p {
             margin-bottom: 30px;
@@ -1079,8 +1070,8 @@ export default {
 
                     &:before {
                         margin-right: 10px;
-                         color: $color-a-hover;
-                     }
+                        color: $color-a-hover;
+                    }
                 }
 
                 .other {
@@ -1099,12 +1090,14 @@ export default {
             }
         }
     }
+
     .showtemplate {
         float: right;
         font-size: 14px;
         color: $color-extra;
         cursor: default;
     }
+
     .template {
         display: flex;
         flex-direction: column;
@@ -1140,17 +1133,5 @@ export default {
         position: fixed;
         top: -100%;
         left: -100%;
-    }
-    .newbank{
-        overflow: hidden;
-        .div1{
-            float: left;
-        }
-        .div2{
-            float: left;
-        }
-        .div3{
-            float: left;
-        }
     }
 </style>

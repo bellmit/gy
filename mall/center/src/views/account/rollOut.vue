@@ -1,22 +1,20 @@
 <template>
     <div class="money-account rollOut">
         <!-- page text -->
-        <div class="new-title-public">
+        <div class="money-account-tit common-padding">
             资金账户
         </div>
         <!-- 账户信息 -->
-        <div class="money-account-common">
-            <div class="zjzh">
+        <div class="money-account-common common-padding">
+            <div>
                 <i class="el-icon-tickets"></i>
                 <span class="createPayment-seller-tit">资金账户</span>
             </div>
             <div class="clearfix money-accounts">
-                <div class="money-accounts-left">
-                    <div class="fl money-accounts-left_div1">
-                        <img :src="bankInfo.bigIcon"/>
-                    </div>
-                    <div class="fl money-accounts-left-items">
-                        <div class="div1">子账户：{{bankInfo.bankAccount}}</div>
+                <div class="money-accounts-left fl clearfix">
+                    <img class="fl" style="margin-top: 30px;" :src="bankInfo.bigIcon"/>
+                    <div class="fr money-accounts-left-items">
+                        <div>子账户：{{bankInfo.bankAccount}}</div>
                         <div class="money-accounts-left-amount">
                             <div class="money-accounts-left-amount-item">
                                 <div class="money-accounts-left-amount-item-tit">账户余额（元）</div>
@@ -35,169 +33,95 @@
                 </div>
             </div>
         </div>
-        <div class="newtitle">
-            <div class="div1">
+        <!-- 账户form -->
+        <div class="money-account-common common-padding">
+            <div class="title">
                 <i class="el-icon-tickets"></i>
-                <span class="createPayment-seller-tit">提现信息</span>
+                <span class="createPayment-seller-tit">资金账户</span>
             </div>
-            <div class="div2">
-                <span class="span1" @click="panelDialog">请选择提现账户</span>
-                <span class="span2" @click="bindamount">绑定新的提现账户</span>
-            </div>
-        </div>
-        <!--新增弹窗-->
-        <el-dialog title="绑定新的提现账号" :visible.sync="newbindamountshow">
-            <div class="jqyz1">
-                <div>
-                    <el-row :gutter="60">
-                        <el-col :span="12" class="my_top">
-                            <el-row>
-                                <el-col :span="5" style="padding-left: 15px;">账户名称</el-col>
-                                <el-col :span="19">{{bankInfo.usrCompanyName}}</el-col>
-                            </el-row>
-                        </el-col>
-                        <el-col :span="12" class="my_top">
-                            <el-row>
-                                <el-col :span="5"><em class="required">*</em>银行账号</el-col>
-                                <el-col :span="19">
-                                    <input class="gy-input" type="number" v-model="form.recvAccNo">
-                                </el-col>
-                            </el-row>
-                        </el-col>
-                        <el-col :span="12" class="my_top">
-                            <el-row>
-                                <el-col :span="5"><em class="required">*</em>开户银行</el-col>
-                                <el-col :span="19">
-                                    <el-select v-model="form.bankOfDepositName" placeholder="请选择开户银行" @change="bankTypeChange">
-                                        <el-option
-                                            v-for="(item, index) in bankTypeList"
-                                            :key="index"
-                                            :label="item.bankNum"
-                                            :value="item">
-                                        </el-option>
-                                    </el-select>
-                                </el-col>
-                            </el-row>
-                        </el-col>
-                        <el-col :span="12" class="my_top">
-                            <el-row>
-                                <el-col :span="5"><em class="required">*</em>所在地区</el-col>
-                                <el-col :span="19">
-                                    <el-select class="w50 lf" v-model="form.provinceName" placeholder="请选择省" @change='provinceChange'>
-                                        <el-option
-                                            v-for="(item, index) in provinceList"
-                                            :key="index"
-                                            :label="item.name"
-                                            :value="item">
-                                        </el-option>
-                                    </el-select>
-                                    <el-select class="w50 lf" v-model="form.cityName" placeholder="请选择市" @change="cityChange">
-                                        <el-option
-                                            v-for="(item, index) in cityList"
-                                            :key="index"
-                                            :label="item.name"
-                                            :value="item">
-                                        </el-option>
-                                    </el-select>
-                                </el-col>
-                            </el-row>
-                        </el-col>
-                        <el-col :span="12" class="my_top">
-                            <el-row>
-                                <el-col :span="5"><em class="required">*</em>网点名称</el-col>
-                                <el-col :span="19">
-                                    <el-select v-model="form.latticePoint" placeholder="请选择网点名称" @change="latticePointChange">
-                                        <el-option
-                                            v-for="(item, index) in latticePointList"
-                                            :key="index"
-                                            :label="item.bankName"
-                                            :value="item">
-                                        </el-option>
-                                    </el-select>
-                                </el-col>
-                            </el-row>
-                        </el-col>
-                    </el-row>
+            <div class="gy-form">
+                <div class="gy-form-group single-row  w50">
+                    <span class="l">账户名称</span>
+                    <div>{{bankInfo.usrCompanyName}}</div>
+                    <!--<div><input type="text" class="gy-input" v-model="form.recvAccNm"></div>-->
+                </div>
+                <div class="gy-form-group single-row w50 cl my-group">
+                    <span class="l"><em class="required">*</em>账号</span>
+                    <input class="gy-input" type="number" v-model="form.recvAccNo">
+                    <div class="grop-r panel" @click="panelDialog">收款账号名册</div>
+                </div>
+                <div class="gy-form-group single-row w50 cl">
+                    <span class="l"><em class="required">*</em>开户银行</span>
+                    <el-select v-model="form.bankOfDepositName" placeholder="请选择开户银行" filterable @change="bankTypeChange">
+                        <el-option
+                            v-for="(item, index) in bankTypeList"
+                            :key="index"
+                            :label="item.bankNum"
+                            :value="item">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="gy-form-group cl">
+                    <span class="l"><em class="required">*</em>所在地区</span>
+                    <el-select class="w50 lf" v-model="form.provinceName" placeholder="请选择省" @change='provinceChange'>
+                        <el-option
+                            v-for="(item, index) in provinceList"
+                            :key="index"
+                            :label="item.name"
+                            :value="item">
+                        </el-option>
+                    </el-select>
+                    <el-select class="w50 lf" v-model="form.cityName" placeholder="请选择市" @change="cityChange">
+                        <el-option
+                            v-for="(item, index) in cityList"
+                            :key="index"
+                            :label="item.name"
+                            :value="item">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="gy-form-group single-row w50 cl">
+                    <span class="l"><em class="required">*</em>网点名称</span>
+                    <el-select v-model="form.latticePoint" filterable placeholder="请选择网点名称" @change="latticePointChange">
+                        <el-option
+                            v-for="(item, index) in latticePointList"
+                            :key="index"
+                            :label="item.bankName"
+                            :value="item">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="gy-form-group single-row w50 cl my-group">
+                    <span class="l"><em class="required">*</em>转出金额</span>
+                    <input class="gy-input" type="number" v-model="form.tranAmt">
+                    <div class="grop-r">元</div>
+                </div>
+                <!-- <div class="gy-form-group single-row w50 cl my-group">
+                    <span class="l">交易密码</span>
+                    <input class="gy-input" type="password" v-model="form.tradePwd">
+                </div> -->
+                <div class="gy-form-group single-row w50 cl my-group">
+                    <span class="l">联系人</span>
+                    <div>{{userInfo.username}}</div>
+                </div>
+                <div class="gy-form-group single-row w50 cl my-group">
+                    <span class="l">联系电话</span>
+                    <div>{{userInfo.phone}}</div>
+                </div>
+                <div class="gy-form-button">
+                    <button class="gy-button-extra" @click="rolloff">转出</button>
                 </div>
             </div>
-            <div slot="footer" class="dialog-footer">
-                <button class="gy-button-extra" @click="newPost">确认</button>
-            </div>
-        </el-dialog>
-        <!-- 回显数据 -->
-        <div class="hxdetail" v-show="rolloffShow">
-            <el-row :gutter="60">
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">账户名称</el-col>
-                        <el-col :span="20" class="myrightspan">{{bankInfo.usrCompanyName}}</el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">银行账号</el-col>
-                        <el-col :span="20" class="myrightspan">
-                           {{too.bankAccount}}
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">开户银行</el-col>
-                        <el-col :span="20">
-                            {{too.depositBankName}}
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">所在地区</el-col>
-                        <el-col :span="20">
-                            {{too.provinceName}}{{too.cityName}}
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">网点名称</el-col>
-                        <el-col :span="20">
-                            {{too.bankName}}
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">转出金额</el-col>
-                        <el-col :span="20"><input class="gy-input" type="number"></el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">联系人</el-col>
-                        <el-col :span="20">8678</el-col>
-                    </el-row>
-                </el-col>
-                <el-col class="mytop" :span="12">
-                    <el-row>
-                        <el-col :span="4" class="myleftspan">联系电话</el-col>
-                        <el-col :span="20">8768</el-col>
-                    </el-row>
-                </el-col>
-            </el-row>
-            <el-row class="mybtn">
-                <button class="gy-button-extra" @click="rolloff">转出</button>
-            </el-row>
         </div>
         <!-- 收款账号名册 -->
         <el-dialog title="常用收款账号名册" :visible.sync="isPanel">
-            <div class="tabstable">
+            <div class="tabs">
                 <table>
                     <thead>
                     <tr>
                         <td></td>
                         <td>收款账号</td>
                         <td>开户银行</td>
-                        <td>操作</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -205,84 +129,29 @@
                         <td><input type="radio" name="status" @click="state(item)"></td>
                         <td>{{item.bankAccount}}</td>
                         <td>{{item.bankName}}</td>
-                        <td>
-                            <button class="jbbtn">解绑</button>
-                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="mybtn">
+            <div class="gy-form-button">
                 <button class="gy-button-extra" @click="submit">确认</button>
             </div>
         </el-dialog>
         <!-- 交易密码 -->
         <el-dialog
-          title="提示"
-          :close-on-click-modal="false"
-          :visible.sync="dialogVisible"
-          width="30%">
+            title="提示"
+            :close-on-click-modal="false"
+            :visible.sync="dialogVisible"
+            width="30%">
             <el-form ref="form" label-width="70px">
                 <el-form-item label="支付密码" prop="account">
                     <el-input v-model="form.tradePwd" type="password"></el-input>
                 </el-form-item>
-             </el-form>
+            </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="cancel">取 消</el-button>
                 <el-button type="primary" @click="addBank">确 定</el-button>
             </span>
-        </el-dialog>
-        <!--鉴权验证-->
-        <el-dialog title="鉴权验证" :visible.sync="jqyzshow">
-            <div class="jqyz1">
-                请查收鉴权账户收款记录，并回填平安银行对鉴权账户打款金额数字(24小时内有效)。
-                信息正确后，即可完成账号绑定。
-            </div>
-            <div class="jqyz2">
-                <el-row :gutter="60">
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="4">账户名称</el-col>
-                            <el-col :span="20">{{bankInfo.usrCompanyName}}</el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="4">银行账号</el-col>
-                            <el-col :span="20">{{form.recvAccNo}}</el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="4">开户银行</el-col>
-                            <el-col :span="20">{{form.bankOfDepositName}}</el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="4">回填金额</el-col>
-                            <el-col :span="20">
-                                <input class="gy-input" type="number" v-model="authAmt">
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                </el-row>
-            </div>
-            <div slot="footer" class="dialog-footer">
-                <button  class="gy-button-extra" @click="newPost2">确认</button>
-            </div>
-        </el-dialog>
-        <!--鉴权验证失败-->
-        <el-dialog title="提示" :visible.sync="jqyzFailShow">
-            <div class="jqyz1">
-                <p>绑定失败，以下是详细信息</p>
-                <p>错误代码：{{errorCode}}</p>
-                <p>错误说明，{{errorMessage}}</p>
-            </div>
-            <div slot="footer" class="dialog-footer">
-                <button  class="gy-button-extra" @click="upbtn">上一步</button>
-                <button  class="gy-button-normal" @click="closejqyzFailShow">确认</button>
-            </div>
         </el-dialog>
     </div>
 </template>
@@ -296,10 +165,10 @@ export default {
                 accountNo: null, // 付款账户 初始化中得 bankAccount
                 recvAccNm: null, // 收款账户名称
                 recvAccNo: null, // 收款账户
-
+                // recvBankNm: null, // 开户银行
                 bankOfDeposit: null, // 开户行ID
                 bankOfDepositName: null, // 开户银行
-                latticePoint: '', // 网点名称
+                latticePoint: null, // 网点名称
                 tranAmt: null, // 转出金额
                 tradePwd: null, // 交易密码
                 fundId: null,
@@ -324,15 +193,7 @@ export default {
             userInfo: JSON.parse(localStorage.getItem('userInfo')),
             dialogVisible: false,
             isPassword: {},
-            obj: null,
-            newbindamountshow: false,
-            jqyzshow: false, // 鉴权验证弹窗
-            jqyzSuccessShow: false, // 鉴权验证弹窗
-            jqyzFailShow: false, // 鉴权验证弹窗
-            authAmt: '',
-            errorCode: '',
-            errorMessage: '',
-            rolloffShow: false
+            obj: null
         };
     },
     mounted () {
@@ -341,9 +202,7 @@ export default {
     },
     methods: {
         latticePointChange (v) {
-            console.log(this.form.latticePoint);
             this.form.latticePoint = v.bankName;
-            console.log(this.form.latticePoint);
         },
         init (url, params) {
             const me = this;
@@ -373,13 +232,12 @@ export default {
         // 开户行选择
         bankTypeChange (v) {
             this.form.bankOfDeposit = v.bankType;
-            this.form.bankOfDepositId = v.bankNo;
             this.form.bankOfDepositName = v.bankNum;
-            this.form.province = '';
-            this.form.provinceName = '';
-            this.form.city = '';
-            this.form.cityName = '';
-            this.form.latticePoint = '';
+            this.form.province = null;
+            this.form.provinceName = null;
+            this.form.city = null;
+            this.form.cityName = null;
+            this.form.latticePoint = null;
         },
         // 省份选择
         provinceChange (v) {
@@ -398,22 +256,24 @@ export default {
         },
         // 市选择
         cityChange (v) {
+            const me = this;
             // 传开户银行 省和城市 拿到网点名称
-            this.form.city = v.id;
+            me.form.city = v.id;
             this.form.cityName = v.name;
             let params = Object.assign({
-                bankOfDeposit: this.form.bankOfDeposit,
-                province: this.form.province,
-                city: this.form.city
+                bankOfDeposit: me.form.bankOfDeposit,
+                province: me.form.province,
+                city: me.form.city
             });
             console.log(params);
-            this.$http.post(this.$api.payment.latticePoints, params)
-                .then(res => {
+            me.$http.post(me.$api.payment.latticePoints, params)
+                .then(function (res) {
                     if (res.data.code === 0) {
                         let data = res.data.data;
-                        this.latticePointList = data;
-                        console.log(this.latticePointList);
-                        console.log(this.form.latticePoint);
+                        me.latticePointList = data;
+                        console.log('*********');
+                        console.log(me.latticePointList);
+                        console.log('*********');
                     }
                 }).catch(function (error) {
                     console.log(error);
@@ -436,11 +296,8 @@ export default {
         // 选择当前
         state (item) {
             this.too = item;
-            this.rolloffShow = true;
-            this.isPanel = false;
-            // this.too.bankId = this.form.bankId;
-            // this.too.fundId = this.form.fundId;
-            // this.isPanel = false;
+            this.too.bankId = this.form.bankId;
+            this.too.fundId = this.form.fundId;
             console.log(item);
         },
         // 确认名册
@@ -499,6 +356,7 @@ export default {
         // 转出按钮
         rolloff (type) {
             const me = this;
+            if (!me.check()) return false;
             if (me.isPassword.enableTradePwd && Number(me.isPassword.enableTradePwd) === 1) {
                 me.dialogVisible = true;
                 // enableTradePwd  '启用交易密码(0:停用,1:启用)';1是支持在线支付密码，支持在线支付密码的时候需要弹出支付密码层
@@ -508,11 +366,11 @@ export default {
         },
         post () {
             const me = this;
-            me.too.accountNo = me.bankInfo.bankAccount;
-            // me.too.bankOfDeposit = me.form.bankOfDepositName;
-            me.too.recvAccNo = me.too.bankAccount;
-            me.$http.post(me.$api.payment.withdraw, me.too)
-                .then(res => {
+            me.form.accountNo = me.bankInfo.bankAccount;
+            me.form.bankOfDeposit = me.form.bankOfDepositName;
+            console.log(me.form);
+            me.$http.post(me.$api.payment.withdraw, me.form)
+                .then(function (res) {
                     if (res.data.code === 0) {
                         me.form = {};
                         me.dialogVisible = true;
@@ -548,83 +406,15 @@ export default {
                 this.$message.error('网点名称不能为空');
                 return false;
             }
-            // if (!this.form.tranAmt) {
-            //     this.$message.error('转出金额不能为空');
-            //     return false;
-            // }
-            // if (+this.form.tranAmt > this.bankInfo.accountBalance || +this.form.tranAmt <= 0) {
-            //     this.$message.error('转出金额大于账户可用余额，请重新输入');
-            //     return false;
-            // }
-            return true;
-        },
-        bindamount () {
-            this.newbindamountshow = true;
-        },
-        newPost () {
-            if (!this.check()) return false;
-            if (this.isPassword.enableTradePwd && Number(this.isPassword.enableTradePwd) === 1) {
-                this.dialogVisible = true;
-                // enableTradePwd  '启用交易密码(0:停用,1:启用)';1是支持在线支付密码，支持在线支付密码的时候需要弹出支付密码层
-            } else {
-                this.form.accountNo = this.bankInfo.bankAccount;
-                this.form.companyId = this.bankInfo.usrCompanyId;
-                this.form.mobile = '12345678910';
-                console.log(this.form);
-                this.$http.post(this.$api.payment.bindAuthenticateCard, this.form)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.newbindamountshow = false;
-                            this.jqyzshow = true;
-                            return;
-                        }
-                        console.log(res.data);
-                        this.$message(res.data.message, '提示', {
-                            type: 'error'
-                        });
-                    }).catch(function (error) {
-                        console.log(error);
-                    });
+            if (!this.form.tranAmt) {
+                this.$message.error('转出金额不能为空');
+                return false;
             }
-        },
-        // 鉴权账号提交
-        newPost2 () {
-            // 调取鉴权的接口
-            // if (!this.authAmt) {
-            //     this.$message.error('转出金额不能为空');
-            //     return false;
-            // }
-            // if (+this.authAmt > this.authAmt || +this.authAmt <= 0) {
-            //     this.$message.error('转出金额大于账户可用余额，请重新输入');
-            //     return false;
-            // }
-            this.$http.post(this.$api.payment.checkAuthenticateAmount, {
-                'subAcctNo': this.bankInfo.bankAccount,
-                'tranNetMemberCode': this.bankInfo.usrCompanyId,
-                'takeCashAcctNo': this.form.recvAccNo,
-                'authAmt': this.authAmt,
-                'fundId': this.form.fundId
-            }).then(res => {
-                if (res.data.code === 0) {
-                    this.$alert('绑定成功', '提示')
-                        .then(() => {
-                            this.form = {};
-                            this.jqyzshow = false;
-                        });
-                    return;
-                }
-                this.jqyzFailShow = true;
-                this.errorCode = res.data.code;
-                this.errorMessage = res.data.message;
-            }).catch(res => {
-                console.log(res);
-            });
-        },
-        upbtn () {
-            this.newbindamountshow = true;
-        },
-        closejqyzFailShow () {
-            this.jqyzFailShow = false;
+            if (+this.form.tranAmt > this.bankInfo.accountBalance || +this.form.tranAmt <= 0) {
+                this.$message.error('转出金额大于账户可用余额，请重新输入');
+                return false;
+            }
+            return true;
         }
     }
 };
@@ -632,11 +422,6 @@ export default {
 
 <style lang="scss" scoped>
     .rollOut {
-        .money-account-common{
-            .zjzh{
-                padding: 20px 12px;
-            }
-        }
         .w50 {
             width: 50%;
         }
@@ -661,8 +446,16 @@ export default {
                 line-height: 1;
             }
         }
-        .tabstable {
-            padding: 20px 16px;
+        .gy-form-button {
+            padding-top: 30px;
+        }
+        .tabs {
+            position: relative;
+            .exportBtn {
+                position: absolute;
+                right: 0;
+                z-index: 99999;
+            }
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -686,119 +479,41 @@ export default {
             table .ge td {
                 line-height: 20px;
             }
-            .jbbtn{
-                background: none;
-                border: 1px solid #4A90E2;
-                color: #4A90E2;
-                border-radius: 5px;
-            }
-        }
-        .mybtn{
-            padding-bottom: 30px;
-            margin-top: 10px;
-            text-align: right;
-            margin-right: 16px;
-        }
-        .jqyz1{
-            padding: 20px 30px;
-            p{
-                margin-bottom: 10px;
-            }
-        }
-        .jqyz2{
-            padding: 0 30px;
         }
     }
+
     .money-account {
         background-color: #fff;
+        .common-padding {
+            padding: 0 10px;
+        }
         .money-account-tit {
             background: #fff;
             padding: 6px 10px;
         }
-        .money-accounts{
-            border-bottom: 1px solid #e6eaea;
-            padding: 0 30px 20px;
-        }
-        .money-accounts-left{
-            overflow: hidden;
-            .money-accounts-left_div1{
-                float: left;
-            }
+        .money-account-common {
+            border-top: 1px solid #eee;
+            padding: 20px 10px;
         }
         .money-accounts-left-amount {
-            margin-top: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .money-accounts-left-items {
             margin-left: 30px;
-            .div1{
-                color: #333;
-                font-weight: bold;
-            }
         }
         .money-accounts-left-amount-item {
             margin-right: 20px;
         }
         .money-accounts-left-amount-item-tit {
             color: $color-main;
-            font-size: 14px;
+            font-size: 12px;
         }
         .money-accounts-left-amount-item-num {
             color: $color-title;
             font-size: 14px;
             font-weight: bold;
-            margin-top: 10px;
-        }
-        .newtitle{
-            .div1{
-                padding: 20px 12px
-            }
-            .div2{
-                color: #4A90E2;
-                font-size: 14px;
-                padding: 0px 30px;
-                .span1{
-                    margin-right: 30px;
-                }
-                .span2{
-
-                }
-                span:hover{
-                    cursor: pointer;
-                }
-            }
-        }
-        .hxdetail{
-            padding: 0 30px;
-            .mytop{
-                margin-top: 10px;
-            }
-            .mybtn{
-                float: right;
-                margin: 20px 0 30px;
-            }
-            .myleftspan{
-                color: #333;
-            }
-            .myrightspan{
-                color: #333;
-            }
-        }
-        .el-dialog__header{
-            border-bottom: 1px solid #dce0e4;
-            padding: 15px;
-        }
-    }
-    .my_top{
-        margin-bottom: 10px;
-    }
-</style>
-<style lang="scss">
-    .rollOut{
-        .el-dialog__body{
-            padding: 0;
         }
     }
 </style>
