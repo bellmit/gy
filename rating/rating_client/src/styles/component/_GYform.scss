@@ -1,0 +1,89 @@
+.gy-form{
+    padding: 20px;
+    &:after{
+        content: "";
+        display: block;
+        clear: both;
+    }
+}
+.gy-form-group{
+    width: 50%;
+    float: left;
+    position: relative;
+    padding: 10px 40px 10px 108px;
+    min-height: 50px;
+    line-height: 30px;
+    color: $color-minor;
+    word-wrap:break-word;
+    word-break:break-all;
+    .l{
+        position: absolute;
+        left: 0;
+        top: 10px;
+        color: $color-title;
+        width: 98px;
+        padding-left: 8px;
+        strong{
+            color: $color-highlight;
+            font-size: 12px;
+            font-weight: normal;
+            width: 8px;
+            position: absolute;
+            left: 0;
+            text-align: left;
+            top: 0;
+        }
+    }
+    &.single-row{
+        width: 100%;
+    }
+    &:after{
+        content: "";
+        display: block;
+        clear: both;
+    }
+}
+.gy-form-button{
+    clear: both;
+    text-align: right;
+    padding-right: 40px;
+}
+input[type=text], input[type=password], .gy-input, .gy-textarea, .gy-select{
+    width: 100%;
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #e7ecf1;
+    padding: 0 5px;
+    color: $color-minor;
+    height: 30px;
+    line-height: 29px;
+    vertical-align: middle;
+    &:hover{
+        border-color: #c0c4cc;
+    }
+    &:focus{
+        border-color: $color-extra;
+    }
+    &:disabled{
+        cursor: not-allowed;
+    }
+    &::-webkit-input-placeholder{
+        color: #999;
+    }
+}
+.gy-textarea{
+    resize: none;
+    height: 60px;
+    border: 1px solid $color-border;
+    border-radius: $border-radius-small;
+    &::-webkit-input-placeholder{
+        color: #999;
+        font-weight: 500;
+    }
+}
+.gy-radio{
+    border: 1px solid #e7ecf1;
+}
+.gy-checkbox{
+    border: 1px solid #e7ecf1;
+}

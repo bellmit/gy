@@ -1,0 +1,51 @@
+.customer-list{
+  background-color: #fff;
+  .select{
+    margin-bottom:16px;overflow: hidden;
+    ul li {
+      float: left;
+      padding: 0 6px;
+      &.active {
+        color: $color-a-active;
+        border-bottom: 1px solid $color-a-active
+      }
+    }
+    ul li:not(:first-child) {
+      position: relative;
+      margin-left: 14px;
+    }
+  }
+  .text-center{text-align: center;padding-left:28px}
+  .search-box {
+    float: right;
+    display: inline-block;
+    width: 268px;
+    border-bottom: 1px solid $color-border;
+    input {
+      width: 208px;
+      height: 30px;
+      color: $color-light;
+      border: none;
+      float: left;
+    }
+    button {
+      display: inline-block;
+      width: 60px;
+      color: $color-main;
+      border: none;
+      background-color: #fff;
+      text-align: right;
+    }
+  }
+  .total{font-size: 12px;padding-top:20px;}
+}
+table{
+  width:100%;
+  text-align: left;
+  border:1px solid $color-border;
+  tr.top {
+    background: #D4D4D4;
+  }
+  tr{background:#F9F9F9; }
+  tr:nth-child(2n){background:#fff;}
+}
