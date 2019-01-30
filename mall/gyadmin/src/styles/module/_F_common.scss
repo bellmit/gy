@@ -1,0 +1,115 @@
+.f-container {
+    padding: 26px 36px;
+    h3 {
+        margin: 0;
+    }
+    .gy-table {
+        margin-top: 10px;
+    }
+    .gy-label {
+        position: relative;
+        .input-limit {
+            position: absolute;
+            top: 0;
+            right: 2em;
+            color: #aaa;
+            &.err-color {
+                color: #E03913;
+            }
+        }
+        .input-unit {
+            position: absolute;
+            top: 0;
+            right: 1em;
+            color: #aaa;
+            & + .input-limit {
+                right: 6em;
+                &.short {
+                    right: 3em;
+                }
+            }
+        }
+    }
+    .gy-search {
+        .gy-label {
+            width: 300px;
+            .input-limit {
+                right: 1em;
+            }
+        }
+        .classify {
+            display: flex;
+            .classify-item {
+                padding: 8px 15px;
+                cursor: pointer;
+                &.active {
+                    border-bottom: 2px solid;
+                    color: $color-highlight;
+                }
+                & + .classify-item {
+                    margin-left: 33px;
+                }
+            }
+        }
+        &.advanced-search {
+            display: flex;
+            justify-content: space-between;
+        }
+        .advanced-wrapper {
+            display: flex;
+            justify-content: space-between;
+        }
+        .advanced {
+            cursor: pointer;
+        }
+    }
+    .advanced-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .search-button {
+        display: inline-block;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    .gy-detail-form {
+        margin-top: 20px;
+        .el-form-item {
+            float: left;
+            width: 98%;
+            margin-right: 2%;
+            padding: 0 10px 0 30px;
+            &.half {
+                width: 45%;
+            }
+            &.mr {
+                margin-right: 8%;
+            }
+            &:nth-of-type(2n) + .search-button {
+                margin-top: 40px;
+            }
+        }
+        &.short .el-form-item {
+            margin-bottom: 5px;
+        }
+        & + .gy-h3 {
+            margin-top: 30px;
+        }
+    }
+    .detail-img {
+        max-width: 60px;
+        max-height: 36px;
+    }
+}
+.gy-button-view {
+    display: inline-block;
+}
+.clearfix:after {
+    display: block;
+    clear: both;
+    content: "";
+    visibility: hidden;
+    height: 0;
+}

@@ -1,0 +1,92 @@
+.gy-form{
+    padding: 20px 0;
+    &:after{
+        content: "";
+        display: block;
+        clear: both;
+    }
+}
+.gy-form-group{
+    width: 50%;
+    float: left;
+    position: relative;
+    padding: 8px 30px 8px 138px;
+    min-height: 46px;
+    line-height: 30px;
+    .l{
+        position: absolute;
+        left: 0;
+        top: 8px;
+        color: $color-title;
+        width: 128px;
+        padding-left: 30px;
+        strong{
+            color: $color-highlight;
+            font-size: 12px;
+            font-weight: normal;
+            width: 8px;
+            position: absolute;
+            left: 20px;
+            text-align: left;
+            top: 0;
+        }
+    }
+    &.single-row{
+        width: 100%;
+    }
+    &:after{
+        content: "";
+        display: block;
+        clear: both;
+    }
+}
+.gy-form-button{
+    clear: both;
+    text-align: right;
+    padding-right: 30px;
+}
+input[type=text], input[type=password], .gy-input, .gy-textarea, .gy-select{
+    width: 100%;
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #e7ecf1;
+    padding: 0 10px;
+    color: #666;
+    height: 30px;
+    line-height: 29px;
+    vertical-align: middle;
+    font-size: 14px;
+    &:hover{
+        border-color: #c0c4cc;
+    }
+    &:focus{
+        border-color: $color-extra;
+    }
+    &:disabled{
+        cursor: not-allowed;
+    }
+}
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: $color-minor;
+    opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: $color-minor;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+    color: $color-minor;
+}
+.gy-textarea{
+    resize: none;
+    height: 60px;
+    border: 1px solid $color-border;
+    border-radius: $border-radius-small;
+}
+.gy-radio{
+    border: 1px solid #e7ecf1;
+}
+.gy-checkbox{
+    border: 1px solid #e7ecf1;
+}
