@@ -30,7 +30,8 @@ export default {
     // this.testmap()
     // this.applytest()
     // this.weidugui()
-    this.arr()
+    // this.arr()
+    this.Obj()
   },
   methods: {
     hello () {
@@ -402,6 +403,20 @@ export default {
       // ES6的写法
       let arr2 = Array.from(arrayLike) // ['a', 'b', 'c']
       console.log(arr2)
+    },
+    Obj () {
+      // let a = {...{}, a: 1}
+      // console.log(a)
+      // let b = {b: 2}
+      // let c = {c: 2}
+      // let a = { ...c, ...b };
+      // console.log(a)
+      // let x = 3
+      // const obj = {
+      //   ...(x > 1 ? {a: 1} : {}),
+      //   b: 2
+      // }
+      // console.log(obj)
     }
   }
 }
