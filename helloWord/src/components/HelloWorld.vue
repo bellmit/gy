@@ -417,6 +417,26 @@ export default {
       //   b: 2
       // }
       // console.log(obj)
+      // const obj = { foo: 'bar', baz: 42 }
+      // // Generator函数的版本
+      // function* entries (obj) {
+      //   for (let key of Object.keys(obj)) {
+      //     yield [key, obj[key]]
+      //   }
+      // }
+      // console.log(entries(obj))
+      // console.log(entries(obj).next())
+
+      // 非Generator函数的版本
+      // function entries1 (obj) {
+      //   let arr = []
+      //   for (let key of Object.keys(obj)) {
+      //     arr.push([key, obj[key]])
+      //   }
+      //   return arr
+      // }
+      // console.log(entries1(obj))
+      // console.log(Object.fromEntries(new URLSearchParams('foo=bar&baz=qux'))) // 无效(可能是兼容性)
     }
   }
 }
