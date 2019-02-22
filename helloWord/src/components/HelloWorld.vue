@@ -381,12 +381,12 @@ export default {
       // console.log(map.keys())
       // let arr = [...map.keys()] // [1, 2, 3]
       // console.log(arr)
-      // let arrayLike = {
-      //   '0': 'a',
-      //   '1': 'b',
-      //   '2': 'c',
-      //   length: 3
-      // }
+      let arrayLike = {
+        '0': 'a',
+        '1': 'b',
+        '2': 'c',
+        length: 3
+      }
       // let arrayLike = {
       //   '0': 'a',
       //   '1': 'b',
