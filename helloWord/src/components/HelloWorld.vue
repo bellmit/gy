@@ -395,13 +395,13 @@ export default {
       //   'w': 'r',
       //   length: 5
       // }
-      // ES5的写法
-      var arr1 = [].slice.call(arrayLike) // ['a', 'b', 'c']
-      console.log(arr1)
-
-      // ES6的写法
-      let arr2 = Array.from(arrayLike) // ['a', 'b', 'c']
-      console.log(arr2)
+      // // ES5的写法
+      // var arr1 = [].slice.call(arrayLike) // ['a', 'b', 'c']
+      // console.log(arr1)
+      //
+      // // ES6的写法
+      // let arr2 = Array.from(arrayLike) // ['a', 'b', 'c']
+      // console.log(arr2)
     }
   }
 }
