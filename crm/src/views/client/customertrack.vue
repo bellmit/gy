@@ -30,6 +30,30 @@
                         </el-select>
                     </div>
                     <div class="gy-form-group cl">
+                        <span class="l">提醒开始时间</span>
+                        <div class="date-picker">
+                            <el-date-picker
+                                v-model="searchfrom.startDate"
+                                type="datetime"
+                                @focus="handleFocus"
+                                :picker-options="startDateOptions"
+                                placeholder="请选择">
+                            </el-date-picker>
+                        </div>
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">提醒结束时间</span>
+                        <div class="date-picker">
+                            <el-date-picker
+                                v-model="searchfrom.endDate"
+                                type="datetime"
+                                @focus="handleFocus"
+                                :picker-options="endDateOptions"
+                                placeholder="请选择">
+                            </el-date-picker>
+                        </div>
+                    </div>
+                    <div class="gy-form-group cl">
                         <span class="l">跟进状态</span>
                         <el-select v-model="searchfrom.trackStatusDictId">
                             <el-option label="全部" value=""></el-option>
@@ -41,38 +65,17 @@
                             </el-option>
                         </el-select>
                     </div>
-                    <div class="gy-form-group">
-                        <span class="l">跟进开始时间</span>
-                        <div class="date-picker">
-                            <el-date-picker
-                                v-model="searchfrom.startDate"
-                                type="datetime"
-                                @focus="handleFocus"
-                                :picker-options="startDateOptions"
-                                value-format="yyyy-MM-dd HH:mm:ss"
-                                placeholder="请选择">
-                            </el-date-picker>
-                        </div>
-                    </div>
                     <div class="gy-form-group last">
-                        <span class="l">跟进结束时间</span>
-                        <div class="date-picker">
-                            <el-date-picker
-                                v-model="searchfrom.endDate"
-                                type="datetime"
-                                @focus="handleFocus"
-                                :picker-options="endDateOptions"
-                                value-format="yyyy-MM-dd HH:mm:ss"
-                                placeholder="请选择">
-                            </el-date-picker>
-                            <span class="searchicon" @click="getCollectionList()"><i class="iconfont icon-search"></i></span>
-                        </div>
+                        <span class="l">跟进记录</span>
+                        <!-- TODO -->
+                        <input class="gy-input" v-model="searchfrom.content" placeholder="请输入" type="text">
+                        <span class="searchicon" @click="getCollectionList()"><i class="iconfont icon-search"></i></span>
                     </div>
                 </div>
             </div>
             <div class="customertrack-account-query-btns">
-                <button class="gy-button-extra mr10" @click="addCustomer('add', '', customertit = '新增客户跟进')">新增</button>
-                <button class="gy-button-normal" @click="deladdAll(customertit = '删除客户跟进')">删除</button>
+                <button class="gy-button-extra mr10" @click="addCustomer('add', '', customertit = '新增跟进')">新增</button>
+                <button class="gy-button-normal" @click="deladdAll(customertit = '删除跟进')">删除</button>
             </div>
             <!-- 列表 -->
             <div class="table-box table-wrap">
@@ -80,54 +83,88 @@
                     <thead>
                         <tr>
                             <th>
-                                <input name="" type="checkbox" :checked="companySelectedList.length === followList.length && companySelectedList.length>0" @change="handleCheckAllChange" /><span>#</span>
+                                <input name="" type="checkbox" :checked="companySelectedList.length === followList.length && companySelectedList.length>0" @change="handleCheckAllChange" />
                             </th>
-                            <th>跟进时间</th>
+                            <th>最新跟进时间</th>
                             <th>客户名称</th>
                             <th>联系人</th>
                             <th>联系人电话</th>
-                            <th>跟进状态</th>
-                            <th>跟进记录</th>
+                            <th>最新跟进状态</th>
+                            <th>跟进次数</th>
                             <th>客户经理</th>
                             <th>跟进人</th>
                             <th>操作</th>
                         </tr>
                     </thead>
-                    <tbody v-if="followList.length !== 0">
-                        <tr v-for="(item, index) in followList" :key="index">
-                            <td class="wid70"><input name="" type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0" @change="handleCheckChange(item.id)" /><span>{{index + 1}}</span></td>
-                            <td class="wid150">{{item.trackDate?item.trackDate:"-"}}</td>
-                            <td>{{item.customerName?item.customerName:"-"}}</td>
-                            <td>{{item.contactUserName?item.contactUserName:"-"}}</td>
-                            <td>{{item.contactUserMobile?item.contactUserMobile:"-"}}</td>
-                            <td>{{item.trackStatusDictName?item.trackStatusDictName:"-"}}</td>
-                            <td class="wid150"><span class="nowrap">{{item.content?item.content:"-"}}</span></td>
+                    <tbody v-for="(item, index) in followList" :key="index">
+                        <tr @click="lookCustomer(item.customerId)">
+                            <td style="text-align:center;"><input name="" type="checkbox" :checked="companySelectedList.indexOf(item.customerId) >= 0" @change="handleCheckChange(item.customerId)" /></td>
+                            <td class="wid150">{{item.trackDate | showline}}</td>
+                            <td>{{item.customerName | showline}}</td>
+                            <td>{{item.contactUserName | showline}}</td>
+                            <td>{{item.contactUserMobile | showline}}</td>
+                            <td>{{item.trackStatusDictName | showline}}</td>
+                            <td class="wid150"><span class="nowrap">{{item.trackNum}}</span></td>
                             <td>
-                                <span v-if="item.customerManagers.length !== 0" v-for="(itemList, indexList) in item.customerManagers" :key="indexList">{{itemList.userName}}
+                                <span v-for="(itemList, indexList) in item.customerManagers" :key="indexList">{{itemList.userName}}
                                     <span v-if="item.customerManagers.length > indexList + 1 ">,</span>
                                 </span>
                                 <span v-if="item.customerManagers.length === 0">-</span>
                             </td>
-                            <td>{{item.trackUserName?item.trackUserName:"-"}}</td>
+                            <td>{{item.trackUserName | showline}}</td>
                             <td>
-                                <button class="gy-button-view" @click="addCustomer('look', item, customertit = '查看客户跟进')">查看</button>
-                                <button class="gy-button-view" v-show="item.trackUserId===saveid" @click="addCustomer('save', item, customertit = '编辑客户跟进')">编辑</button>
+                                <button class="gy-button-view">查看</button>
+                                <!-- <button class="gy-button-view" v-show="item.trackUserId===saveid" @click="addCustomer('save', item, customertit = '编辑跟进')">编辑</button> -->
                             </td>
                         </tr>
+                        <tr class="tdtable" v-if =" recordId === item.customerId && detailfollow">
+                        <td colspan="10">
+                            <!-- <ul class="followdetail" v-for="(item, index) in recordList" :key="index">
+                                <li>{{item.trackDate | date(true)}}</li>
+                                <li>{{item.trackStatusDictName}}</li>
+                                <li class="nowrap">{{item.content}}</li>
+                                <li><button class="gy-button-view" v-show="item.trackUserId===saveid" @click="addCustomer('save', item, customertit = '详情')">详情</button></li>
+                            </ul> -->
+                            <table class="gy-table followdetail">
+                                <thead>
+                                    <th style="width:190px;"></th>
+                                    <th style="width:206px;">跟进时间</th>
+                                    <th style="width:70px;">联系人</th>
+                                    <th style="width:123px;">跟进状态</th>
+                                    <th style="width:458px;">跟进记录</th>
+                                    <th>操作</th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in recordList" :key="index">
+                                        <td style="text-align:right;"><i class="iconfont icon-shanchu" @click="removefollow(item.id)"></i></td>
+                                        <td>{{item.trackDate | date(true)}}</td>
+                                        <td>{{item.contactUserName}}</td>
+                                        <td>{{item.trackStatusDictName}}</td>
+                                        <td class="wid450">
+                                            <!-- <span class="nowrap">{{item.content?item.content:"-"}}</span> -->
+                                            <el-tooltip poper-class="test" :content="item.content" :disabled="(item.content && item.content.replace(/[^x00-xff]/g, 'aa').length > 12)? disabled : !disabled" placement="top" effect="light">
+                                                <span class="nowrap">{{item.content?item.content:"-"}}</span>
+                                            </el-tooltip>
+                                        </td>
+                                        <td><button class="gy-button-view" v-show="item.trackUserId===saveid" @click="addCustomer('save', item, customertit = '详情')">详情</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        </tr>
                     </tbody>
-                    <tbody v-else>
+                    <tbody v-if="followList.length === 0">
                         <tr>
                             <td colspan="15" class="null-td" style="text-align:center">没有找到可显示的数据...</td>
                         </tr>
                     </tbody>
                 </table>
+                <!-- <div class="departmentName">共计{{itemTotal}}条记录</div> -->
             </div>
-            <div class="departmentName" style="padding-left:16px;">共计{{itemTotal}}条记录</div>
             <div>
                 <el-pagination
-                    v-if="followList.length !== 0"
+                    v-if="itemTotal !== 0"
                     class="pagination-box"
-                    style="margin: 20px 0 30px 0;"
                     background
                     @current-change="changeSelect"
                     @size-change="sizeChange"
@@ -150,7 +187,7 @@
                     <div class="gy-form-group" v-if="input_disabled">
                         <span class="l" :class="{'isrequired':!input_disabled}">客户经理</span>
                         <div class="nowrap">
-                        <span v-if="addForm.customerManagers.length !== 0" v-for="(itemList, indexList) in addForm.customerManagers" :key="indexList">{{itemList.userName}}
+                        <span v-for="(itemList, indexList) in addForm.customerManagers" :key="indexList">{{itemList.userName}}
                             <span v-if="addForm.customerManagers.length > indexList + 1 ">,</span>
                         </span>
                         <span v-if="addForm.customerManagers.length === 0">-</span>
@@ -171,8 +208,7 @@
                     <div class="gy-form-group">
                         <span class="l" :class="{'isrequired':!input_disabled}">跟进状态</span>
                         <span v-if="input_disabled">{{addForm.trackStatusDictName}}</span>
-                        <el-select v-if="!input_disabled" v-model="addForm.trackStatusDictId">
-                            <!-- <el-option label="全部" value=""></el-option> -->
+                        <el-select v-if="!input_disabled" v-model="addForm.trackStatusDictId"  placeholder="请选择">
                             <el-option
                                 v-for="item in tradeModeOptionStatus"
                                 :key="item.dictId"
@@ -180,6 +216,10 @@
                                 :value="item.dictId">
                             </el-option>
                         </el-select>
+                    </div>
+                    <div class="gy-form-group" v-if="input_disabled">
+                        <span class="l" :class="{'isrequired':!input_disabled}">联系人电话</span>
+                        <div class="nowrap">{{addForm.contactUserMobile}}</div>
                     </div>
                     <div class="gy-form-group">
                         <span class="l" :class="{'isrequired':!input_disabled}">联系人</span>
@@ -193,12 +233,8 @@
                             </el-option>
                         </el-select>
                     </div>
-                    <div class="gy-form-group" v-if="input_disabled">
-                        <span class="l" :class="{'isrequired':!input_disabled}">联系人电话</span>
-                        <div class="nowrap">{{addForm.contactUserMobile}}</div>
-                    </div>
                     <div class="gy-form-group">
-                        <span class="l" :class="{'isrequired':!input_disabled}">跟进时间</span>
+                        <span class="l" :class="{'isrequired':!input_disabled}">提醒时间</span>
                         <span v-if="input_disabled">{{addForm.trackDate}}</span>
 
                             <el-date-picker
@@ -226,7 +262,7 @@
                 <div class="adddialog-footer" v-if="lookdispaly">
                     <span slot="footer" class="dialog-footer fr">
                         <!-- 新增确定 -->
-                        <button class="gy-button-extra confirmations" v-if="dialog.type === 1" @click="notarizefloow('addform')">确定</button>
+                        <button class="gy-button-extra confirmations" v-if="dialog.type === 1 && queding" @click="notarizefloow('addform')">确定</button>
                         <!-- 删除确定 -->
                         <button class="gy-button-extra confirmations" v-if="dialog.type === 0" @click="romovefloow('addform')">确定</button>
                         <button class="gy-button-normal" @click="dialogVisible = false">取消</button>
@@ -243,12 +279,17 @@ export default {
     name: 'customertrack',
     data () {
         return {
+            queding: true,
+            disabled: false,
             isrequired: {
                 input_disabled: false
             },
             lookdispaly: true,
             input_disabled: false,
+            detailfollow: false,
             companySelectedList: [],
+            recordId: null,
+            recordList: [],
             checkAll: false,
             compileTrackId: '',
             customertit: '',
@@ -268,6 +309,14 @@ export default {
             tradeModeOptionsList: [],
             tradeModeOptionStatus: [],
             customerManagerList: [],
+            // emptydata: {
+            //     id: '',
+            //     userName: '全部'
+            // },
+            // emptyfollowdata: {
+            //     dictId: '',
+            //     dictName: '全部'
+            // },
             searchfrom: {
                 customerId: '',
                 customerManagerId: null,
@@ -275,7 +324,8 @@ export default {
                 startDate: '',
                 endDate: '',
                 trackStatusDictId: null,
-                keywords: ''
+                keywords: '',
+                content: ''
             },
             addForm: {
                 contactUserId: '',
@@ -299,15 +349,20 @@ export default {
                 // }
             },
             endDateOptions: {
-                // disabledDate: (time) => {
-                //     if (this.startDate) {
-                //         return time.getTime() < this.s;
-                //     }
-                //     return time.getTime() > Date.now();
-                // }
+                disabledDate: (time) => {
+                    if (this.searchfrom.startDate) {
+                        return time.getTime() < this.searchfrom.startDate;
+                    }
+                    return time.getTime() < this.searchfrom.startDate;
+                }
             }
 
         };
+    },
+    watch: {
+        recordId (newval, oldval) {
+            this.detailfollow = true;
+        }
     },
     created () {
         this.getCollectionList(); // 跟进列表
@@ -324,9 +379,9 @@ export default {
             };
             me.$http.post(me.$api.customer.customermanager, params)
                 .then(function (response) {
-                    console.log(response);
                     if (response.data.code === 0) {
                         me.customerManagerList = response.data.data;
+                        // me.customerManagerList.unshift(me.emptydata);
                     }
                 }).catch(function (error) {
                     console.log(error);
@@ -339,6 +394,7 @@ export default {
                 .then(function (response) {
                     if (response.data.code === 0) {
                         me.tradeModeOptionStatus = response.data.data;
+                        // me.tradeModeOptionStatus.unshift(me.emptyfollowdata);
                     }
                 }).catch(function (error) {
                     console.log(error);
@@ -349,9 +405,9 @@ export default {
             const me = this;
             me.$http.get(me.$api.customer.customerList)
                 .then(function (response) {
-                    // console.log(response);
                     if (response.data.code === 0) {
                         me.tradeModeOptions = response.data.data.data;
+                        // console.log(me.tradeModeOptions);
                     }
                 }).catch(function (error) {
                     console.log(error);
@@ -367,7 +423,8 @@ export default {
                     customerName: this.searchfrom.customerName, // 客户名称
                     startDate: this.searchfrom.startDate, // 开始时间
                     endDate: this.searchfrom.endDate, // 结束时间
-                    trackStatusDictId: this.searchfrom.trackStatusDictId // 跟进状态id
+                    trackStatusDictId: this.searchfrom.trackStatusDictId, // 跟进状态id
+                    content: this.searchfrom.content // 跟进记录
                 },
                 pageNum: me.pageNum,
                 pageSize: me.pageSize,
@@ -391,6 +448,20 @@ export default {
                     console.log(error);
                 });
         },
+        // 根据客户id获取客户跟
+        lookCustomer (customerId) {
+            this.recordId = customerId;
+            this.detailfollow = !this.detailfollow;
+            const me = this;
+            me.$http.get(me.$api.customer.amendcustomer + '/' + customerId)
+                .then(function (response) {
+                    // me.recordList = [];
+                    me.recordList = response.data.data;
+                    // console.log(me.recordList);
+                }).catch(function (error) {
+                    console.log(error);
+                });
+        },
         // 显示
         seniorSearch () {
             this.isSeniorSearch = !this.isSeniorSearch;
@@ -401,7 +472,6 @@ export default {
         },
         // 弹框
         addCustomer (option, row, formName) {
-            console.log(option);
             this.dialog.kwidth = '50%';
             this.dialog.type = 1;
             if (option === 'add') {
@@ -418,14 +488,43 @@ export default {
             } else if (option === 'save') {
                 this.lookdispaly = true;
                 this.input_disabled = false;
-                console.log(row.trackUserId);
                 if (this.saveid === row.trackUserId) {
                     this.dialogVisible = true;
                     this.addForm = Object.assign({}, row);
-                    this.addForm.customerId = Number(row.customerId);
-                    this.addForm.contactUserId = Number(row.contactUserId);
+                    console.log(this.tradeModeOptions);
+                    this.addForm.trackDate = filters.date(this.addForm.trackDate, true);
+                    console.log(row.customerId);
+                    if (this.tradeModeOptions.length !== 0) {
+                        this.queding = true;
+                        for (let i = 0; i < this.tradeModeOptions.length; i++) {
+                            if (this.tradeModeOptions[i].id === row.customerId) {
+                                console.log('ab');
+                                this.addForm.customerId = Number(row.customerId);
+                                console.log(this.addForm.customerId);
+                                this.addForm.contactUserId = Number(row.contactUserId);
+                            }
+                        }
+                        // this.tradeModeOptions.map(function (item) {
+                        //     console.log(item.id === row.customerId);
+                        //     if (item.id === row.customerId) {
+                        //         console.log('aa');
+                        //         this.addForm.customerId = Number(row.customerId);
+                        //         this.addForm.contactUserId = Number(row.contactUserId);
+                        //     } else {
+                        //         console.log('ab');
+                        //         this.addForm.customerId = '';
+                        //         this.addForm.contactUserId = '';
+                        //     }
+                        // });
+                    } else {
+                        console.log('abcd');
+                        this.addForm.customerId = '';
+                        this.addForm.contactUserId = '';
+                        this.queding = false;
+                    }
+                    // this.addForm.customerId = Number(row.customerId);
+                    // this.addForm.contactUserId = Number(row.contactUserId);
                     this.customerSel(row.customerId, 'save');
-                    console.log(row);
                     this.compileTrackId = row.id;
                 } else {
                     this.$message.error('只能编辑自己录入的跟进信息');
@@ -434,7 +533,6 @@ export default {
                 this.lookdispaly = false;
                 console.log(row);
                 this.input_disabled = true;
-                console.log('aa');
                 this.dialogVisible = true;
                 this.addForm = Object.assign({}, row);
                 this.addForm.customerId = row.customerName;
@@ -445,7 +543,6 @@ export default {
         customerSel (val, save) {
             console.log(save);
             if (save !== 'save') {
-                console.log('aa');
                 this.addForm.contactUserId = '';
             }
             this.getCompanyLinkman();
@@ -483,12 +580,31 @@ export default {
             }
             return flag;
         },
+        // 删除单个记录
+        removefollow (id) {
+            console.log(id);
+            this.$http.put(this.$api.customer.customerdelete,
+                [id]
+            ).then(res => {
+                console.log(res);
+                if (res.data.code === 0) {
+                    this.getCollectionList();
+                    this.lookCustomer();
+                    this.$message({message: '成功', type: 'success'});
+                } else {
+                    this.$message({
+                        message: res.data.message,
+                        type: 'error'
+                    });
+                }
+            });
+        },
         // 新增
         notarizefloow (addform, saveId) {
             if (!this.checkDialogData()) {
                 return false;
             }
-            if (this.customertit === '编辑客户跟进') {
+            if (this.customertit === '详情') {
                 console.log(saveId);
                 this.$http.put(this.$api.customer.amendcustomer + this.compileTrackId, {
                     contactUserId: this.addForm.contactUserId,
@@ -497,14 +613,14 @@ export default {
                     trackDate: this.addForm.trackDate,
                     trackStatusDictId: this.addForm.trackStatusDictId
                 }).then(res => {
-                    // console.log(res.data);
                     if (res.data.code === 0) {
                         this.$message({
-                            message: '编辑成功',
+                            message: '修改成功',
                             type: 'success'
                         });
                         this.dialogVisible = false;
                         this.getCollectionList();
+                        this.lookCustomer();
                     } else {
                         this.$message.error(res.data.message);
                     }
@@ -517,7 +633,6 @@ export default {
                     trackDate: this.addForm.trackDate,
                     trackStatusDictId: this.addForm.trackStatusDictId
                 }).then(res => {
-                    // console.log(res);
                     if (res.data.code === 0) {
                         this.$message({
                             message: '添加成功',
@@ -525,6 +640,7 @@ export default {
                         });
                         this.dialogVisible = false;
                         this.getCollectionList();
+                        this.lookCustomer();
                     } else {
                         this.$message.error(res.data.message);
                     }
@@ -542,16 +658,15 @@ export default {
             if (this.checkAll) {
                 this.companySelectedList = [];
                 this.followList.forEach(item => {
-                    this.companySelectedList.push(item.id);
+                    this.companySelectedList.push(item.customerId);
                 }, this);
-                console.log(this.companySelectedList);
+                // console.log(this.companySelectedList);
                 return;
             }
             this.companySelectedList = [];
         },
         // 批量删除
         deladdAll () {
-            console.log(this.companySelectedList.length === 0);
             if (this.companySelectedList.length === 0) {
                 this.$message({message: '请选择删除跟进客户', type: 'warning'});
                 // .then(() => {
@@ -590,9 +705,10 @@ export default {
             }
         },
         romovefloow () {
-            this.$http.put(this.$api.customer.customerdelete,
+            this.$http.put(this.$api.customer.ccustomerIddelete,
                 this.companySelectedList
             ).then(res => {
+                // console.log(res);
                 this.companySelectedList = [];
                 if (res.data.code === 0) {
                     this.getCollectionList();
@@ -617,8 +733,13 @@ export default {
         .mr10{
             margin-right: 10px;
         }
+        .tdtable{
+            &:hover{
+                background: none;
+            }
+        }
         .customertrack-warp{
-            padding: 20px 0;
+            padding-top: 20px;
             .search-btn {
                 padding: 0 30px 0 0;
                 text-align: right;
@@ -641,6 +762,7 @@ export default {
                 cursor: pointer;
             }
             .clearfixx {
+                padding-right: 16px;
                 .gy-form-group{
                     padding: 6px 30px 6px 124px;
                     min-height: 35px;
@@ -653,7 +775,7 @@ export default {
                     position: relative;
                     .searchicon {
                         position: absolute;
-                        right: 0;
+                        right: 5px;
                         bottom: 7px;
                         .icon-search:before {
                             color: #000;
@@ -706,8 +828,36 @@ export default {
             input, span {
                 vertical-align: middle;
             }
+            .gy-table {
+                tr{
+                    cursor: pointer;
+                }
+                .wid60{
+                    width: 50px;
+                }
+                .wid150{
+                    width: 150px;
+                }
+            }
             .nowrap {
                 width: 150px;
+                display: block;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+            }
+            .departmentName{
+                margin-top: 20px;
+                font-size: 12px;
+                color: #666;
+            }
+        }
+        .followdetail{
+            th{
+                background: #f2f2f2;
+            }
+            .nowrap {
+                width: 450px;
                 display: block;
                 overflow: hidden;
                 text-overflow:ellipsis;
@@ -723,7 +873,7 @@ export default {
                 .l{
                     padding-left: 0;
                 }
-                .nowrap {
+                 .nowrap {
                     width: 332px;
                     display: block;
                     overflow: hidden;
@@ -746,15 +896,19 @@ export default {
 
 </style>
 <style lang="scss">
-    .AddressManagement .el-dialog__header {
-        border-bottom: 1px solid #DCE0E4;
-        padding: 15px;
+.customertrack{
+    .AddressManagement{
+        .el-dialog__header {
+            border-bottom: 1px solid #DCE0E4;
+            padding: 15px;
+        }
+        .el-dialog__body {
+            padding: 10px 0px 15px 30px;
+        }
+        .el-message-box__wrapper .el-button--primary{
+            background:#e0370f;
+            border-color:#e0370f;
+        }
     }
-    .customertrack .el-dialog__body {
-        padding: 10px 0px 15px 30px;
-    }
-    .el-message-box__wrapper .el-button--primary{
-        background:#e0370f;
-        border-color:#e0370f;
-    }
+}
 </style>

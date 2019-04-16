@@ -38,6 +38,7 @@ const customer = {
     addcustomer: '/crm/v1/customer/track', // 添加客户跟进
     customersearch: '/crm/v1/customer/track/search', // 搜素跟进信息
     customerdelete: '/crm/v1/customer/track/delete', // 删除跟进信息
+    ccustomerIddelete: '/crm/v1/customer/track/delete/customerId', // 删除公司跟进
     amendcustomer: '/crm/v1/customer/track/', // 编辑客户跟进
     customerList: '/crm/v1/customers/info', // 获取客户信息
     dictionaryController: '/crm/v1/dictionaries/', // 获取跟进状态
@@ -47,8 +48,9 @@ const customer = {
 
 // 消息盒子
 const msg = {
-    getList: '/crm/v1/customer/message/search',
-    readMsg: '/crm/v1/customer/message/status'
+    getList: '/crm/v1/messages/list',
+    getListWorkbench: '/crm/v1/messages/list_for_workbench',
+    readMsg: '/crm/v1/messages/update_read'
 };
 
 // 工作台
@@ -59,7 +61,8 @@ const workbench = {
 
 // 统计报表
 const charts = {
-    statistics: '/crm/v1/statistics'
+    statistics: '/crm/v1/statistics',
+    getCompany: '/crm/companies?companyName='
 };
 
 // 权限管理
@@ -85,16 +88,29 @@ const role = {
     getRoleList: '/crm/v1/companyRole/role/all', // 授权角色列表
     authsBtn: '/crm/v1/companyRole/role/auths' // 公司角色授权给员工 确认按钮
 };
+
 // 组织架构
 const organizational = {
     organizationalList: '/crm/v1/company/organization/listTree',
     departmentList: '/crm/v2/employee/list',
     companyPersonAll: '/crm/v1/employees/organization/all/',
     addDepartment: '/crm/v1/company/organization',
-    deleteDepartment: '/crm/v1/company/organization/valid',
-    deletePerson: '/crm/v2/employees/batch/valid',
-    doAddPerson: '/crm/v2/employees/batch'
+    deleteDepartment: '/crm/v2/company/organization/valid',
+    deletePerson: '/crm/v4/employee/valid',
+    doAddPerson: '/crm/v2/employees/batch',
+    getManagerList: '/crm/v1/company/position/list',
+    addManager: '/crm/v1/company/position',
+    deleteManager: '/crm/v1/company/position/valid',
+    getManagerDetail: '/crm/v1/company/position/detail/',
+    addStaff: '/crm/v1/organization/employee',
+    editStaff: '/crm/v3/employee',
+    testStaffNum: '/crm/v1/organization/employee/isExits',
+    employeeList: '/crm/v3/employee/list',
+    getStatus: '/crm/v3/employee/status',
+    testPhone: '/crm/v3/employee/isExits',
+    directSuperior: '/crm/v3/employee/manager'
 };
+
 export default {
     login,
     customer,

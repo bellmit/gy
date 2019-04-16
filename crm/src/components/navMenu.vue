@@ -1,6 +1,6 @@
 <template>
-    <div class="gy-menu">
-        <el-menu :default-active="menuData.active" class="gy-menu" :router="true" :unique-opened="true"
+    <div class="gy-menu" v-if="showList">
+        <el-menu :default-active="menuData.active" @select="handleSelect" :router="true" :unique-opened="true"
                  @open="handleOpen" @close="handleClose">
             <gy-menu-item :menu-data="menuData.list"></gy-menu-item>
         </el-menu>
@@ -16,7 +16,8 @@ export default {
             menuData: {
                 active: '',
                 list: []
-            }
+            },
+            showList: true
         };
     },
     components: {
@@ -47,8 +48,22 @@ export default {
         handleOpen (key, keyPath) {
             // console.log(key, keyPath);
         },
+        handleSelect (index, indexPath, target) {
+            if (index === 'workbenchPersonal') {
+                this.isShowList();
+            }
+            this.$router.push({name: index});
+            this.menuData.active = index;
+        },
         handleClose (key, keyPath) {
             // console.log(key, keyPath);
+        },
+        isShowList () {
+            this.showList = false;
+            setTimeout(() => { this.showList = true; }, 0);
+            // Promise.resolve().then(() => {
+            //     this.showList = true;
+            // });
         }
     }
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="">
-      <lists title='新增客户' ></lists>
+      <lists title='新增潜在客户' ></lists>
   </div>
 </template>
 

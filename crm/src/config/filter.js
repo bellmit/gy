@@ -117,5 +117,9 @@ export default {
                 return start;
             }
         }
+    },
+    // 没有内容是显示为'-'
+    showline (value) {
+        return value || '-';
     }
 };

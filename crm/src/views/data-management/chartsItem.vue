@@ -41,7 +41,14 @@ export default {
         active: String,
         titleType: String,
         resetData: Number,
-        routerData: Object
+        routerData: {
+            type: Object,
+            default () {
+                return {};
+            }
+        }
+    },
+    mounted () {
     },
     methods: {
         chkData (e, t) {

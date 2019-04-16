@@ -1,11 +1,11 @@
 <template>
   <div class="">
-      <lists title='新增客户' ></lists>
+      <lists title='潜在客户' type='3'></lists>
   </div>
 </template>
 
 <script>
-import lists from '@/components/client-add';
+import lists from '@/components/client-list';
 export default {
     components: {
         lists

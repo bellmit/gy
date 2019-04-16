@@ -7,7 +7,7 @@
             <p class="model_title"><i class="iconfont icon-gaishu"></i> 概述</p>
             <div class="gy-form-group">
                 <span  class="l"> 客户编号</span>
-                <span>{{formData.id||'-'}}</span>
+                <span>{{formData.customerNo||'-'}}</span>
             </div>
             <div class="gy-form-group ">
                 <span  :class="{'is-required':viewType===2}"  class="l"> 客户状态</span>
@@ -74,8 +74,8 @@
             </div>
             <div class="gy-form-group">
                 <span class="l"> 注册资金</span>
-                <span v-if="viewType ===1">{{formData.registeredCapital?formData.registeredCapital+'元':'-'}}</span>
-                <div  v-else><input  @change="dataToFixed('registeredCapital', 2)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.registeredCapital">元</div>
+                <span v-if="viewType ===1">{{formData.registeredCapital| numToCash(4) =='-'?'-':formData.registeredCapital | numToCash(4) +'万元'}}</span>
+                <div  v-else><input  @change="dataToFixed('registeredCapital', 4)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.registeredCapital">万元</div>
             </div>
             <div class="contact-address gy-form-group">
                     <span :class="{'is-required':viewType===2}" class="l">总部地址</span>
@@ -128,10 +128,20 @@
                 <span v-if="viewType ===1">{{formData.products ||'-'}}</span>
                 <input v-else  type="text" placeholder="请填写" class="gy-input"  v-model="formData.products">
             </div>
+             <div class="gy-form-group">
+                <span class="l"> 产业链状态</span>
+                <span v-if="viewType ===1">{{formData.industrialChainsStatus ||'-'}}</span>
+                <input v-else  type="text" placeholder="请填写" class="gy-input"  v-model="formData.industrialChainsStatus">
+            </div>
+             <div class="gy-form-group">
+                <span  class="l"> 产业链分布</span>
+                <span v-if="viewType ===1">{{formData.industrialChainsArea ||'-'}}</span>
+                <input v-else  type="text" placeholder="请填写" class="gy-input"  v-model="formData.industrialChainsArea">
+            </div>
              <div class="clearfix  gy-form-group">
                 <span class="l"> 年产量</span>
-                <span v-if="viewType ===1">{{formData.annualYield?formData.annualYield+'吨':'-'}}</span>
-                <div  v-else><input  @change="dataToFixed('annualYield', 2)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.annualYield">吨</div>
+                <span v-if="viewType ===1">{{formData.annualYield| numToCash(4) =='-'?'-':formData.annualYield| numToCash(4)+'万吨'}}</span>
+                <div  v-else><input  @change="dataToFixed('annualYield', 4)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.annualYield">万吨</div>
             </div>
             <div class="gy-form-group">
                 <span class="l"> 原料</span>
@@ -140,13 +150,13 @@
             </div>
             <div class="gy-form-group">
                 <span class="l"> 年交易量</span>
-                <span v-if="viewType ===1">{{formData.annualTurnover?formData.annualTurnover+'吨':'-'}}</span>
-                <div  v-else ><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualTurnover', 2)"  v-model.number="formData.annualTurnover">吨</div>
+                <span v-if="viewType ===1">{{formData.annualTurnover| numToCash(4) =='-'?'-':formData.annualTurnover| numToCash(4)+'万吨'}}</span>
+                <div  v-else ><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualTurnover', 4)"  v-model.number="formData.annualTurnover">万吨</div>
             </div>
             <div class="gy-form-group">
                 <span class="l"> 年营业额</span>
-                <span v-if="viewType ===1">{{formData.annualAmount?formData.annualAmount+'元':'-'}}</span>
-                <div  v-else><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualAmount', 2)"  v-model.number="formData.annualAmount">元</div>
+                <span v-if="viewType ===1">{{formData.annualAmount| numToCash(4) == '-'?'-':formData.annualAmount| numToCash(4)+'万元'}}</span>
+                <div  v-else><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualAmount', 4)"  v-model.number="formData.annualAmount">万元</div>
             </div>
             <div class="gy-form-group clearfix">
                 <span :class="{'is-required':viewType===2}" class="l"> 来源</span>
@@ -209,7 +219,7 @@
             <div class="contact-con">
                 <div @click="currentTabIndex=0" class="contact-tab" :class="{'current-tab':currentTabIndex===0}">客户内部员工</div>
                 <div @click="currentTabIndex=1" class="contact-tab" :class="{'current-tab':currentTabIndex===1}">跟进进度</div>
-                <div  v-if="viewType==2&&currentTabIndex==0" class="add-contact"><button   @click="addContact"  class="gy-button-normal">新增</button></div>
+                <div  v-if="viewType==2&&currentTabIndex==0" class="add-contact"><button   @click="addContact"  class="gy-button-extra">新增</button></div>
                 <table v-if="currentTabIndex===0" class="gy-table">
                     <thead>
                         <tr>
@@ -219,18 +229,18 @@
                             <td>邮箱</td>
                             <td>是否联系人</td>
                             <td>备注</td>
-                            <td width="200">操作</td>
+                            <td width="100">操作</td>
                         </tr>
                     </thead>
                     <tbody v-if="formData.customerContacts.length !== 0">
                     <tr v-for="(item,index) in formData.customerContacts" :key="index">
                         <td>{{item.contactName||'-'}}</td>
                          <td>{{item.title||'-'}}</td>
-                         <td>{{item.mobile||'-'}}</td>
-                         <td>{{item.email||'-'}}</td>
+                         <td class="align-r">{{item.mobile||'-'}}</td>
+                         <td class="align-r">{{item.email||'-'}}</td>
                          <td>{{item.defaultContact?'是':'否'}}</td>
                          <td><span class="nowrap">{{item.remark||'-'}}</span></td>
-                        <td><button @click="editcontact(index)" class="gy-button-view">{{viewType==1?'查看':'编辑'}}</button><button v-if="viewType==2" @click="deleteContact(item.id, index)" class="gy-button-view add-margin">删除</button></td>
+                        <td  class="align-c"><button @click="editcontact(index)" class="gy-button-view">{{viewType==1?'查看':'编辑'}}</button><button v-if="viewType==2" @click="deleteContact(item.id, index)" class="gy-button-view add-margin">删除</button></td>
                     </tr>
                     </tbody>
                      <tbody v-else>
@@ -248,7 +258,7 @@
                             <td>跟进记录</td>
                             <td>客户经理</td>
                             <td>跟进人</td>
-                            <td width="200">操作</td>
+                            <td width="100">操作</td>
                         </tr>
                     </thead>
                     <tbody v-if="formData.trackList.length !== 0">
@@ -257,8 +267,8 @@
                          <td>{{item.contactUserName||'-'}}</td>
                          <td>{{item.trackStatusDictName||'-'}}</td>
                          <td :title='item.content'><span class="nowrap">{{item.content}}</span></td>
-                         <td>{{item.originalCustomerManagers|filterData}}</td>
                          <td>{{item.customerManagers|filterData}}</td>
+                         <td>{{item.trackUserName|'-'}}</td>
                         <td><button @click="lookTrackData(item)" class="gy-button-view">查看</button></td>
                     </tr>
                     </tbody>
@@ -269,8 +279,8 @@
                    </tbody>
                </table>
                  <div class="submit-con">
-                    <div @click="sendFormData" v-if="viewType==2" class="gy-button-normal">保存</div>
-                    <div @click="$router.go(-1)" class="gy-button-normal">{{viewType==1?'返回':'取消'}}</div>
+                    <div @click="sendFormData" v-if="viewType==2" class="gy-button-extra">保存</div>
+                    <div @click="$router.go(-1)" :class="viewType == 2 ? 'gy-button-normal':'gy-button-extra'">{{viewType==1?'返回':'取消'}}</div>
                 </div>
           </div>
       </div>
@@ -324,14 +334,14 @@
                     <textarea v-else  class="gy-textarea" v-model="preInfo.remark" cols="30" rows="10" placeholder="请填写"></textarea>
                 </div>
                  <div v-if="viewType===2" class="submit-con" style="margin-right:30px;">
-                    <div  @click='saveContactData' class="gy-button-normal">保存</div>
+                    <div  @click='saveContactData' class="gy-button-extra">保存</div>
                     <!-- <div @click='cancelAdd' class="gy-button-normal">{{viewType==1?'关闭':'取消'}}</div> -->
                 </div>
             </div>
                 <div v-show="currentTabIndex===1" class="add-dialog" style="overflow: hidden">
                     <div class="gy-form-group">
                         <span class="l">客户经理</span>
-                        <span>{{trackData.customerManagers|filterData}}</span>
+                        <span>{{trackData.customerManagers |filterData}}</span>
                     </div>
                     <div class="gy-form-group">
                         <span class="l">客户名称</span>
@@ -383,6 +393,8 @@ export default {
                 cityId: '', // 城市
                 provinceId: '', // 所属省份
                 customerAttrDictId: '', // 企业属性
+                industrialChainsStatus: '', // 产业链状态
+                industrialChainsArea: '', // 产业链分布
                 customerContacts: [
                     {
                         contactName: '',
@@ -475,7 +487,8 @@ export default {
             this.$http.get(this.$api.client.searchCustomers + this.customerId).then((res) => {
                 if (res.data.code === 0) {
                     this.formData = res.data.data;
-                    this.formData.personScale = Number(this.formData.personScale);
+                    // this.formData.personScale = 0;
+                    this.formData.personScale = Number(this.formData.personScale) === 0 ? '' : Number(this.formData.personScale);
                     this.formData.certificateFileUrl && (this.imgList = JSON.parse(this.formData.certificateFileUrl));
                     this.init();
                     if (this.formData.customerFollowups.length > 0) {
@@ -546,7 +559,7 @@ export default {
             });
         },
         dataToFixed (value, n) {
-            this.formData[value] = this.formData[value].toFixed(0);
+            this.formData[value] = this.formData[value].toFixed(n);
         },
         searchArea (type, id, bool) {
             this.$http.get(this.$api.client.searchArea + id).then((res) => {
@@ -883,7 +896,9 @@ export default {
       .submit-con {
           float: right;
           margin-top:50px ;
-        //   padding-right:30px ;
+          div:nth-child(1) {
+              margin-right:10px ;
+          }
           .form_save {
               background-color: #d04627;
               color: #fff;
@@ -895,7 +910,7 @@ export default {
         font-size: 14px;
       }
       .three-column {
-         width: 95%;
+         width: 93%;
       }
       .l {
           width: 105px;

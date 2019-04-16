@@ -62,7 +62,7 @@
                             </el-option>
                         </el-select>
                     </div>
-                    <div class="gy-form-group last">
+                    <div class="gy-form-group last" v-if="Number(pageType) !== 3">
                         <span class="l">客户状态</span>
                         <el-select v-model="search.data.customerStatus">
                             <!-- <el-option label="全部" value=""></el-option> -->
@@ -73,7 +73,18 @@
                             :value="item.value">
                             </el-option>
                         </el-select>
-                        <span class="searchicon" @click="getCustom"><i class="iconfont icon-search"></i></span>
+                    </div>
+                    <div class="gy-form-group last">
+                        <span class="l">企业认证</span>
+                        <el-select v-model="search.data.authStatus">
+                            <el-option
+                            v-for="(item, index) in authStatusList"
+                            :key="index"
+                            :label="item.label"
+                            :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <span class="searchicon" @click="turnPage(1)"><i class="iconfont icon-search"></i></span>
                     </div>
                 </div>
             </div>
@@ -81,9 +92,9 @@
         <!-- 功能键 -->
         <div class="clearfix">
             <div class="button-wrap">
-                <button class="gy-button-extra" @click="jump(0)">新增</button>
-                <button class="gy-button-normal" @click="dialogVisible(idS(list), '请选择要删除的客户', dialog.type = 0, dialog.title = '提示')">删除</button>
-                <button class="gy-button-normal" @click="dialogVisible(null, dialog.title = '导入客户', dialog.type = 1)">导入</button>
+                <button class="gy-button-extra" @click="jump(0)" v-if="Number(pageType) !== 1">新增</button>
+                <button :class="Number(pageType) === 1 ? 'gy-button-extra' : 'gy-button-normal'" @click="dialogVisible(idS(list), '请选择要删除的客户', dialog.type = 0, dialog.title = '提示')">删除</button>
+                <button class="gy-button-normal" @click="dialogVisible(null, dialog.title = '导入客户', dialog.type = 1)" v-if="Number(pageType) !== 1">导入</button>
                 <button class="gy-button-normal" @click="exportDoc" v-if="isCrmCustomersExport === '1'">导出</button>
                 <button class="gy-button-normal" @click="dialogVisible(idS(list), '请选择客户', dialog.type = 2)" v-if="isCrmCustomersChangeManager === '1'">
                     <span v-if="pageType === '2'">更换客户经理</span>
@@ -98,7 +109,7 @@
                 <thead>
                     <tr>
                         <th>
-                            <input name="" type="checkbox" :checked="isAll" @click="allCheck(list)" /><span>#</span>
+                            <input name="" type="checkbox" :checked="isAll" @click="allCheck(list)" />
                         </th>
                         <th>客户编号</th>
                         <th v-for="(item, index) in titleList" :key="index">{{item.cnName}}</th>
@@ -108,18 +119,19 @@
 
                 <tbody v-if="list.length !== 0">
                     <tr v-for="(items, index) in list" :key="index">
-                        <td>
-                            <input name="" type="checkbox" :checked="items.check" @click="baseSelect(items, list)" /><span class="index">{{index + 1}}</span>
+                        <td class="text-c">
+                            <input name="" type="checkbox" :checked="items.check" @click="baseSelect(items, list)" />
                         </td>
-                        <td v-for="(item, idx) in items" :key="idx">
-                            <span v-if="titleList[idx - 1] && titleList[idx - 1].fieldType === 4">
+                        <td v-for="(item, idx) in items" :key="idx" v-show="idx > 0" :class="{'text-r': titleList[idx - 2] && titleList[idx - 2].fieldType === 3}">
+                            <span v-if="titleList[idx - 2] && titleList[idx - 2].fieldType === 4">
                                 <span v-if="item !== '-'">{{item | date}}</span>
                                 <span v-else>{{'-'}}</span>
                             </span>
-                            <span v-else-if="titleList[idx - 1] && titleList[idx - 1].fieldType === 3">
-                                {{item | numToCash}}
+                            <span v-else-if="titleList[idx - 2] && titleList[idx - 2].fieldType === 3">
+                                <span v-if="item">{{item | numToCash(4)}}</span>
+                                <span v-else>{{'-'}}</span>
                             </span>
-                            <span class="nowrap" v-else-if="titleList[idx - 1] && titleList[idx - 1].enName === 'products'">{{item}}</span>
+                            <span class="nowrap" v-else-if="titleList[idx - 2] && titleList[idx - 2].enName === 'products'">{{item}}</span>
                             <span v-else>{{item || '-'}}</span>
                         </td>
                         <td class="last-td">
@@ -132,22 +144,22 @@
             </table>
             <div class="null-msg" v-if="list.length === 0">没有找到可显示的数据...</div>
         </div>
-        <div class="total">共计{{total}}条记录</div>
+        <div class="total">共 {{total}} 条记录</div>
     </div>
     <!-- 分页 -->
     <el-pagination
-        v-if="list.length !== 0"
+        v-if="total !== 0"
         background
         :total="total"
         layout="prev, pager, next"
         width="margin-top: 40px;"
+        :current-page="search.pageNum"
         @current-change="turnPage">
     </el-pagination>
     <!-- 弹出框 -->
     <el-dialog
         :title="dialog.title"
-        :visible.sync="dialog.open"
-        width="37%">
+        :visible.sync="dialog.open">
         <!-- 删除 -->
         <div class="dele-wrap" v-if="dialog.type === 0">
             <img src="../assets/images/warning.png" alt="">
@@ -155,12 +167,11 @@
         </div>
         <!-- 导入 -->
         <div class="upload-wrap" v-if="dialog.type === 1">
-            <div>1、<a :href="http + '/crm/v1/customers/template/download'" download="数据模板.xlsx">点击下载导入数据模板</a> 将要导入的数据填充到数据导入模板文件中。</div>
+            <div>1、<a :href="http + '/crm/v1/customers/template/download'">点击下载导入数据模板</a> 将要导入的数据填充到数据导入模板文件中。</div>
                 <div class="tips">
                     <p>注意事项：</p>
                     <p>1) 模板中的表头不可更改，表头行不可删除；</p>
-                    <p>2) 除必填的列以外，不需要的列可以删除；</p>
-                    <p>3) 单次导入的数据不超过10000条；</p>
+                    <p>2) 单次导入的数据不超过10000条；</p>
                 </div>
             <p>2、选择导入的数据文件</p>
             <el-upload
@@ -227,7 +238,7 @@
 export default {
     props: {
         title: String,
-        type: String // 2客户列表 1客户分配
+        type: String // 2客户列表 1客户分配 3潜在客户
     },
     data () {
         return {
@@ -253,6 +264,24 @@ export default {
                     value: 3
                 }
             ],
+            authStatusList: [ // 客户状态
+                {
+                    label: '全部',
+                    value: null
+                },
+                {
+                    label: '待审核',
+                    value: 1
+                },
+                {
+                    label: '已通过',
+                    value: 2
+                },
+                {
+                    label: '已驳回',
+                    value: 3
+                }
+            ],
             search: {
                 pageNum: 1,
                 pageSize: 10,
@@ -269,7 +298,7 @@ export default {
                     moduleName: null
                 }
             },
-            total: 20,
+            total: null,
             list: [],
             titleList: [],
             minlist: [],
@@ -318,13 +347,23 @@ export default {
                     this.isCrmCustomersChangeManager = '1';
                 }
             });
-            this.search.data.dataCategory = this.pageType;
-            this.search.data.moduleName = Number(this.pageType) === 2 ? 'customer_list' : 'customer_allocation_list';
+            // 潜在客户
+            if (Number(this.pageType) === 3) {
+                this.search.data.dataCategory = 2;
+                this.search.data.customerStatus = 0;
+                this.search.data.moduleName = 'potential_customers';
+            } else {
+                // 正式客户 客户分配
+                this.search.data.dataCategory = this.pageType;
+                this.search.data.moduleName = Number(this.pageType) === 2 ? 'customer_list' : 'customer_allocation_list';
+            }
             this.http = process.env.API_ROOT_MAIN;
         },
         // 动态列表
-        getCustom () {
-            this.search.pageNum = 1;
+        getCustom (isPageInit) {
+            if (isPageInit) {
+                this.search.pageNum = 1;
+            }
             this.$http.post(this.$api.client.custom, this.search).then(res => {
                 if (res.data.code === 0) {
                     res.data.data.data.list.forEach((e, idx) => {
@@ -406,13 +445,7 @@ export default {
             type === 2 && (this.dialog.title = this.pageType === '2' ? '更换客户经理' : '指派客户经理');
         },
         beforeRemove (file) {
-            let _this = this;
-            this.$alert(`确定移除${file.name}?`, '提示', {
-                confirmButtonText: '确定',
-                callback: action => {
-                    _this.file = null;
-                }
-            });
+            this.file = null;
         },
         // 全选
         allCheck (list) {
@@ -446,7 +479,11 @@ export default {
         // 0新增 1查看 2编辑
         jump (type, id) {
             if (type === 0) {
-                this.$router.push({name: 'add'});
+                if (this.title === '潜在客户') {
+                    this.$router.push({name: 'addLurking'});
+                } else {
+                    this.$router.push({name: 'add'});
+                }
             }
             if (type === 1) {
                 this.$router.push({name: 'detail', query: {viewType: '1', id: id}});
@@ -474,7 +511,6 @@ export default {
         },
         // 切换分页
         turnPage (v) {
-            console.log(v);
             this.search.pageNum = v;
             this.getCustom();
         },
@@ -508,13 +544,21 @@ export default {
             time = y + '' + this.format(m) + '' + this.format(d);
             if (window.navigator.msSaveOrOpenBlob) {
                 // 兼容IE10
-                navigator.msSaveBlob(blob, `${time}${Number(this.pageType) === 2 ? '客户列表' : '客户分配列表'}.xls`);
+                if (Number(this.pageType) === 3) {
+                    navigator.msSaveBlob(blob, `${time}潜在客户列表.xls`);
+                } else {
+                    navigator.msSaveBlob(blob, `${time}${Number(this.pageType) === 2 ? '客户列表' : '客户分配列表'}.xls`);
+                }
             } else {
                 let url = window.URL.createObjectURL(new Blob([data]));
                 let link = document.createElement('a');
                 link.style.display = 'none';
                 link.href = url;
-                link.setAttribute('download', `${time}${Number(this.pageType) === 2 ? '客户列表' : '客户分配列表'}.xls`);
+                if (Number(this.pageType) === 3) {
+                    link.setAttribute('download', `${time}潜在客户列表.xls`);
+                } else {
+                    link.setAttribute('download', `${time}${Number(this.pageType) === 2 ? '客户列表' : '客户分配列表'}.xls`);
+                }
                 document.body.appendChild(link);
                 link.click();
             }
@@ -698,7 +742,6 @@ export default {
         display: inline-block;
     }
     .upload-wrap {
-        max-width: 85%;
         margin: 0 auto;
         a {
             color: #409EFF;
@@ -764,7 +807,7 @@ export default {
         white-space: nowrap;
     }
     .last-td {
-        padding-right: 16px;
+        text-align: center;
     }
     .null-msg {
         width: 100%;
@@ -774,5 +817,17 @@ export default {
         border-top: 0;
         text-align: center;
     }
+    .text-c {
+        text-align: center;
+    }
+    .text-r {
+        text-align: right;
+    }
+    /*.gy-form-group {*/
+        /*padding-left: 119px;*/
+        /*.l {*/
+            /*width: 99px;*/
+        /*}*/
+    /*}*/
 }
 </style>
