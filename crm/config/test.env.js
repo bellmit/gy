@@ -2,5 +2,6 @@
 module.exports = {
     NODE_ENV: '"testing"',
     ENV_CONFIG: '"test"',
+    SOCKETIO: '"http://192.168.10.132:9092"',
     API_ROOT_MAIN: '"http://192.168.10.132:8081"'
 };

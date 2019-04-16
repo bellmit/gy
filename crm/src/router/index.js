@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import routes from './router';
 // import { MessageBox } from 'element-ui';
 import store from '@/store';
+import socket from '@/config/socket';
 
 Vue.use(Router);
 
@@ -19,6 +20,11 @@ router.beforeEach((to, from, next) => {
         //         location.href = `./#/login`;
         //     });
         return;
+    }
+
+    if (localStorage.getItem('userInfo')) {
+        let storage = JSON.parse(localStorage.getItem('userInfo'));
+        socket.init(storage.id, storage.companyId);
     }
     next();
 });
