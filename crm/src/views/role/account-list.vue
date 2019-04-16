@@ -8,11 +8,11 @@
             <table class="gy-table">
                 <thead>
                 <tr>
-                    <th width="180px">姓名</th>
-                    <th width="180px">用户名</th>
-                    <th width="180px">手机号</th>
-                    <th width="250px">角色名称</th>
-                    <th width="180px">操作</th>
+                    <th>姓名</th>
+                    <th>用户名</th>
+                    <th>手机号</th>
+                    <th>角色名称</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody v-if="list.length !== 0">
@@ -25,8 +25,8 @@
                             {{ ind === 0 ? it.name : ',' + it.name }}
                         </template>
                     </td>
-                    <td>
-                        <button class="gy-button-view" @click="dialogList(item)">授权</button>
+                    <td class="caoz">
+                        <button v-show="!item.isAdmin" class="gy-button-view" @click="dialogList(item)">授权</button>
                     </td>
                 </tr>
                 </tbody>
@@ -36,14 +36,14 @@
                 </tr>
                 </tbody>
             </table>
-            <div class="departmentName">共计{{total}}条记录</div>
+            <div class="departmentName">共 {{total}} 条记录</div>
             <!-- 分页 -->
             <el-pagination
+                    v-if="total !== 0"
                     background
                     :total="total"
                     :current-page="pageNum"
                     layout="prev, pager, next"
-                    style="margin: 20px 0 30px 0;"
                     @current-change="turnPage">
             </el-pagination>
             <!-- 授权 dialog -->
@@ -58,8 +58,9 @@
                                     @change="handleCheckAllAuthen">全选
                         </el-checkbox>
                         <el-checkbox-group v-model="authenDialog.checkedRoles" @change="handleCheckedRoleChange">
-                            <el-checkbox style="margin:0;width: 220px" v-for="(item, index) in authenDialog.roleList" :label="item.id" :key="index">{{item.name }}
-                            </el-checkbox>
+                            <div class="new-checkbox" v-for="(item, index) in authenDialog.roleList" :key="index"><el-checkbox :label="item.id">
+                                <span>{{item.name }}</span>
+                            </el-checkbox></div>
                         </el-checkbox-group>
                     </el-form-item>
                     <el-form-item class="authen-btn">
@@ -206,9 +207,6 @@ export default {
     .gy-table{
         margin-top: 15px 0 0 0;
     }
-    th, td {
-        text-align: center;
-    }
     .selectFont{
         margin-right:10px;
     }
@@ -219,15 +217,33 @@ export default {
     .dialogList{
         min-width:700px;
     }
+    .caoz {
+        text-align: center;
+    }
 }
 </style>
 <style lang="scss">
-    .AddressManagement .el-dialog__header {
-        border-bottom: 1px solid #DCE0E4;
-        padding: 15px;
+    .account-list{
+        .AddressManagement {
+            .el-dialog__header {
+                border-bottom: 1px solid #DCE0E4;
+                padding: 15px;
+            }
+            .el-dialog__body {
+                padding: 10px 30px 30px 30px;
+            }
+            .new-checkbox{
+                margin:0;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+                text-align: left;
+                width: 33.3%;
+                height: 40px;
+                line-height: 40px;
+                float: left;
+            }
+        }
     }
 
-    .el-dialog__body {
-        padding: 10px 15px 15px 15px;
-    }
 </style>

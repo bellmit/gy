@@ -1,7 +1,7 @@
 <template>
     <div class="myrole">
         <div class="new-title">
-            角色列表
+            角色管理
         </div>
         <div class="div2">
             <!--搜索按钮-->
@@ -26,7 +26,7 @@
                     <tr class="title">
                         <td><input type="checkbox" :checked="companySelectedList.length === dataList.length"
                                    @change="handleCheckAllChange"></td>
-                        <td>ID</td>
+                        <!-- <td>ID</td> -->
                         <td>角色名称</td>
                         <td>类型</td>
                         <td>创建时间</td>
@@ -35,13 +35,13 @@
                     </thead>
                     <tbody>
                     <tr v-for="(item , index) in dataList" :key="index">
-                        <td><input type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0"
+                        <td width="50" class="text-c"><input type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0"
                                    @change="handleCheckChange(item.id)"></td>
-                        <td><div>{{index+1}}</div></td>
+                        <!-- <td><div>{{index+1}}</div></td> -->
                         <td><div>{{item.name}}</div></td>
                         <td><div>{{item.companyId===null?'系统':'自定义'}}</div></td>
                         <td><div>{{item.createDate | date}}</div></td>
-                        <td>
+                        <td class="caoz">
                             <a @click="goPage(10,item.id)" class="gy-button-view">查看</a>
                             <a v-show="item.companyId!=null" @click="goPage(20,item.id,item.companyId)" class="gy-button-view">编辑</a>
                             <!--<a v-show="item.companyId!=null" @click="goPage(30,item.id)" class="gy-button-view">删除</a>-->
@@ -49,11 +49,11 @@
                     </tr>
                     </tbody>
                 </table>
-                <div class="departmentName">共计{{total}}条记录</div>
+                <div class="departmentName">共 {{total}} 条记录</div>
                 <el-pagination
+                    v-if="total !== 0"
                     background
                     layout="prev, pager, next"
-                    style="margin: 20px 0 30px 0;"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"
                     :total=total>
@@ -63,14 +63,14 @@
         <!--新增-->
         <div class="newAdd">
             <el-dialog class="mytck" @close="closeDialog('ruleForm')" v-if="newAddShow" :title='myValue' :visible="newAddShow">
-                <el-form :rules="rules" ref="ruleForm" :model="mydata" style="padding: 0 20px">
+                <el-form :rules="rules" ref="ruleForm" :model="mydata">
                     <el-row :gutter="30">
-                        <el-col :span="12">
+                        <el-col :span="24">
                             <el-row>
-                                <el-col :span="7"> <span style="color: red">*</span> 角色名称</el-col>
-                                <el-col :span="17">
+                                <el-col :span="3"> <span style="color: red">*</span> 角色名称</el-col>
+                                <el-col :span="20" style="margin-left: 1.5%;">
                                     <el-form-item style="margin-top: -6px;" label="" prop="myname">
-                                        <el-input v-model="mydata.myname" autocomplete="off" :disabled="input_disabled"></el-input>
+                                        <el-input v-model="mydata.myname" autocomplete="off" :disabled="input_disabled" placeholder="请填写"></el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
@@ -81,7 +81,7 @@
                             <el-row>
                                 <el-col :span="3" style="margin-left: 1.3%;margin-right: 1px">备注</el-col>
                                 <el-col :span="20">
-                                    <textarea class="gy-textarea" v-model="mydata.remark" :disabled="input_disabled"></textarea>
+                                    <textarea class="gy-textarea" v-model="mydata.remark" :disabled="input_disabled" placeholder="请填写"></textarea>
                                 </el-col>
                             </el-row>
                         </el-col>
@@ -144,7 +144,7 @@
                         </el-col>
                     </el-row>
                 </el-form>
-                <div v-if="viewbtnShow" slot="footer" class="dialog-footer" style="margin-right: 4.9%;">
+                <div v-if="viewbtnShow" slot="footer" class="dialog-footer">
                     <button class="gy-button-extra mr10" @click="newAddBtn('ruleForm')">确定</button>
                     <button class="gy-button-normal" @click="closeDialog('ruleForm')">取消</button>
                 </div>
@@ -473,7 +473,6 @@ export default {
                 margin-top: 14px;
                 .search-box {
                     float: right;
-                    // display: inline-block;
                     width: 216px;
                     border-bottom: 1px solid $color-light;
                     input {
@@ -505,17 +504,19 @@ export default {
             }
         }
         .div3{
-            padding: 0 16px 20px;
+            padding: 0 16px 0px;
             table {
                 width: 100%;
                 margin-top: 10px;
                 border-collapse: collapse;
                 td {
                     color: $color-main;
-                    text-align: center;
                     font-size: 12px
                 }
             }
+        }
+        .text-c {
+            text-align: center;
         }
         .myTree{
             .top{
@@ -546,15 +547,35 @@ export default {
                 }
             }
         }
+        .caoz {
+            width: 100px;
+            text-align: center;
+        }
     }
 </style>
 <style lang="scss">
-    .el-message-box__wrapper .el-button--primary{
-        background:#e0370f;
-        border-color:#e0370f;
+    .myrole{
+        .el-message-box__wrapper{
+            .el-button--primary{
+                background:#e0370f;
+                border-color:#e0370f;
+            }
+        }
+        .mytck{
+            .el-dialog__header{
+                border-bottom: 1px solid #DCE0E4;
+                padding: 15px;
+            }
+            .el-dialog__body{
+                padding: 20px 5px 0px 20px;
+            }
+            .mytree{
+                margin-bottom: 20px;
+            }
+            .el-dialog__footer{
+                padding: 0px 30px 30px 0;
+            }
+        }
     }
-    .mytck .el-dialog__header{
-        border-bottom: 1px solid #DCE0E4;
-        padding: 15px;
-    }
+
 </style>

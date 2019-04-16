@@ -1,8 +1,16 @@
 .container-fluid{
     .el-pagination{
-        padding: 0;
         text-align: center;
         margin-top: 20px;
+        padding-bottom: 30px;
+        button:hover {
+            background-color: #4A90E2;
+            color: #fff;
+        }
+        button:disabled {
+            color: #c0c4cc;
+            background-color: #f4f4f5;
+        }
     }
     .el-input__icon{
         line-height: 30px;
@@ -12,7 +20,7 @@
         border-color: $color-input-focus;
     }
     .el-input__inner{
-        font-size: $small-font;
+        font-size: $body-font-size;
     }
     .el-cascader-menu__item.is-active{
         color: $color-extra;
@@ -75,10 +83,10 @@
         height: 30px !important;
     }
     .el-pagination.is-background .el-pager li:not(.disabled).active{
-        background-color: $color-extra;
+        background-color: #4A90E2;
     }
     .el-pagination li:hover {
-        background-color: #e0370f;
+        background-color: #4A90E2;
         color: #fff !important;
     }
     .el-date-editor.el-input, .el-date-editor.el-input__inner{
@@ -89,7 +97,18 @@
     .base-info dl dt, .el-form-item__label {
         text-align: left;
     }
+
 }
+// el-tooltip
+//.el-tooltip__popper.is-light{
+//    border-color: #e6eaea !important;
+//}
+//.el-tooltip__popper[x-placement^=top] .popper__arrow:after {
+//    border-color: transparent !important;
+//}
+//.el-tooltip__popper[x-placement^=top] .popper__arrow {
+//    border-color: transparent !important;
+//}
 .el-message-box__wrapper{
     .el-button--primary{
         background-color: $color-extra;
@@ -103,11 +122,38 @@
 .client {
     .el-dialog {
         border-radius: 5px;
+        width: 760px;
     }
     .el-dialog__header {
+        height: 35px;
+        padding: 0 16px;
+        line-height: 35px;
         border-bottom: 1px solid #DCE0E4;
-        padding: 15px;
+        .el-dialog__headerbtn {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+        }
+        .el-dialog__title {
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 30px;
+        }
+    }
+    .el-dialog__body {
+        padding: 30px 35px;
+    }
+    .el-dialog__footer {
+        padding: 0 30px 30px 0;
     }
 }
-
-
+.el-tooltip__popper.is-light {
+    max-width: 420px;
+    line-height: 1.8;
+    border: 1px solid $color-border;
+    word-break: break-all;
+}
+.el-tooltip__popper .popper__arrow {
+    border-top-color: $color-border!important;
+    border-bottom-color: $color-border!important;
+}
