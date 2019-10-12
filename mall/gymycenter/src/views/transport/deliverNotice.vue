@@ -9,8 +9,7 @@
                 </div>
                 <div class="gy-form-group weight">
                     <span class="l">合同量</span>
-                    <span v-for="pro in orderInfo.consignmentNoteItemList" :key="pro.id">{{pro.skuQuantity}}</span>
-                    <span class="unit">{{infUnitOfMeasureName}}</span>
+                    <span v-for="pro in orderInfo.consignmentNoteItemList" :key="pro.id">{{pro.skuQuantity}}{{infUnitOfMeasureName}}</span>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">运输订单号</span>

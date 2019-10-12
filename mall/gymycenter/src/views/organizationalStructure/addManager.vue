@@ -1,6 +1,7 @@
 <template>
 <div>
-    <el-dialog width="800px" :title="title" :visible.sync="dialogAddManager" :modal="showmodel" :before-close="close" append-to-body>
+    <el-dialog width="800px" :title="title" :visible.sync="dialogAddManager" :modal="showmodel" :before-close="close"
+               append-to-body :close-on-click-modal="false" :close-on-press-escape="false">
         <div>
             <div class="gy-form-group">
                 <span class="l"><strong>*</strong>岗位名称</span>

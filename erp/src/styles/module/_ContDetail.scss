@@ -1,5 +1,5 @@
 .essential-wrapper {
-    padding: 15px 0 25px 0;
+    padding: 6px 0 16px 0;
     &:after {
         display: block;
         clear: both;
@@ -12,14 +12,14 @@
         float: left;
         width: 50%;
         display: flex;
-        min-height: 42px;
-        padding: 6px 0;
-        line-height: 22px;
+        min-height: 46px;
+        padding: 8px 30px;
+        line-height: 30px;
         position: relative;
         .essential-title {
-            flex: 0 0 136px;
+            flex: 0 0 86px;
             position: relative;
-            padding: 0 11px 0 0;
+            padding: 0 10px 0 0;
             color: $color-title;
             .el-checkbox {
                 position: absolute;
@@ -30,7 +30,6 @@
         .essential-text {
             flex: 1;
             display: flex;
-            margin-right: 40px;
             color: $color-main;
             position: relative;
             .unit {
@@ -51,17 +50,19 @@
 
 .essential-row {
     display: flex;
-    min-height: 42px;
+    min-height: 46px;
     padding: 6px 0;
-    line-height: 22px;
+    line-height: 30px;
     .essential-item {
         flex: 1;
         display: flex;
         position: relative;
+        padding: 0 30px;
         .essential-title {
             flex: 0 0 105px;
+            height: 30px;
             position: relative;
-            padding: 0 11px 0 0;
+            padding: 0 10px 0 0;
             color: $color-title;
             .el-checkbox {
                 position: absolute;
@@ -73,7 +74,6 @@
             flex: 1;
             display: flex;
             position: relative;
-            margin-right: 40px;
             color: $color-main;
             word-break: break-word;
             .unit {
@@ -93,8 +93,7 @@
 }
 
 .foot {
-    margin-top: 20px;
-    margin-right: 40px;
+    margin: 0 30px 30px 0;
     text-align: right;
 }
 
@@ -106,9 +105,11 @@
 }
 
 .paydetail-title {
-    font-size: 18px;
+    font-size: 16px;
+    padding: 0 16px;
     color: $color-title;
-    font-weight: 600;
+    line-height: 1;
+    font-weight: bold;
 }
 
 .pay-wrapper {
@@ -140,6 +141,14 @@
         font-size: 18px;
         color: $color-highlight;
         text-align: center;
+        .delete{
+            margin-right: -10px;
+            cursor: pointer;
+        }
+        .plus{
+            margin-left: -5px;
+            cursor: pointer;
+        }
     }
     &:hover div {
         display: block;
@@ -159,8 +168,13 @@
     color: #c0c4cc;
 }
 
-.container-fluid .el-upload--picture-card {
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
+.approval-list {
+  padding: 20px 16px;
+}
+
+.text-overflow {
+    max-height: 120px;
+    overflow-y: auto;
+    word-wrap : break-word;
+    line-height: normal;
 }

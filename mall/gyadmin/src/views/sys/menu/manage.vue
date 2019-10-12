@@ -15,11 +15,11 @@
             <el-radio :label="10" @change="switchOption2(10)">否</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="名称" prop="name" v-if="showName">
+        <el-form-item label="名称" prop="name" v-if="showName" class="mleft-none">
           <el-input v-model="form.name" :disabled="menuNShow" placeholder="请输入名称"></el-input>
         </el-form-item>
         <div v-if="!menuNShow">
-          <el-form-item label="上级菜单" prop="parentName" style="padding-right: 60px">
+          <el-form-item label="上级菜单" prop="parentName" class="last-style">
             <el-popover
               ref="menuListPopover"
               placement="bottom-start"
@@ -59,7 +59,7 @@
         <el-form-item label="菜单URL" v-if="showUrl">
           <el-input v-model="form.url" placeholder="请输入菜单URL"></el-input>
         </el-form-item>
-        <el-form-item label="前端路由" v-if="showFrontUrl" style="padding-right: 60px">
+        <el-form-item label="前端路由" v-if="showFrontUrl">
           <el-input v-model="form.frontUrl" placeholder="请输入前端路由"></el-input>
         </el-form-item>
         <el-form-item label="授权标识" v-if="showPermission">
@@ -278,10 +278,31 @@ export default {
     box-sizing: border-box;
     float: left;
 }
+.el-form-item:nth-child(odd) {
+  padding-right: 60px;
+}
+/deep/ .el-form-item__label {
+  width: 68px !important;
+  margin-left:10px;
+}
+/deep/ .el-form-item__content {
+  margin-left: 80px!important;
+}
+.mleft-none{
+  /deep/ .el-form-item__label{
+    margin-left:0;
+  }
+}
 .detail-info {
     padding-top: 15px;
 }
 .gy-button-extra {
     margin-right: 8px;
+}
+.el-radio + .el-radio{
+  margin-left: 25px;
+}
+.detail-info .last-style{
+  padding-right:0;
 }
 </style>

@@ -3,24 +3,24 @@
 -->
 
 <template>
-    <div class="company-select">
+    <div class="company-select my-company-select">
         <div class="company-select-picker">
-          <el-select class="company-select-item" v-model="currentValue" placeholder="请选择" @change="change">
-              <el-option
-                v-for="(item, index) in company.list"
-                :key="index"
-                :label="item.companyName"
-                :value="item.companyId">
-              </el-option>
-          </el-select>
-
-          <el-button class="company-select-btn company-Btn" @click="dialogFormVisible = true" type="danger" icon="el-icon-plus" circle></el-button>
+          <div class="companylist">
+              <input type="text" class="gy-input" placeholder="请输入公司名" v-model="keywords" @keyup.13="handleGetList" :disabled="defaultProduct">
+              <ul v-show="showList" v-clickOutside="handleHiddenList">
+                  <li v-for="(item, index) in list" :key="index" @click="handleList(item)" v-if="list.length > 0">{{item.companyName}}</li>
+              </ul>
+              <i class="iconfont icon-mySearch" @click="handleGetList"></i>
+              <span v-show="showList">
+                <el-button v-if="list.length === 0" class="company-select-btn company-Btn" @click="dialogFormVisible = true" type="danger" icon="el-icon-plus" circle></el-button>
+              </span>
+          </div>
         </div>
 
         <el-dialog title="公司信息录入" :visible.sync="dialogFormVisible">
-            <div class="gy-form">
+            <div class="gy-form my-form">
               <div class="gy-form-group">
-                <span class="l">公司名字</span>
+                <span class="l"><i>*</i> 公司名称</span>
                 <input class="gy-input" v-model="form.companyName" placeholder="请输入公司名称">
               </div>
               <div class="gy-form-group">
@@ -28,55 +28,32 @@
                 <input class="gy-input" v-model="form.companyPhone" placeholder="请输入公司电话">
               </div>
               <div class="gy-form-group">
-                <span class="l">公司类型</span>
+                <span class="l"><i>*</i> 公司类型</span>
                 <el-select v-model="form.companyTypeId" placeholder="请选择公司类型">
-                  <el-option v-for="(item, index) in companyTypeData" :key="index" :label="item.name" :value="item.value"></el-option>
+                  <el-option v-for="(item, index) in companyTypeData" :key="index" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </div>
               <div class="gy-form-group">
-                <span class="l">省</span>
+                <span class="l"><i>*</i> 省</span>
                 <el-select v-model="form.provinceId" placeholder="请选择省份" @change="handleProvince">
                   <el-option v-for="item in area.province" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </div>
               <div class="gy-form-group">
-                <span class="l">市</span>
+                <span class="l"><i>*</i> 市</span>
                 <el-select v-model="form.cityId" placeholder="请选择城市" @change="handleDelivery">
                   <el-option v-for="item in area.city" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </div>
               <div class="gy-form-group">
-                <span class="l">区</span>
+                <span class="l"><i>*</i> 区</span>
                 <el-select v-model="form.districtId" placeholder="请选择区县">
                   <el-option v-for="item in area.district" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </div>
               <div class="gy-form-group">
-                <span class="l">公司地址</span>
+                <span class="l"><i>*</i> 公司地址</span>
                 <input class="gy-input" v-model="form.address" placeholder="请输入公司地址">
-              </div>
-              <div class="gy-form-group">
-                <span class="l">用户名</span>
-                <input class="gy-input" v-model="form.username" placeholder="请输入用户名">
-              </div>
-              <div class="gy-form-group">
-                <span class="l">用户账号</span>
-                <input class="gy-input" v-model="form.account" placeholder="请输入用户账号">
-              </div>
-              <div class="gy-form-group">
-                <span class="l">用户邮箱</span>
-                <input class="gy-input" v-model="form.userEmail" placeholder="请输入用户邮箱">
-              </div>
-              <div class="gy-form-group">
-                <span class="l">用户电话</span>
-                <input class="gy-input" v-model="form.adminPhone" placeholder="请输入用户电话">
-              </div>
-              <div class="gy-form-group">
-                <span class="l">性别</span>
-                <el-radio-group v-model="form.sex">
-                  <el-radio :label="1">男</el-radio>
-                  <el-radio :label="0">女</el-radio>
-                </el-radio-group>
               </div>
             </div>
           <div slot="footer" class="dialog-footer">
@@ -88,53 +65,62 @@
 </template>
 
 <script>
+const clickOutside = {
+    bind (el, binding) {
+        function documentHandler (e) {
+            if (el.contains(e.target)) {
+                return false;
+            }
+            if (binding.expression) {
+                binding.value(e);
+            }
+        }
+        el.vueClickOutside = documentHandler;
+        document.addEventListener('click', documentHandler);
+    },
+    unbind (el) {
+        document.removeEventListener('click', el.vueClickOutside);
+        delete el.vueClickOutside;
+    }
+};
 export default {
     name: 'companySelect',
     props: {
-        value: [String, Number]
+        value: [String, Number],
+        selected: {
+            type: Object,
+            defalult: {}
+        },
+        defaultProduct: String,
+        offerId: String
+    },
+    directives: {
+        clickOutside
     },
     data () {
         return {
+            keywords: '',
+            list: [],
+            showList: false,
+            lastTime: null,
             area: {
                 province: [],
                 city: [],
                 district: []
             },
             currentValue: '',
-            company: {
-                list: [
-                ]
-            },
             dialogFormVisible: false,
             formLabelWidth: '100px',
             form: {
                 companyName: '',
                 companyPhone: '',
-                companyTypeId: 1,
+                companyTypeId: '',
                 provinceId: '',
                 cityId: '',
                 districtId: '',
-                address: '',
-                username: '',
-                account: '',
-                userEmail: '',
-                adminPhone: '',
-                sex: 1
+                address: ''
             },
-            companyTypeData: [
-                {
-                    value: 1,
-                    name: '贸易商'
-                // },
-                // {
-                //     value: 2,
-                //     name: '承运商'
-                // },
-                // {
-                //     value: 3,
-                //     name: '仓储服务商'
-                }
-            ]
+            companyTypeData: []
         };
     },
     watch: {
@@ -146,35 +132,55 @@ export default {
         }
     },
     created () {
-        this.getData();
         this.currentValue = this.value;
         this.address(0, 'province'); // 获取省市区
+        this.defaultProduct && (this.keywords = this.defaultProduct);
+        this.getCompanyType();
     },
     methods: {
-        change (id) {
-            let data;
-            this.company.list.map(item => {
-                if (id === item.companyId) {
-                    data = item;
+        getList (e) {
+            this.lastTime = e.timeStamp;
+            setTimeout(() => {
+                if (this.lastTime === e.timeStamp && this.keywords && this.keywords.length > 2) {
+                    this.handleGetList();
+                }
+            }, 500);
+        },
+        getCompanyType () {
+            this.$http.get(this.$api.orders.companyType + '1').then(res => {
+                this.companyTypeData = res.data.data;
+            });
+        },
+        handleGetList (type) {
+            if (this.keywords.length < 2) {
+                this.$message.error('请至少输入两个以上文字进行搜索。');
+                return;
+            }
+            this.$http.post(this.$api.orders.creatcompanynew, {
+                'companyName': this.keywords,
+                'category': 1
+            }).then(res => {
+                this.list = res.data.data;
+                if (type === 1) {
+                    this.showList = false;
+                } else {
+                    this.showList = true;
                 }
             });
-            // console.log(data);
-            this.$emit('change', data);
+        },
+        handleList (value) {
+            this.keywords = value.companyName;
+            this.$emit('update:selected', value);
+            this.showList = false;
+            this.$emit('change', value);
+        },
+        handleHiddenList () {
+            this.showList = false;
         },
         setCurrentValue (value) {
             // 设置当前值
             if (value === this.currentValue) return;
             this.currentValue = value;
-        },
-        getData () {
-            this.$http.get(this.$api.transport.tradeCompany)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.company.list = res.data.data;
-                    } else {
-                        this.company.list = [];
-                    }
-                });
         },
         addData () {
             this.submit();
@@ -186,12 +192,12 @@ export default {
             ).then(res => {
                 if (res.data.code === 0) {
                     this.dialogFormVisible = false;
-                    this.getData();
                     this.currentValue = this.form.companyName;
                     this.$message({
                         message: '添加成功',
                         type: 'success'
                     });
+                    Object.assign(this.$data.form, this.$options.data().form);
                 } else {
                     this.$message({
                         message: res.data.message,
@@ -224,10 +230,6 @@ export default {
                 this.$message.error('公司名称不能为空');
                 return false;
             }
-            if (!this.form.companyPhone) {
-                this.$message.error('公司电话不能为空');
-                return false;
-            }
             if (!this.form.companyTypeId) {
                 this.$message.error('公司类型不能为空');
                 return false;
@@ -248,22 +250,6 @@ export default {
                 this.$message.error('公司地址不能为空');
                 return false;
             }
-            if (!this.form.username) {
-                this.$message.error('用户名不能为空');
-                return false;
-            }
-            if (!this.form.account) {
-                this.$message.error('用户账号不能为空');
-                return false;
-            }
-            if (!this.form.userEmail) {
-                this.$message.error('用户邮箱不能为空');
-                return false;
-            }
-            if (!this.form.adminPhone) {
-                this.$message.error('用户电话不能为空');
-                return false;
-            }
             return true;
         }
     }
@@ -278,11 +264,6 @@ export default {
     .el-form-item {
       line-height: 50px;
     }
-    .company-Btn {
-        position: relative;
-        left: -15px;
-        line-height: 17px;
-    }
     &-picker {
         display: flex;
      }
@@ -295,6 +276,55 @@ export default {
     &-btn {
         padding: 7px;
      }
+}
+.my-form {
+  .gy-form-group .l {
+      width: 70px;
+      i {
+        color: red;
+        display: inline-block;
+        vertical-align: middle;
+      }
+  }
+}
+.companylist{
+    position: relative;
+    width: 100%;
+    .company-Btn {
+        position: absolute;
+        right: -35px;
+        top: 0;
+        line-height: 17px;
+    }
+    ul{
+        background-color: #fff;
+        width: 100%;
+        max-height: 200px;
+        overflow: auto;
+        position: absolute;
+        left: 0;
+        top: 30px;
+        z-index: 9;
+        border: 1px solid $color-border;
+        border-top: none;
+        li{
+            padding: 5px 10px;
+            cursor: pointer;
+            &:hover{
+                background-color: #f5f7fa;
+                color: $color-extra;
+            }
+            &.none-tips{
+                font-size: $small-font;
+                text-align: center;
+            }
+        }
+    }
+    .icon-mySearch{
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
 }
 /deep/ .el-dialog__body {
    padding: 0 20px 0 0;
@@ -317,5 +347,15 @@ export default {
 }
 /deep/ .el-dialog__footer {
     padding-top: 0;
+}
+</style>
+<style lang="scss">
+.my-company-select {
+    // .el-form-item.is-error .el-input__inner {
+    //    border-color: #e7ecf1 !important;
+    // }
+    .el-input__inner {
+       border-color: #e7ecf1 !important;
+    }
 }
 </style>

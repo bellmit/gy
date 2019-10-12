@@ -1,6 +1,6 @@
 <template>
     <section class="risk-control f-container">
-        <h3 class="gy-h3">积分获取企业黑名单</h3>
+        <div class="gy-h4">积分获取企业黑名单</div>
         <div class="gy-form">
             <div class="gy-form-group">
                 <span class="l">添加企业</span>
@@ -43,7 +43,7 @@ export default {
         },
         removeBlack (name) {
             this.$confirm('确定将"' + name + '"移除黑名单吗？', '提示').then(() => {
-                this.$http.put(this.$api.point.addBlackName, {blacklist: 0, name: name})
+                this.$http.put(this.$api.point.removeName, {blacklist: 0, name: name})
                     .then(res => {
                         if (res.data.code === 0) {
                             this.$message.success('删除成功');
@@ -86,5 +86,8 @@ export default {
                 }
             }
         }
+    }
+    .gy-form{
+        padding:0 0 0 14px;
     }
 </style>

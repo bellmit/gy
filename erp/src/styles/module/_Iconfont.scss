@@ -1,10 +1,11 @@
 @font-face {
     font-family: 'iconfont';  /* project id 729775 */
-    src: url('//at.alicdn.com/t/font_729775_182f77tq5z4.eot');
-    src: url('//at.alicdn.com/t/font_729775_182f77tq5z4.eot?#iefix') format('embedded-opentype'),
-    url('//at.alicdn.com/t/font_729775_182f77tq5z4.woff') format('woff'),
-    url('//at.alicdn.com/t/font_729775_182f77tq5z4.ttf') format('truetype'),
-    url('//at.alicdn.com/t/font_729775_182f77tq5z4.svg#iconfont') format('svg');
+    src: url('//at.alicdn.com/t/font_729775_y8na4rldlyg.eot');
+    src: url('//at.alicdn.com/t/font_729775_y8na4rldlyg.eot?#iefix') format('embedded-opentype'),
+    url('//at.alicdn.com/t/font_729775_y8na4rldlyg.woff2') format('woff2'),
+    url('//at.alicdn.com/t/font_729775_y8na4rldlyg.woff') format('woff'),
+    url('//at.alicdn.com/t/font_729775_y8na4rldlyg.ttf') format('truetype'),
+    url('//at.alicdn.com/t/font_729775_y8na4rldlyg.svg#iconfont') format('svg');
 }
 .iconfont {
   font-family:"iconfont" !important;
@@ -28,6 +29,10 @@
 }
 .icon-add:before{
   content: "\e762";
+  cursor: pointer;
+}
+.icon-add-b:before{
+  content: "\e81a";
   cursor: pointer;
 }
 .icon-photo-null:before{
@@ -104,6 +109,22 @@
 .icon-invoice:before{
     content: "\e650";
 }
+// 用印申请列表
+.icon-yongyin:before {
+  content: "\e6a6";
+}
+// 用印申请
+.icon-stamp:before {
+    content: "\e69d";
+}
+// 结算菜单
+.icon-settle:before {
+  content: '\e6b1';
+}
+// 结算列表
+.icon-jiesuan:before {
+  content: '\e6b0';
+}
 // 报表查询
 .icon-transaction:before{
     content: "\e64e";
@@ -139,4 +160,28 @@
 }
 .icon-repertory:before{
   content: "\e670";
+}
+.icon-message-warning:before {
+  content: "\e64c";
+  color: #E7B140;
+  position: relative;
+  top: -2px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+.icon-message-error:before {
+  content: "\e646";
+  color: #e0370f;
+  position: relative;
+  top: 3px;
+  font-size: 26px;
+  margin-right: 10px;
+}
+.icon-add1:before {
+    content: '\e6b5';
+    color: #4C97FC;
+}
+.icon-del1:before {
+    content: '\e6b6';
+    color: #E0370F;
 }

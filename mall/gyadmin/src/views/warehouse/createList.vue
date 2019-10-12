@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page createList">
     <div class="m-panel">
       <div class="selected">
         <div class="gy-h4">仓储公司详细信息</div>
@@ -12,7 +12,7 @@
             class="iconfont icon-arrow-down"></i></span>
         </div>
       </div>
-      <div v-show="toggleSelect" class="gy-form-box-14">
+      <div v-show="toggleSelect" class="gy-form-box-14 other">
         <div class="gy-form-group">
           <span class="l">仓储类型</span>
           <el-select v-model="warehouseType" placeholder="请选择">
@@ -48,15 +48,15 @@
         </div>
         <div class="gy-form-group">
           <span class="l">地址</span>
-          <input v-model="address" placeholder="请输入内容" class="gy-input">
+          <input v-model="address" placeholder="请输入" class="gy-input">
         </div>
         <div class="gy-form-group">
           <span class="l">联系人</span>
-          <input v-model="contactPerson" placeholder="请输入内容" class="gy-input">
+          <input v-model="contactPerson" placeholder="请输入" class="gy-input">
         </div>
         <div class="gy-form-group">
           <span class="l">联系手机号</span>
-          <input v-model="contactMobile" placeholder="请输入内容" class="gy-input">
+          <input v-model="contactMobile" placeholder="请输入" class="gy-input">
         </div>
         <div class="gy-form-group">
           <span class="l">状态</span>
@@ -80,8 +80,8 @@
         <div class="gy-form-group">
           <span class="l">更新人</span>
           <input v-model="updatedPerson" placeholder="请输入" class="gy-input">
+            <i class="iconfont icon-search i-search" @click="getList()"></i>
         </div>
-        <i class="iconfont icon-search i-search" @click="getList()"></i>
       </div>
       <div class="btns-wrapper">
         <button class="gy-button-extra" v-if="isAuth('member:warehouseCompanyDetail:add')" @click="add">添加</button>
@@ -98,18 +98,18 @@
         <tr>
           <th style="text-align: center">#</th>
           <th style="width:250px">企业名称</th>
-          <th>状态</th>
           <th>区域</th>
-          <th style="width:150px">地址</th>
+          <th style="width:204px">地址</th>
           <th>企业性质</th>
           <th>联系人</th>
           <th>联系电话</th>
           <th>仓储类型</th>
           <th>尽调负责人</th>
           <th>录入人</th>
-          <th>录时间</th>
           <th>更新人</th>
+          <th>录入时间</th>
           <th>更新时间</th>
+          <th>状态</th>
         </tr>
         </thead>
         <tbody>
@@ -122,7 +122,6 @@
             {{item.id}}
           </td>
           <td>{{item.name}}</td>
-          <td>{{statusOptions[item.status]}}</td>
           <td>{{areaCategoryOptions[item.areaCategoryId]}}</td>
           <td>
             {{item.address}}
@@ -141,9 +140,10 @@
             {{item.surveyPrincipal}}
           </td>
           <td>{{item.createdPerson}}</td>
-          <td>{{item.createdDate|date}}</td>
           <td>{{item.updatedPerson}}</td>
+          <td>{{item.createdDate|date}}</td>
           <td>{{item.updatedDate|date}}</td>
+          <td>{{statusOptions[item.status]}}</td>
         </tr>
         </tbody>
       </table>
@@ -333,7 +333,7 @@ export default {
                         this.$message.success('操作成功');
                         this.getList();
                     } else {
-                        this.$message.success(this.data.message);
+                        this.$message.error('统一信用资质证不存在');
                     }
                 });
             }
@@ -400,12 +400,11 @@ export default {
         margin-left: 8px;
      }
   }
-
   .gy-table {
      min-width: 1610px;
-  }
-  .gy-table td{
-      line-height: 1.5;
+      td{
+          line-height: 1.5;
+      }
   }
   .el-row {
     color: #000000;
@@ -415,7 +414,7 @@ export default {
     height: 20px;
     text-align: center;
     span {
-      color: #E0370F;
+      color: #e59640;
     }
   }
 
@@ -468,12 +467,11 @@ export default {
   .i-search {
     position: absolute;
     right: 0;
-    bottom: 26px;
+    bottom: 17px;
   }
 
   td {
     word-break: break-all;
-    text-align: left;
   }
 
   .gy-form-group {
@@ -492,6 +490,16 @@ export default {
     .l {
       width: 100px;
       padding-left: 30px;
+    }
+  }
+  .gy-form-box-14{
+    padding:4px 0 12px 14px;
+  }
+</style>
+<style lang="scss">
+  .createList{
+    .el-input__inner{
+      height: 30px!important;
     }
   }
 </style>

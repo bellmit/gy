@@ -1,6 +1,9 @@
 <template>
     <div class="addbanks">
-        <el-dialog width="500px" class="order-dialoged" title="新增银行账户信息" :visible.sync="addBank" :before-close="closeDlg">
+        <el-dialog width="500px" class="order-dialoged" title="新增银行账户信息"
+            :visible.sync="addBank"
+            :before-close="closeDlg"
+            :close-on-click-modal = "false">
             <!--<div class="order-apply"><h3>新增银行账户信息</h3></div>-->
             <div class="gy-form-group" style="width: 100%">
                 <span class="l"><i>*</i>账号名称</span>
@@ -49,7 +52,9 @@ export default {
                     // 返回到调用端
                     this.addBank = false;
                     this.creatBank.id = res.data.data.id;
-                    this.$emit('onSaveAccInfo', this.creatBank);
+                    let obj = res.data.data;
+                    this.$emit('onSaveAccInfo', obj);
+                    // console.log(obj);
                     this.creatBank.id = null;
                     this.creatBank.companyId = null;
                     this.creatBank.accountName = null;
@@ -96,6 +101,14 @@ export default {
             margin-top: 5px;
             text-align: right;
             padding-right: 40px;
+        }
+        .gy-form-group{
+            padding: 8px 30px 8px 120px;
+            .l{
+                i{
+                    color: red;
+                }
+            }
         }
     }
 </style>

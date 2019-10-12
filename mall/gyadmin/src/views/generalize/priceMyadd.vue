@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 800px;margin-top: 30px;margin-left: 50px">
+  <div style="margin-top: 20px;">
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="260px" class="demo-ruleForm">
       <el-form-item label="价格日期" prop="date1">
         <el-date-picker

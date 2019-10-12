@@ -2,26 +2,77 @@
     border-collapse: collapse;
     border-spacing: 0;
     width: 100%;
-    text-align: center;
     border-top: 1px solid #f2f2f2;
     border-right: 1px solid #f2f2f2;
     border-left: 1px solid #f2f2f2;
+    .title{
+        font-weight: bold;
+    }
     th{
         font-weight: normal;
     }
     td, th{
         border-bottom: 1px solid #f2f2f2;
-        padding: 10px 0 10px 20px;
-        line-height: 1.8;
-        text-align: left;
+        padding: 10px;
+        line-height: 20px;
+        font-size: 12px;
+        &.align-r{
+            text-align: right;
+        }
     }
     thead{
         td, th{
             background-color: #edf3f7;
-            color: $color-title;
+            color: #666;
+            font-weight: bold;
+            position: relative;
+            text-align: center;
+            &:after{
+                content: '';
+                height: 90%;
+                width: 1px;
+                background-color: rgba(255, 255, 255, 0.7);
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            &:last-child:after{
+                display: none;
+            }
+        }
+    }
+    tbody{
+        tr, td{
+            text-align: left;
+            padding-left: 10px;
+        }
+        // 针对操作按钮-图片
+        .operation-styles{
+            text-align: center;
+            padding-left: 10px;
+        }
+        // 针对金额，金额，数量，单位样式
+        .amount-right{
+            text-align: right!important;
+            padding-left: 10px;
         }
     }
     tr.selected, tr:hover{
         background-color: #f9f9f9;
     }
+    .align-r{
+        text-align: right !important;
+    }
+}
+table{
+    word-break:break-all;
+    td{
+        color: #666!important;
+    }
+}
+.total-number{
+    font-size: 12px;
+    display: block;
+    margin-top: 20px;
 }

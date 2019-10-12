@@ -1,5 +1,5 @@
 .f-container {
-    padding: 26px 36px;
+    //padding: 26px 36px;
     h3 {
         margin: 0;
     }
@@ -40,18 +40,19 @@
         .classify {
             display: flex;
             .classify-item {
-                padding: 8px 15px;
+                padding: 0 5px;
                 cursor: pointer;
                 &.active {
                     border-bottom: 2px solid;
                     color: $color-highlight;
                 }
                 & + .classify-item {
-                    margin-left: 33px;
+                    margin-left: 10px;
                 }
             }
         }
         &.advanced-search {
+            margin-bottom:20px;
             display: flex;
             justify-content: space-between;
         }
@@ -101,6 +102,9 @@
     .detail-img {
         max-width: 60px;
         max-height: 36px;
+    }
+    .selected-box{
+        padding:0 0 12px 14px;
     }
 }
 .gy-button-view {

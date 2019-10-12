@@ -1,55 +1,62 @@
 <template>
-    <div class="transport-wrap order">
-        <h2>物流询价单</h2>
+    <div class="transport-wrap order transport-wrap-list">
+        <div class="gy-h4">
+            物流询价
+        </div>
         <div class="t">
             <ul class="tabs">
                 <li class="all" :class="{'selected': tabIdx === -1}" @click="tabChange(-1)"><a href="javascript:;">全部</a></li>
                 <li v-for="(tab, index) in statusList" :key="tab.enquiryNoteStatus" :class="{'selected': tabIdx === index}" @click="tabChange(index, tab.enquiryNoteStatus)"><a href="javascript:;">{{statusValue[index]}}(<span>{{tab.count}}</span>)</a></li>
             </ul>
-            <div class="search">
-                <i class="iconfont icon-search" @click="handleSearch"></i>
-                <input type="text" placeholder="请输入品名/询价单号" v-model="enquiryData.data.keywords" class="gy-input">
-                <i class="iconfont" :class="{'icon-arrow-down': !showAdvance, 'icon-arrow-up': showAdvance}" @click="showAdvance = !showAdvance"></i>
+            <div class="search-add">
+                <div class="se-left11">
+                    <input type="text" placeholder="请输入品名/询价单号" v-model="enquiryData.data.keywords">
+                    <i class="iconfont icon-search" @click="handleSearch"></i>
+                </div>
+                <div class="se-left2" @click="showAdvance = !showAdvance">
+                    <span>高级搜索</span>
+                    <i class="iconfont" :class="{'icon-arrow-down': !showAdvance, 'icon-arrow-up': showAdvance}"></i>
+                </div>
             </div>
-            <transport-search :show-advance="showAdvance" :keywords="enquiryData.data.keywords" :advance.sync="enquiryData.data" :searchInfo.sync="enquiryInfo" :search-type="searchType" :count-status.sync="statusList"></transport-search>
+            <transport-search :show-advance="showAdvance" :keywords="enquiryData.data.keywords" :consignmentNoteStatus="enquiryData.data.enquiryNoteStatus" :advance.sync="enquiryData.data" :searchInfo.sync="enquiryInfo" :search-type="searchType" :count-status.sync="statusList"></transport-search>
         </div>
         <table class="gy-table list bid-list">
             <thead>
                 <tr>
-                    <td class="td-180">询价单号</td>
-                    <td class="td-180">托运方</td>
-                    <td class="td-140">商品名称</td>
-                    <td class="td-80">数量</td>
-                    <td class="td-160">装货地</td>
-                    <td class="td-160">卸货地</td>
-                    <td class="td-100">询价日期</td>
-                    <td>操作</td>
+                    <td class="td-15">询价单号</td>
+                    <td class="td-15">托运方</td>
+                    <td class="td-15">商品名称</td>
+                    <td class="td-5">数量（吨）</td>
+                    <td class="td-15">装货地</td>
+                    <td class="td-15">卸货地</td>
+                    <td class="td-10">询价日期</td>
+                    <td class="td-10">操作</td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(item, index) in enquiryInfo.list" :key="item.id" v-if="enquiryInfo.list.length > 0">
                     <td colspan="8" class="item">
-                        <table class="gy-table">
+                        <table class="gy-table my-table">
                             <tr>
-                                <td class="td-180">{{item.enquiryNoteCode}}</td>
-                                <td class="td-180">{{item.consignorName}}</td>
-                                <td class="td-140"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuName}}</span></td>
-                                <td class="td-80"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuQuantity}}</span></td>
-                                <td class="td-160">{{item.loadTotalAddress}}</td>
-                                <td class="td-160">{{item.unloadTotalAddress}}</td>
-                                <td class="td-100">{{item.createdDate | date}}</td>
-                                <td><router-link :to="{ name: 'transportBidDetail', query: {'bidId': item.id} }" class="gy-button-view">查看</router-link><a href="javascript:;" class="gy-button-view" @click="showPrice(index, item.id)">竞价<i class="iconfont" :class="{'icon-arrow-up': priceIdx === index, 'icon-arrow-down': priceIdx !== index}"></i></a></td>
+                                <td class="td-15">{{item.enquiryNoteCode}}</td>
+                                <td class="td-15">{{item.consignorName}}</td>
+                                <td class="td-15"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuName}}</span></td>
+                                <td class="td-5 align-r"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuQuantity}}</span></td>
+                                <td class="td-15">{{item.loadTotalAddress}}</td>
+                                <td class="td-15">{{item.unloadTotalAddress}}</td>
+                                <td class="td-10">{{item.createdDate | date}}</td>
+                                <td class="td-10"><router-link :to="{ name: 'transportBidDetail', query: {'bidId': item.id} }" class="gy-button-view">查看</router-link><a href="javascript:;" class="gy-button-view" @click="showPrice(index, item.id)">竞价<i class="iconfont" :class="{'icon-arrow-up': priceIdx === index, 'icon-arrow-down': priceIdx !== index}"></i></a></td>
                             </tr>
                         </table>
                         <div class="sub-list" v-if="priceIdx === index">
                             <table class="gy-table">
                                 <tr v-for="(price, index) in priceList" :key="index" v-if="priceList.length > 0">
                                     <td>{{price.biddingNoteCode}}</td>
-                                    <td>{{price.carrierName}}<!--<a href="" class="link-im" target="_blank"><i class="iconfont icon-im"></i></a>--></td>
-                                    <td>{{price.quotePrice}}元/吨</td>
+                                    <td>{{price.carrierName}}</td>
+                                    <td align-r>{{price.quotePrice}}元/吨</td>
                                     <td style="text-align: right;">
                                         <span v-if="price.biddingNoteStatus > 1">
-                                            <button class="gy-button-view" @click="handleShowContract(price.filePath)">查看合同</button>
+                                            <span class="gy-button-view" @click="handleShowContract(price.filePath)">查看合同</span>
                                         </span>
                                     </td>
                                 </tr>
@@ -121,6 +128,7 @@ export default {
     methods: {
         handleSearch () {
             this.getEnquiryList(1);
+            this.getEnquiryStatus();
         },
         getEnquiryList (n) {
             this.enquiryData.pageNum = n;
@@ -183,6 +191,15 @@ export default {
         padding: 0 20px 10px;
     }
     .bid-list{
+        .td-5{
+          width: 5%;
+        }
+        .td-15{
+          width: 15%;
+        }
+        .td-10{
+          width: 10%;
+        }
         .td-180{
             width: 180px;
         }
@@ -194,6 +211,9 @@ export default {
         }
         .td-100{
             width: 100px;
+        }
+        .td-350{
+            width: 350px;
         }
         .td-80{
             width: 80px;
@@ -216,6 +236,10 @@ export default {
             }
         }
     }
+    .my-table td {
+        padding: 10px 20px;
+        line-height: 1.6;
+    }
     .gy-button-view{
         margin-right: 6px;
     }
@@ -224,6 +248,7 @@ export default {
         line-height: 8px;
         transform: scale(0.8);
         display: inline-block;
+        margin-top:-2px;
     }
     .sub-list{
         background-color: #fff;
@@ -244,5 +269,77 @@ export default {
         text-align: center;
         line-height: 40px;
         font-size: 14px;
+    }
+    .transport-wrap-list{
+        .t{
+            overflow: hidden;
+            padding:0 0 12px 0;
+            .tabs{
+                li{
+                    &.selected{
+                        a{
+                            color: #e59640;
+                        }
+                        &:after{
+                            background-color: #e59640;
+                            height: 2px;
+                        }
+                    }
+                    a:hover, a.gy-link:hover{
+                        color: #e59640;
+                    }
+                }
+            }
+        }
+        .search-add{
+            float: right;
+            overflow: hidden;
+            .se-left11{
+                float: left;
+                width: 252px;
+                margin-right: 5px;
+                border-bottom: 1px solid #b5b5b5;
+                input{
+                    border: none;
+                    width: 220px;
+                }
+            }
+            .se-left2{
+                float: left;
+                display: inline-block;
+                margin-left: 2px;
+                i{
+                    vertical-align: top;
+                }
+            }
+            .se-left2:hover{
+                cursor: pointer;
+            }
+        }
+        .gy-form{
+            padding:0 0 0 20px;
+            .gy-form-group{
+                padding:8px 30px 8px 130px;
+                .l{
+                    width:162px;
+                    top:8px;
+                }
+            }
+            .height-new{
+                padding:8px 30px 8px 75px;
+                height:46px;
+            }
+            .my_add{
+                position: absolute;
+                top: 8px;
+                right: 11px;
+            }
+        }
+        .t .search .se-left11{
+            width:180px;
+            input{
+                width:155px;
+            }
+        }
     }
 </style>

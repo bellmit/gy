@@ -6,13 +6,13 @@
       <div class="gy-form ">
             <p class="model_title"><i class="iconfont icon-gaishu"></i> 概述</p>
             <div class="gy-form-group">
-                <span  class="l"> 客户编号</span>
-                <span>{{formData.id||'-'}}</span>
+                <span  class="l"> 企业编号</span>
+                <span>{{formData.customerNo||'-'}}</span>
             </div>
-            <div class="gy-form-group ">
+            <!-- <div class="gy-form-group ">
                 <span  :class="{'is-required':viewType===2}"  class="l"> 客户状态</span>
                 <span v-if="viewType ===1">{{formData.customerStatus===0?'潜在客户':'客户'}}</span>
-                <el-select v-else  v-model="formData.customerStatus"  placeholder="请选择">
+                <el-select v-else  v-model="formData.customerStatus" :disabled="formData.customerStatus===0" placeholder="请选择">
                     <el-option
                     v-for="item in  clientManagers"
                     :key="item.dictId"
@@ -20,8 +20,8 @@
                     :value="item.dictId">
                     </el-option>
                 </el-select>
-            </div>
-             <div class="gy-form-group clearfix">
+            </div> -->
+             <div class="gy-form-group">
                 <span :class="{'is-required':viewType===2}" class="l"> 企业类型</span>
                 <span v-if="viewType ===1">{{formData.customerTypeDictId||'-'}}</span>
                 <el-select v-else  v-model="formData.customerTypeDictId"  placeholder="请选择">
@@ -57,6 +57,11 @@
                     </el-option>
                 </el-select>
             </div>
+            <div class="gy-form-group">
+                <span :class="{'is-required':viewType===2}" class="l">企业名称</span>
+                <span v-if="viewType ===1">{{formData.customerName ||'-'}}</span>
+                <input v-else  type="text" :disabled="formData.authStatus !== 0" placeholder="请填写" class="gy-input"  v-model="formData.customerNames">
+            </div>
         </div>
      <div class="gy-form ">
         <p class="model_title"><i class="iconfont icon-xiangxixinxi"></i> 详细信息</p>
@@ -74,8 +79,8 @@
             </div>
             <div class="gy-form-group">
                 <span class="l"> 注册资金</span>
-                <span v-if="viewType ===1">{{formData.registeredCapital?formData.registeredCapital+'元':'-'}}</span>
-                <div  v-else><input  @change="dataToFixed('registeredCapital', 2)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.registeredCapital">元</div>
+                <span v-if="viewType ===1">{{formData.registeredCapital| numToCash(4) =='-'?'-':formData.registeredCapital | numToCash(4) +'万元'}}</span>
+                <div  v-else><input  @change="dataToFixed('registeredCapital', 4)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.registeredCapital">万元</div>
             </div>
             <div class="contact-address gy-form-group">
                     <span :class="{'is-required':viewType===2}" class="l">总部地址</span>
@@ -119,19 +124,34 @@
                  :picker-options="pickerOptions0">
                   </el-date-picker>
             </div>
-             <div class="gy-form-group">
+            <div class="gy-form-group">
+                <span class="l"> 区域</span>
+                <span v-if="viewType ===1">{{formData.region ||'-'}}</span>
+                <input v-else type="text" placeholder="请输入" class="gy-input"  v-model="formData.region">
+            </div>
+             <div class="gy-form-group clearfix">
                 <span v-if="viewType ===1">{{formData.address ||'-'}}</span>
                 <input v-else type="text" placeholder="联系地址" class="gy-input"  v-model="formData.address">
             </div>
              <div class="gy-form-group">
-                <span :class="{'is-required':viewType===2}" class="l"> 主营产品</span>
+                <span :class="{'is-required':viewType===2}" class="l"> 交易品种</span>
                 <span v-if="viewType ===1">{{formData.products ||'-'}}</span>
                 <input v-else  type="text" placeholder="请填写" class="gy-input"  v-model="formData.products">
             </div>
+             <div class="gy-form-group">
+                <span class="l"> 产业链状态</span>
+                <span v-if="viewType ===1">{{formData.industrialChainsStatus ||'-'}}</span>
+                <input v-else  type="text" placeholder="请填写" class="gy-input"  v-model="formData.industrialChainsStatus">
+            </div>
+             <div class="gy-form-group">
+                <span  class="l"> 产业链分布</span>
+                <span v-if="viewType ===1">{{formData.industrialChainsArea ||'-'}}</span>
+                <input v-else  type="text" placeholder="请填写" class="gy-input"  v-model="formData.industrialChainsArea">
+            </div>
              <div class="clearfix  gy-form-group">
                 <span class="l"> 年产量</span>
-                <span v-if="viewType ===1">{{formData.annualYield?formData.annualYield+'吨':'-'}}</span>
-                <div  v-else><input  @change="dataToFixed('annualYield', 2)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.annualYield">吨</div>
+                <span v-if="viewType ===1">{{formData.annualYield| numToCash(4) =='-'?'-':formData.annualYield| numToCash(4)+'万吨'}}</span>
+                <div  v-else><input  @change="dataToFixed('annualYield', 4)" type="number" placeholder="请填写" class="gy-input three-column"  v-model.number="formData.annualYield">万吨</div>
             </div>
             <div class="gy-form-group">
                 <span class="l"> 原料</span>
@@ -140,25 +160,81 @@
             </div>
             <div class="gy-form-group">
                 <span class="l"> 年交易量</span>
-                <span v-if="viewType ===1">{{formData.annualTurnover?formData.annualTurnover+'吨':'-'}}</span>
-                <div  v-else ><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualTurnover', 2)"  v-model.number="formData.annualTurnover">吨</div>
+                <span v-if="viewType ===1">{{formData.annualTurnover| numToCash(4) =='-'?'-':formData.annualTurnover| numToCash(4)+'万吨'}}</span>
+                <div  v-else ><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualTurnover', 4)"  v-model.number="formData.annualTurnover">万吨</div>
             </div>
             <div class="gy-form-group">
                 <span class="l"> 年营业额</span>
-                <span v-if="viewType ===1">{{formData.annualAmount?formData.annualAmount+'元':'-'}}</span>
-                <div  v-else><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualAmount', 2)"  v-model.number="formData.annualAmount">元</div>
+                <span v-if="viewType ===1">{{formData.annualAmount| numToCash(4) == '-'?'-':formData.annualAmount| numToCash(4)+'万元'}}</span>
+                <div  v-else><input type="number" placeholder="请填写" class="gy-input three-column"   @change="dataToFixed('annualAmount', 4)"  v-model.number="formData.annualAmount">万元</div>
             </div>
+            <div class="gy-form-group">
+                <span class="l"> 上游关系</span>
+                <span v-if="viewType ===1">{{formData.upRelationship ||'-'}}</span>
+                <input v-else  type="text" placeholder="请输入" class="gy-input"  v-model="formData.upRelationship">
+            </div>
+            <div class="gy-form-group">
+                <span class="l"> 下游关系</span>
+                <span v-if="viewType ===1">{{formData.downRelationship ||'-'}}</span>
+                <input v-else type="text" placeholder="请输入" class="gy-input"  v-model="formData.downRelationship">
+            </div>
+            <!-- <div class="gy-form-group">
+                <span class="l"> 会议期间</span>
+                <span v-if="viewType ===1">{{formData.meetingPeriod ||'-'}}</span>
+                <input v-else type="text" placeholder="请输入" class="gy-input"  v-model="formData.meetingPeriod">
+            </div> -->
             <div class="gy-form-group clearfix">
-                <span :class="{'is-required':viewType===2}" class="l"> 来源</span>
-                <span v-if="viewType ===1">{{formData.customerSourceDictId||'-'}}</span>
-                <el-select v-else  v-model="formData.customerSourceDictId"  placeholder="请填写">
+                <span class="l"> 现场签约</span>
+                <span v-if="viewType ===1">{{restsStatus[formData.spotContract] ||'-'}}</span>
+                <el-select v-else v-model="formData.spotContract"  placeholder="请选择">
                     <el-option
-                    v-for="item in customerSource"
-                    :key="item.dictId"
-                    :label="item.dictName"
-                    :value="item.dictId">
+                    v-for="item in spotContracttype"
+                    :key="item.spotContractId"
+                    :label="item.spotContName"
+                    :value="item.spotContractId">
                     </el-option>
                 </el-select>
+            </div>
+            <div class="gy-form-group">
+                <span class="l"> 入驻意向</span>
+                <span v-if="viewType ===1">{{restsStatus[formData.enterIntention]||'-'}}</span>
+                <el-select v-else v-model="formData.enterIntention"  placeholder="请选择">
+                    <el-option
+                    v-for="item in enterIntentiontype"
+                    :key="item.enterIntentionId"
+                    :label="item.enterIntentionName"
+                    :value="item.enterIntentionId">
+                    </el-option>
+                </el-select>
+            </div>
+            <div class="gy-form-group">
+                <span class="l"> ERP系统</span>
+                <span v-if="viewType ===1">{{dataStatus[formData.erpSystem]||'-'}}</span>
+                <el-select v-else v-model="formData.erpSystem"  placeholder="请选择">
+                    <el-option
+                    v-for="item in erpSystemtype"
+                    :key="item.erpSystemId"
+                    :label="item.erpSystemName"
+                    :value="item.erpSystemId">
+                    </el-option>
+                </el-select>
+            </div>
+            <div class="gy-form-group">
+                <span class="l"> OA系统</span>
+                <span v-if="viewType ===1">{{dataStatus[formData.oaSystem]||'-'}}</span>
+                <el-select v-else v-model="formData.oaSystem"  placeholder="请选择">
+                    <el-option
+                    v-for="item in oaSystemtype"
+                    :key="item.oaSystemId"
+                    :label="item.oaSystemName"
+                    :value="item.oaSystemId">
+                    </el-option>
+                </el-select>
+            </div>
+            <div class="gy-form-group">
+                <span class="l"> 邀请人</span>
+                <span v-if="viewType ===1">{{formData.inviter ||'-'}}</span>
+                <input v-else type="text" placeholder="请输入" class="gy-input"  v-model="formData.inviter">
             </div>
              <div class="gy-form-group single-row clearfix">
                  <span class="l"> 备注</span>
@@ -167,7 +243,7 @@
             </div>
             <div class="gy-form-group">
                  <span class="l"> 企业认证状态</span>
-                 <span>{{formData.authStatus===1?'待审核':formData.authStatus===2?'已通过':'已驳回'}}</span>
+                 <span>{{formData.authStatus===0? '未认证' : formData.authStatus===1?'待审核':formData.authStatus===2?'已通过':'已驳回'}}</span>
             </div>
             <div class="gy-form-group ">
                  <span class="l"> CA认证状态</span>
@@ -206,10 +282,84 @@
                     <img :src="showImgUrl" alt="">
                </div>
             </div>
+        </div>
+        <div class="gy-form">
+            <p class="model_title"><i class="iconfont icon-xiangxixinxi"></i> 引荐人来源</p>
+            <div class="gy-form-group">
+                <span  class="l"> 来源</span>
+                <span v-if="viewType ===1">{{formData.referrerTypeDictName||'-'}}</span>
+                <el-select v-else :disabled="formData.referrerTypeDictIds !== null" v-model="formData.referrerTypeDictId" @change="customerChange" placeholder="请填写">
+                    <el-option
+                    v-for="item in customerSource"
+                    :key="item.dictId"
+                    :label="item.dictName"
+                    :value="item.dictId">
+                    </el-option>
+                </el-select>
+            </div>
+            <!-- 公司来源 -->
+            <div v-if="formData.referrerTypeDictName === '撮合公司' || formData.referrerTypeDictName === '其他公司'">
+                <div v-if="formData.referrerTypeDictName === '其他公司'" class="gy-form-group clearfix">
+                    <span class="l"> 公司名称</span>
+                    <span v-if="viewType ===1">{{formData.referrerDesc.companyName||'-'}}</span>
+                    <input v-else type="text" :disabled="iscompanyName" placeholder="请输入" class="gy-input"  v-model="formData.referrerDesc.companyName">
+                </div>
+                <div v-if="formData.referrerTypeDictName === '撮合公司'" class="gy-form-group clearfix">
+                    <span class="l"> 公司名称</span>
+                    <span v-if="viewType ===1">{{formData.referrerDesc.companyName||'-'}}</span>
+                    <div v-else><product-search :selected.sync="selectedProduct" :defaultProduct="formData.referrerDesc.companyName" :offerId="iscompanyName"></product-search></div>
+                </div>
+                <div class="gy-form-group clearfix">
+                    <span class="l"> 引荐人</span>
+                    <span v-if="viewType ===1">{{formData.referrerDesc.contactName||'-'}}</span>
+                    <input v-else :disabled="iscontactName" type="text" placeholder="请输入" class="gy-input"  v-model="formData.referrerDesc.contactName">
+                </div>
+                <div class="gy-form-group">
+                    <span class="l"> 手机号</span>
+                    <span v-if="viewType ===1">{{formData.referrerDesc.phone||'-'}}</span>
+                    <input v-else type="text" :disabled="isphone" placeholder="请输入" class="gy-input"  v-model="formData.referrerDesc.phone">
+                </div>
+            </div>
+            <div v-if="formData.referrerTypeDictName === '外部人员' || formData.referrerTypeDictName === '内部人员'">
+                <div class="gy-form-group clearfix">
+                    <span class="l"> 引荐人</span>
+                    <span v-if="viewType ===1">{{formData.referrerDesc.contactName||'-'}}</span>
+                    <input v-else type="text" :disabled="iscontactName" placeholder="请输入" class="gy-input"  v-model="formData.referrerDesc.contactName">
+                </div>
+                <div class="gy-form-group">
+                    <span class="l"> 手机号</span>
+                    <span v-if="viewType ===1">{{formData.referrerDesc.phone||'-'}}</span>
+                    <input v-else type="text" :disabled="isphone" placeholder="请输入" class="gy-input"  v-model="formData.referrerDesc.phone">
+                </div>
+            </div>
+        </div>
+        <div class="gy-form">
+            <p class="model_title"><i class="iconfont icon-xiangxixinxi"></i> 新增自定义字段</p>
+            <div v-for="(item, index) in formData.extendInfos" :key="index">
+                <div v-if="isShowOrName || formData.extendInfos[index].enName !== 'organizationName'" class="gy-form-group">
+                    <span class="l">
+                        <el-tooltip poper-class="test" :content="item.cnName" :disabled="(item.cnName && item.cnName.replace(/[^x00-xff]/g, 'aa').length > 12)? disabled : !disabled" placement="top" effect="light">
+                            <span class="nowrap">{{item.cnName}}</span>
+                        </el-tooltip>
+                    </span>
+                    <span v-if="viewType ===1">{{formData.extendInfos[index].value||'-'}}</span>
+                    <div v-else>
+                    <el-select v-if="item.fieldType==3" v-model="formData.extendInfos[index].value"  placeholder="请选择">
+                        <el-option
+                        v-for="item1 in item.options"
+                        :key="item1"
+                        :label="item1"
+                        :value="item1">
+                        </el-option>
+                    </el-select>
+                    <input v-else type="text" placeholder="请输入" maxlength="20" class="gy-input"  v-model="formData.extendInfos[index].value">
+                    </div>
+                </div>
+            </div>
             <div class="contact-con">
                 <div @click="currentTabIndex=0" class="contact-tab" :class="{'current-tab':currentTabIndex===0}">客户内部员工</div>
                 <div @click="currentTabIndex=1" class="contact-tab" :class="{'current-tab':currentTabIndex===1}">跟进进度</div>
-                <div  v-if="viewType==2&&currentTabIndex==0" class="add-contact"><button   @click="addContact"  class="gy-button-normal">新增</button></div>
+                <div  v-if="viewType==2&&currentTabIndex==0" class="add-contact"><button   @click="addContact"  class="gy-button-extra">新增</button></div>
                 <table v-if="currentTabIndex===0" class="gy-table">
                     <thead>
                         <tr>
@@ -219,18 +369,18 @@
                             <td>邮箱</td>
                             <td>是否联系人</td>
                             <td>备注</td>
-                            <td width="200">操作</td>
+                            <td width="100">操作</td>
                         </tr>
                     </thead>
                     <tbody v-if="formData.customerContacts.length !== 0">
                     <tr v-for="(item,index) in formData.customerContacts" :key="index">
                         <td>{{item.contactName||'-'}}</td>
                          <td>{{item.title||'-'}}</td>
-                         <td>{{item.mobile||'-'}}</td>
-                         <td>{{item.email||'-'}}</td>
+                         <td class="align-r">{{item.mobile||'-'}}</td>
+                         <td class="align-r">{{item.email||'-'}}</td>
                          <td>{{item.defaultContact?'是':'否'}}</td>
                          <td><span class="nowrap">{{item.remark||'-'}}</span></td>
-                        <td><button @click="editcontact(index)" class="gy-button-view">{{viewType==1?'查看':'编辑'}}</button><button v-if="viewType==2" @click="deleteContact(item.id, index)" class="gy-button-view add-margin">删除</button></td>
+                        <td  class="align-c"><button @click="editcontact(index)" class="gy-button-view">{{viewType==1?'查看':'编辑'}}</button><button v-if="viewType==2" @click="deleteContact(item.id, index)" class="gy-button-view add-margin">删除</button></td>
                     </tr>
                     </tbody>
                      <tbody v-else>
@@ -248,17 +398,17 @@
                             <td>跟进记录</td>
                             <td>客户经理</td>
                             <td>跟进人</td>
-                            <td width="200">操作</td>
+                            <td width="100">操作</td>
                         </tr>
                     </thead>
                     <tbody v-if="formData.trackList.length !== 0">
                     <tr v-for="(item,index) in formData.trackList" :key="index">
-                        <td>{{item.trackDate|date('h')}}</td>
+                        <td>{{item.createdDate|date('h')}}</td>
                          <td>{{item.contactUserName||'-'}}</td>
                          <td>{{item.trackStatusDictName||'-'}}</td>
                          <td :title='item.content'><span class="nowrap">{{item.content}}</span></td>
-                         <td>{{item.originalCustomerManagers|filterData}}</td>
                          <td>{{item.customerManagers|filterData}}</td>
+                         <td>{{item.trackUserName|'-'}}</td>
                         <td><button @click="lookTrackData(item)" class="gy-button-view">查看</button></td>
                     </tr>
                     </tbody>
@@ -269,8 +419,8 @@
                    </tbody>
                </table>
                  <div class="submit-con">
-                    <div @click="sendFormData" v-if="viewType==2" class="gy-button-normal">保存</div>
-                    <div @click="$router.go(-1)" class="gy-button-normal">{{viewType==1?'返回':'取消'}}</div>
+                    <div @click="sendFormData" v-if="viewType==2" class="gy-button-extra">保存</div>
+                    <div @click="closeDeatail()" :class="viewType == 2 ? 'gy-button-normal':'gy-button-extra'">{{viewType==1?'返回':'取消'}}</div>
                 </div>
           </div>
       </div>
@@ -324,14 +474,14 @@
                     <textarea v-else  class="gy-textarea" v-model="preInfo.remark" cols="30" rows="10" placeholder="请填写"></textarea>
                 </div>
                  <div v-if="viewType===2" class="submit-con" style="margin-right:30px;">
-                    <div  @click='saveContactData' class="gy-button-normal">保存</div>
+                    <div  @click='saveContactData' class="gy-button-extra">保存</div>
                     <!-- <div @click='cancelAdd' class="gy-button-normal">{{viewType==1?'关闭':'取消'}}</div> -->
                 </div>
             </div>
                 <div v-show="currentTabIndex===1" class="add-dialog" style="overflow: hidden">
                     <div class="gy-form-group">
                         <span class="l">客户经理</span>
-                        <span>{{trackData.customerManagers|filterData}}</span>
+                        <span>{{trackData.customerManagers |filterData}}</span>
                     </div>
                     <div class="gy-form-group">
                         <span class="l">客户名称</span>
@@ -369,9 +519,17 @@
   </div>
 </template>
 <script>
+import productSearch from '@/components/productSearch';
 export default {
+    components: {
+        productSearch
+    },
     data () {
         return {
+            iscontactName: false,
+            iscompanyName: false,
+            isphone: false,
+            disabled: false,
             viewType: Number(this.$route.query.viewType), // 1 查看 2 编辑
             formData: {
                 address: '', // 地址
@@ -383,6 +541,8 @@ export default {
                 cityId: '', // 城市
                 provinceId: '', // 所属省份
                 customerAttrDictId: '', // 企业属性
+                industrialChainsStatus: '', // 产业链状态
+                industrialChainsArea: '', // 产业链分布
                 customerContacts: [
                     {
                         contactName: '',
@@ -403,7 +563,7 @@ export default {
                 ],
                 customerName: '', // 客户名称
                 customerScaleDictId: '', // 企业规模
-                customerSourceDictId: '', // 来源
+                referrerTypeDictId: '', // 来源
                 customerStatus: '',
                 customerTypeDictId: '', // 企业类型
                 enName: '',
@@ -411,14 +571,35 @@ export default {
                 material: '', // 原料
                 personScale: '', //  人员规模
                 phone: '',
-                products: '', // 主营产品
+                products: '', // 交易品种
                 registeredCapital: '', //  注册资金
                 registrationDate: '', //  注册日期
                 remark: '', // 备注
+                meetingPeriod: '', // 会议期间
+                inviter: '', // 邀请人
+                region: '', // 区域
+                erpSystem: '', // ERP系统  0 无；1 有
+                oaSystem: '', // OA系统  0 无；1 有
+                spotContract: '', //  现场签约 0 否；1 是
+                enterIntention: '', // 入驻意向 0 否；1 是
+                upRelationship: '', // 上游关系
+                downRelationship: '', // 下游关系
                 socialCode: '',
-                website: ''
+                website: '',
+                referrerDesc: { // 来源
+                    companyId: null, // 公司id
+                    companyName: null, // 公司名称
+                    contactName: null, // 联系人
+                    phone: null // 电话
+                },
+                extendInfos: [],
+                extendInfo: []
             },
             clientManagers: [{dictId: 0, dictName: '潜在客户'}, {dictId: 1, dictName: '客户'}], // 客户经理
+            erpSystemtype: [{erpSystemId: 0, erpSystemName: '无'}, {erpSystemId: 1, erpSystemName: '有'}], // ERP系统
+            oaSystemtype: [{oaSystemId: 0, oaSystemName: '无'}, {oaSystemId: 1, oaSystemName: '有'}], // OA系统
+            spotContracttype: [{spotContractId: 0, spotContName: '否'}, {spotContractId: 1, spotContName: '是'}], // 现场签约
+            enterIntentiontype: [{enterIntentionId: 0, enterIntentionName: '否'}, {enterIntentionId: 1, enterIntentionName: '是'}], // 入驻意向
             personScaleArr: [], // 人员规模
             customerType: [], // 企业类型
             customerAttr: [], // 企业属性
@@ -429,6 +610,7 @@ export default {
                 area: []
             },
             customerSource: [], // 来源
+            fieldsList: [], // 自定义字段
             preInfo: {
                 contactName: '',
                 dept: '',
@@ -446,8 +628,17 @@ export default {
             uploadFileUrl: this.$http.defaults.baseURL + this.$api.client.uploadFile,
             isReupload: true,
             authStatus: ['未认证', '待审核', '已通过', '已驳回'],
+            dataStatus: {
+                0: '无',
+                1: '有'
+            },
+            restsStatus: {
+                0: '否',
+                1: '是'
+            },
             managerArr: [],
             currentTabIndex: 0,
+            selectedProduct: {},
             trackData: [],
             imgList: [],
             showImgUrl: '',
@@ -457,7 +648,8 @@ export default {
                 disabledDate (time) {
                     return time.getTime() > Date.now();
                 }
-            }
+            },
+            isShowOrName: this.$route.query.isShowOrName
         };
     },
     methods: {
@@ -475,7 +667,26 @@ export default {
             this.$http.get(this.$api.client.searchCustomers + this.customerId).then((res) => {
                 if (res.data.code === 0) {
                     this.formData = res.data.data;
-                    this.formData.personScale = Number(this.formData.personScale);
+                    console.log(this.formData);
+                    this.formData.customerNames = this.formData.customerName;
+                    this.formData.referrerTypeDictIds = this.formData.referrerTypeDictId;
+                    if (res.data.data.referrerDesc && res.data.data.referrerDesc.phone) { // isphone
+                        this.isphone = true;
+                    } else {
+                        this.isphone = false;
+                    }
+                    if (res.data.data.referrerDesc && res.data.data.referrerDesc.companyName) { // iscompanyNameiscontactName
+                        this.iscompanyName = true;
+                    } else {
+                        this.iscompanyName = false;
+                    }
+                    if (res.data.data.referrerDesc && res.data.data.referrerDesc.contactName) { // iscontactName
+                        this.iscontactName = true;
+                    } else {
+                        this.iscontactName = false;
+                    }
+                    // this.formData.personScale = 0;
+                    this.formData.personScale = Number(this.formData.personScale) === 0 ? '' : Number(this.formData.personScale);
                     this.formData.certificateFileUrl && (this.imgList = JSON.parse(this.formData.certificateFileUrl));
                     this.init();
                     if (this.formData.customerFollowups.length > 0) {
@@ -485,6 +696,13 @@ export default {
                     }
                 } else {
                     this.$message(res.data.message);
+                }
+            });
+        },
+        customerChange () {
+            this.customerSource.forEach(item => {
+                if (item.dictId === this.formData.referrerTypeDictId) {
+                    this.formData.referrerTypeDictName = item.dictName;
                 }
             });
         },
@@ -532,7 +750,13 @@ export default {
             this.$http.get(this.$api.client.customerSource).then((res) => {
                 if (res.data.code === 0) {
                     this.customerSource = res.data.data;
-                    this.viewType === 1 && this.filterData(this.formData.customerSourceDictId, 'customerSourceDictId', res.data.data);
+                    let customer = {
+                        dictCategory: null,
+                        dictId: null,
+                        dictName: '无'
+                    };
+                    this.customerSource.push(customer);
+                    this.viewType === 1 && this.filterData(this.formData.referrerTypeDictId, 'referrerTypeDictId', res.data.data);
                 } else {
                     this.$message(res.data.message);
                 }
@@ -546,7 +770,7 @@ export default {
             });
         },
         dataToFixed (value, n) {
-            this.formData[value] = this.formData[value].toFixed(0);
+            this.formData[value] = this.formData[value].toFixed(n);
         },
         searchArea (type, id, bool) {
             this.$http.get(this.$api.client.searchArea + id).then((res) => {
@@ -559,6 +783,7 @@ export default {
                         }
                     } else if (type === 2) {
                         this.addressData.city = res.data.data;
+                        this.provinceCodeGet(this.formData.provinceId);
                         if (bool) {
                             this.formData.cityId = '';
                             this.formData.areaId = '';
@@ -571,6 +796,13 @@ export default {
                     }
                 } else {
                     this.$message(res.data.message);
+                }
+            });
+        },
+        provinceCodeGet (item) {
+            this.$http.get(this.$api.customer.provinceCode + item).then(res => {
+                if (res.data.code === 0) {
+                    this.formData.region = res.data.data;
                 }
             });
         },
@@ -696,7 +928,7 @@ export default {
             let flag = true;
             let data = [
                 {value: this.formData.customerName, msg: '客户名称不能为空'},
-                {value: this.formData.customerStatus, msg: '客户状态不能为空'},
+                // {value: this.formData.customerStatus, msg: '客户状态不能为空'},
                 {value: this.formData.customerTypeDictId, msg: '企业类型不能为空'},
                 {value: this.formData.customerAttrDictId, msg: '企业属性不能为空'},
                 {value: this.formData.personScale, msg: '人员规模不能为空'},
@@ -704,8 +936,8 @@ export default {
                 {value: this.formData.cityId, msg: '城市不能为空'},
                 {value: this.formData.areaId, msg: '区不能为空'},
                 {value: this.formData.address, msg: '联系地址不能为空'},
-                {value: this.formData.products, msg: '主营产品不能为空'},
-                {value: this.formData.customerSourceDictId, msg: '来源不能为空'},
+                {value: this.formData.products, msg: '交易品种不能为空'},
+                // {value: this.formData.referrerTypeDictId, msg: '来源不能为空'},
                 {value: this.formData.registrationDate, msg: '成立日期不能为空'}
             ];
             for (let i = 0; i < data.length; i++) {
@@ -716,6 +948,14 @@ export default {
                 }
             }
             return flag;
+        },
+        // 验证
+        check () {
+            if (this.formData.referrerDesc.phone && !(/^1[34578]\d{9}$/.test(this.formData.referrerDesc.phone))) {
+                this.$message.error('请输入正确手机号');
+                return false;
+            }
+            return true;
         },
         checkDialogData () {
             let flag = true;
@@ -735,19 +975,27 @@ export default {
             return flag;
         },
         sendFormData () {
+            this.formData.extendInfo = this.formData.extendInfos;
+            this.formData.customerName = this.formData.customerNames;
             if (!this.checkFormData()) {
+                return false;
+            }
+            if (!this.check()) {
                 return false;
             }
             this.imgList.length !== 0 && (this.formData.certificateFileUrl = JSON.stringify(this.imgList));
             if (this.viewType === 2) {
                 this.$http.put(this.$api.client.updateCustomers, this.formData).then((res) => {
                     if (res.data.code === 0) {
-                        this.$router.go(-1);
+                        window.close();
                     } else {
                         this.$message(res.data.message);
                     }
                 });
             }
+        },
+        closeDeatail () {
+            window.close();
         }
 
     },
@@ -756,6 +1004,10 @@ export default {
             if (!newValue) {
                 this.currentIndex = 0;
             }
+        },
+        selectedProduct: function (val) {
+            this.formData.referrerDesc.companyName = val.name;
+            this.formData.referrerDesc.companyId = val.id;
         }
         // preInfo: {
         //     handler: function () {
@@ -786,6 +1038,16 @@ export default {
 </script>
 <style scoped lang="scss">
   .my-container {
+        .gy-form-group{
+            .nowrap {
+                width: 90px;
+                display: block;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+                cursor: pointer;
+            }
+        }
        .model_title i{
           vertical-align: baseline;
        }
@@ -883,7 +1145,9 @@ export default {
       .submit-con {
           float: right;
           margin-top:50px ;
-        //   padding-right:30px ;
+          div:nth-child(1) {
+              margin-right:10px ;
+          }
           .form_save {
               background-color: #d04627;
               color: #fff;
@@ -895,7 +1159,7 @@ export default {
         font-size: 14px;
       }
       .three-column {
-         width: 95%;
+         width: 93%;
       }
       .l {
           width: 105px;

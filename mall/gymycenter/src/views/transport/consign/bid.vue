@@ -33,10 +33,10 @@
                 <td class="td-200">询价单号</td>
                 <td class="td-100">商品名称</td>
                 <td class="td-100">数量（吨）</td>
-                <td class="td-170">装货地</td>
-                <td class="td-170">卸货地</td>
+                <td class="td-155">装货地</td>
+                <td class="td-155">卸货地</td>
                 <td class="td-100">询价日期</td>
-                <td class="td-126">操作</td>
+                <td class="td-156">操作</td>
             </tr>
             </thead>
             <tbody>
@@ -47,17 +47,15 @@
                             <td class="td-200">{{item.enquiryNoteCode}}</td>
                             <td class="td-100"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuName}}</span>
                             </td>
-                            <td class="td-100"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuQuantity}}</span>
+                            <td class="td-100 align-r"><span v-for="pro in item.enquiryNoteItemList" :key="pro.id">{{pro.skuQuantity | numToCash(3)}}</span>
                             </td>
-                            <td class="td-170">{{item.loadTotalAddress}}</td>
-                            <td class="td-170">{{item.unloadTotalAddress}}</td>
+                            <td class="td-155">{{item.loadTotalAddress}}</td>
+                            <td class="td-155">{{item.unloadTotalAddress}}</td>
                             <td class="td-100">{{item.createdDate | date}}</td>
-                            <td class="td-126">
-                                <router-link :to="{ name: 'consignBidDeatail', query: {'bidId': item.id} }" class="gy-button-view">查看</router-link>
-                                <a href="javascript:;" class="gy-button-view" @click="showPrice(index, item.id)">竞价<i class="iconfont" :class="{'icon-arrow-up': priceIdx === index, 'icon-arrow-down': priceIdx !== index}"></i></a>
+                            <td class="td-156 align-c">
+                                <router-link :to="{ name: 'consignBidDeatail', query: {'bidId': item.id} }" class="gy-button-view">查看</router-link><a href="javascript:;" class="gy-button-view" @click="repeal(item.id)" v-if="item.biddingNoteCount < 1 && item.enquiryNoteStatus === 0">撤销</a>
                                 <div>
-                                    <a href="javascript:;" class="gy-button-view" @click="repeal(item.id)" v-if="item.biddingNoteCount < 1 && item.enquiryNoteStatus === 0">撤销</a>
-                                    <router-link :to="{ name: 'transportFind', query: {'bidId': item.id} }" class="gy-button-view">再次发起</router-link>
+                                    <router-link :to="{ name: 'transportFind', query: {'bidId': item.id} }" class="gy-button-view">再次发起</router-link><a href="javascript:;" class="gy-button-view" @click="showPrice(index, item.id)">竞价<i class="iconfont" :class="{'icon-arrow-up': priceIdx === index, 'icon-arrow-down': priceIdx !== index}"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -66,7 +64,7 @@
                         <table class="gy-table">
                             <tr v-for="(price, index) in priceList" :key="index" v-if="priceList.length > 0">
                                 <td>{{price.biddingNoteCode}}</td>
-                                <td>{{price.carrierName}} <a @click="goIm(price.carrierContactMobile)" href="javascript:;" class="contact"><i class="iconfont icon-im"></i>和我联系</a></td>
+                                <td>{{price.carrierName}} <a @click="goIm(price.carrierContactMobile, price.carrierId)" href="javascript:;" class="contact"><i class="iconfont icon-imnew"></i>和我联系</a></td>
                                 <td>{{price.quotePrice}}元/吨</td>
                                 <td>{{price.lastBiddingDate | date(1)}}</td>
                                 <td style="text-align: right;">
@@ -222,6 +220,7 @@ export default {
                     this.contractUrl = res.data.data;
                     this.showContract = true;
                     this.showHandlechapter = false;
+                    this.priceIdx = null;
                     // this.$router.go(0);
                 });
         },
@@ -264,8 +263,8 @@ export default {
                 }
             });
         },
-        goIm (phone) {
-            window.open('/im/#type=2&username=' + window.btoa(this.currentPhone) + '&touser=' + window.btoa(phone), '_blank');
+        goIm (phone, id) {
+            window.open('/im/#type=2&username=' + window.btoa(this.currentPhone) + '&touser=' + window.btoa(phone) + '&touserCompanyId=' + window.btoa(id), '_blank');
         },
         repeal (id) {
             this.$alert('无人报价的需求可以撤销，撤销后请重新发起。', '提示')
@@ -309,16 +308,16 @@ export default {
     .td-200 {
         width: 200px;
     }
-    .td-170 {
-        width: 170px;
+    .td-155 {
+        width: 155px;
     }
 
     .td-100 {
         width: 100px;
     }
 
-    .td-126 {
-        width: 126px;
+    .td-156 {
+        width: 156px;
     }
 
     .gy-button-view {

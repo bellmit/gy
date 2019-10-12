@@ -9,14 +9,30 @@
             </div>
             <div class="gy-form my-form">
                 <div class="gy-form-group my-raio-wrap">
-                    <label><input type="radio" v-model="info.period" value="本日" @click="timer(1)">当日</label>
-                    <label><input type="radio" v-model="info.period" value="本周" @click="timer(2)">当周</label>
-                    <label><input type="radio" v-model="info.period" value="本月" @click="timer(3)">当月</label>
-                    <label><input type="radio" v-model="info.period" value="本年" @click="timer(4)">当年</label>
+                    <label><input type="radio" v-model="info.periods" value="当日" @click="timer(1)">当日</label>
+                    <label><input type="radio" v-model="info.periods" value="当周" @click="timer(2)">当周</label>
+                    <label><input type="radio" v-model="info.periods" value="当月" @click="timer(3)">当月</label>
+                    <label><input type="radio" v-model="info.periods" value="当年" @click="timer(4)">当年</label>
+                    <label><input type="radio" v-model="info.periods" value="自定义" @click="timer(5)">自定义</label>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">日期</span>
-                    <div>{{time.startTime.slice(0, 10)}} 至 {{time.endTime.slice(0, 10)}}</div>
+                    <div v-if="!userdefined">{{time.startTime.slice(0, 10)}} 至 {{time.endTime.slice(0, 10)}}</div>
+                    <div v-if="userdefined">
+                        <el-date-picker
+                            style="height:30px;"
+                            v-model="createDate"
+                            type="daterange"
+                            align="center"
+                            unlink-panels
+                            value-format="yyyy-MM-dd"
+                            range-separator="至"
+                            start-placeholder = '开始日期'
+                            end-placeholder= '结束日期'
+                            @change="customDate"
+                            >
+                        </el-date-picker>
+                    </div>
                 </div>
                 <div class="gy-form-group cl">
                     <span class="l">成交采购订单数</span>
@@ -27,41 +43,41 @@
                     <div>{{base.sellerNoteCount}}</div>
                 </div>
                 <div class="gy-form-group">
-                    <span class="l">成交采购数量（吨） </span>
-                    <div>{{base.purchaseQuantity}}</div>
+                    <span class="l">成交采购数量（吨）</span>
+                    <div>{{base.purchaseQuantity | numToCash(3)}}</div>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">成交销售数量（吨）</span>
-                    <div>{{base.sellerQuantity}}</div>
+                    <div>{{base.sellerQuantity | numToCash(3)}}</div>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">成交采购金额（元） </span>
-                    <div>{{base.purchaseAmount}}</div>
+                    <div>{{base.purchaseAmount | numToCash}}</div>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">成交销售金额（元）</span>
-                    <div>{{base.sellerAmount}}</div>
+                    <div>{{base.sellerAmount | numToCash}}</div>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">付款金额（元）</span>
-                    <div>{{base.paymentAmount}}</div>
+                    <div>{{base.paymentAmount | numToCash}}</div>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">收款金额（元）</span>
-                    <div>{{base.collectionAmount}}</div>
+                    <div>{{base.collectionAmount | numToCash}}</div>
                 </div>
                 <div class="gy-form-group">
-                    <span class="l">收货数量</span>
-                    <div>{{base.receiveQuantity}}</div>
+                    <span class="l">收货数量（吨）</span>
+                    <div>{{base.receiveQuantity | numToCash(3)}}</div>
                 </div>
                 <div class="gy-form-group">
-                    <span class="l">发货数量</span>
-                    <div>{{base.sendQuantity}}</div>
+                    <span class="l">发货数量（吨）</span>
+                    <div>{{base.sendQuantity | numToCash(3)}}</div>
                 </div>
             </div>
             <div class="tabs">
                 <ul>
-                    <li v-for="(item, index) in tabList" :class="{'selected': index === tabIdx}" :key="index" @click="tabIdx = index">{{item.name}}</li>
+                    <li v-for="(item, index) in tabList" :class="{'selected': index === tabIdx}" :key="index" @click="tabClick(tabIdx = index)">{{item.name}}</li>
                 </ul>
                 <div class="btn-wrap">
                     <button class="gy-button-extra exportBtn" @click="exportBtn(tabIdx)">导出</button>
@@ -72,208 +88,195 @@
                 <table class="gy-table" v-if="tabIdx === 0">
                     <thead>
                     <tr>
-                        <td>NO</td>
+                        <!-- <td></td> -->
                         <td>订单日期</td>
                         <td>采购订单号</td>
                         <td>供应商</td>
-                        <td>采购数量</td>
+                        <td>采购数量(吨)</td>
                         <td>采购金额(元)</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-if="!list1.purchaseNoteDtos">
-                        <td colspan="6">暂无数据...</td>
+                        <td  style="text-align:center;" colspan="6">暂无数据...</td>
                     </tr>
                     <tr v-else v-for="(item, index) in list1.purchaseNoteDtos" :key="index">
-                        <td>{{index+1}}</td>
+                        <!-- <td></td> -->
                         <td>{{item.orderTime|date}}</td>
                         <td>{{item.orderNumber}}</td>
                         <td>{{item.sellerCompanyName}}</td>
-                        <td>{{item.purchaseQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.purchaseAmount || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.purchaseQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.purchaseAmount || 0 |numToCash}}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left; width: 100px">当前页合计</td>
+                        <td style="text-align: left;">当前页合计</td>
+                        <!-- <td></td> -->
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{this.cloumNum(list1.purchaseNoteDtos, 'purchaseQuantity') || 0 | numToCash(3)}}
+                        <td class="text-r">{{this.cloumNum(list1.purchaseNoteDtos, 'purchaseQuantity') || 0 | numToCash(3)}}
                         </td>
-                        <td>{{this.cloumNum(list1.purchaseNoteDtos, 'purchaseAmount') || 0 | numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list1.purchaseNoteDtos, 'purchaseAmount') || 0 | numToCash}}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left; width: 100px">所有页合计</td>
+                        <td style="text-align: left;">所有页合计</td>
                         <td></td>
+                        <!-- <td></td> -->
                         <td></td>
-                        <td></td>
-                        <td>{{list1.totalPagePurchaseQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list1.totalPagePurchaseAmount || 0 | numToCash}}</td>
+                        <td class="text-r">{{list1.totalPagePurchaseQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list1.totalPagePurchaseAmount || 0 | numToCash}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <table class="gy-table" v-if="tabIdx === 1">
                     <thead>
                     <tr>
-                        <td>NO</td>
                         <td>期间</td>
                         <td>采购订单号</td>
                         <td>供应商</td>
-                        <td>采购数量</td>
-                        <td>采购金额(元)</td>
-                        <td>本期付款(元)</td>
-                        <td>累计付款(元)</td>
-                        <td>应付款(元)</td>
+                        <td class="text-r">采购数量(吨)</td>
+                        <td class="text-r">采购金额(元)</td>
+                        <td class="text-r">本期付款(元)</td>
+                        <td class="text-r">累计付款(元)</td>
+                        <td class="text-r">应付款(元)</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-if="!list2.billPaymentDtos">
-                        <td colspan="9">暂无数据...</td>
+                        <td style="text-align:center;" colspan="9">暂无数据...</td>
                     </tr>
                     <tr v-else v-for="(item, index) in list2.billPaymentDtos" :key="index">
-                        <td>{{index+1}}</td>
                         <td>{{item.period}}</td>
                         <td>{{item.orderNumber}}</td>
                         <td>{{item.sellerCompanyName}}</td>
-                        <td>{{item.purchaseGoodsQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.purchaseAmount || 0 |numToCash}}</td>
-                        <td>{{item.currentPayment || 0 |numToCash}}</td>
-                        <td>{{item.accumulatePayment || 0 |numToCash}}</td>
-                        <td>{{item.needPayment || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.purchaseGoodsQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.purchaseAmount || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.currentPayment || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.accumulatePayment || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.needPayment || 0 |numToCash}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">当前页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{this.cloumNum(list2.billPaymentDtos, 'purchaseGoodsQuantity')|| 0
+                        <td class="text-r">{{this.cloumNum(list2.billPaymentDtos, 'purchaseGoodsQuantity')|| 0
                             |numToCash(3)}}
                         </td>
-                        <td>{{this.cloumNum(list2.billPaymentDtos, 'purchaseAmount')|| 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list2.billPaymentDtos, 'currentPayment')|| 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list2.billPaymentDtos, 'accumulatePayment')|| 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list2.billPaymentDtos, 'needPayment') || 0 | numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list2.billPaymentDtos, 'purchaseAmount')|| 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list2.billPaymentDtos, 'currentPayment')|| 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list2.billPaymentDtos, 'accumulatePayment')|| 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list2.billPaymentDtos, 'needPayment') || 0 | numToCash}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">所有页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{list2.totalPagePurchaseGoodsQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list2.totalPagePurchaseAmount || 0 | numToCash}}</td>
-                        <td>{{list2.totalPageCurrentPayment || 0 | numToCash}}</td>
-                        <td>{{list2.totalPageAccumulatePayment || 0 | numToCash}}</td>
-                        <td>{{list2.totalPageNeedPayment || 0 | numToCash}}</td>
+                        <td class="text-r">{{list2.totalPagePurchaseGoodsQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list2.totalPagePurchaseAmount || 0 | numToCash}}</td>
+                        <td class="text-r">{{list2.totalPageCurrentPayment || 0 | numToCash}}</td>
+                        <td class="text-r">{{list2.totalPageAccumulatePayment || 0 | numToCash}}</td>
+                        <td class="text-r">{{list2.totalPageNeedPayment || 0 | numToCash}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <table class="gy-table" v-if="tabIdx === 2">
                     <thead>
                     <tr>
-                        <td>NO</td>
                         <td>期间</td>
                         <td>采购订单号</td>
                         <td>供应商</td>
-                        <td>采购数量</td>
+                        <td>采购数量(吨)</td>
                         <td>采购金额(元)</td>
-                        <td>本期收货数量</td>
-                        <td>累计收货数量</td>
-                        <td>待收货数量</td>
+                        <td>本期收货数量(吨)</td>
+                        <td>累计收货数量(吨)</td>
+                        <td>待收货数量(吨)</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-if="!list3.receiveGoodsDtos">
-                        <td colspan="9">暂无数据...</td>
+                        <td style="text-align:center;" colspan="9">暂无数据...</td>
                     </tr>
                     <tr v-else v-for="(item, index) in list3.receiveGoodsDtos" :key="index">
-                        <td>{{index+1}}</td>
                         <td>{{item.period}}</td>
                         <td>{{item.orderNumber}}</td>
                         <td>{{item.sellerCompanyName}}</td>
-                        <td>{{item.purchaseQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.purchaseAmount || 0 |numToCash}}</td>
-                        <td>{{item.currentReceiveQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.accumulateReceiveQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.needReceiveQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.purchaseQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.purchaseAmount || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.currentReceiveQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.accumulateReceiveQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.needReceiveQuantity || 0 |numToCash(3)}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">当前页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{this.cloumNum(list3.receiveGoodsDtos, 'purchaseQuantity') || 0 |numToCash(3)}}
+                        <td class="text-r">{{this.cloumNum(list3.receiveGoodsDtos, 'purchaseQuantity') || 0 |numToCash(3)}}
                         </td>
-                        <td>{{this.cloumNum(list3.receiveGoodsDtos, 'purchaseAmount') || 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list3.receiveGoodsDtos, 'currentReceiveQuantity') || 0
+                        <td class="text-r">{{this.cloumNum(list3.receiveGoodsDtos, 'purchaseAmount') || 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list3.receiveGoodsDtos, 'currentReceiveQuantity') || 0
                             |numToCash}}
                         </td>
-                        <td>{{this.cloumNum(list3.receiveGoodsDtos, 'accumulateReceiveQuantity') || 0
+                        <td class="text-r">{{this.cloumNum(list3.receiveGoodsDtos, 'accumulateReceiveQuantity') || 0
                             |numToCash}}
                         </td>
-                        <td>{{this.cloumNum(list3.receiveGoodsDtos, 'needReceiveQuantity') || 0 | numToCash}}
+                        <td class="text-r">{{this.cloumNum(list3.receiveGoodsDtos, 'needReceiveQuantity') || 0 | numToCash}}
                         </td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">所有页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{list3.totalPagePurchaseQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list3.totalPagePurchaseAmount || 0 | numToCash}}</td>
-                        <td>{{list3.totalPageCurrentReceiveQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list3.totalPageAccumulateReceiveQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list3.totalPageNeedReceiveQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list3.totalPagePurchaseQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list3.totalPagePurchaseAmount || 0 | numToCash}}</td>
+                        <td class="text-r">{{list3.totalPageCurrentReceiveQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list3.totalPageAccumulateReceiveQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list3.totalPageNeedReceiveQuantity || 0 | numToCash(3)}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <table class="gy-table" v-if="tabIdx === 3">
                     <thead>
                     <tr>
-                        <td>NO</td>
                         <td>订单日期</td>
                         <td>销售订单号</td>
                         <td>客户</td>
-                        <td>销售数量</td>
+                        <td>销售数量(吨)</td>
                         <td>销售金额(元)</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-if="!list4.sellerNoteDtos">
-                        <td colspan="6">暂无数据...</td>
+                        <td style="text-align:center;" colspan="6">暂无数据...</td>
                     </tr>
                     <tr v-else v-for="(item, index) in list4.sellerNoteDtos" :key="index">
-                        <td>{{index+1}}</td>
                         <td>{{item.orderTime|date}}</td>
                         <td>{{item.orderNumber}}</td>
                         <td>{{item.buyerCompanyName}}</td>
-                        <td>{{item.sellerQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.sellerAmount || 0|numToCash}}</td>
+                        <td class="text-r">{{item.sellerQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.sellerAmount || 0|numToCash}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">当前页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{this.cloumNum(list4.sellerNoteDtos, 'sellerQuantity') || 0 | numToCash(3)}}</td>
-                        <td>{{this.cloumNum(list4.sellerNoteDtos, 'sellerAmount') || 0 | numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list4.sellerNoteDtos, 'sellerQuantity') || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{this.cloumNum(list4.sellerNoteDtos, 'sellerAmount') || 0 | numToCash}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">所有页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{list4.totalPageSellerQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list4.totalPageSellerAmount || 0 | numToCash}}</td>
+                        <td class="text-r">{{list4.totalPageSellerQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list4.totalPageSellerAmount || 0 | numToCash}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <table class="gy-table" v-if="tabIdx === 4">
                     <thead>
                     <tr>
-                        <td>NO</td>
                         <td>期间</td>
                         <td>销售订单号</td>
                         <td>客户</td>
-                        <td>销售数量</td>
+                        <td>销售数量(吨)</td>
                         <td>销售金额(元)</td>
                         <td>本期收款(元)</td>
                         <td>累计收款(元)</td>
@@ -282,104 +285,97 @@
                     </thead>
                     <tbody>
                     <tr v-if="!list5.billCollectionDtos">
-                        <td colspan="9">暂无数据...</td>
+                        <td style="text-align:center;" colspan="9">暂无数据...</td>
                     </tr>
                     <tr v-else v-for="(item, index) in list5.billCollectionDtos" :key="index">
-                        <td>{{index+1}}</td>
                         <td>{{item.period}}</td>
                         <td>{{item.orderNumber}}</td>
                         <td>{{item.buyerCompanyName}}</td>
-                        <td>{{item.sellerGoodsQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.sellerAmount || 0 |numToCash}}</td>
-                        <td>{{item.currentCollection || 0 |numToCash}}</td>
-                        <td>{{item.accumulateCollection || 0 |numToCash}}</td>
-                        <td>{{item.needCollection || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.sellerGoodsQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.sellerAmount || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.currentCollection || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.accumulateCollection || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.needCollection || 0 |numToCash}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">当前页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{this.cloumNum(list5.billCollectionDtos, 'sellerGoodsQuantity') || 0
+                        <td class="text-r">{{this.cloumNum(list5.billCollectionDtos, 'sellerGoodsQuantity') || 0
                             |numToCash(3)}}
                         </td>
-                        <td>{{this.cloumNum(list5.billCollectionDtos, 'sellerAmount')|| 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list5.billCollectionDtos, 'currentCollection')|| 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list5.billCollectionDtos, 'accumulateCollection')|| 0 |numToCash}}
+                        <td class="text-r">{{this.cloumNum(list5.billCollectionDtos, 'sellerAmount')|| 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list5.billCollectionDtos, 'currentCollection')|| 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list5.billCollectionDtos, 'accumulateCollection')|| 0 |numToCash}}
                         </td>
-                        <td>{{this.cloumNum(list5.billCollectionDtos, 'needCollection')|| 0 | numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list5.billCollectionDtos, 'needCollection')|| 0 | numToCash}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">所有页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{list5.totalPageSellerGoodsQuantity||0 | numToCash(3)}}</td>
-                        <td>{{list5.totalPageSellerAmount ||0 | numToCash}}</td>
-                        <td>{{list5.totalPageCurrentCollection ||0 | numToCash}}</td>
-                        <td>{{list5.totalPageAccumulateCollection ||0 | numToCash}}</td>
-                        <td>{{list5.totalPageNeedCollection ||0 | numToCash}}</td>
+                        <td class="text-r">{{list5.totalPageSellerGoodsQuantity||0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list5.totalPageSellerAmount ||0 | numToCash}}</td>
+                        <td class="text-r">{{list5.totalPageCurrentCollection ||0 | numToCash}}</td>
+                        <td class="text-r">{{list5.totalPageAccumulateCollection ||0 | numToCash}}</td>
+                        <td class="text-r">{{list5.totalPageNeedCollection ||0 | numToCash}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <table class="gy-table" v-if="tabIdx === 5">
                     <thead>
                     <tr>
-                        <td>NO</td>
                         <td>期间</td>
                         <td>销售订单号</td>
                         <td>客户</td>
-                        <td>销售数量</td>
+                        <td>销售数量(吨)</td>
                         <td>销售金额(元)</td>
-                        <td>本期发货数量</td>
-                        <td>累计发货数量</td>
-                        <td>待发货数量</td>
+                        <td>本期发货数量(吨)</td>
+                        <td>累计发货数量(吨)</td>
+                        <td>待发货数量(吨)</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-if="!list6.sendGoodsDtos">
-                        <td colspan="9">暂无数据...</td>
+                        <td style="text-align:center;" colspan="9">暂无数据...</td>
                     </tr>
                     <tr v-else v-for="(item, index) in list6.sendGoodsDtos" :key="index">
-                        <td>{{index+1}}</td>
                         <td>{{item.period}}</td>
                         <td>{{item.orderNumber}}</td>
-                        <td>{{item.buyerCompanyName}}</td>
-                        <td>{{item.sellerQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.sellerAmount || 0 |numToCash}}</td>
-                        <td>{{item.currentSendQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.accumulateSendQuantity || 0 |numToCash(3)}}</td>
-                        <td>{{item.needSendQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.buyerCompanyName}}</td>
+                        <td class="text-r">{{item.sellerQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.sellerAmount || 0 |numToCash}}</td>
+                        <td class="text-r">{{item.currentSendQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.accumulateSendQuantity || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{item.needSendQuantity || 0 |numToCash(3)}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">当前页合计</td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td>{{this.cloumNum(list6.sendGoodsDtos, 'sellerQuantity') || 0 |numToCash(3)}}</td>
-                        <td>{{this.cloumNum(list6.sendGoodsDtos, 'sellerAmount') || 0 |numToCash}}</td>
-                        <td>{{this.cloumNum(list6.sendGoodsDtos, 'currentSendQuantity') || 0 |numToCash(3)}}
+                        <td class="text-r">{{this.cloumNum(list6.sendGoodsDtos, 'sellerQuantity') || 0 |numToCash(3)}}</td>
+                        <td class="text-r">{{this.cloumNum(list6.sendGoodsDtos, 'sellerAmount') || 0 |numToCash}}</td>
+                        <td class="text-r">{{this.cloumNum(list6.sendGoodsDtos, 'currentSendQuantity') || 0 |numToCash(3)}}
                         </td>
-                        <td>{{this.cloumNum(list6.sendGoodsDtos, 'accumulateSendQuantity') || 0
+                        <td class="text-r">{{this.cloumNum(list6.sendGoodsDtos, 'accumulateSendQuantity') || 0
                             |numToCash(3)}}
                         </td>
-                        <td>{{this.cloumNum(list6.sendGoodsDtos, 'needSendQuantity') || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{this.cloumNum(list6.sendGoodsDtos, 'needSendQuantity') || 0 | numToCash(3)}}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left; width: 100px">所有页合计</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>{{list6.totalPageSellerQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list6.totalPageSellerAmount || 0 | numToCash}}</td>
-                        <td>{{list6.totalPageCurrentSendQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list6.totalPageAccumulateSendQuantity || 0 | numToCash(3)}}</td>
-                        <td>{{list6.totalPageNeedSendQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r"></td>
+                        <td class="text-r"></td>
+                        <td class="text-r">{{list6.totalPageSellerQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list6.totalPageSellerAmount || 0 | numToCash}}</td>
+                        <td class="text-r">{{list6.totalPageCurrentSendQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list6.totalPageAccumulateSendQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{list6.totalPageNeedSendQuantity || 0 | numToCash(3)}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <!-- 接口修改后 启动 -->
-                <!-- <div class="total">共计{{info.total}}条记录</div> -->
+                <!-- <div class="total">共 {{info.total}} 条记录</div> -->
             </div>
             <form method="POST" :action=export1Url id="hiddenForm1" ref="hiddenForm1">
                 <input type="text" name="dsl" :value="JSON.stringify(this.info)" hidden/>
@@ -420,12 +416,15 @@
 export default {
     data () {
         return {
+            createDate: null,
+            userdefined: false,
             tabIdx: 0,
             // 交互数据
             info: {
                 startTime: '',
                 endTime: '',
-                period: '本日', // 期间(当天/本周/本月/本年)
+                periods: '当日', // 期间(当天/本周/本月/本年)
+                period: '当日',
                 pageNo: 1, // 当前页
                 pageSize: 10, // 条数
                 total: 0
@@ -645,34 +644,67 @@ export default {
             this.Date();
             this.info.startTime = this.oldDay;
             this.info.endTime = this.newDay;
-            this.info.period = '本日';
+            this.info.periods = '当日';
             if (type === 1) {
                 this.info.startTime = this.oldDay;
                 this.info.endTime = this.newDay;
-                this.info.period = '本日';
+                this.info.periods = '当日';
+                this.info.period = this.info.periods;
             }
             if (type === 2) {
                 this.info.startTime = this.oldWeek;
                 this.info.endTime = this.newWeek;
-                this.info.period = '本周';
+                this.info.periods = '当周';
+                this.info.period = this.info.periods;
             }
             if (type === 3) {
                 this.info.startTime = this.oldMonth;
                 this.info.endTime = this.newMonth;
-                this.info.period = '本月';
+                this.info.periods = '当月';
+                this.info.period = this.info.periods;
             }
             if (type === 4) {
                 this.info.startTime = this.oldYear;
                 this.info.endTime = this.newYear;
-                this.info.period = '本年';
+                this.info.periods = '当年';
+                this.info.period = this.info.periods;
             }
             this.time.startTime = this.info.startTime;
             this.time.endTime = this.info.endTime;
+            if (type === 5) {
+                console.log(this.info.startTime);
+                this.info.startTime = this.oldTomoDay;
+                this.info.endTime = this.newTomoDay;
+                this.userdefined = true;
+                this.info.periods = '自定义';
+                this.createDate = null;
+            } else {
+                this.userdefined = false;
+            }
+            this.surveyData(type);
+            // let me = this;
+            // // 数据概览
+            // me.$http.post(this.$api.deal.summarizing, this.info).then(function (res) {
+            //     if (res.data.code === 0) {
+            //         me.base = res.data.data;
+            //         for (let i in me.base) {
+            //             if (me.base[i] == null) {
+            //                 me.base[i] = 0;
+            //             }
+            //         }
+            //     }
+            // });
+        },
+        // 数据概览
+        surveyData (type) {
             let me = this;
-            // 数据概览
             me.$http.post(this.$api.deal.summarizing, this.info).then(function (res) {
                 if (res.data.code === 0) {
-                    me.base = res.data.data;
+                    if (type === 5) {
+                        me.base = [];
+                    } else {
+                        me.base = res.data.data;
+                    }
                     for (let i in me.base) {
                         if (me.base[i] == null) {
                             me.base[i] = 0;
@@ -680,6 +712,59 @@ export default {
                     }
                 }
             });
+        },
+        // 自定义日期
+        customDate () {
+            console.log(this.createDate);
+            if (this.createDate) {
+                console.log(this.createDate);
+                this.info.startTime = this.createDate[0];
+                this.info.endTime = this.createDate[1];
+                this.info.period = this.info.startTime + '至' + this.info.endTime;
+                this.info.periods = '自定义';
+                let me = this;
+                if (this.currentTabIdx === 0) {
+                    me.post(0, me.$api.deal.increasedPurchaseNote);
+                }
+                if (this.currentTabIdx === 1) {
+                    me.post(1, me.$api.deal.purchasePayment);
+                }
+                if (this.currentTabIdx === 2) {
+                    me.post(2, me.$api.deal.purchaseGoodsReceive);
+                }
+                if (this.currentTabIdx === 3) {
+                    me.post(3, me.$api.deal.increasedSellerNote);
+                }
+                if (this.currentTabIdx === 4) {
+                    me.post(4, me.$api.deal.sellerCollection);
+                }
+                if (this.currentTabIdx === 5) {
+                    me.post(5, me.$api.deal.sellerGoodsSend);
+                }
+            } else {
+                this.info.startTime = this.oldTomoDay;
+                this.info.endTime = this.newTomoDay;
+                let me = this;
+                if (this.currentTabIdx === 0) {
+                    me.post(0, me.$api.deal.increasedPurchaseNote);
+                }
+                if (this.currentTabIdx === 1) {
+                    me.post(1, me.$api.deal.purchasePayment);
+                }
+                if (this.currentTabIdx === 2) {
+                    me.post(2, me.$api.deal.purchaseGoodsReceive);
+                }
+                if (this.currentTabIdx === 3) {
+                    me.post(3, me.$api.deal.increasedSellerNote);
+                }
+                if (this.currentTabIdx === 4) {
+                    me.post(4, me.$api.deal.sellerCollection);
+                }
+                if (this.currentTabIdx === 5) {
+                    me.post(5, me.$api.deal.sellerGoodsSend);
+                }
+            }
+            this.surveyData();
         },
         initTable () {
             let me = this;
@@ -717,7 +802,7 @@ export default {
         // tab切换
         tabClick (item) {
             let me = this;
-            me.currentTabIdx = Number(item.index);
+            me.currentTabIdx = Number(item);
             me.post(0, me.$api.deal.increasedPurchaseNote);
             me.post(1, me.$api.deal.purchasePayment);
             me.post(2, me.$api.deal.purchaseGoodsReceive);
@@ -727,7 +812,7 @@ export default {
         },
         //  时间
         Date () {
-            let y, m, d, date, h, ms, s, time, hours, w1, month;
+            let y, m, d, date, h, ms, s, time, hours, w1, month, tomotime;
             date = new Date();
             y = date.getFullYear();
             m = date.getMonth() + 1;
@@ -736,12 +821,16 @@ export default {
             ms = date.getMinutes();
             s = date.getSeconds();
             hours = format(h) + ':' + format(ms) + ':' + format(s);
-            w1 = y + '-' + m + '-' + this.getWeek()[0];// 当周
+            w1 = this.getWeek();// 当周第一天
             time = y + '-' + m + '-' + d;// 当天
+            tomotime = date.setTime(date.getTime() + 24 * 60 * 60 * 1000);// 明天
             month = y + '-' + m;// 当月初
             // 当日
             this.oldDay = this.date(time) + ' ' + '00:00:00';
             this.newDay = this.date(time) + ' ' + hours;
+            // 明天
+            this.oldTomoDay = this.date(tomotime) + ' ' + '00:00:00';
+            this.newTomoDay = this.date(tomotime) + ' ' + hours;
             // 当周
             this.oldWeek = this.date(w1) + ' ' + '00:00:00';
             this.newWeek = this.date(time) + ' ' + hours;
@@ -785,26 +874,16 @@ export default {
                 return num;
             }
         },
-        // 获取一周时间
+        // 获取一周第一天时间
         getWeek () {
-            // 一周
-            let arr = [];
+        // 一周
             let newdate = new Date();
             let now = newdate.getTime();
             let day = newdate.getDay();
             let oneDayTime = 60 * 60 * 24 * 1000;
-            let week = [];
-            for (let i = 1; i < 8; i++) {
-                if (day >= i) {
-                    let dd = new Date(now - (day - i) * oneDayTime).getDate();
-                    arr.push(dd < 10 ? '0' + dd : dd + '');
-                } else {
-                    let aa = new Date(now + (i - day) * oneDayTime).getDate();
-                    arr.push(aa < 10 ? '0' + aa : aa + '');
-                }
-            }
-            week.push(arr[0]);
-            week.push(arr[arr.length - 1]);
+            var stepSunDay = -day + 1;
+            var monday = new Date(now + stepSunDay * oneDayTime);
+            var week = this.date(monday); // 日期变换
             return week;
         },
         // 当前页合计
@@ -836,13 +915,16 @@ export default {
             }
             li{
                 float: left;
-                padding: 0 14px;
+                padding: 0 5px;
                 cursor: pointer;
                 line-height: 31px;
                 &.selected{
                     color: $color-highlight;
-                    border-bottom: 1px solid $color-highlight;
+                    border-bottom: 2px solid $color-highlight;
                 }
+            }
+            ul li:not(:first-child) {
+                margin-left: 10px;
             }
         }
         .state-title-wrap {
@@ -870,6 +952,12 @@ export default {
         .gy-table {
             tr:hover {
                 background-color: transparent;
+            }
+            .text-r {
+                text-align: right;
+            }
+            .text-r:last-child {
+                border-right: 1px solid #f2f2f2;
             }
         }
         .gy-form {
@@ -910,4 +998,14 @@ export default {
             }
         }
     }
+</style>
+<style lang="scss">
+.deal{
+    .el-date-editor{
+        .el-range-separator{
+            padding: 0 15px 0px;
+            line-height:24px;
+        }
+    }
+}
 </style>

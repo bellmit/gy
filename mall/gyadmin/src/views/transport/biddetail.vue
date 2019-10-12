@@ -1,6 +1,6 @@
 <template>
     <div class="transport-wrap">
-        <h3><i class="iconfont icon-info"></i>基础信息</h3>
+        <div class="gy-h4"><i class="iconfont icon-info"></i>基础信息</div>
         <form action="javascript:;">
             <div class="gy-form">
                 <div class="gy-form-group">
@@ -28,7 +28,7 @@
                     {{enquiryInfo.effectiveDate | date}}
                 </div>
             </div>
-            <h3><i class="iconfont icon-info"></i>详细信息</h3>
+            <div class="gy-h4"><i class="iconfont icon-info"></i>详细信息</div>
             <div class="gy-form">
                 <div class="gy-form-group">
                     <span class="l">托运方</span>
@@ -79,15 +79,15 @@
                         <tr v-for="(price, index) in priceList" :key="index" v-if="priceList.length > 0">
                             <td>{{price.biddingNoteCode}}</td>
                             <td>{{price.carrierName}}</td>
-                            <td>{{price.quotePrice}}元/吨</td>
-                            <td>
+                            <td class="align-r">{{price.quotePrice}}元/吨</td>
+                            <td class="align-c">
                                 <span v-if="price.biddingNoteStatus > 1">
-                                    <button class="gy-button-view" @click="handleShowContract(price.filePath)">查看合同</button>
+                                    <span class="gy-button-view" @click="handleShowContract(price.filePath)">查看合同</span>
                                 </span>
                                 <span v-else>暂未签约</span>
                             </td>
                         </tr>
-                        <tr>
+                        <tr class="align-c">
                             <td colspan="4" v-if="priceList.length === 0">暂无竞价</td>
                         </tr>
                     </table>
@@ -186,9 +186,15 @@ export default {
     }
     .price-list{
         clear: both;
-        padding: 40px 40px 0 0;
+        padding-top:20px;
         button{
             margin-right: 10px;
         }
+    }
+    .icon-info{
+        margin-right:7px;
+    }
+    .gy-form{
+        padding:0 0 0 14px;
     }
 </style>

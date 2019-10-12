@@ -37,19 +37,19 @@
                 <button class="gy-button-normal" @click="deleteCompany">删除</button>
             </div>
             <span class="note" v-if="companyList.length < 1">您还没有填写过公司信息</span>
-            <table class="gy-table" v-else>
+            <table class="gy-table  table-wrap" v-else>
                 <thead>
                 <tr class="title">
                     <td><input type="checkbox" :checked="companySelectedList.length === companyList.length"
                                @change="handleCheckAllChange"></td>
                     <td>公司名称</td>
                     <td>公司地址</td>
-                    <td  width="96px">公司电话</td>
+                    <td  width="105px">公司电话</td>
                     <td width="80px">类型</td>
                     <td width="80px">认证状态</td>
                     <td width="70px">CA</td>
                     <td width="80px">开通银行</td>
-                    <td width="170px">操作</td>
+                    <td width="100px">操作</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -57,28 +57,27 @@
                     <td><input type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0"
                                @change="handleCheckChange(item.id)"></td>
                     <td>{{item.name}}</td>
-                    <td style="width: 200px;">{{item.address}}</td>
+                    <td style="width: 230px;">{{item.address}}</td>
                     <td>{{item.phone}}</td>
-                    <td width="80px">{{item.companyTypeId === 1 ? '交易公司' : (item.companyTypeId === 2 ? '承运商' : '仓储服务商')}}</td>
+                    <td width="80px">{{item.companyTypeName}}</td>
                     <td width="80px">{{authValue[item.authStatus]}}</td>
                     <td width="70px">{{caValue[item.caAuthStatus]}}</td>
                     <td width="80px">{{bankValue[item.bankAuthStatus]}}</td>
-                    <td width="170px">
+                    <td class="align-c" width="50px">
                         <router-link :to="{ name: 'accountCompanyView', query: {companyId: item.id} }"
                                      class="gy-button-view">查看
                         </router-link>
                         <div v-if="item.authStatus === 2" style="display: inline-block;" @click="setCompanyMain(item)">
-                            设为主企业
-                            <el-switch v-model="checkCompany[index]" :disabled="item.isChief === 1">
+                            <el-switch v-model="checkCompany[index]" :disabled="item.isChief === 1" title="设为主企业">
                             </el-switch>
                         </div>
                     </td>
                 </tr>
                 </tbody>
             </table>
-             <div class="totaljl">
+             <!-- <div class="totaljl">
                 共{{companyList.length}}条记录
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -133,14 +132,14 @@ export default {
             })
                 .then(res => {
                     if (res.data.code === 0) {
-                        that.$alert('修改成功', '提示')
+                        that.$alert('修改成功', '提示', {type: 'success'})
                             .then(() => {
                                 that.getUserInfo();
                                 that.isModified = false;
                             });
                         return;
                     }
-                    that.$alert(res.data.message, '出错了');
+                    that.$alert(res.data.message, '出错了', {type: 'success'});
                 });
         },
         getCompanylist () {
@@ -181,18 +180,24 @@ export default {
                 that.$alert('请先选择公司', '提示');
                 return;
             }
-            that.$http.put(that.$api.account.companyDelete, {companyIdList: that.companySelectedList})
-                .then(res => {
-                    if (res.data.code === 0) {
-                        that.$alert('删除成功', '提示')
-                            .then(() => {
-                                that.companySelectedList = [];
-                                that.getCompanylist();
-                            });
-                        return;
-                    }
-                    that.$alert(res.data.message, '出错了');
-                });
+            this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                that.$http.put(that.$api.account.companyDelete, {companyIdList: that.companySelectedList})
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            that.$confirm('删除成功', '提示', {type: 'error'})
+                                .then(() => {
+                                    that.companySelectedList = [];
+                                    that.getCompanylist();
+                                });
+                            return;
+                        }
+                        that.$alert(res.data.message, '出错了');
+                    });
+            });
         },
         setCompanyMain (data) {
             if (data.isChief === 1) return;
@@ -200,7 +205,7 @@ export default {
             this.$http.put(this.$api.account.setMain + data.id)
                 .then(res => {
                     if (res.data.code === 0) {
-                        this.$alert('设置成功', '提示')
+                        this.$alert('设置成功', '提示', {type: 'success'})
                             .then(() => {
                                 let firstMenuData = {
                                     isToFirst: true,
@@ -213,7 +218,7 @@ export default {
                             });
                         return;
                     }
-                    this.$alert(res.data.message, '出错了');
+                    this.$alert(res.data.message, '出错了', {type: 'error'});
                 });
         }
     }
@@ -225,11 +230,22 @@ export default {
         padding-bottom: 16px;
     }
     table tr td{
-        text-align: center;
+        // text-align: center;
+        span {
+            display: inline-block;
+            text-align: left;
+            margin: 0 auto;
+        }
     }
     .totaljl{
         margin-top: 20px;
         font-size: 12px;
         color: #666;
+    }
+     .gy-form-group {
+        padding: 8px 30px 8px 100px;
+            .l {
+            width: 90px;
+        }
     }
 </style>

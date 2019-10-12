@@ -6,6 +6,14 @@
       </div>
       <div class="my-search clearfix">
         <div class="gy-form-group">
+            <span class="l">合同要素ID</span>
+          <input type="text" placeholder="请输入合同要素ID" v-model.trim="search.essenceId">
+        </div>
+        <div class="gy-form-group">
+            <span class="l">业务组</span>
+          <input type="text" placeholder="请输入业务组" v-model.trim="search.usrOrganizationName">
+        </div>
+        <div class="gy-form-group" style="clear: both">
             <span class="l" style="width: 120px">合同签订月份</span>
             <div class="searchDate">
               <div class="d">
@@ -28,35 +36,32 @@
             </div>
         </div>
         <div class="gy-form-group">
-            <span class="l">业务组</span>
-          <input type="text" placeholder="请输入业务组" v-model.trim="search.usrOrganizationName">
-        </div>
-        <div class="search-form" v-if="isShowSearch" clearable>
-          <div class="gy-form-group cl">
             <span class="l">业务类型</span>
             <el-select v-model="search.bizType">
               <el-option
-                v-for="(item, index) in list"
+                v-for="(item, index) in $constant.businessType4Erp"
                 :key="index"
-                :label="item.value"
+                :label="item.name"
                 :value="item.id">
               </el-option>
             </el-select>
+            <span v-if="!isShowSearch" class="searchicon" @click="init()"><i class="iconfont icon-search"></i></span>
           </div>
+        <div class="search-form" v-if="isShowSearch" clearable>
           <div class="gy-form-group">
             <span class="l">上游公司</span>
-            <input type="text" placeholder="请输入上游公司" v-model.trim="search.buyerCompanyName">
+            <input type="text" placeholder="请输入" v-model.trim="search.buyerCompanyName">
           </div>
           <div class="gy-form-group">
             <span class="l">下游公司</span>
-            <input type="text" placeholder="请输入下游公司" v-model.trim="search.sellerCompanyName">
+            <input type="text" placeholder="请输入" v-model.trim="search.sellerCompanyName">
           </div>
-          <div class="gy-form-group">
+          <div class="gy-form-group" :class="{'last-active': isShowSearch}">
             <span class="l">我方公司</span>
-            <input type="text" placeholder="请输入我方公司" v-model.trim="search.usrCompanyName">
+            <input type="text" placeholder="请输入" v-model.trim="search.usrCompanyName">
+            <span class="searchicon" @click="init()"><i class="iconfont icon-search"></i></span>
           </div>
         </div>
-        <span class="searchicon" @click="init()"><i class="iconfont icon-search"></i></span>
       </div>
       <!-- 报表切换 -->
       <div class="tabs cl">
@@ -72,14 +77,15 @@
       </div>
 
       <!-- 报表 -->
+    <div  v-if="activeId === 6 || activeId === 7 ">
+    <ul class="tabs">
+        <li v-for="(item, index) in tabsChildren" :key="index" :class="{'min-tab-active': item.id === minTabActiveId}" @click="handleClick(index, item.id)">
+            <span>{{item.value}}</span>
+        </li>
+    </ul>
+    </div>
       <div class="div">
         <div class="gy-table my-table">
-          <div  v-if="activeId === 6 || activeId === 7 ">
-            <el-tabs  type="card" v-model="tabName" @tab-click="handleClick">
-              <el-tab-pane label="上游合同" name="first"></el-tab-pane>
-              <el-tab-pane label="下游合同" name="second"></el-tab-pane>
-            </el-tabs>
-          </div>
           <template>
             <el-table
               :data="tableData"
@@ -91,20 +97,21 @@
                 width="120">
               </el-table-column>
               <el-table-column
-                v-if="showFlags[0]" key="contractCreateDate"
-                label="签订月份"
-                width="120">
-                <template slot-scope='item'>
-                  <div>{{item.row.contractCreateDate?item.row.contractCreateDate:"-"}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
                 v-if="showFlags[37]" key="bizTypeDesc"
                 label="业务类型"
                 width="120">
                 <template slot-scope='item'>
                   <div v-if="item.row.bizType">{{item.row.bizType|businessTradeType}}</div>
                   <div v-else>-</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[39]" key="transactionType"
+                label="交易类型"
+                width="120">
+                <template slot-scope='item'>
+                    <div v-if="item.row.transactionType">{{$constant.contractTradeTypeList[item.row.transactionType - 1].name}}</div>
+                    <div v-else>-</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -121,6 +128,14 @@
                 width="120">
                 <template slot-scope='item'>
                   <div>{{item.row.businessManagerName?item.row.businessManagerName:"-"}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[80]" key="executiveName"
+                label="执行操作人"
+                width="120">
+                <template slot-scope='item'>
+                  <div>{{item.row.executiveName?item.row.executiveName:"-"}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -148,45 +163,9 @@
                 </template>
               </el-table-column>
               <el-table-column
-                v-if="showFlags[22]"  key="buyDeliveryDateE"
-                label="交割完成月"
-                width="130">
-                <template slot-scope='item'>
-                  <div v-if="item.row.buyDeliveryDate">{{item.row.buyDeliveryDate = item.row.buyDeliveryDate>item.row.sellDeliveryDate?item.row.sellDeliveryDate:item.row.buyDeliveryDate}}</div>
-                  <div v-else>-</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[23]" key="buyReceiptDateE"
-                label="发票完成月"
-                width="130">
-                <template slot-scope='item'>
-                  <div v-if="item.row.buyReceiptDate">{{item.row.buyReceiptDate = item.row.buyReceiptDate>item.row.invoiceCreatedDate?item.row.invoiceCreatedDate:item.row.buyReceiptDate}}</div>
-                  <div v-else>-</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[24]" key="payTotalAll"
-                label="合同利润"
-                width="130">
-                <template slot-scope='item'>
-                  <div>{{(item.row.sellPayTotalAll - item.row.buyPayTotalAll) | numToCash}}</div>
-                </template>
-              </el-table-column>
-              <!--
-              <el-table-column
-                v-if="showFlags[31]"   key="remarks1"
-                label="亏损(元)"
-                width="130">
-                <template slot-scope='item'>
-                  <div>{{(item.row.sellPayTotalAll - item.row.buyPayTotalAll) | numToCash}}</div>
-                </template>
-              </el-table-column>
-              -->
-              <el-table-column
                 v-if="showFlags[71]" key="orderExecuteStatus"
                 label="执行状态"
-                width="180">
+                width="220">
                 <template slot-scope='item'>
                   <div v-if="item.row.buyOrderExecuteStatus || item.row.sellOrderExecuteStatus">
                     {{item.row.buyOrderExecuteStatus}}
@@ -196,16 +175,24 @@
                 </template>
               </el-table-column>
               <el-table-column
-              v-if="showFlags[27]"  key="buyContractCode"
-              label="采购合同编号"
-              width="200">
-              <template slot-scope='item'>
-                <div>{{item.row.buyContractCode?item.row.buyContractCode:"-"}}</div>
-              </template>
-            </el-table-column>
+                v-if="showFlags[27]"  key="buyContractCode"
+                label="采购合同编号"
+                width="200">
+                <template slot-scope='item'>
+                    <div>{{item.row.buyContractCode?item.row.buyContractCode:"-"}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[0]" key="buySealPassingTime"
+                label="上游签订日"
+                width="120">
+                <template slot-scope='item'>
+                  <div>{{item.row.buySealPassingTime?item.row.buySealPassingTime:"-"}}</div>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="showFlags[76]"  key="buyPlanNumber"
-                label="采购计划号"
+                label="采购纸质合同号"
                 width="200">
                 <template slot-scope='item'>
                   <div>{{item.row.buyPlanNumber?item.row.buyPlanNumber:"-"}}</div>
@@ -213,7 +200,7 @@
               </el-table-column>
               <el-table-column
                 v-if="showFlags[77]"  key="buyStatisticalCaliber"
-                label="上游统一口径"
+                label="上游统计口径"
                 width="200">
                 <template slot-scope='item'>
                   <div>{{item.row.buyStatisticalCaliber ?item.row.buyStatisticalCaliber :"-"}}</div>
@@ -240,33 +227,30 @@
                 label="采购合同数量(吨)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{item.row.buySkuQuantity | numToCash}}</div>
+                  <div class="text-r">{{item.row.buySkuQuantity | numToQuantity}}</div>
                 </template>
               </el-table-column>
-
               <el-table-column
                 v-if="showFlags[6]"   key="buySkuPrice"
                 prop="buySkuPrice"
                 label="采购单价(元/吨)"
                 width="140">
                 <template slot-scope='item'>
-                  <div>{{item.row.buySkuPrice | numToCash}}</div>
+                  <div class="text-r">{{item.row.buySkuPrice | numToCash(true)}}</div>
                 </template>
               </el-table-column>
               <el-table-column
                 v-if="showFlags[7]"  key="buyTotalAmount"
                 label="采购合同总金额(元)"
                 width="180">
-                <template slot-scope='item'>
-                  <div>{{item.row.buyTotalAmount | numToCash}}</div>
-                </template>
+                <template slot-scope='item'><div class="text-r">{{item.row.buyTotalAmount | numToCash}}</div></template>
               </el-table-column>
               <el-table-column
                 v-if="showFlags[8]"  key="buyPayTotalAll"
                 label="付款总金额(元)"
                 width="180">
                 <template slot-scope='item'>
-                  <div v-if="item.row.buyOrderPayTotals.length > 0">
+                  <div v-if="item.row.buyPayTotalAll!=null" class="text-r">
                     <span>{{item.row.buyPayTotalAll | numToCash}}</span>
                     <el-popover
                       placement="top-start"
@@ -275,13 +259,15 @@
                       trigger="click">
                       <el-table :data="item.row.buyOrderPayTotals">
                         <el-table-column  label="序号" width="60"  type="index"></el-table-column>
-                        <el-table-column property="payTotal"  label="付款金额" width="120"></el-table-column>
-                        <el-table-column property="createdDate" label="付款时间" width="180"></el-table-column>
+                        <el-table-column property="payTotal"  label="付款金额(元)" width="120">
+                            <template slot-scope='item'><div>{{item.row.payTotal | numToCash}}</div></template>
+                        </el-table-column>
+                        <el-table-column property="createdDate" label="付款日期" width="180"></el-table-column>
                       </el-table>
-                      <el-button class="gy-button-view" v-if="item.row.buyPayTotalAll!=null" slot="reference">明细</el-button>
+                      <el-button class="gy-button-view" v-if="item.row.buyOrderPayTotals.length>1" slot="reference">明细</el-button>
                     </el-popover>
                   </div>
-                  <div v-else>0.00</div>
+                  <div v-else class="text-r">0.00</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -290,7 +276,7 @@
                 label="应付款余额(元)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{(item.row.buyRemainPaymentPay ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.buyRemainPaymentPay ) | numToCash}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -298,7 +284,7 @@
                 label="单边保证金(元)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{item.row.buyDepositAmount?item.row.buyDepositAmount:"0"}}</div>
+                  <div class="text-r">{{item.row.buyDepositAmount?item.row.buyDepositAmount:"0"| numToCash}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -306,20 +292,15 @@
                 prop="buyDepositRatio"
                 label="上游保证金比例"
                 width="150">
-                <template  slot-scope='item'>
-                  {{item.row.buyDepositRatio?item.row.buyDepositRatio:"0"}}%
-                </template>
+                <template  slot-scope='item'>{{item.row.buyDepositRatioDesc}}</template>
               </el-table-column>
               <el-table-column
                 v-if="showFlags[44]" key="buyDepositRatioSubtract"
                 prop="buyDepositRatioSubtract"
                 label="上游追保比例"
                 width="150">
-                <template  slot-scope='item'>
-                  跌{{item.row.buyDepositRatioSubtract?item.row.buyDepositRatioSubtract:"0"}}% - 补{{item.row.buyDepositRatioAppend?item.row.buyDepositRatioAppend:"0"}}%
-                </template>
+                <template  slot-scope='item'>{{item.row.buyDepositRatioSADesc}} </template>
               </el-table-column>
-
               <el-table-column
                 v-if="showFlags[45]" key="buyPaymentTypeDesc"
                 label="上游结算方式"
@@ -339,12 +320,19 @@
               <el-table-column
                 v-if="showFlags[13]"   key="buyDeliveryWarehouseName"
                 label="上游实际交割库"
-                width="150">
+                width="220">
                 <template slot-scope='item'>
                   <div>{{item.row.buyDeliveryWarehouseName?item.row.buyDeliveryWarehouseName:'-'}}</div>
                 </template>
               </el-table-column>
-
+              <el-table-column
+                v-if="showFlags[15]"  key="planDeliveryDate"
+                label="上游交割日"
+                width="180">
+                <template slot-scope='item'>
+                 <div>{{item.row.buyPlanDeliveryDateStr}}</div>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="showFlags[14]"  key="buyDeliveryDate"
                 prop="buyDeliveryDate"
@@ -355,13 +343,13 @@
                     <span>{{item.row.buyDeliveryDates[0].deliveryDate | date}}</span>
                     <el-popover
                       placement="top-start"
-                      width="430"
+                      width="450"
                       v-if="item.row.buyDeliveryDates.length > 1"
                       trigger="click">
                       <el-table :data="item.row.buyDeliveryDates">
-                        <el-table-column  label="序号" width="60"  type="index"></el-table-column>
-                        <el-table-column property="deliveryQuantity" label="上游实际交割数量" width="180"></el-table-column>
-                        <el-table-column property="deliveryDate" label="上游实际交割时间" width="180"></el-table-column>
+                        <el-table-column label="序号" width="60" type="index"></el-table-column>
+                        <el-table-column label="上游实际交割数量(吨)" width="180"><template slot-scope='item'>{{item.row.deliveryQuantity | numToQuantity}}</template></el-table-column>
+                        <el-table-column property="deliveryDate" label="上游实际交割日期" width="180"></el-table-column>
                       </el-table>
                       <el-button class="gy-button-view" slot="reference"  v-if="item.row.buyDeliveryDates.length>0">明细</el-button>
                     </el-popover>
@@ -370,49 +358,12 @@
                 </template>
               </el-table-column>
               <el-table-column
-                v-if="showFlags[15]"  key="planDeliveryDate"
-                label="合同约定上游交割日"
-                width="180">
-                <template slot-scope='item'>
-                  <div v-if="item.row.buyPlanDeliveryDateS || item.row.buyPlanDeliveryDateE">
-                    <div>{{item.row.buyPlanDeliveryDateS}}</div>
-                    <div>{{item.row.buyPlanDeliveryDateE}}</div>
-                  </div>
-                  <div v-else>-</div>
-                  <div  v-if="item.row.buyPlanDeliveryDateFlag === 2">之前</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[12]"   key="buyReceiptDate"
-                label="进项收票时间"
-                width="150">
-                <template slot-scope='item'>
-                  <div>{{item.row.buyReceiptDate?item.row.buyReceiptDate:'-'}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[41]" key="orderPaymentPayTimeEnd"
-                label="合同最晚付款日期"
-                width="160">
-                <template slot-scope='item'>
-                  <div>{{item.row.orderPaymentPayTimeEnd?item.row.orderPaymentPayTimeEnd:'-'}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[42]" key="buyOrderDeliveryEndDate"
-                label="合同最晚提货日期"
-                width="160">
-                <template slot-scope='item'>
-                  <div>{{item.row.buyOrderDeliveryEndDate?item.row.buyOrderDeliveryEndDate:'-'}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
                 v-if="showFlags[48]" key="buyAlreadyDeliveryQuantityCount"
                 prop="buyAlreadyDeliveryQuantityCount"
                 label="累计提货数量(吨)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{(item.row.buyAlreadyDeliveryQuantityCount ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.buyAlreadyDeliveryQuantityCount ) | numToQuantity}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -421,7 +372,7 @@
                 label="未提货数量(吨)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{(item.row.buyNotAlreadyDeliveryQuantityCount ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.buyNotAlreadyDeliveryQuantityCount ) | numToQuantity}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -430,7 +381,7 @@
                 label="进项发票总金额(元)"
                 width="180">
                 <template slot-scope='item'>
-                  <div>{{(item.row.buyInvoiceReceiptAmount ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.buyInvoiceReceiptAmount ) | numToCash}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -439,26 +390,40 @@
                 label="进项发票总吨数(吨)"
                 width="180">
                 <template slot-scope='item'>
-                  <div>{{(item.row.buyInvoiceReceiptQuantity ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.buyInvoiceReceiptQuantity ) | numToQuantity}}</div>
                 </template>
               </el-table-column>
-
+              <el-table-column
+                v-if="showFlags[12]" key="buyReceiptDate"
+                label="进项收票日"
+                width="150">
+                <template slot-scope='item'>
+                  <div>{{item.row.buyReceiptDate?item.row.buyReceiptDate:'-'}}</div>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="showFlags[72]" key="orderInvoiceExist"
                 prop="orderInvoiceExist"
                 label="上游收票情况"
                 width="150">
               </el-table-column>
-
               <el-table-column
                 v-if="showFlags[33]"   key="remarks7"
                 label="采购合同要素备注"
-                width="180">
+                width="300">
                 <template slot-scope='item'>
-                  <div>{{item.row.buyRemarks?item.row.buyRemarks:"-"}}</div>
+                        <el-popover  v-if="item.row.buyRemarks"
+                                     placement="top-start"
+                                     width="500"
+                                     trigger="hover"
+                        >
+                            <div style="height: 300px;overflow-y:scroll">{{item.row.buyRemarks?item.row.buyRemarks:"-"}}</div>
+                            <div class="text-overflow" slot="reference"  >{{(item.row.buyRemarks?item.row.buyRemarks:"-") | cutstring(20)}}</div>
+                        </el-popover>
+                        <div v-else>-</div>
                 </template>
               </el-table-column>
-            <el-table-column
+              <el-table-column
                 v-if="showFlags[64]"   key="remarks6"
                 label="采购合约编号"
                 width="180">
@@ -466,18 +431,65 @@
                   <div>{{item.row.buyLongtermContractOrderId?item.row.buyLongtermContractOrderId:"-"}}</div>
                 </template>
               </el-table-column>
-
+                <el-table-column
+                    v-if="showFlags[81]"   key="buyChattingCompanyName"
+                    label="采购撮合公司"
+                    width="180">
+                    <template slot-scope='item'>
+                        <div>{{item.row.buyChattingCompanyName?item.row.buyChattingCompanyName:"-"}}</div>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    v-if="showFlags[82]"   key="buyChattingAmount"
+                    label="采购撮合费用"
+                    width="180">
+                    <template slot-scope='item'>
+                        <div>{{item.row.buyChattingAmount| numToCash}}</div>
+                    </template>
+                </el-table-column>
               <el-table-column
-              v-if="showFlags[28]"  key="sellContractCode"
-              label="销售合同编号"
-              width="200">
-              <template slot-scope='item'>
-                  <div>{{item.row.sellContractCode?item.row.sellContractCode:"-"}}</div>
-              </template>
-            </el-table-column>
+                v-if="showFlags[5]"   key="remarksa5"
+                label="上游结算单价(元/吨)"
+                width="180">
+                <template slot-scope='item'>
+                  <div class="text-r">{{item.row.upSettlementPrice | numToCash(true)}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[22]"   key="remarksa22"
+                label="上游结算数量(吨)"
+                width="180">
+                <template slot-scope='item'>
+                  <div class="text-r">{{item.row.upSettlementQuantity | numToQuantity}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[23]"   key="remarksa23"
+                label="上游结算金额(元)"
+                width="180">
+                <template slot-scope='item'>
+                  <div class="text-r">{{item.row.upSettlementAmount | numToCash }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[28]" key="sellContractCode"
+                label="销售合同编号"
+                width="200">
+                <template slot-scope='item'>
+                    <div>{{item.row.sellContractCode?item.row.sellContractCode:"-"}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[4]" key="sellSealPassingTime"
+                label="下游签订日"
+                width="120">
+                <template slot-scope='item'>
+                  <div>{{item.row.sellSealPassingTime?item.row.sellSealPassingTime:"-"}}</div>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="showFlags[78]"  key="sellPlanNumber"
-                label="销售计划号"
+                label="销售纸质合同号"
                 width="200">
                 <template slot-scope='item'>
                   <div>{{item.row.sellPlanNumber?item.row.sellPlanNumber:"-"}}</div>
@@ -485,7 +497,7 @@
               </el-table-column>
               <el-table-column
                 v-if="showFlags[79]"  key="sellStatisticalCaliber"
-                label="下游统一口径"
+                label="下游统计口径"
                 width="200">
                 <template slot-scope='item'>
                   <div>{{item.row.sellStatisticalCaliber ?item.row.sellStatisticalCaliber :"-"}}</div>
@@ -494,12 +506,11 @@
               <el-table-column
                 v-if="showFlags[17]" key="buyerCompanyName"
                 label="下游公司"
-                width="150">
+                width="220">
                 <template slot-scope='item'>
                   <div>{{item.row.sellerCompanyName?item.row.sellerCompanyName:"-"}}</div>
                 </template>
               </el-table-column>
-
               <el-table-column
                 v-if="showFlags[75]" key="sellGrade"
                 label="下游公司评级"
@@ -513,7 +524,7 @@
                 label="销售合同数量(吨)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{item.row.sellSkuQuantity?item.row.sellSkuQuantity:"-"}}</div>
+                  <div class="text-r">{{item.row.sellSkuQuantity?item.row.sellSkuQuantity:"-"|numToQuantity}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -522,7 +533,7 @@
                 label="销售单价(元/吨)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{item.row.sellSkuPrice | numToCash}}</div>
+                  <div class="text-r">{{item.row.sellSkuPrice | numToCash(true)}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -531,7 +542,7 @@
                 label="销售合同总金额(元)"
                 width="180">
                 <template slot-scope='item'>
-                  <div>{{item.row.sellTotalAmount | numToCash}}</div>
+                  <div class="text-r">{{item.row.sellTotalAmount | numToCash}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -539,17 +550,20 @@
                 label="收款总金额(元)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{item.row.sellPayTotalAll | numToCash}}
+                  <div class="text-r">{{item.row.sellPayTotalAll | numToCash}}
                     <el-popover
                       placement="top-start"
                       width="430"
+                      v-if="item.row.sellOrderPayTotals.length > 1"
                       trigger="click">
                       <el-table :data="item.row.sellOrderPayTotals">
                         <el-table-column  label="序号" width="60"  type="index"></el-table-column>
-                        <el-table-column property="payTotal" label="收款金额" width="120"></el-table-column>
-                        <el-table-column property="createdDate" label="收款时间" width="180"></el-table-column>
+                        <el-table-column property="payTotal" label="收款金额(元)" width="120">
+                          <template slot-scope='item'><div>{{item.row.payTotal | numToCash}}</div></template>
+                        </el-table-column>
+                        <el-table-column property="createdDate" label="收款日期" width="180"></el-table-column>
                       </el-table>
-                      <el-button class="gy-button-view" v-if="item.row.sellPayTotalAll!=null"  slot="reference">明细</el-button>
+                      <el-button class="gy-button-view"  slot="reference">明细</el-button>
                     </el-popover>
                   </div>
                 </template>
@@ -560,16 +574,7 @@
                 label="应收款余额(元)"
                 width="140">
                 <template slot-scope='item'>
-                  <div>{{(item.row.sellRemainPaymentPay ) | numToCash}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[67]" key="priceDifference"
-                prop="priceDifference"
-                label="价差"
-                width="100">
-                <template slot-scope='item'>
-                  <div>{{(item.row.priceDifference ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.sellRemainPaymentPay ) | numToCash}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -577,24 +582,20 @@
                 prop="sellDepositRatio"
                 label="下游保证金比例"
                 width="150">
-                <template  slot-scope='item'>
-                  {{item.row.sellDepositRatio?item.row.sellDepositRatio:"0"}}%
-                </template>
+                <template  slot-scope='item'>{{item.row.sellDepositRatioDesc}}</template>
               </el-table-column>
               <el-table-column
                 v-if="showFlags[55]" key="sellDepositRatioSubtract"
                 label="下游追保比例 "
                 width="150">
-                <template  slot-scope='item'>
-                  跌{{item.row.sellDepositRatioSubtract?item.row.sellDepositRatioSubtract:"0"}}% - 补{{item.row.sellDepositRatioAppend?item.row.sellDepositRatioAppend:"0"}}%
-                </template>
+                <template  slot-scope='item'>{{item.row.sellDepositRatioSADesc}}</template>
               </el-table-column>
               <el-table-column
                 v-if="showFlags[56]" key="sellPaymentTypeDesc"
                 label="下游结算方式 "
                 width="130">
                 <template  slot-scope='item'>
-                  {{item.row.sellPaymentTypeDesc?item.row.sellPaymentTypeDesc:"-"}}
+                  {{item.row.sellPaymentTypeDesc!=null?item.row.sellPaymentTypeDesc:"-"}}
                 </template>
               </el-table-column>
               <el-table-column
@@ -602,15 +603,23 @@
                 label="下游交割方式"
                 width="130">
                 <template  slot-scope='item'>
-                  {{item.row.sellDeliveryTypeDesc?item.row.sellDeliveryTypeDesc:"-"}}
+                  {{item.row.sellDeliveryTypeDesc!=null?item.row.sellDeliveryTypeDesc:"-"}}
                 </template>
               </el-table-column>
               <el-table-column
                 v-if="showFlags[18]"   key="sellDeliveryWarehouseName"
                 label="下游实际交割库"
-                width="150">
+                width="220">
                 <template  slot-scope='item'>
-                  {{item.row.sellDeliveryWarehouseName?item.row.sellDeliveryWarehouseName:"-"}}
+                  {{item.row.sellDeliveryWarehouseName!=null?item.row.sellDeliveryWarehouseName:"-"}}
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[20]"  key="sellPlanDeliveryDate"
+                label="下游交割日"
+                width="180">
+                <template slot-scope='item'>
+                  <div>{{item.row.sellPlanDeliveryDateStr}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -623,12 +632,12 @@
                     <span>{{item.row.sellDeliveryDates[0].deliveryDate | date}}</span>
                     <el-popover
                       placement="top-start"
-                      width="430"
+                      width="450"
                       trigger="click">
                       <el-table :data="item.row.sellDeliveryDates">
-                        <el-table-column  label="序号" width="60"  type="index"></el-table-column>
-                        <el-table-column property="deliveryQuantity" label="下游实际交割数量" width="180"></el-table-column>
-                        <el-table-column property="deliveryDate" label="下游实际交割时间" width="180"></el-table-column>
+                        <el-table-column label="序号" width="60" type="index"></el-table-column>
+                        <el-table-column label="下游实际交割数量(吨)" width="180"><template slot-scope='item'>{{item.row.deliveryQuantity | numToQuantity}}</template></el-table-column>
+                        <el-table-column property="deliveryDate" label="下游实际交割日期" width="180"></el-table-column>
                       </el-table>
                       <el-button class="gy-button-view" slot="reference"  v-if="item.row.sellDeliveryDates.length>0">明细</el-button>
                     </el-popover>
@@ -637,47 +646,12 @@
                 </template>
               </el-table-column>
               <el-table-column
-                v-if="showFlags[20]"  key="sellPlanDeliveryDate"
-                label="合同约定下游交割日"
-                width="180">
-                <template slot-scope='item'>
-                  <div>{{item.row.sellPlanDeliveryDateS}}</div>
-                  <div>{{item.row.sellPlanDeliveryDateE}}</div>
-                  <div  v-if="item.row.buyPlanDeliveryDateFlag === 2">之前</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[21]"  key="invoiceCreatedDate"
-                prop="invoiceCreatedDate"
-                label="销项开票日期"
-                width="140">
-                <template slot-scope='item'>
-                  <div>{{item.row.invoiceCreatedDate?item.row.invoiceCreatedDate:"-"}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[52]" key="orderCollectionPayTimeEnd"
-                label="合同最晚收款日期"
-                width="180">
-                <template slot-scope='item'>
-                  <div>{{item.row.orderCollectionPayTimeEnd?item.row.orderCollectionPayTimeEnd:"-"}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                v-if="showFlags[53]" key="sellOrderDeliveryEndDate"
-                label="合同最晚交货日期"
-                width="180">
-                <template slot-scope='item'>
-                  <div>{{item.row.sellOrderDeliveryEndDate?item.row.sellOrderDeliveryEndDate:"-"}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column
                 v-if="showFlags[59]" key="sellAlreadyDeliveryQuantityCount"
                 prop="sellAlreadyDeliveryQuantityCount"
                 label="累计交货数量(吨)"
                 width="180">
                 <template slot-scope='item'>
-                  <div>{{(item.row.sellAlreadyDeliveryQuantityCount ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.sellAlreadyDeliveryQuantityCount ) | numToQuantity}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -686,7 +660,7 @@
                 label="未交货数量(吨)"
                 width="150">
                 <template slot-scope='item'>
-                  <div>{{(item.row.sellNotAlreadyDeliveryQuantityCount ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.sellNotAlreadyDeliveryQuantityCount ) | numToQuantity}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -695,7 +669,7 @@
                 label="销项发票总金额(元)"
                 width="180">
                 <template slot-scope='item'>
-                  <div>{{(item.row.sellInvoiceReceiptAmount ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.sellInvoiceReceiptAmount ) | numToCash}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -704,7 +678,16 @@
                 label="销项发票总吨数(吨)"
                 width="180">
                 <template slot-scope='item'>
-                  <div>{{(item.row.sellInvoiceReceiptQuantity ) | numToCash}}</div>
+                  <div class="text-r">{{(item.row.sellInvoiceReceiptQuantity ) | numToQuantity}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[21]"  key="invoiceCreatedDate"
+                prop="invoiceCreatedDate"
+                label="销项开票日"
+                width="140">
+                <template slot-scope='item'>
+                  <div>{{item.row.invoiceCreatedDate?item.row.invoiceCreatedDate:"-"}}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -712,18 +695,21 @@
                 label="交叉交割"
                 width="100">
                 <template slot-scope='item'>
+                  <div  v-if="item.row.acrossDeliverys.length>0">
                   <el-popover
                     placement="top-start"
-                    width="430"
+                    width="450"
                     trigger="click">
                     <el-table :data="item.row.acrossDeliverys">
                       <el-table-column  label="序号" width="60"  type="index"></el-table-column>
-                      <el-table-column property="acrossContractNo" label="交叉采购合同编号" width="120"></el-table-column>
+                      <el-table-column property="acrossContractNo" label="交叉采购合同编号" width="180"></el-table-column>
                       <el-table-column property="deliveryDate" label="交割时间" width="180"></el-table-column>
                     </el-table>
                     <el-button class="gy-button-view" slot="reference" v-if="item.row.acrossDeliverys.length>0" >明细</el-button>
                     <span slot="reference" v-if="item.row.acrossDeliverys.length<=0" >-</span>
                   </el-popover>
+                  </div>
+                  <div v-else>-</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -735,9 +721,17 @@
               <el-table-column
                 v-if="showFlags[34]" key="remarks4"
                 label="销售合同要素备注"
-                width="180">
+                width="300">
                 <template slot-scope='item'>
-                  <div>{{item.row.sellRemarks?item.row.sellRemarks:'-'}}</div>
+                    <el-popover  v-if="item.row.sellRemarks"
+                        placement="top-start"
+                        width="500"
+                        trigger="hover"
+                        >
+                        <div style="height: 300px;overflow-y:scroll">{{item.row.sellRemarks?item.row.sellRemarks:'-'}}</div>
+                        <div class="text-overflow" slot="reference"  >{{(item.row.sellRemarks?item.row.sellRemarks:'-') | cutstring(20)}}</div>
+                    </el-popover>
+                    <div v-else>-</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -748,10 +742,66 @@
                   <div>{{item.row.sellLongtermContractOrderId?item.row.sellLongtermContractOrderId:"-"}}</div>
                 </template>
               </el-table-column>
+                <el-table-column
+                    v-if="showFlags[83]"   key="sellChattingCompanyName"
+                    label="销售撮合公司"
+                    width="180">
+                    <template slot-scope='item'>
+                        <div>{{item.row.sellChattingCompanyName?item.row.sellChattingCompanyName:"-"}}</div>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    v-if="showFlags[84]"   key="sellChattingAmount"
+                    label="销售撮合费用"
+                    width="180">
+                    <template slot-scope='item'>
+                        <div>{{item.row.sellChattingAmount| numToCash}}</div>
+                    </template>
+                </el-table-column>
+              <el-table-column
+                v-if="showFlags[25]"   key="remarksa25"
+                label="下游结算单价(元/吨)"
+                width="180">
+                <template slot-scope='item'>
+                  <div class="text-r">{{item.row.downSettlementPrice | numToCash(true)}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[31]"   key="remarksa31"
+                label="下游结算数量(吨)"
+                width="180">
+                <template slot-scope='item'>
+                  <div class="text-r">{{item.row.downSettlementQuantity | numToQuantity}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[47]"   key="remarksa47"
+                label="下游结算金额(元)"
+                width="180">
+                <template slot-scope='item'>
+                  <div class="text-r">{{item.row.downSettlementAmount | numToCash}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[24]" key="payTotalAll"
+                label="合同利润(元)"
+                width="130">
+              <template slot-scope='item'>
+                <div class="text-r">{{item.row.profit| numToCash}}</div>
+              </template>
+              </el-table-column>
+              <el-table-column
+                v-if="showFlags[58]" key="payTotalAll58"
+                label="结算利润(元)"
+                width="130">
+                <template slot-scope='item'>
+                  <div class="text-r">-</div>
+                </template>
+              </el-table-column>
             </el-table>
           </template>
         </div>
-        <div class="departmentName">共计{{total}}条记录</div>
+        <div class="departmentName">共 {{total}} 条记录</div>
       </div>
 
       <!-- 分页 -->
@@ -766,7 +816,7 @@
         >
       </el-pagination>
       <!-- 全部的自定义列表项  $ycj-->
-      <el-dialog width="50%" title="自定义列表项" :visible.sync="showFlagsDiaAll">
+      <el-dialog width="50%" title="自定义列表项" class="cstSelItemDlg" :visible.sync="showFlagsDiaAll">
         <!-- 公共 -->
         <div class="common">
           <el-row>
@@ -776,16 +826,13 @@
           <div>公共</div>
             <div style="margin: 15px 0;"></div>
           <el-row>
-          <el-col :span="6"><el-checkbox v-model="showFlagsdb[0]">签订月份</el-checkbox></el-col>
           <el-col :span="6"><el-checkbox v-model="showFlagsdb[37]">业务类型</el-checkbox></el-col>
           <el-col :span="6"><el-checkbox v-model="showFlagsdb[70]">交易模式</el-checkbox></el-col>
           <el-col :span="6"><el-checkbox v-model="showFlagsdb[1]">业务组</el-checkbox></el-col>
           <el-col :span="6"> <el-checkbox v-model="showFlagsdb[36]">业务操作人</el-checkbox></el-col>
+          <el-col :span="6"> <el-checkbox v-model="showFlagsdb[80]">执行操作人</el-checkbox></el-col>
           <el-col :span="6"> <el-checkbox v-model="showFlagsdb[40]">规格</el-checkbox></el-col>
-          <el-col :span="6"><el-checkbox v-model="showFlagsdb[22]">交割完成月</el-checkbox></el-col>
-          <el-col :span="6"><el-checkbox v-model="showFlagsdb[23]">发票完成月</el-checkbox></el-col>
           <el-col :span="6"><el-checkbox v-model="showFlagsdb[24]">合同利润</el-checkbox></el-col>
-          <el-col :span="6"><el-checkbox v-model="showFlagsdb[31]">盈亏状况</el-checkbox></el-col>
           <el-col :span="6"><el-checkbox v-model="showFlagsdb[71]">执行状态</el-checkbox></el-col>
         </el-row>
         </div>
@@ -795,30 +842,33 @@
             <div style="margin: 15px 0;"></div>
           <el-row>
             <el-col :span="6"><el-checkbox v-model="showFlagsdb[27]">采购合同编号</el-checkbox></el-col>
+            <el-col :span="6"><el-checkbox v-model="showFlagsdb[0]">上游签订日</el-checkbox></el-col>
+            <el-col :span="6"><el-checkbox v-model="showFlagsdb[76]">采购纸质合同号</el-checkbox></el-col>
+            <el-col :span="6"><el-checkbox v-model="showFlagsdb[77]">上游统计口径</el-checkbox></el-col>
             <el-col :span="6"><el-checkbox v-model="showFlagsdb[74]">上游公司评级</el-checkbox></el-col>
             <el-col :span="6"><el-checkbox v-model="showFlagsdb[30]">采购合同数量(吨)</el-checkbox></el-col>
             <el-col :span="6"><el-checkbox v-model="showFlagsdb[6]">采购单价(元/吨)</el-checkbox></el-col>
             <el-col :span="6"><el-checkbox v-model="showFlagsdb[7]">采购合同总金额(元)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[8]">付款总金额(元)</el-checkbox></el-col>
-            <el-col :span="6"><el-checkbox v-model="showFlagsdb[50]">应付款余额</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[32]">单边保证金</el-checkbox></el-col>
+            <el-col :span="6"><el-checkbox v-model="showFlagsdb[50]">应付款余额(元)</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[32]">单边保证金(元)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[43]">上游保证金比例</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[44]">上游追保比例</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[45]">上游结算方式</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[46]">上游交割方式</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[13]">上游实际交割库</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[15]">上游交割日</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[14]">上游实际交割日</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[15]">合同预定上游交割日</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[12]">进项收票时间</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[41]">合同最晚付款日期</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[42]">合同最晚提货日期</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[12]">进项收票日</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[48]">累计提货数量(吨)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[49]">未提货数量(吨)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[62]">进项发票总金额(元)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[63]">进项发票总吨数(吨)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[72]">上游收票情况</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdb[33]">采购合同要素备注</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[64]">采购合约编号</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[64]">采购合约编号</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[81]">采购撮合公司</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdb[82]">采购撮合费用</el-checkbox></el-col>
           </el-row>
         </div>
         <!-- 买方 -->
@@ -827,23 +877,23 @@
             <div style="margin: 15px 0;"></div>
           <el-row>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[28]">销售合同编号</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[4]">下游签订日</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[78]">销售纸质合同号</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[79]">下游统计口径</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[75]">下游公司评级</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[29]">销售合同数量(吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[9]">销售单价(元/吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[10]">销售合同总金额(元)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[11]">收款总金额(元)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[61]">应收款余额(元)</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[67]">价差</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[54]">下游保证金比例</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[55]">下游追保比例</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[56]">下游结算方式</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[57]">下游交割方式</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[18]">下游实际交割库</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[20]">下游交割日</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[19]">下游实际交割日</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[20]">合同约定下游交割日</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[21]">销项开票日期</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[52]">合同最晚收款日期</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[53]">合同最晚交货日期</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[21]">销项开票日</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[59]">累计交货数量(吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[60]">未交货数量(吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[65]">销项发票总金额(元)</el-checkbox></el-col>
@@ -851,7 +901,9 @@
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[35]">交叉交割</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[73]">下游开票情况</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdb[34]">销售合同要素备注</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[38]">销售合约编号</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[38]">销售合约编号</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[83]">销售撮合公司</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdb[84]">销售撮合费用</el-checkbox></el-col>
           </el-row>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -867,7 +919,7 @@
         </el-table>
       </el-dialog>
       <!-- 执行台账的的自定义列表项  $ycj-->
-      <el-dialog width="50%" title="自定义列表项" :visible.sync="showFlagsDiaExe">
+      <el-dialog width="50%" title="自定义列表项" class="cstSelItemDlg" :visible.sync="showFlagsDiaExe">
         <!-- 公共 -->
         <div class="common">
           <el-row>
@@ -898,13 +950,13 @@
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[45]">上游结算方式</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[46]">上游交割方式</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[13]">上游实际交割库</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[41]">合同最晚付款日期</el-checkbox></el-col>
-            <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[42]">合同最晚提货日期</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[48]">累计提货数量(吨)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[49]">未提货数量(吨)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[62]">进项发票总金额(元)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[63]">进项发票总吨数(吨)</el-checkbox></el-col>
             <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[64]">采购合约编号</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[81]">采购撮合公司</el-checkbox></el-col>
+            <el-col :span="6">  <el-checkbox v-model="showFlagsdbExe[82]">采购撮合费用</el-checkbox></el-col>
           </el-row>
         </div>
         <!-- 买方 -->
@@ -922,14 +974,14 @@
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[56]">下游结算方式</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[57]">下游交割方式</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[18]">下游实际交割库</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[52]">合同最晚收款日期</el-checkbox></el-col>
-            <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[53]">合同最晚交货日期</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[59]">累计交货数量(吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[60]">未交货数量(吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[65]">销项发票总金额(元)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[66]">销项发票总吨数(吨)</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[35]">交叉交割</el-checkbox></el-col>
             <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[38]">销售合约编号</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[83]">销售撮合公司</el-checkbox></el-col>
+            <el-col :span="6"> <el-checkbox v-model="showFlagsdbExe[84]">销售撮合费用</el-checkbox></el-col>
           </el-row>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -1001,8 +1053,14 @@ export default {
                     id: 6,
                     value: '风控台账',
                     data: null
+                },
+                {
+                    id: 8,
+                    value: '财务台账',
+                    data: null
                 }
             ],
+            minTabActiveId: 6,
             tabsChildren: [
                 {
                     id: 6,
@@ -1017,30 +1075,16 @@ export default {
             ],
             activeId: 0,
             a: null,
-            // 业务类型
-            list: [
-                {
-                    id: null,
-                    value: '全部'
-                },
-                {
-                    id: 1,
-                    value: '高频交易'
-                },
-                {
-                    id: 4,
-                    value: '准现货-流量'
-                }
-            ],
             checkAllTag: true,
             showFlags: [ true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true
             ],
             showFlagsdb: [ true, true, true, true, true, true, true, true, true, true,
                 true, true, true, true, true, true, true, true, true, true,
@@ -1049,7 +1093,9 @@ export default {
                 true, true, true, true, true, true, true, true, true, true,
                 true, true, true, true, true, true, true, true, true, true,
                 true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true ],
+                true, true, true, true, true, true, true, true, true, true,
+                true, true, true, true, true
+            ],
             showFlagsdbExe: [ true, true, true, true, false, false, true, true, true, true,
                 true, true, false, true, true, false, true, false, true, true,
                 false, false, false, false, true, true, true, true, true, true,
@@ -1057,8 +1103,10 @@ export default {
                 true, true, true, true, true, true, true, false, true, true,
                 true, false, true, true, true, true, true, true, false, true,
                 true, true, true, true, false, true, true, false, false, false,
-                true, false, false, false, false, true, true, true, true ],
-            showFlagsExc: [ false, false, true, true, true, true, false, false, false, false,
+                true, false, false, false, false, true, true, true, true, true,
+                true, true, true, true, true
+            ],
+            showFlagsExc: [ false, false, true, true, false, true, false, false, false, false,
                 false, false, false, false, false, false, true, true, false, false,
                 false, false, false, false, false, true, true, false, false, false,
                 false, false, false, false, false, false, false, false, false, false,
@@ -1066,16 +1114,18 @@ export default {
                 false, false, false, false, false, false, false, false, false, false,
                 false, false, false, false, false, false, false, false, false, false,
                 false, false, false, false, false, false, false, false, false, false,
-                true, true, true, true
+                false, false, false, false, false
             ],
             showFlagsdbExcExe: [ true, true, true, true, false, false, true, true, true, true,
                 true, true, false, true, true, false, true, true, true, true,
                 false, false, false, false, true, true, true, true, true, true,
-                true, false, false, false, false, true, true, true, false, false,
+                true, false, false, false, false, true, true, true, true, false,
                 true, true, true, true, true, true, true, false, true, true,
                 true, false, true, true, true, true, true, true, false, true,
-                true, true, true, true, false, true, true, false, false, false,
-                true, false, false, false, false, true, true, true, true ],
+                true, true, true, true, true, true, true, false, false, false,
+                true, false, false, false, false, true, true, true, true, true,
+                true, true, true, true, true
+            ],
             payTotalAllTit: {
                 title: '付款金额明细',
                 payTotal: '付款金额',
@@ -1119,7 +1169,6 @@ export default {
             this.isShowSearch = !this.isShowSearch;
         },
         tabClick (item) {
-            console.log(item);
             this.activeId = item.id;
             this.search.activeId = item.id;
             switch (item.id) {
@@ -1149,6 +1198,10 @@ export default {
                 this.showFlags[36] = true;
                 this.showFlags[33] = true;
                 this.showFlags[34] = true;
+                this.showFlags[81] = true;
+                this.showFlags[82] = true;
+                this.showFlags[83] = true;
+                this.showFlags[84] = true;
                 break;
             case 6:
                 this.showFlags = this.showFlagsExc.concat();
@@ -1183,6 +1236,8 @@ export default {
                 this.showFlags[50] = true;
                 this.showFlags[72] = true;
                 this.showFlags[35] = true;
+                this.showFlags[81] = true;
+                this.showFlags[82] = true;
                 break;
             case 7:
                 this.showFlags = this.showFlagsExc.concat();
@@ -1217,6 +1272,69 @@ export default {
                 this.showFlags[61] = true;
                 this.showFlags[73] = true;
                 this.showFlags[35] = true;
+                this.showFlags[83] = true;
+                this.showFlags[84] = true;
+                break;
+            case 8:
+                this.showFlags = this.showFlagsExc.concat();
+                this.showFlags[26] = true;
+                this.showFlags[37] = true;
+                this.showFlags[39] = true;
+                this.showFlags[1] = true;
+                this.showFlags[36] = true;
+                this.showFlags[80] = true;
+                this.showFlags[2] = true;
+                this.showFlags[3] = true;
+                this.showFlags[40] = true;
+                this.showFlags[71] = true;
+                this.showFlags[27] = true;
+                this.showFlags[0] = true;
+                this.showFlags[16] = true;
+                this.showFlags[30] = true;
+                this.showFlags[6] = true;
+                this.showFlags[7] = true;
+                this.showFlags[8] = true;
+                this.showFlags[50] = true;
+                this.showFlags[32] = true;
+                this.showFlags[43] = true;
+                this.showFlags[44] = true;
+                this.showFlags[45] = true;
+                this.showFlags[62] = true;
+                this.showFlags[63] = true;
+                this.showFlags[12] = true;
+                this.showFlags[72] = true;
+                this.showFlags[33] = true;
+                this.showFlags[64] = true;
+                this.showFlags[5] = true;
+                this.showFlags[22] = true;
+                this.showFlags[23] = true;
+                this.showFlags[28] = true;
+                this.showFlags[4] = true;
+                this.showFlags[17] = true;
+                this.showFlags[28] = true;
+                this.showFlags[9] = true;
+                this.showFlags[10] = true;
+                this.showFlags[11] = true;
+                this.showFlags[61] = true;
+                this.showFlags[54] = true;
+                this.showFlags[55] = true;
+                this.showFlags[56] = true;
+                this.showFlags[65] = true;
+                this.showFlags[66] = true;
+                this.showFlags[21] = true;
+                this.showFlags[73] = true;
+                this.showFlags[34] = true;
+                this.showFlags[38] = true;
+                this.showFlags[25] = true;
+                this.showFlags[31] = true;
+                this.showFlags[47] = true;
+                this.showFlags[24] = true;
+                this.showFlags[58] = true;
+                this.showFlags[29] = true;
+                this.showFlags[81] = true;
+                this.showFlags[82] = true;
+                this.showFlags[83] = true;
+                this.showFlags[84] = true;
                 break;
             }
         },
@@ -1239,7 +1357,7 @@ export default {
                 this.showFlagsdb = this.showFlags.concat();
             }
             if (showFlagsTemp == null) {
-                this.showFlags = new Array(80).fill(true);
+                this.showFlags = new Array(90).fill(true);
             }
         },
         initShowFlagsExe () { // 执行台账
@@ -1261,31 +1379,10 @@ export default {
             });
         },
         exportExcel () {
-            this.$http.post(this.$api.statement.standingBookReportExport, this.search, {responseType: 'blob'}).then(res => {
-                if (res.data.size > 0) {
-                    this.download(res.data);
-                    return;
-                }
-                this.$message.error('没有文件可下载');
-            });
-        },
-        download (data) {
-            var blob = new Blob([data]);
-            if (window.navigator.msSaveOrOpenBlob) {
-                // 兼容IE10
-                navigator.msSaveBlob(blob, 'excel.xls');
-            } else {
-                let url = window.URL.createObjectURL(new Blob([data]));
-                let link = document.createElement('a');
-                link.style.display = 'none';
-                link.href = url;
-                link.setAttribute('download', 'excel.xls');
-                document.body.appendChild(link);
-                link.click();
-            }
+            this.$tools.exporttoExcel(this, this.$api.statement.standingBookReportExport, this.search, null, 60000);
         },
         aCheckAll (tag) {
-            if (tag) this.showFlagsdb = new Array(80).fill(true);
+            if (tag) this.showFlagsdb = new Array(90).fill(true);
             if (!tag) this.showFlagsdb = this.showFlagsExc.concat();
         },
         aCheckAllExe (tag) {
@@ -1300,8 +1397,9 @@ export default {
                 this.showFlagsDiaExe = true;
             }
         },
-        handleClick (tab, event) {
-            this.tabClick(this.tabsChildren[tab.index]);
+        handleClick (index, id) {
+            this.minTabActiveId = id;
+            this.tabClick(this.tabsChildren[index]);
         }
     }
 };
@@ -1311,8 +1409,14 @@ export default {
     .gy-form-group {
       padding: 6px 40px 6px 126px;
       .l {
-        width: 98px
+        width: 106px
       }
+    }
+    .min-tab-active {
+        border-bottom: 2px solid #e0370f;
+        span {
+            color: #e0370f;
+        }
     }
   }
 </style>
@@ -1321,8 +1425,21 @@ export default {
       height: 21px;
       font-size:12px;
       color:#666666;
+      white-space: nowrap;
     }
     .standingBook .el-table th .cell{
       font-weight: bold;
+    }
+    .standingBook {
+      .cstSelItemDlg {
+        .el-checkbox__label {
+          color: black;
+        }
+        .el-dialog__close {
+          position: absolute;
+          right: 1px;
+          top: -8px;
+        }
+      }
     }
 </style>

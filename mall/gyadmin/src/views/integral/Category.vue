@@ -1,9 +1,9 @@
 <template>
     <section class="integral-category f-container">
-        <h3 class="gy-h3">类目总数：{{categoryList.length}}</h3>
+        <h3 class="gy-h4">类目总数：{{categoryList.length}}</h3>
         <div class="gy-form-button">
             <!-- <button class="gy-button-normal" @click="newCategory">添加</button> -->
-            <button class="gy-button-normal" @click="editCategory">编辑</button>
+            <button class="gy-button-extra" @click="editCategory">编辑</button>
             <!-- <button class="gy-button-normal" @click="del">删除</button> -->
         </div>
         <el-table
@@ -161,11 +161,14 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .integral-category {
         width: 100%;
         .gy-form .gy-input {
             width: calc(100% - 7em);
+        }
+        .gy-form-button{
+            padding-right:0;
         }
     }
 </style>

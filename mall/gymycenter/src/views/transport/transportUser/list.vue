@@ -1,7 +1,7 @@
 <template>
-    <div class="transport-wrap order">
+    <div class="transport-wrap order transport-wrap-list">
         <div class="new-title-public">
-            司机/押运员管理
+            驾驶员/押运员管理
         </div>
         <div class="t">
             <ul class="tabs">
@@ -17,7 +17,7 @@
             </ul>
             <div class="search">
                 <div class="se-left11">
-                    <input type="text" placeholder="请输入车牌号" v-model="searchUserData.data.keywords">
+                    <input type="text" placeholder="请输入姓名/手机号" v-model="searchUserData.data.keywords">
                     <i class="iconfont icon-search" @click="searchList"></i>
                 </div>
                 <div class="se-left2" @click="disflag = !disflag">
@@ -34,110 +34,108 @@
                 <!--<input type="text" v-model="searchUserData.data.keywords" placeholder="请输入姓名或手机号" class="gy-input">-->
             <!--</div>-->
         </div>
-        <div class="new_div" v-if="disflag">
-            <el-row :gutter="30">
-                <el-col :span="12">
-                    <el-row>
-                        <el-col :span="5">
-                            行驶证有效期
-                        </el-col>
-                        <el-col :span="9">
-                            <el-date-picker
-                                v-model="searchUserData.data.startTime"
-                                type="date"
-                                placeholder="选择日期">
-                            </el-date-picker>
-                        </el-col>
-                        <el-col :span="1">至</el-col>
-                        <el-col :span="9">
-                            <el-date-picker
-                                v-model="searchUserData.data.endTime"
-                                type="date"
-                                placeholder="选择日期">
-                            </el-date-picker>
-                        </el-col>
-                    </el-row>
+        <div class="gy-form" v-if="disflag">
+            <div class="gy-form-group">
+                <span class="l">从业资格证有效期</span>
+                <!--<el-col :span="11">
+                    <el-date-picker
+                            v-model="searchUserData.data.startTime"
+                            type="date"
+                            placeholder="选择日期">
+                    </el-date-picker>
                 </el-col>
-                <el-col :span="12">
-                    <el-row>
-                        <el-col :span="5">人员类型</el-col>
-                        <el-col :span="19">
-                            <el-select v-model="searchUserData.data.personnelType" placeholder="请选择类型">
-                                <el-option
-                                    v-for="item in personnelTypeItems"
-                                    :key="item.initKeys"
-                                    :label="item.initValues"
-                                    :value="item.initKeys">
-                                </el-option>
-                            </el-select>
-                        </el-col>
-                    </el-row>
-                </el-col>
-            </el-row>
-            <div>
-                <i class="iconfont icon-search my_add" @click="searchList"></i>
+                <el-col :span="2" style="text-align: center">至</el-col>
+                <el-col :span="11">
+                    <el-date-picker
+                            v-model="searchUserData.data.endTime"
+                            type="date"
+                            placeholder="选择日期">
+                    </el-date-picker>
+                </el-col>-->
+                <el-date-picker
+                        v-model="createDate"
+                        type="daterange"
+                        align="center"
+                        unlink-panels
+                        range-separator="至"
+                        start-placeholder = '开始日期'
+                        end-placeholder= '结束日期'
+                >
+                </el-date-picker>
+            </div>
+            <div class="gy-form-group height-new">
+                <span class="l">人员类型</span>
+                <el-select v-model="searchUserData.data.personnelType" placeholder="请选择">
+                    <el-option
+                            v-for="item in personnelTypeItems"
+                            :key="item.initKeys"
+                            :label="item.initValues"
+                            :value="item.initKeys">
+                    </el-option>
+                </el-select>
+                <div class="my_add">
+                    <i class="iconfont icon-search" @click="searchList"></i>
+                </div>
             </div>
         </div>
         <span class="button-box">
-            <router-link :to="{ name: 'transportUserAdd' }"
-                         class="gy-button-extra">新增司机</router-link>
+            <router-link :to="{ name: 'transportUserDetail' }"
+                         class="gy-button-extra">添加</router-link>
         </span>
         <div style="padding: 0 14px">
         <table class="gy-table list bid-list">
             <thead>
             <tr>
-                <td class="td-100">姓名</td>
-                <td class="td-180">手机号</td>
-                <td class="td-100">人员类型</td>
-                <td class="td-180">初次领证日期</td>
-                <td class="td-180">证件有效期</td>
-                <td class="td-100">准驾车型</td>
-                <td class="td-100">状态</td>
-                <td class="td-180">操作</td>
+                <td>姓名</td>
+                <td>手机号码</td>
+                <td>人员类型</td>
+                <td>身份证号码</td>
+                <td>准驾车型</td>
+                <td>从业资格证有效期至</td>
+                <td>状态</td>
+                <td>操作</td>
             </tr>
             </thead>
             <tbody>
             <tr v-for="item in userList" :key="item.id" v-if="userList !==null && userList.length > 0">
-                <td colspan="8" class="item">
-                    <table class="gy-table">
-                        <tr>
-                            <td class="td-100">{{item.username}}</td>
-                            <td class="td-180"><span>{{item.phone}}</span></td>
-                            <td class="td-100"><span v-text="explainPersonnelType(item.personnelType)"></span></td>
-                            <td class="td-180">{{item.receiveDate | date}}</td>
-                            <td class="td-180">{{item.validDate | date}}</td>
-                            <td class="td-100">{{item.vehicleModel}}</td>
-                            <td class="td-100"><span v-text="explainValidType(item.valid)"></span></td>
-                            <td class="td-180">
-                                <span class="gy-button-view" @click="handleShowTransportUser(item.id)">查看</span>
-                                <span class="gy-button-view" @click="handleEditTransportUser(item.id)">编辑</span>
-                                <span class="gy-button-view disabled" v-if="item.valid==1"
-                                      @click="handleDisableTransportUser(item.id)">禁用</span>
-                                <span class="gy-button-view" v-if="item.valid==0"
-                                      @click="handleEnableTransportUser(item.id)">启用</span>
-                            </td>
-                        </tr>
-                    </table>
+                <td>{{item.username}}</td>
+                <td><span>{{item.phone}}</span></td>
+                <td><span v-text="explainPersonnelType(item.personnelType)"></span></td>
+                <td>{{item.identityCode}}</td>
+                <td>{{item.vehicleModel}}</td>
+                <td>
+                    <span v-if="item.personnelType === 0 || item.personnelType === 1">{{item.validDate | date}}</span>
+                    <span v-if="item.personnelType === 2">{{item.escortQualificationValidDate | date}}</span>
+                </td>
+                <td><span v-text="explainValidType(item.valid)"></span></td>
+                <td class="td-140 align-c">
+                    <span class="gy-button-view" @click="handleShowTransportUser(item.id)">查看</span>
+                    <span class="gy-button-view" @click="handleEditTransportUser(item.id)">编辑</span>
+                    <span class="gy-button-view" v-if="item.valid==1"
+                          @click="handleDisableTransportUser(item.id)">禁用</span>
+                    <span class="gy-button-view" v-if="item.valid==0"
+                          @click="handleEnableTransportUser(item.id)">启用</span>
                 </td>
             </tr>
             <tr v-if="userList !=null && userList.length === 0">
                 <td colspan="8" class="note">暂无数据</td>
             </tr>
-
-            <div class="pagination-box"
-                 v-if="searchUserData != null && searchUserData.total>searchUserData.pageSize">
-                <el-pagination
+            </tbody>
+        </table>
+        <div class="departmentName">
+            共 {{searchUserData.total}} 条记录
+        </div>
+        <div class="pagination-box" v-if="searchUserData != null && searchUserData.total>searchUserData.pageSize">
+            <el-pagination
                     background
                     layout="prev, pager, next"
                     :current-page.sync="searchUserData.pageNum"
                     :page-size="searchUserData.pageSize"
                     :total="searchUserData.total"
                     @current-change="getList"
-                >
-                </el-pagination>
-            </div>
-            </tbody>
-        </table>
+            >
+            </el-pagination>
+        </div>
         </div>
     </div>
 </template>
@@ -151,6 +149,7 @@ export default {
             tabIdx: -1,
             disflag: false,
             userList: null,
+            createDate: null, // 存放时间
             searchUserData: {
                 total: 0,
                 pageNum: 1,
@@ -164,9 +163,10 @@ export default {
                 }
             },
             personnelTypeItems: [
-                {initKeys: null, initValues: '未选择'},
-                {initKeys: '1', initValues: '驾驶人'},
-                {initKeys: '2', initValues: '押运人'}
+                {initKeys: '', initValues: '全部'},
+                {initKeys: '1', initValues: '驾驶员'},
+                {initKeys: '2', initValues: '押运员'},
+                {initKeys: '0', initValues: '驾驶员/押运员'}
             ],
             statusCount: {},
             userStatusList: [
@@ -182,7 +182,6 @@ export default {
     methods: {
         // 查询数量
         getCount () {
-            let that = this;
             this.$http.post(this.$api.transport.transportUserStatus, this.searchUserData.data)
                 .then(res => {
                     if (res.data.code === 0) {
@@ -190,13 +189,21 @@ export default {
                         this.userStatusList[0].initCountValues = this.statusCount.validCount;
                         this.userStatusList[1].initCountValues = this.statusCount.unValidCount;
                     } else {
-                        that.$alert(res.data.message, '提示', {type: 'error'});
+                        this.$message({
+                            type: 'error',
+                            message: res.data.message
+                        });
                     }
                 });
         },
         // 查询列表
         getList () {
-            let that = this;
+            this.searchUserData.data.startTime = '';
+            this.searchUserData.data.endTime = '';
+            if (this.createDate) {
+                this.searchUserData.data.startTime = this.createDate[0];
+                this.searchUserData.data.endTime = this.createDate[1];
+            }
             this.$http.post(this.$api.transport.transportUserList, this.searchUserData)
                 .then(res => {
                     if (res.data.code === 0) {
@@ -206,7 +213,10 @@ export default {
                         console.log(this.pageInfo);
                         this.getCount();
                     } else {
-                        that.$alert(res.data.message, '提示', {type: 'error'});
+                        this.$message({
+                            type: 'error',
+                            message: res.data.message
+                        });
                     }
                 });
         },
@@ -226,34 +236,50 @@ export default {
         },
         // 详细页面跳转
         handleShowTransportUser (id) {
-            this.$router.push({name: 'transportUserDetail', query: {id: id}});
+            this.$router.push({name: 'transportUserInfo', query: {id: id}});
         },
         // 编辑页面跳转
         handleEditTransportUser (id) {
-            this.$router.push({name: 'transportUserAdd', query: {id: id}});
+            this.$router.push({name: 'transportUserDetail', query: {id: id}});
         },
         // 禁用
         handleDisableTransportUser (id) {
             this.$http.post(this.$api.transport.transportUserDisable, {id: id})
                 .then(res => {
-                    this.getCount();
-                    this.getList();
+                    if (res.data.code === 0) {
+                        this.getCount();
+                        this.getList();
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            message: res.data.message
+                        });
+                    }
                 });
         },
         // 启用
         handleEnableTransportUser (id) {
             this.$http.post(this.$api.transport.transportUserEnable, {id: id})
                 .then(res => {
-                    this.getCount();
-                    this.getList();
+                    if (res.data.code === 0) {
+                        this.getCount();
+                        this.getList();
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            message: res.data.message
+                        });
+                    }
                 });
         },
         // 人员类型解析
         explainPersonnelType (personnelType) {
             if (personnelType === 1) {
-                return '驾驶人';
+                return '驾驶员';
             } else if (personnelType === 2) {
-                return '押运人';
+                return '押运员';
+            } else if (personnelType === 0) {
+                return '驾驶员/押运员';
             } else {
                 return '未知';
             }
@@ -290,31 +316,7 @@ export default {
     .button-box {
         display: block;
         text-align: right;
-        padding: 0 20px 20px;
-    }
-
-    .bid-list {
-        thead {
-            td {
-                padding-right: 0;
-                font-size: 12px;
-                text-align: center;
-            }
-        }
-        tbody {
-            td {
-                background-color: #fbfbfc;
-                border-bottom: 5px solid #fff;
-                padding-right: 0;
-                font-size: 12px;
-                text-align: center;
-            }
-            tr:last-child {
-                td {
-                    border: none;
-                }
-            }
-        }
+        padding: 0 20px 10px;
     }
 
     .td-180 {
@@ -369,6 +371,43 @@ export default {
             position: absolute;
             top: 3px;
             right: 11px;
+        }
+    }
+    .transport-wrap-list{
+        .gy-form{
+            padding-top:0;
+            .gy-form-group{
+                padding:8px 30px 8px 160px;
+                .l{
+                    width:162px;
+                }
+            }
+            .height-new{
+                padding:8px 30px 8px 108px;
+            }
+            .my_add{
+                position: absolute;
+                top: 8px;
+                right: 11px;
+            }
+        }
+        .t .search .se-left11{
+            width:180px;
+            input{
+                width:155px;
+            }
+        }
+    }
+</style>
+<style lang="scss">
+    .transport-wrap-list{
+        .el-range-separator, .el-input__icon{
+            line-height: 24px;
+            padding:0;
+        }
+        .el-input__inner{
+            height: 30px;
+            font-size: 14px;
         }
     }
 </style>

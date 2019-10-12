@@ -2,7 +2,7 @@
     <div class="g-login" id="login">
         <div class="m-login" :class="{loading: loading}">
             <div class="logo">
-                <h1>管理系统</h1>
+                <h1>ERP系统</h1>
                 <h2>用户中心</h2>
                 <span>LOGIN IN</span>
             </div>
@@ -70,7 +70,7 @@ export default {
                         let resmberUser = res.data.data;
                         if (res.data.data) {
                             if (!resmberUser.menuList[0]) {
-                                this.$alert('未配置访问权限，请联系运营', '登陆出错');
+                                this.$alert('未配置访问权限，请联系运营', '登录出错');
                                 // return false;
                             }
                             localStorage.setItem('userInfo', JSON.stringify(resmberUser));

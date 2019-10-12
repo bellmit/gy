@@ -1,7 +1,7 @@
 <template>
     <div class="recommend news">
         <div class="container">
-            <h3 class="gy-h3">资讯{{id ? '编辑' : '添加'}}</h3>
+            <div class="gy-h4">资讯{{id ? '编辑' : '添加'}}</div>
             <form action="javascript:;" name="newsAdd">
                 <div class="gy-form-group">
                     <span class="l">标题</span>
@@ -91,12 +91,23 @@ export default {
 </script>
 <style lang="scss" scoped>
     .recommend.news{
-        .container{
-            padding: 25px 35px;
-        }
         .gy-h3{
             font-weight: normal;
             margin: 0;
+        }
+        .gy-form-group{
+            padding-right: 30px;
+            padding-left: 85px;
+        }
+        .gy-form-group:nth-child(even) {
+            padding-right: 0;
+            .l {
+                width: 86px;
+                padding-left: 30px;
+            }
+        }
+        .gy-form-button{
+            padding-right: 0;
         }
     }
 </style>

@@ -34,12 +34,15 @@
                     </step>
                 </div>
             </div>
-            <div class="createPayment-status-right fr" v-if="showActButton === 1">
-                <button @click="submitForm" class="createPayment-status-right-submit btn-active">提交</button>
-                <button class="createPayment-status-right-cancel btn" @click="cancel">取消</button>
+            <div class="createPayment-status-right fr foot" v-if="showActButton === 1">
+                <div class="l"><span class="wxts">温馨提示：</span>如需配置付款审批流程，请联系客服热线：400-777-6777</div>
+                <div class="r">
+                    <button @click="submitForm" class="createPayment-status-right-submit btn-active">提交</button>
+                    <button class="createPayment-status-right-cancel btn" @click="cancel">取消</button>
+                </div>
             </div>
         </div>
-        <div class="createPayment-detail createPayment-common">
+        <div class="createPayment-detail createPayment-common" style="border-top: 7px solid #f5f5f5;">
             <div class="createPayment-status-left">
                 <i class="iconfont icon-dingdanxinxi new-left-i"></i>
                 <span class="createPayment-detail-tit ">收款信息</span>
@@ -48,13 +51,13 @@
                 <el-row class="my-row" :gutter="60">
                     <el-col :span="12">
                         <el-row>
-                            <el-col :span="7" class="font-weight" v-if="payMethod!=2">本次付款金额</el-col>
+                            <el-col :span="7" class="font-weight" v-if="payMethod!=2">本次申请付款金额</el-col>
                             <el-col :span="7" class="font-weight" v-if="payMethod==2">本次支付保证金</el-col>
                             <el-col :span="17">
                                 <input style="width:93%"
                                     v-model="amount"
                                     :disabled='readonlyFlg'
-                                    type="number"
+                                    type="text"
                                     @change="hanldeInput"
                                     @keyup="hanldeInput"
                                     placeholder="请输入金额"
@@ -125,7 +128,7 @@
                     <h3>提交信息</h3>
                     <i class="iconfont icon-close" @click="showPop = false"></i>
                     <div class="pop-inner">
-                        <el-form ref="form" :model="form" label-width="95px" :rules="rules">
+                        <!-- <el-form ref="form" :model="form" label-width="95px" :rules="rules">
                             <el-form-item label="账号名称" prop="accountNameVal">
                                 <el-input v-model="form.accountNameVal"></el-input>
                             </el-form-item>
@@ -141,7 +144,30 @@
                             <el-form-item style="text-align:right;">
                                 <el-button @click.stop="verificationForm('form')" type="danger">保存</el-button>
                             </el-form-item>
-                        </el-form>
+                        </el-form> -->
+                        <div class="adrd-warp clearfix">
+                            <div class="gy-form-group">
+                                <span class="l isrequired">账号名称</span>
+                                <input class="gy-input" v-model="form.accountNameVal" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
+                                <span class="l isrequired">银行名称</span>
+                                <input class="gy-input" v-model="form.bankName" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
+                                <span class="l isrequired">银行账号</span>
+                                <input class="gy-input" v-model="form.companyAccount" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
+                                <span class="l isrequired">开户行名称</span>
+                                <input class="gy-input" v-model="form.depositBank" placeholder="请输入" type="text">
+                            </div>
+                        </div>
+                        <div class="adddialog-footer">
+                            <span slot="footer" class="dialog-footer fr">
+                                <button class="gy-button-extra confirmations" @click="verificationForm('form')" type="danger">保存</button>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <span class="mask" @click="showPop=false;accountNumber='请选择'"></span>
@@ -158,6 +184,7 @@ export default {
     components: {step},
     data () {
         return {
+            transactionType: null,
             payNo: '',
             readonlyFlg: true,
             total: 0, // 总货款
@@ -168,7 +195,7 @@ export default {
             paidTotalVal: 0,
             totalVal: 0,
             depositAmountVal: 0,
-            accountNumber: '',
+            accountNumber: null,
             accountObj: {},
             sellerCompanyId: '',
             sellerCompany: '',
@@ -238,14 +265,37 @@ export default {
         // }
     },
     methods: {
-        verificationForm: function (form) {
-            this.$refs[form].validate((valid) => {
-                if (valid) {
-                    this.addBank();
-                } else {
-                    return false;
+        // 验证
+        checkDialogData () {
+            let flag = true;
+            let data = [
+                {value: this.form.accountNameVal, msg: '账号名称不能为空'},
+                {value: this.form.bankName, msg: '银行名称不能为空'},
+                {value: this.form.companyAccount, msg: '银行账号不能为空'},
+                {value: this.form.depositBank, msg: '开户行名称不能为空'}
+            ];
+            for (let i = 0; i < data.length; i++) {
+                if (!data[i].value && data[i].value !== 0) {
+                    this.$message({message: data[i].msg, type: 'error'});
+                    flag = false;
+                    break;
                 }
-            });
+            }
+            return flag;
+        },
+        verificationForm: function (form) {
+            if (!this.checkDialogData()) {
+                return false;
+            } else {
+                this.addBank();
+            }
+            // this.$refs[form].validate((valid) => {
+            //     if (valid) {
+            //         this.addBank();
+            //     } else {
+            //         return false;
+            //     }
+            // });
         },
         addBank () {
             const me = this;
@@ -300,27 +350,33 @@ export default {
             const me = this;
             if ((me.payMethod === 1)) {
                 if (me.balance < 0) {
-                    me.$alert('支付金额已超过货款总额，请检查！', '操作提示');
+                    me.$alert('支付金额已超过货款总额，请检查！', '操作提示', {type: 'warning'});
                     return;
                 }
             }
-            if (me.accountNumber === '请选择') {
-                me.$alert('请选择付款银行');
+            if (!me.accountNumber) {
+                me.$message({
+                    type: 'error',
+                    message: '请选择付款银行'
+                });
                 return;
             }
-            me.$http.post(me.$api.payment.createPayment,
-                {
-                    payTotal: me.amount,
-                    orderType: me.orderType,
-                    orderNumber: me.orderNumber,
-                    payBillType: me.payBillType,
-                    payMethod: me.payMethod,
-                    accountInfo: me.accountObj,
-                    remarks: me.remark,
-                    balance: me.balance,
-                    paymentTerms: me.paymentTerms
-                }
-            ).then(function (response) {
+            let payMent = {
+                payTotal: me.amount,
+                orderType: me.orderType,
+                orderNumber: me.orderNumber,
+                payBillType: me.payBillType,
+                payMethod: me.payMethod,
+                accountInfo: me.accountObj,
+                remarks: me.remark,
+                balance: me.balance,
+                paymentTerms: me.paymentTerms,
+                masterFlag: 1
+            };
+            if (me.$route.query.payMethod === 1 && me.transactionType === 10) {
+                payMent.guaranteed = 1; // 设为1时表示是担保支付
+            }
+            me.$http.post(me.$api.payment.createPayment, payMent).then(function (response) {
                 if (response.data.code === 0) {
                     // fixme -- 应该回到原来的业务画面（订单业务）
                     me.$router.push({name: 'paymentList'});
@@ -390,12 +446,12 @@ export default {
                     }
                     me.paidTotalVal = resData.paidTotalVal;
                     me.depositAmountVal = resData.depositAmountVal;
-
+                    me.transactionType = resData.transactionType;
                     if (me.orderType === 2) {
                         // 如果是物流订单，那么付款方式固定(一次付清)
-                        resData.transactionType = 3;
+                        me.transactionType = 3;
                     }
-                    me.paymentTerms = paymentMethod(resData.transactionType, resData.isBatchDelivery);
+                    me.paymentTerms = paymentMethod(me.transactionType, resData.isBatchDelivery);
                 } else {
                     me.$alert(response.data.code + ' ' + response.data.message);
                 }
@@ -426,8 +482,8 @@ export default {
         padding: 20px 16px 30px 14px;
     }
     .createPayment-status {
-        border-top: 1px solid #eee;
-        box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+        /*border-top: 1px solid #eee;*/
+        /*box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);*/
     }
     .createPayment-status-left-billStatus {
         width: 100%;
@@ -457,7 +513,25 @@ export default {
     }
     .createPayment-status-right{
         margin-top: 20px;
+        width:100%;
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
+        }
     }
+    .foot {
+         display: flex;
+         .l{
+             width: 70%;
+             line-height: 30px;
+             text-align: left;
+         }
+         .r{
+             width: 30%;
+             text-align: right;
+         }
+     }
     .createPayment-status-right button:hover{
         cursor: pointer;
     }
@@ -598,13 +672,30 @@ export default {
         height: 100%;
         z-index: 999;
         .pop-inner {
-            width: 85%;
-            margin: 0 auto;
+            padding: 20px 0 8px;
+            .gy-form-group{
+                position: relative;
+                .isrequired::before {
+                    content: "*";
+                    color: #e0370f;
+                    font-size: 12px;
+                    font-weight: 400;
+                    position: absolute;
+                    margin-left: 16px;
+                    left: 0px;
+                    top: 0;
+                }
+            }
+            .adddialog-footer{
+                width:100%;
+                height:30px;
+                padding: 0 30px;
+                margin: 22px auto;
+            }
         }
         .pop-main {
             position: absolute;
-            width: 400px;
-            height: 350px;
+            width: 45%;
             left: 50%;
             top: 50%;
             border-radius: $border-radius-base;
@@ -632,7 +723,7 @@ export default {
                 font-size: 16px;
                 color: #333;
                 padding-left: 15px;
-                font-weight: normal;
+                font-weight: blod;
                 border-bottom: 1px solid #e6eaea;
             }
             .icon-close{
@@ -723,7 +814,6 @@ export default {
                 padding-top: 0;
             }
             .gy-form-group {
-                width: 100%;
                 padding-left: 100px;
                 .l {
                     width: 100px;

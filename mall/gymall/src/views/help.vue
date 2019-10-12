@@ -1,32 +1,9 @@
 <template>
     <div class="help-wrap">
         <ul>
-            <li><img src="../assets/images/help/help1.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help2.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help3.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help4.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help5.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help6.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help7.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help8.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help9.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help10.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help11.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help12.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help13.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help14.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help15.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help16.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help17.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help18.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help19.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help20.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help21.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help22.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help23.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help24.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help25.jpg" alt=""></li>
-            <li><img src="../assets/images/help/help26.jpg" alt=""></li>
+            <li v-for="(item, index) in helpList" :key="index">
+                <img v-lazy="'http://www.chinayie.com/helpCenter/' + Number(index + 1) + '.jpg'" alt="">
+            </li>
         </ul>
     </div>
 </template>
@@ -36,12 +13,11 @@ export default {
     name: 'login',
     data () {
         return {
-            ruleForm: {
-                account: '',
-                password: '',
-                rememberMe: false
-            }
+            helpList: []
         };
+    },
+    created () {
+        this.helpList.length = 58;
     },
     mounted () {
     },

@@ -36,16 +36,28 @@
                     <dd>{{orderInfo.infCarrierTypeName}}</dd>
                 </dl>
                 <dl>
+                    <dt>托运方</dt>
+                    <dd>{{orderInfo.consignorName}}</dd>
+                </dl>
+                <dl>
                     <dt>承运方</dt>
                     <dd>{{orderInfo.carrierName}}</dd>
                 </dl>
                 <dl>
-                    <dt>联系方式</dt>
+                    <dt>托运方联系人</dt>
+                    <dd>{{orderInfo.consignorContactName}}</dd>
+                </dl>
+                <dl>
+                    <dt>承运方联系人</dt>
+                    <dd>{{orderInfo.carrierContactName}}</dd>
+                </dl>
+                <dl>
+                    <dt>托运方手机号</dt>
                     <dd>{{orderInfo.consignorContactMobile}}</dd>
                 </dl>
                 <dl>
-                    <dt>联系人</dt>
-                    <dd>{{orderInfo.consignorContactName}}</dd>
+                    <dt>承运方手机号</dt>
+                    <dd>{{orderInfo.carrierContactMobile}}</dd>
                 </dl>
                 <dl>
                     <dt>货损限制</dt>
@@ -76,31 +88,62 @@
                 </dl>
             </div>
             <div class="detail-list">
-                <ul class="tabs">
-                    <li :class="{'selected': item.selected}" v-for="(item, index) in detailTabs" :key="item.id" @click="handleDetailTab(index)">{{item.name}}</li>
-                </ul>
+              <div class="tabs">
+                  <ul>
+                      <li :class="{'selected': item.selected}" v-for="(item, index) in detailTabs" :key="item.id" @click="handleDetailTab(index)">{{item.name}}</li>
+                  </ul>
+                  <div class="button-wrap" v-show="detailTabs[0].selected">
+                      <button class="gy-button-extra exportDoc" @click="exportDoc">导出Excel</button>
+                  </div>
+              </div>
                 <table class="gy-table" v-show="detailTabs[0].selected">
                     <thead>
                         <tr>
+                            <td>序号</td>
                             <td>调度人</td>
                             <td>车辆</td>
                             <td>司机/电话</td>
+                            <td>订单状态</td>
+                            <td>四流审核</td>
+                            <td>操作</td>
+                            <td>调度量</td>
                             <td>装货量</td>
                             <td>卸货量</td>
-                            <td>状态</td>
-                            <td>操作</td>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(list, index) in traceDetailList" :key="index">
+                            <td>{{index + 1}}</td>
                             <td>{{list.schedulingPeople}}</td>
                             <td>{{list.licensePlateNumber}}</td>
                             <td>{{list.driverUsername + '/' +list.driverPhone}}</td>
-                            <td>{{list.quantityLoading}}吨</td>
-                            <td>{{list.quantityUnloading || 0}}吨</td>
                             <td>{{list.valid === 0 ? '无效' : '有效'}}</td>
-                            <!--<td><router-link :to="{ name: 'transportDispatch', query: {dispatchCode: list.id} }" class="gy-button-view">查看</router-link></td>-->
-                            <td><button class="gy-button-view" @click="handleViewDispatch(list.id)">查看</button></td>
+                            <td>
+                              <span v-if="list.valid !== 0">{{list.billStatus | auditStatus}}</span>
+                              <span v-else>-</span>
+                            </td>
+                            <td class="align-c">
+                              <button class="gy-button-view" @click="handleViewDispatch(list.id)">查看</button>
+                              <button v-if="orderInfo.consignmentNoteStatus === 8 && list.valid !== 0 && list.billStatus !== 2 && list.billStatus !== 3" class="gy-button-view" @click="audit(list.id)">审核</button>
+                            </td>
+                            <td class="align-r">{{list.quantityPlanned || 0}}吨</td>
+                            <td class="align-r">{{list.quantityLoading}}吨</td>
+                            <td class="align-r">{{list.quantityUnloading || 0}}吨</td>
+                        </tr>
+                        <tr v-if="detailTabs[0].selected && traceDetailList.length === 0">
+                            <td colspan="10" class="align-c">没有找到可显示的数据...</td>
+                        </tr>
+                        <tr class="summation">
+                            <td>合计</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="align-r">{{summations.quantityPlanned || 0}}吨</td>
+                            <td class="align-r">{{summations.quantityLoading || 0}}吨</td>
+                            <td class="align-r">{{summations.quantityUnloading || 0}}吨</td>
                         </tr>
                     </tbody>
                 </table>
@@ -120,11 +163,14 @@
                     <tr v-for="(list, index) in settleDetailList" :key="index">
                         <td>{{list.consignmentNoteCode}}</td>
                         <td v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.skuName}}</td>
-                        <td v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.quantityLoading || 0}}</td>
-                        <td v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.quantityUnloading || 0}}</td>
-                        <td v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.freightUnitPrice}}</td>
-                        <td>{{list.freightFee || 0}}</td>
+                        <td class="align-r" v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.quantityLoading || 0}}</td>
+                        <td class="align-r" v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.quantityUnloading || 0}}</td>
+                        <td class="align-r" v-for="pro in list.consignmentNoteItemList" :key="pro.id">{{pro.freightUnitPrice}}</td>
+                        <td class="align-r">{{list.freightFee || 0}}</td>
                         <td>{{chargeStatusValue[list.settleStatus]}}</td>
+                    </tr>
+                    <tr v-if="detailTabs[1].selected && settleDetailList.length === 0">
+                        <td colspan="7" style="text-align: center;">没有找到可显示的数据...</td>
                     </tr>
                     </tbody>
                 </table>
@@ -146,22 +192,48 @@
                         <td>{{item.buyerDepositBank}}</td>
                         <td>{{item.sellerDepositBank}}</td>
                         <td>{{item.payTime | date}}</td>
-                        <td>{{item.payTotal}}</td>
+                        <td class="align-r">{{item.payTotal}}</td>
+                    </tr>
+                    <tr v-if="detailTabs[2].selected && payDetailList.length === 0">
+                        <td colspan="6" style="text-align: center;">没有找到可显示的数据...</td>
                     </tr>
                     </tbody>
                 </table>
+                <div class="total" v-show="detailTabs[0].selected">共 {{total}} 条记录</div>
+                <!-- 分页 -->
+                <el-pagination
+                    v-if="traceDetailList.length !== 0"
+                    background
+                    :total="total"
+                    :page-size="searchForm.pageSize"
+                    layout="prev, pager, next"
+                    width="margin-top: 40px;"
+                    @current-change="turnPage">
+                </el-pagination>
             </div>
         </div>
         <transition name="fade">
             <contract :show-contract.sync="showContract" :show-btn="showHandlechapter" :file="contractUrl" @handlechapter="handleChapter" v-show="showContract"></contract>
         </transition>
+        <audit :auditStatusVisible="auditStatusVisible" :reason="1" @sub="doSub" @close="auditStatusVisible = false"></audit>
     </div>
 </template>
 <script>
 import contract from '@/components/contract';
+import audit from '@/components/audit';
 export default {
     data () {
         return {
+            auditStatusVisible: null,
+            total: null,
+            summations: {}, // 运输订单合计
+            searchForm: {
+                pageNum: 1,
+                pageSize: 10,
+                data: {
+                    lgsConsignmentNoteId: this.$route.query.orderId
+                }
+            },
             orderId: null,
             companyId: null,
             contractUrl: null,
@@ -230,14 +302,19 @@ export default {
             ],
             traceDetailList: [],
             payDetailList: [],
-            settleDetailList: []
+            settleDetailList: [],
+            auditSub: {
+                dispatchId: null,
+                billStatus: null, // 单据状态
+                billRemark: null // 审核原因
+            }
         };
     },
     created () {
         this.init();
     },
     components: {
-        contract
+        contract, audit
     },
     watch: {
         $route: 'init'
@@ -247,6 +324,42 @@ export default {
             this.orderId = this.$route.query.orderId;
             this.getOrderInfo();
             this.getTraceList();
+        },
+        audit (id) {
+            this.auditSub.dispatchId = id;
+            this.auditStatusVisible = true;
+        },
+        doSub (query) {
+            this.auditSub = Object.assign(this.auditSub, query);
+            this.$http.post(this.$api.transport.audit, this.auditSub)
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.$message.success('审核成功');
+                        this.auditSub.dispatchId = null;
+                        this.auditStatusVisible = false;
+                        this.getTurnPage();
+                    }
+                }).catch(() => {
+                    console.log('出错了');
+                });
+        },
+        turnPage (val) {
+            this.searchForm.pageNum = val;
+            this.getTurnPage();
+        },
+        getTurnPage () {
+            this.$http.post(this.$api.transport.pageInfo, this.searchForm)
+                .then(res => {
+                    this.traceDetailList = res.data.data.list;
+                    this.total = res.data.data.total;
+                    this.getSum();
+                });
+        },
+        getSum () {
+            this.$http.get(`${this.$api.transport.transportTotal}/${this.orderId}`)
+                .then(res => {
+                    this.summations = res.data.data;
+                });
         },
         getOrderInfo () {
             this.$http.get(this.$api.transport.orderDetail + this.orderId)
@@ -258,6 +371,7 @@ export default {
             this.$http.get(this.$api.transport.dispatchDetailList + '/' + this.orderId)
                 .then(res => {
                     this.traceDetailList = res.data.data;
+                    this.getTurnPage();
                 });
         },
         getSettlementList () {
@@ -300,6 +414,43 @@ export default {
                 this.getPayList();
             }
         },
+        // 导出
+        exportDoc () {
+            this.$http.get(`${this.$api.transport.consignmentNote}/${this.orderId}`, {responseType: 'blob'}).then(res => {
+                if (res.data) {
+                    this.download(res.data);
+                    return;
+                }
+                this.$message.error('没有文件可下载');
+            });
+        },
+        format (num) {
+            if (parseInt(num) < 10) {
+                num = '0' + num;
+            }
+            return num;
+        },
+        download (data) {
+            let blob = new Blob([data]);
+            let y, m, d, date, time;
+            date = new Date();
+            y = date.getFullYear();
+            m = date.getMonth() + 1;
+            d = date.getDate();
+            time = y + '' + this.format(m) + '' + this.format(d);
+            if (window.navigator.msSaveOrOpenBlob) {
+                // 兼容IE10
+                navigator.msSaveBlob(blob, `${time}运输明细列表.xls`);
+            } else {
+                let url = window.URL.createObjectURL(new Blob([data]));
+                let link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = url;
+                link.setAttribute('download', `${time}运输明细列表.xls`);
+                document.body.appendChild(link);
+                link.click();
+            }
+        },
         handleChapter () {},
         handleShowContract (file) {
             this.showContract = true;
@@ -312,9 +463,47 @@ export default {
     .tips .highlight{
         margin-left: 200px;
     }
+    .gy-button-view {
+      background-color: #fff;
+    }
     .icon-img{
         color: $color-extra;
         margin-left: 10px;
         cursor: pointer;
+    }
+    .tabs .selected {
+      margin-bottom: 0 !important;
+    }
+    .summation {
+        td {
+            background-color: #edf3f7 !important;
+            color: #666666;
+            font-weight: bold;
+            border-bottom: 1px solid #f2f2f2;
+            line-height: 20px;
+            font-size: 12px;
+        }
+    }
+    .button-wrap {
+        position: relative;
+        display: inline-block;
+        float: right;
+        bottom: 0;
+    }
+    .total {
+        margin: 20px 0;
+        font-size: 12px;
+        color: #666;
+    }
+    .detail h2{
+        padding:15px 0;
+    }
+    .transport-wrap.order .detail{
+        .order-info, .detail-list{
+            padding:0 16px 20px;
+        }
+        .detail-list .tabs{
+            margin-bottom: 5px;
+        }
     }
 </style>

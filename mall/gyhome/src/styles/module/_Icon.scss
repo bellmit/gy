@@ -18,3 +18,7 @@
 .icon-map{
     @include retina-sprite($map-group);
 }
+.icon-kvsearch{
+    @include retina-sprite($kvsearch-group);
+    cursor: pointer;
+}

@@ -1,63 +1,16 @@
 <template>
-    <div class="gy-menu">
-        <!--<el-menu :default-active="menuData.active" class="gy-menu" :collapse="menuData.isCollapse" @open="handleOpen" @close="handleClose">-->
-        <!--<gy-menu-item :menu-data="menuData.list"></gy-menu-item>-->
-        <!--</el-menu>-->
+    <div class="gy-menu" v-if="showList">
         <el-menu
                 :default-active="menuDefault"
                 :unique-opened=true
                 @select="handleSelect"
                 class="navMenu-body" ref="elementMenu">
             <!--home单独拎出来 -->
-            <el-menu-item index='0' link="home">
+            <el-menu-item index='home' link="home">
                 <i class="iconfont icon-workbench"></i>
                 <span slot="title">工作台<span v-if="msgCountVal > 0" class="msg-count-color"> ({{msgCountVal}})</span></span>
             </el-menu-item>
-            <el-submenu :index="index.toString()" v-for="(nav,index) in menuData" :key="index"
-                        :myId="index.toString()">
-                <template slot="title">
-                    <i :class="nav.icon"></i>
-                    <span>{{nav.name}}</span>
-                </template>
-                <div v-for="(navSecond,indexSecond) in nav.resourceAccessList" :key="index.toString()+'-'+indexSecond" class="level-2">
-                    <el-submenu v-if="navSecond.resourceAccessList.length !== 0"
-                                :myId="index.toString()+'-'+indexSecond"
-                                :index="index.toString()+'-'+indexSecond">
-                        <template slot="title">{{navSecond.name}}</template>
-                        <div v-for="(navThird,indexThird) in navSecond.resourceAccessList"
-                             :key="index.toString()+'-'+indexSecond +'-'+indexThird"
-                             class="level-3">
-                            <el-submenu v-if="navThird.resourceAccessList.length !== 0"
-                                        :myId="index.toString()+'-'+indexSecond+'-'+indexThird"
-                                        :index="index.toString()+'-'+indexSecond +'-'+indexThird">
-                                <template slot="title">{{navThird.name}}</template>
-                                <el-menu-item :link="navThird.frontUrl"
-                                              v-for="(navFourth,indexFourth) in navThird.resourceAccessList"
-                                              :key="index.toString()+'-'+indexSecond+'-'+indexThird+'-'+indexFourth"
-                                              :index="index.toString()+'-'+indexSecond+'-'+indexThird+'-'+indexFourth">
-                                    {{navFourth.label}}
-                                </el-menu-item>
-                            </el-submenu>
-                            <el-menu-item-group v-else>
-                                <el-menu-item :link="navThird.frontUrl"
-                                              :index="index.toString()+'-'+indexSecond+'-'+indexThird">
-                                    {{navThird.name}}
-                                </el-menu-item>
-                            </el-menu-item-group>
-                        </div>
-                    </el-submenu>
-                    <el-menu-item-group v-else>
-                        <template v-if="navSecond.frontUrl === 'accountSub' && !isCompany">
-
-                        </template>
-                        <el-menu-item v-else :link="navSecond.frontUrl"
-                                      :index="index.toString()+'-'+indexSecond">
-                            {{ navSecond.frontUrl === 'accountCompany' && !isCompany ? '升级企业会员' :
-                            navSecond.name}}
-                        </el-menu-item>
-                    </el-menu-item-group>
-                </div>
-            </el-submenu>
+            <gy-menu-item :menu-data="menuData"></gy-menu-item>
         </el-menu>
     </div>
 </template>
@@ -72,7 +25,8 @@ export default {
             menuDefault: null,
             msgTimer: null,
             msgCountVal: 0,
-            axiosInstance: null
+            axiosInstance: null,
+            showList: true
         };
     },
     components: {
@@ -111,8 +65,11 @@ export default {
         handleOpen (key, keyPath) {},
         handleClose (key, keyPath) {},
         handleSelect (index, indexPath, target) {
-            this.$router.push({name: target.$attrs.link});
-            this.menuDefault = null;
+            if (index === 'home') {
+                this.isShowList();
+                this.menuDefault = index;
+            }
+            this.$router.push({name: index});
         },
         countLastMsgList () {
             let me = this;
@@ -133,6 +90,12 @@ export default {
             }).catch(err => { //
                 console.log('请求失败：' + err.status + ',' + err.statusText);
             });
+        },
+        isShowList () {
+            this.showList = false;
+            Promise.resolve().then(() => {
+                this.showList = true;
+            });
         }
     },
     created () {
@@ -149,7 +112,14 @@ export default {
             this.$router.push({name: 'contEssList'});
         });
         this.countLastMsgList();
-        // this.msgTimer = setInterval(this.countLastMsgList, 10000);
+        // 只有uat1和生产环境才定时刷新
+        let envVal = null;
+        if (process && process.env) {
+            envVal = process.env.NODE_ENV;
+        }
+        if (envVal !== 'development' && envVal !== 'testing') {
+            this.msgTimer = setInterval(this.countLastMsgList, 10000);
+        }
     },
     beforeDestroy () {
         if (this.msgTimer) {

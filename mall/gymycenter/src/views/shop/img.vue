@@ -15,7 +15,7 @@
                     <div class="query clearfix">
                         <div class="more fr cursor" @click="advancedSearch=!advancedSearch">
                             <span>高级搜索</span>
-                            <i slot="suffix" class="el-icon-arrow-down"></i>
+                            <i slot="suffix" class="iconfont" :class="advancedSearch ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
                         </div>
                         <div class="iptbox fr">
                             <input class="ipt" v-model="searchForm.typeOrTitle" type="text"
@@ -150,8 +150,9 @@
         </el-dialog>
 
         <!--productDialog-->
-        <el-dialog class="newAddProduct" title="新增产品分类图" :visible.sync="isProductDialog" :close-on-click-modal="false"
-                   @close="diaClose(imgProductForm)">
+
+        <!-- @close="diaClose(imgProductForm)" -->
+        <el-dialog class="newAddProduct" title="新增产品分类图" :visible.sync="isProductDialog" :close-on-click-modal="false">
             <form action="javascript:;">
                 <div class="gy-form imgForm clearfix">
                     <div class="gy-form-group">
@@ -367,14 +368,11 @@ export default {
             this.testImgList[0].title = this.tabRowItem.title;
             this.testImgList[0].url = this.tabRowItem.absoluteUrl;
             this.fileImgList = this.testImgList;
-            // if (this.isEdit === true) {
             if (this.tabRowItem.type === 0) {
                 // 广告图dia
-                this.tabRowItem.active === '无效' ? this.tabRowItem.active = 0 : this.tabRowItem.active = 1;
                 this.imgADForm = Object.assign({}, this.tabRowItem);
-                console.log(this.imgADForm);
                 this.isADDialog = true;
-                // this.isEdit = false;
+                this.imgADForm.active = this.tabRowItem.active === '有效' ? 1 : 0;
             }
             // 产品图dia
             if (this.tabRowItem.type === 1) {
@@ -388,12 +386,11 @@ export default {
                             let data = res.data.data;
                             let arr = [data.parentCatalogue[0].id, data.id];
                             that.treeids = arr;
-                            // that.isEdit = false;
                         }
                     });
-                this.tabRowItem.active === '无效' ? this.tabRowItem.active = 0 : this.tabRowItem.active = 1;
                 this.imgProductForm = Object.assign({}, this.tabRowItem);
                 this.isProductDialog = true;
+                this.imgProductForm.active = this.imgProductForm.active === '有效' ? 1 : 0;
             }
             // }
         },
@@ -704,6 +701,10 @@ export default {
                 .more {
                     color: #666;
                     margin-left: 10px;
+                    i{
+                        margin-left:5px;
+                        vertical-align: top;
+                    }
                 }
             }
             .tips {

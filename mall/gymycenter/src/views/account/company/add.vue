@@ -204,7 +204,7 @@ export default {
                 },
                 {
                     id: 1,
-                    value: '电子签章CA交割',
+                    value: '电子签章',
                     selected: false,
                     status: '未提交'
                 },

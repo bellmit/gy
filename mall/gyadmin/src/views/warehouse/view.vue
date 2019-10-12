@@ -1,11 +1,20 @@
 <template>
   <div class="add">
-    <el-tabs v-model="activeName2" type="card">
-      <el-tab-pane label="基础信息" name="first">
-        <div class="panel">
+    <div class="tabs">
+      <ul>
+          <li v-for="(item, index) in tabList" :class="{'selected': index === tabIdx}" :key="index" @click="tabIdx = index">{{item.name}}</li>
+      </ul>
+    </div>
+    <!-- <el-tabs v-model="activeName2" type="card">
+      <el-tab-pane label="基础信息" name="first"> -->
+        <div class="panel" v-if="tabIdx === 0">
           <div class="gy-form-group">
             <span class="l"><strong>*</strong>企业名称</span>
             {{para.name}}
+          </div>
+          <div class="gy-form-group">
+            <span class="l"><strong>*</strong>港口</span>
+            {{para.harbourName}}
           </div>
           <div class="gy-form-group">
             <span class="l"><strong>*</strong>区域分类</span>
@@ -26,295 +35,331 @@
           <div class="gy-form-group">
             <span class="l"><strong>*</strong>企业性质</span>
             <span v-for="(item, index) in list" :key=index>
-                                <span v-if="index  !== 0">,</span>{{item}}
-                            </span>
-                    </div>
-                    <div class="gy-form-group cl">
-                        <span class="l"><strong>*</strong>联系人(职位)</span>
-                        <span>{{para.contactPerson}}</span>
-                    </div>
+                <span v-if="index  !== 0">,</span>{{item}}
+            </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l"><strong>*</strong>联系人(职位)</span>
+              <span>{{para.contactPerson}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l"><strong>*</strong>联系手机号</span>
+              <span>{{para.contactMobile}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">法人代表</span>
+              <span>{{para.legalPerson || '-'}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">注册资本</span>
+              <div>
+                  {{para.registeredCapital || '-' }}万{{para.currencyStr|| '-'}}
+              </div>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">成立日期</span>
+              <span>
+              {{para.establishDate|date()}}
+          </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l"><strong>*</strong>仓储类型</span>
+              <span>
+                  {{para.warehouseTypeString || '-'}}
+          </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">仓库结构</span>
+              <span>{{para.depotStructureStr || '-'}}
+              </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">仓库类型</span>
+              <span>
+                  {{para.depotTypeStr|| '-'}}
+              </span>
+          </div>
+            <div class="gy-form-group">
+                <span class="l">出库类型</span>
+                <span>
+                  {{para.storageOutTypeStr|| '-'}}
+              </span>
+            </div>
+            <div class="gy-form-group">
+                <span class="l">入库类型</span>
+                <span>
+                  {{para.storageInTypeStr|| '-'}}
+              </span>
+            </div>
+          <div v-if="para.warehouseType===2">
                     <div class="gy-form-group">
-                        <span class="l"><strong>*</strong>联系手机号</span>
-                        <span>{{para.contactMobile}}</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">法人代表</span>
-                        <span>{{para.legalPerson || '-'}}</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">注册资本</span>
-                        <div>
-                            {{para.registeredCapital || '-' }}万{{para.currencyStr|| '-'}}
-                        </div>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">成立日期</span>
+                        <span class="l"><strong>*</strong>港口类型</span>
                         <span>
-                        {{para.establishDate|date()}}
+                            {{portTypeOption[para.portType]}}
+                        </span>
+                      </div>
+              <div class="gy-form-group">
+                  <span class="l">总罐容</span>
+                  <span>{{para.totalTankCapacity || '-'}}万m³</span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">单个罐容</span>
+                  <span>{{para.singleTankCapacity || '-'}}千m³</span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">储罐数量</span>
+                  <span>{{para.tankQuantity || '-'}}个</span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">材质</span>
+                  <span>
+                      {{materialsOptions[para.material] || '-'}}
+                  </span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">保税</span>
+                  <span>
+                      {{taxProtectOptions[para.taxProtect]}}
                     </span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l"><strong>*</strong>仓储类型</span>
-                        <span>
-                            {{para.warehouseTypeString || '-'}}
-                    </span>
-                    </div>
-                    <div class="gy-form-group cl">
-                        <span class="l">仓库结构</span>
-                        <span>{{para.depotStructureStr || '-'}}
-                        </span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">仓库类型</span>
-                        <span>
-                            {{para.depotTypeStr|| '-'}}
-                        </span>
-                    </div>
-                    <div v-if="para.warehouseType===2">
-                        <div class="gy-form-group">
-                            <span class="l"><strong>*</strong>港口类型</span>
-                            <span>
-                                {{portTypeOption[para.portType]}}
-                    </span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">CDI-T</span>
+                  <span>
+                      {{cdOptions[para.cdi_t]}}
+                  </span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">自有码头</span>
+                  <span>
+                      {{cdOptions[para.ownerWharf]}}
+                  </span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">最大吨级</span>
+                  <span>{{para.maxTonnage || '-'}}万吨</span>
+              </div>
+              <div class="gy-form-group">
+                  <span class="l">港口水深</span>
+                  <span>{{para.portDepth || '-'}}m</span>
+              </div>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">交割库</span>
+              <span>
+                  {{taxProtectOptions[para.deliveryDepot]}}
+              </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">库区主流产品</span>
+              <span>
+                  {{para.deliveryProductStr || '-'}}
+              </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">协议签订情况</span>
+              <span>
+                  {{isProtocolO[para.isProtocol]}}
+                </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">签约时间</span>
+              <span>
+                  {{para.protocolDate|date}}
+              </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">尽调负责人</span>
+              <span>{{para.surveyPrincipal || '-'}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">现场尽调</span>
+              <span>{{taxProtectOptions[para.siteSurvey]}}
+          </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">风控审批阶段</span>
+              <span>{{approvalStatusO[para.approvalStatus]}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">业务开展情况</span>
+              <span>{{businessDevelopmentO[para.businessDevelopment]}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">库区评级</span>
+              <span>
+                  {{para.creditRating || '-'}}
+              </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">证照收集情况</span>
+              <span>{{para.licenseCollection || '-'}}</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">库区面积</span>
+              <span>{{para.depotAcreage|| '-'}}万m²</span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">主营品种</span>
+              <span>
+                  {{para.productStr || '-'}}
+                </span>
+          </div>
+          <div class="gy-form-group cl">
+              <span class="l">经营范围</span>
+              <span>
+                {{para.businessScope || '-'}}
+              </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">配套设施</span>
+              <span>
+                {{para.equipment || '-'}}
+                </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">固体库概括</span>
+              <span>
+                {{para.solidLibaryInf || '-'}}
+                </span>
+          </div>
+          <div class="gy-form-group">
+              <span class="l">备注</span>
+              <span>
+              {{para.remark || '-'}}
+              </span>
+          </div>
+        </div>
+      <!-- </el-tab-pane>
+      <el-tab-pane label="附件信息" name="second"> -->
+        <div class="panel fcontent" v-if="tabIdx === 1">
+            <div class="gy-form-group single-row">
+                <span class="l">营业执照<br><span  @click="showImg(0)">查看示例</span></span>
+                <span>
+                    <div class="upload-box" >
+                        <div class="img-box" v-for="(item, index) in imgList1" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                              <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                         </div>
-                        <div class="gy-form-group">
-                            <span class="l">总罐容</span>
-                            <span>{{para.totalTankCapacity || '-'}}万m³</span>
+                    </div>
+                </span>
+            </div>
+            <div class="gy-form-group single-row" style="min-height:23px">
+                <span class="l"></span>
+                <span>统一社会信用代码 {{para.socialCode}}</span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">码头危险品经营许可证<span  @click="showImg(1)">查看示例</span></span>
+                <span>
+                      <div class="img-box" v-for="(item, index) in imgList2" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                                <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                         </div>
-                        <div class="gy-form-group">
-                            <span class="l">单个罐容</span>
-                            <span>{{para.singleTankCapacity || '-'}}千m³</span>
+                </span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">仓储危险品经营许可证<span  @click="showImg(2)">查看示例</span></span>
+                <span>
+                      <div class="img-box" v-for="(item, index) in imgList3" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                                <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                         </div>
-                        <div class="gy-form-group">
-                            <span class="l">储罐数量</span>
-                            <span>{{para.tankQuantity || '-'}}个</span>
-                        </div>
-                        <div class="gy-form-group">
-                            <span class="l">材质</span>
-                            <span>
-                                {{materialsOptions[para.material] || '-'}}
-                            </span>
-                        </div>
-                        <div class="gy-form-group">
-                            <span class="l">保税</span>
-                            <span>
-                                {{taxProtectOptions[para.taxProtect]}}
-                             </span>
-                        </div>
-                        <div class="gy-form-group cl">
-                            <span class="l">CDI-T</span>
-                            <span>
-                                {{cdOptions[para.cdi_t]}}
-                            </span>
-                        </div>
-                        <div class="gy-form-group">
-                            <span class="l">自有码头</span>
-                            <span>
-                                {{cdOptions[para.ownerWharf]}}
-                            </span>
-                        </div>
-                        <div class="gy-form-group">
-                            <span class="l">最大吨级</span>
-                            <span>{{para.maxTonnage || '-'}}万吨</span>
-                        </div>
-                        <div class="gy-form-group">
-                            <span class="l">港口水深</span>
-                            <span>{{para.portDepth || '-'}}m</span>
-                        </div>
+                </span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">运输危险品经营许可证<span @click="showImg(4)">查看示例</span></span>
+                <span>
+                    <div class="img-box" v-for="(item, index) in imgList4" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                              <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                     </div>
-                    <div class="gy-form-group">
-                        <span class="l">交割库</span>
-                        <span>
-                            {{taxProtectOptions[para.deliveryDepot]}}
-                        </span>
+                </span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">消防验收证明</span>
+                <span>
+                    <div class="img-box" v-for="(item, index) in imgList5" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                                <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                     </div>
-                    <div class="gy-form-group">
-                        <span class="l">交割品种</span>
-                        <span>
-                            {{para.deliveryProductStr || '-'}}
-                        </span>
+                </span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">环评、安评文件</span>
+                <span>
+                      <div class="img-box" v-for="(item, index) in imgList6" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                                <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                     </div>
-                    <div class="gy-form-group">
-                        <span class="l">协议签订情况</span>
-                        <span>
-                            {{isProtocolO[para.isProtocol]}}
-                         </span>
+                </span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">码头经营许可证<span  @click="showImg(3)">查看示例</span></span>
+                <span>
+                  <div class="img-box" v-for="(item, index) in imgList7" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                              <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                     </div>
-                    <div class="gy-form-group">
-                        <span class="l">签约时间</span>
-                        <span>
-                            {{para.protocolDate|date}}
-                        </span>
+                </span>
+            </div>
+            <div class="gy-form-group single-row">
+                <span class="l">法人身份证复印件</span>
+                <span>
+                      <div class="img-box" v-for="(item, index) in imgList8" :key="index">
+                              <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
+                              <a :href="item.url" target="_blank" v-else>
+                                <img :src="pdfThumbnail" alt="">
+                            </a>
                     </div>
-                    <div class="gy-form-group">
-                        <span class="l">尽调负责人</span>
-                        <span>{{para.surveyPrincipal || '-'}}</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">现场尽调</span>
-                        <span>{{taxProtectOptions[para.siteSurvey]}}
-                    </span>
-                    </div>
-                    <div class="gy-form-group cl">
-                        <span class="l">风控审批阶段</span>
-                        <span>{{approvalStatusO[para.approvalStatus]}}</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">业务开展情况</span>
-                        <span>{{businessDevelopmentO[para.businessDevelopment]}}</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">信用评级</span>
-                        <span>
-                            {{para.creditRating || '-'}}
-                        </span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">证照收集情况</span>
-                        <span>{{para.licenseCollection || '-'}}</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">库区面积</span>
-                        <span>{{para.depotAcreage|| '-'}}万m²</span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">主营产品</span>
-                        <span>
-                            {{para.productStr || '-'}}
-                         </span>
-                    </div>
-                    <div class="gy-form-group cl">
-                        <span class="l">经营范围</span>
-                        <span>
-                          {{para.businessScope || '-'}}
-                        </span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">配套设施</span>
-                        <span>
-                         {{para.equipment || '-'}}
-                         </span>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l">备注</span>
-                        <span>
-                        {{para.remark || '-'}}
-                        </span>
-                    </div>
-                </div>
-            </el-tab-pane>
-            <el-tab-pane label="附件信息" name="second">
-                <div class="panel fcontent">
-                    <div class="gy-form-group single-row">
-                        <span class="l">营业执照<br><span  @click="showImg(0)">查看示例</span></span>
-                        <span>
-                            <div class="upload-box" >
-                                <div class="img-box" v-for="(item, index) in imgList1" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                      <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                                </div>
-                            </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row" style="min-height:23px">
-                        <span class="l"></span>
-                        <span>统一社会信用代码 {{para.socialCode}}</span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">码头危险品经营许可证<span  @click="showImg(1)">查看示例</span></span>
-                        <span>
-                             <div class="img-box" v-for="(item, index) in imgList2" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                        <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                                </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">仓储危险品经营许可证<span  @click="showImg(2)">查看示例</span></span>
-                        <span>
-                             <div class="img-box" v-for="(item, index) in imgList3" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                        <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                                </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">运输危险品经营许可证<span @click="showImg(4)">查看示例</span></span>
-                        <span>
-                            <div class="img-box" v-for="(item, index) in imgList4" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                      <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                            </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">消防验收证明</span>
-                        <span>
-                            <div class="img-box" v-for="(item, index) in imgList5" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                        <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                            </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">环评、安评文件</span>
-                        <span>
-                             <div class="img-box" v-for="(item, index) in imgList6" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                        <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                            </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">码头经营许可证<span  @click="showImg(3)">查看示例</span></span>
-                        <span>
-                          <div class="img-box" v-for="(item, index) in imgList7" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                     <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                            </div>
-                        </span>
-                    </div>
-                    <div class="gy-form-group single-row">
-                        <span class="l">法人身份证复印件</span>
-                        <span>
-                             <div class="img-box" v-for="(item, index) in imgList8" :key="index">
-                                     <img :src="item.url" alt="" @click="handlePictureCardPreview(item)" v-if="item.url.slice(item.url.lastIndexOf('.') + 1).toLowerCase() !== 'pdf'">
-                                      <a :href="item.url" target="_blank" v-else>
-                                        <img :src="pdfThumbnail" alt="">
-                                    </a>
-                            </div>
-                        </span>
-                    </div>
-                    <el-dialog :visible.sync="dialogVisible" :modal-append-to-body="false">
-                        <img width="100%" :src="dialogImageUrl" v-if="dialogImageUrl.indexOf('pdf')=== -1" >
-                        <!--<a :href="dialogImageUrl" target="_blank" v-else>-->
-                            <!--<img :src="pdfThumbnail" alt="">点击打开pdf文件-->
-                        <!--</a>-->
-                    </el-dialog>
-                </div>
-            </el-tab-pane>
-        </el-tabs>
-    </div>
+                </span>
+            </div>
+            <el-dialog :visible.sync="dialogVisible" :modal-append-to-body="false">
+                <img width="100%" :src="dialogImageUrl" v-if="dialogImageUrl.indexOf('pdf')=== -1" >
+                <!--<a :href="dialogImageUrl" target="_blank" v-else>-->
+                    <!--<img :src="pdfThumbnail" alt="">点击打开pdf文件-->
+                <!--</a>-->
+            </el-dialog>
+        </div>
+      <!-- </el-tab-pane>
+    </el-tabs> -->
+      <div class="panel"  v-if="tabIdx === 2">
+          <div class="gy-form-group">
+              <span class="l"><strong></strong>图片信息</span>
+              <img :src="para.homeImgPath" alt="">
+          </div>
+      </div>
+  </div>
 </template>
 
 <script>
 export default {
     data () {
         return {
+            tabIdx: 0,
+            tabList: [
+                {
+                    name: '基础信息'
+                },
+                {
+                    name: '附件信息'
+                },
+                {
+                    name: '图片信息'
+                }
+            ],
             pdfThumbnail: require('../../assets/images/pdf.png'),
             activeName2: 'first',
             value: '',
@@ -385,6 +430,7 @@ export default {
             id: null,
             list: [],
             para: {
+                harbourName: '',
                 socialCode: '',
                 deliveryProductIdsList: [],
                 productIdsList: [],
@@ -595,6 +641,30 @@ export default {
     }
   }
 
+  .tabs{
+      font-size: 0;
+      margin-bottom: 20px;
+      ul {
+          overflow: hidden;
+          display: inline-block;
+          font-size: 14px;
+      }
+      li{
+          float: left;
+          padding: 0 5px;
+          font-size: 14px;
+          color: #666666;
+          cursor: pointer;
+          line-height: 31px;
+          &.selected{
+              color: #F5A622;
+              border-bottom: 2px solid #F5A622;
+          }
+      }
+      ul li:not(:first-child) {
+          margin-left: 10px;
+      }
+  }
   /*.gy-form-group:nth-child(odd) {*/
     /*padding-right: 30px;*/
   /*}*/

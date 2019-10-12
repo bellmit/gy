@@ -135,6 +135,7 @@ const mallHome = {
     offerSearch: '/trade/public/v1/mall/offerSearch',
     mychart: '/trade/public/v1/mall/priceindex/chart',
     adInfo: '/trade/public/v1/home/adInfo',
+    adList: '/trade/public/v1/home/advertising/',
     myindexday: '/trade/public/v1/mall/priceindex/indexday' // 热门指数列表
 };
 
@@ -150,7 +151,9 @@ const shop = {
     homeImg: '/trade/v1/company/profile/home',
     productList: '/trade/public/v1/offers/catalogue',
     shopRecommend: '/trade/public/v1/home/shopRecommend',
-    search: '/trade/public/v1/home/shopRecommendByKeyword'
+    search: '/trade/public/v1/home/shopRecommendByKeyword',
+    hotRecommend: '/trade/public/v1/home/hotRecommend',
+    advertising: '/trade/home/hot/v1/advertising'
 };
 
 export default {

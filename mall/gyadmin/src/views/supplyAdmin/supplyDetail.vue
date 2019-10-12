@@ -197,7 +197,13 @@ export default {
                 'updatedBy': userInfo.id, // 修改人ID
                 'updatedDate': new Date() // 修改事件
             };
-            this.$http.put(this.$api.supplyAdmin.supplyEdit, query).then(res => {
+            let url;
+            if (index === 2) {
+                url = this.$api.supplyAdmin.refuse;
+            } else {
+                url = this.$api.supplyAdmin.supplyEdit;
+            }
+            this.$http.put(url, query).then(res => {
                 if (res.data.code === 0) {
                     this.dialogVisible = false;
                     this.init();
@@ -266,7 +272,7 @@ export default {
             text-align:right;
         }
         .supply_light{
-            color:#E0370F;
+            color:#e59640;
         }
         .textRight{
             text-align: right;

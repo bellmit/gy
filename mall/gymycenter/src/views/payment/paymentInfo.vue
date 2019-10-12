@@ -48,10 +48,14 @@
                 </div>
             </div>
             <div class="createPayment-status-right fr">
-                <!--<button class="createPayment-status-right-submit btn-active">打印</button>-->
-                <button @click="cancelConfirm()" class="createPayment-status-right-submit btn-active" v-if="cancelable">
-                    取消确认
-                </button>
+                <div  v-if="textfailure" class="fl"><span class="wxts">温馨提示：</span>双方达成退款协议，资金已退回。</div>
+                <div  v-if="decideWarm" class="fl"><span class="wxts">温馨提示：</span>支付完成，资金进入担保账户，收款方将在您确认收货后收到款项。</div>
+                <div class="fr" v-if="!decideWarm">
+                    <!--<button class="createPayment-status-right-submit btn-active">打印</button>-->
+                    <button @click="cancelConfirm()" class="createPayment-status-right-submit btn-active" v-if="cancelable">
+                        取消确认
+                    </button>
+                </div>
                 <!-- <br v-else/> -->
             </div>
         </div>
@@ -59,12 +63,13 @@
             <div class="createPayment-status-left">
                 <i class="el-icon-tickets"></i>
                 <span class="createPayment-detail-tit">付款信息</span>
-                <button class="gy-button-views" style="position:absolute;right:30px;cursor: pointer" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
+                <button class="gy-button-views" style="position:absolute;right:110px;cursor: pointer" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
+                <button class="gy-button-views" style="position:absolute;right:30px;cursor: pointer" @click="uploadExcel">下载付款单</button>
             </div>
-            <div class="content-info">
+            <div class="content-info" v-if="tradeMode !== 3">
                 <el-row class="my-row">
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">{{amountTitle}}</el-col>
-                    <el-col :span="9"><span>{{amount}}</span> 元</el-col>
+                    <el-col :span="9"><span v-if="payInfo.masterFlag === 1 && payInfo.payStatus === 8 && payInfo.payTotal === 0">{{payInfo.applyAmount}}</span><span v-else>{{amount}}</span>元</el-col>
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">付款方式</el-col>
                     <el-col :span="9">{{paymentTerms}}</el-col>
                 </el-row>
@@ -92,15 +97,6 @@
                 <el-row class="my-row">
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">付款凭证</el-col>
                     <el-col :span="21">
-                        <!--<div class="createPayment-attachment-items">-->
-                        <!--<a class="createPayment-attachment-item" v-for="attachment in attachments" :key="attachment.tit" href="attachment.url">-->
-                        <!--<img class="createPayment-attachment-item-img" :src="attachment.imgUrl" />-->
-                        <!--<div class="createPayment-attachment-item-right">-->
-                        <!--<p class="createPayment-attachment-item-right-name">{{attachment.tit}}</p>-->
-                        <!--<span class="createPayment-attachment-item-right-look">点击查看</span>-->
-                        <!--</div>-->
-                        <!--</a>-->
-                        <!--</div>-->
                         <el-upload
                             :action="uploadUrl"
                             :auto-upload="true"
@@ -109,8 +105,7 @@
                             :disabled="true"
                             :file-list="fileList"
                             :on-preview="handlePictureCardPreview"
-                            :on-remove="handleRemove"
-                        >
+                            :on-remove="handleRemove">
                             <i class="el-icon-plus"></i>
                         </el-upload>
                     </el-col>
@@ -120,15 +115,21 @@
                 </el-dialog>
                 <el-row class="my-row">
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">备注</el-col>
-                    <el-col :span="19">
-                        {{ remark }}
-                        <!--<el-input class="text-area-border-none" :readonly="true"-->
-                        <!--type="textarea"-->
-                        <!--autosize-->
-                        <!--placeholder="备注信息"-->
-                        <!--v-model="remark">-->
-                        <!--</el-input>-->
-                    </el-col>
+                    <el-col :span="19">{{ remark }}</el-col>
+                </el-row>
+            </div>
+            <div class="content-info" v-else>
+                <el-row class="my-row">
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">{{amountTitle}}</el-col>
+                    <el-col :span="9"><span>{{amount}}</span> 元(积分支付)</el-col>
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">消耗积分</el-col>
+                    <el-col :span="9">{{deductAmount}} 积分</el-col>
+                </el-row>
+                <el-row class="my-row">
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">收款企业</el-col>
+                    <el-col :span="9">{{sellerCorpName}}</el-col>
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">备注</el-col>
+                    <el-col :span="9">{{ remark }}</el-col>
                 </el-row>
             </div>
         </div>
@@ -147,6 +148,7 @@ export default {
     components: {step, approveHistory},
     data () {
         return {
+            orderNumber: '',
             paymentId: 0,
             payMethod: 0,
             processId: 0,
@@ -184,7 +186,12 @@ export default {
             }, {payStatus: 50, text: '已完成'}],
             tempStepArr2: [{payStatus: -1, text: '已失效'}],
             amountTitle: '',
-            isApproving: false // 是否正在付款申请审批中
+            isApproving: false, // 是否正在付款申请审批中,
+            tradeMode: null,
+            deductAmount: '',
+            payInfo: {},
+            decideWarm: false,
+            textfailure: false
         };
     },
     watch: {
@@ -244,6 +251,12 @@ export default {
             }
 
             this.$refs.myApprHisDlg.getAppHisList(params);
+        },
+        // 下载付款单
+        uploadExcel () {
+            let paymentUpload = {paymentId: this.$route.query.paymentId, purchaseOrderNumber: this.orderNumber};
+            let fileName = '付款单--' + this.$route.query.paymentId + '.xls';
+            this.$tools.exporttoExcel(this, this.$api.payment.upload, paymentUpload, fileName);
         }
     },
     created: function () {
@@ -253,10 +266,14 @@ export default {
         me.$http.get(me.$api.payment.paymentInfo + me.paymentId)
             .then(function (response) {
                 if (response.data.code === 0) {
+                    me.payInfo = response.data.data;
+                    me.orderNumber = response.data.data.orderNumber;
                     me.processId = response.data.data.payJobId;
                     me.payNo = response.data.data.payNumber;
                     me.payStatus = response.data.data.payStatus;
                     me.stepArr = me.payStatus === 60 ? me.tempStepArr2 : me.tempStepArr1;
+                    me.tradeMode = response.data.data.tradeMode;
+                    me.deductAmount = response.data.data.deductAmount;
                     if (me.payStatus === 20 && response.data.data.collStatus === 10) {
                         me.cancelable = true;
                     }
@@ -264,6 +281,13 @@ export default {
                     me.depositRatio = response.data.data.depositRatioStr;
                     me.amount = response.data.data.payTotalStr;
                     me.remark = response.data.data.remarks;
+                    // 担保支付的温馨提示
+                    if (response.data.data.guaranteed === 1 && me.payMethod === 1 && me.payStatus === 20 && response.data.data.guaranteeStatus === 1) {
+                        me.decideWarm = true;
+                    }
+                    if (response.data.data.guaranteed === 1 && me.payMethod === 1 && me.payStatus === 60 && response.data.data.guaranteeStatus === 3) {
+                        me.textfailure = true; // textfailure
+                    }
                     // payBillType：1 :付款；2:退款
                     if (response.data.data.payBillType === 1) {
                         me.sellerId = response.data.data.sellerId;
@@ -289,8 +313,13 @@ export default {
                     fileNames.forEach((item, index) => {
                         let obj = {};
                         let timestmp = (new Date()).valueOf();
-                        obj.url = process.env.API_ROOT_MAIN + me.$api.payment.paymentImage + '?filePath=' + item.fileUrl + '&t=' + timestmp;
+                        if (item.fileUrl.indexOf('http') !== -1) {
+                            obj.url = item.fileUrl;
+                        } else {
+                            obj.url = process.env.API_ROOT_MAIN + me.$api.payment.paymentImage + '?filePath=' + item.fileUrl + '&t=' + timestmp;
+                        }
                         me.fileList.push(obj);
+                        console.log(me.fileList);
                     });
                 }
             });
@@ -307,7 +336,8 @@ export default {
         }
         this.$http.post(this.$api.processes.bizApproveStatus, params).then((res) => {
             if (res.data.code === 0) {
-                if (res.data.data.rsltStatus === 1) {
+                if (res.data.data.rsltStatus === 1 || res.data.data.rsltStatus === 2) {
+                    // 只要是有审批就显示审批历史
                     me.isApproving = true;
                 }
             } else {
@@ -371,7 +401,15 @@ export default {
             float: right;
         }
     }
-
+    .createPayment-status-right{
+        margin-top: 20px;
+        width:100%;
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    }
     .createPayment-status-right-submit {
         margin-right: 10px;
     }
@@ -534,6 +572,13 @@ export default {
         margin: 20px 0 0 -20px;
         border: none;
     }
+    .font-weight {
+        color: #333333;
+    }
+    .fontWidth {
+        color: #333333;
+        width:104px;
+    }
 </style>
 <style lang="scss">
     .createPayment-main-tit-right {
@@ -574,13 +619,6 @@ export default {
             line-height: 40px;
             /*border:red solid 1px;*/
             color: #666666;
-        }
-        .font-weight {
-            color: #333333;
-        }
-        .fontWidth {
-            color: #333333;
-            width:104px;
         }
     }
 </style>

@@ -101,7 +101,9 @@ export default {
                 if (data.code === 0) {
                     this.$router.push({path: 'list'});
                     this.$message.success('保存成功!');
+                    return;
                 }
+                this.$message.error(data.message);
             }).catch(() => {
             });
         },
@@ -128,6 +130,7 @@ export default {
   }
   .gy-form-group {
     padding-left: 62px;
+    padding-right: 0;
     .l {
       width: 52px;
     }

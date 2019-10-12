@@ -22,7 +22,7 @@
                     <i  @click="search" class="iconfont icon-search"></i>
                 </div>
                 <span class="search-btn" @click="toggleSelect =!toggleSelect">高级搜索<i
-                    class="iconfont icon-arrow-down"></i></span>
+                        class="iconfont" :class="toggleSelect ? 'icon-arrow-up' : 'icon-arrow-down'"></i></span>
             </div>
         </div>
         <div class="selected-box" v-show="toggleSelect">
@@ -109,15 +109,15 @@
             </el-form>
         </div>
         <div class="mytable">
-            <table>
+            <table class="gy-table">
                 <thead>
                 <tr class="title">
                     <td style="width:25%">商品</td>
-                    <td style="width:15%">卖方公司</td>
-                    <td style="width:15%">总金额</td>
+                    <td >卖方公司</td>
+                    <td style="width:15%">总金额(元)</td>
                     <td style="width:15%">交付方式</td>
                     <td style="width:15%">状态</td>
-                    <td style="width:15%">操作</td>
+                    <td style="width:80px">操作</td>
                 </tr>
                 </thead>
                 <tbody v-for="(item , index) in data.orderList" :key="index">
@@ -133,24 +133,33 @@
                             |numToCash(3)}}{{items.infUnitOfMeasureDisplayName}}
                         </div>
                     </td>
-                    <td class="tleft" style="width:15%">{{item.sellerCompanyName}}<br>
-                    <td style="width:15%">{{item.intCurrencyMark}}{{items.skuTotalAmount|numToCash}}元</td>
+                    <td class="tleft">{{item.sellerCompanyName}}<br>
+                    <td style="width:15%" class="align-r">{{item.intCurrencyMark}}{{items.skuTotalAmount|numToCash}}</td>
                     <td style="width:15%">{{item.deliveryType === 1 ? '买家自提' : item.deliveryType === 2? '卖家送货':'全部支持'}}</td>
-                    <td style="width:15%">
+                    <td style="width:15%" >
                         <span v-if="item.orderStatus===1">签约</span>
                         <span v-else-if="item.orderStatus===2">收款与交割</span>
                         <span v-else-if="item.orderStatus===3">结算与复核</span>
                         <span v-else-if="item.orderStatus===4">已完成</span>
                         <span v-else-if="item.orderStatus===5">已失效</span>
                     </td>
-                    <td style="width:15%">
-                        <a @click="goPage(item)" class="gy-button-view">查看</a>
+                    <td class="align-c" style="width:100px">
+                        <a @click="goPage(item)" style="margin-bottom:5px;" class="gy-button-view">查看</a>
+                        <div v-if="item.showBillIcon">
+                        <router-link target="_blank" :to="{ name: 'purchaseBills', query: {odrOrderSn: item.odrOrderSn, orderId: item.id, showBillIcon: item.showBillIcon} }"
+                            class="gy-button-view">单据管理
+                        </router-link>
+                        <el-tooltip poper-class="test" :content="item.billRemark || reminder" placement="top" effect="light">
+                            <i v-if="item.showBillIcon === 1" style="color: #BEBEBE!important;" class="iconfont icon-tishi2"></i>
+                            <i v-if="item.showBillIcon === 2" style="color: red;" class="iconfont icon-fail"></i>
+                        </el-tooltip>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
             </table>
             <div class="totaljl">
-                共{{data.total}}条记录
+                共 {{data.total}} 条记录
             </div>
             <div class="totalfy">
                 <el-pagination
@@ -158,7 +167,7 @@
                     layout="prev, pager, next"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"
-                    :total=total>
+                    :total="total">
                 </el-pagination>
             </div>
         </div>
@@ -167,6 +176,7 @@
 <script>export default {
     data () {
         return {
+            reminder: '请提供准确真实的单据，否则会影响您在国烨网的信誉及后续交易。',
             offerCode: '',
             searchCode: '', // 查询订单号
             skuName: '', // 查询品名
@@ -209,6 +219,10 @@
             {
                 value: 1,
                 label: '先货后款'
+            },
+            {
+                value: 10,
+                label: '担保交易'
             }],
             seniorParam: {},
             pickerOptions: { // 日期
@@ -298,6 +312,7 @@
             // 0：上架，1：下架，2：作废
             this.stateCode = index;
             this.parameter.data.orderStatus = index;
+            this.parameter.pageNum = 1; // 点击tab页数返回第一页
             this.getInfo(this.parameter);
         },
         handleCurrentChange (val) { // 分页
@@ -352,9 +367,14 @@
             });
         },
         goPage (data) {
-            let name = data.orderStatus > 2 ? 'buyerSettle' : 'purchaseDetail';
-
-            this.$router.push({name: name, query: {orderId: data.id}});
+            let name = data.orderStatus;
+            if (name === 1 || name === 2 || name === 5) {
+                name = 'purchaseDetail';
+            } else {
+                name = 'buyerSettle';
+            }
+            const {href} = this.$router.resolve({name: name, query: {orderId: data.id, showBillIcon: data.showBillIcon}});
+            window.open(href, '_blank');
         }
     }
 };
@@ -414,12 +434,12 @@
             }
             li {
                 float: left;
-                padding: 0 6px;
+                padding: 0 5px;
                 color: #666;
                 font-size: 14px;
                 &.active {
                     color: $color-a-active;
-                    border-bottom: 1px solid $color-a-active
+                    border-bottom: 2px solid $color-a-active
                 }
             }
             li:hover{
@@ -427,8 +447,15 @@
             }
             ul li:not(:first-child) {
                 position: relative;
-                margin-left: 20px;
+                margin-left: 10px;
             }
+            .search-btn{
+                i{
+                    margin-left:5px;
+                    vertical-align: top;
+                }
+            }
+
             .search-btn:hover{
                 cursor: pointer;
             }
@@ -462,9 +489,10 @@
             border-collapse: collapse;
             td {
                 color: $color-main;
-                text-align: center;
+                text-align: left;
                 font-size: 12px
             }
+            thead tr td{text-align: center}
             tr:not(:nth-child(2)) td {
                 padding: 9px;
             }

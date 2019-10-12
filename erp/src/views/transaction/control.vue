@@ -10,7 +10,7 @@
           <span class="l">下游公司</span>
           <input type="text" placeholder="请输入" v-model="search.buyerCompanyName">
         </div>
-        <div class="gy-form-group">
+        <div class="gy-form-group" :class="{'last-active': !isShowSearch}">
           <span class="l">上游公司</span>
           <input type="text" placeholder="请输入" v-model="search.sellerCompanyName">
         </div>
@@ -36,7 +36,7 @@
             <div class="searchDate">
               <div class="d">
                 <el-date-picker
-                  v-model="search.purchaseContractStartDate"
+                  v-model="search.saleContractStartDate"
                   type="date"
                   value-format="timestamp"
                   placeholder="开始日期">
@@ -45,8 +45,8 @@
               <div class="c">至</div>
               <div class="d">
                 <el-date-picker
-                  v-model="search.purchaseContractEndDate"
-                  @change="change(search.purchaseContractEndDate, 1)"
+                  v-model="search.saleContractEndDate"
+                  @change="change(search.saleContractEndDate, 1)"
                   type="date"
                   value-format="timestamp"
                   placeholder="结束日期">
@@ -59,7 +59,7 @@
             <div class="searchDate">
               <div class="d">
                 <el-date-picker
-                  v-model="search.saleContractStartDate"
+                  v-model="search.purchaseContractStartDate"
                   type="date"
                   value-format="timestamp"
                   placeholder="开始日期">
@@ -68,8 +68,8 @@
               <div class="c">至</div>
               <div class="d">
                 <el-date-picker
-                  v-model="search.saleContractEndDate"
-                  @change="change(search.saleContractEndDate, 2)"
+                  v-model="search.purchaseContractEndDate"
+                  @change="change(search.purchaseContractEndDate, 2)"
                   type="date"
                   value-format="timestamp"
                   placeholder="结束日期">
@@ -81,7 +81,7 @@
             <span class="l">产品名称</span>
             <input type="text" placeholder="请输入" v-model="search.stuName">
           </div>
-          <div class="gy-form-group">
+          <div class="gy-form-group" :class="{'last-active': isShowSearch}">
             <span class="l">业务操作人</span>
             <input type="text" placeholder="请输入" v-model="search.businessManagerName">
           </div>
@@ -102,27 +102,27 @@
           <thead>
             <tr>
                 <th width="80px">合同要素ID</th>
-                <th width="100px">合同编号</th>
+                <th width="120px">合同编号</th>
                 <th width="80px">合同日期</th>
                 <th width="60px">品名</th>
+                <th width="180px">上游公司</th>
+                <th width="180px">下游公司</th>
                 <th width="110px">交货地点</th>
                 <th width="80px" v-show="this.activeId !== 3">保证金比例</th>
                 <th width="100px" v-show="this.activeId === 0 || this.activeId === 1">涨跌约定</th>
                 <th width="100px" v-show="this.activeId === 0 || this.activeId === 2 || this.activeId === 3">合同完成进度</th>
-                <th width="100px" v-show="this.activeId === 0 || this.activeId === 3">盈亏计算(含税)</th>
+                <th width="100px" v-show="this.activeId === 0 || this.activeId === 3">盈亏计算(元)</th>
                 <th width="80px">数量(吨)</th>
                 <th width="120px">交易单价(元/吨)</th>
                 <th width="130px">采购合同总金额(元)</th>
                 <th width="130px">销售合同总金额(元)</th>
-                <th width="180px">上游公司</th>
-                <th width="180px">下游公司</th>
                 <th width="120px">业务组</th>
             </tr>
           </thead>
           <tbody v-if="this.tableData.length !== 0">
             <tr v-for="(item, index) in tableData" :key="index">
-              <td width="80px">{{item.id}}</td>
-              <td width="100px">
+              <td width="80px"><router-link :to="{ name: 'orderDetails', query: { id: item.id }}"><em style="color: #409EFF;">{{item.id}}</em></router-link></td>
+              <td width="120px">
                 <span v-if="item.purchaseContractCode||item.saleContractCode">{{item.purchaseContractCode}}<br>{{item.saleContractCode}}</span>
                 <span v-else>-</span>
               </td>
@@ -131,38 +131,37 @@
                 <span v-else>-</span>
               </td>
               <td width="60px">{{item.stuName?item.stuName:"-"}}</td>
-              <td width="110px">
+              <td width="180px">{{item.sellerCompanyName?item.sellerCompanyName:"-"}}</td>
+              <td width="180px">{{item.buyerCompanyName?item.buyerCompanyName:"-"}}</td>
+              <td width="200px">
                 <span v-if="item.purchaseDeliveryWarehouseName||item.saleDeliveryWarehouseName">{{item.purchaseDeliveryWarehouseName}}<br>{{item.saleDeliveryWarehouseName}}</span>
                 <span v-else>-</span>
               </td>
               <td width="80px" v-show="activeId !== 3">
-                {{item.purchaseDepositAmount?item.purchaseDepositAmount:"0"}}%<br>{{item.saleDepositAmount?item.saleDepositAmount:"0"}}%
+                 <span v-if="item.purchaseContractCode">{{item.purchaseDepositAmount?item.purchaseDepositAmount:"0"}}%</span><br>
+                 <span v-if="item.saleContractCode">{{item.saleDepositAmount?item.saleDepositAmount:"0"}}%</span>
               </td>
               <td width="100px" v-show="activeId === 0 || activeId === 1">
                 <span v-if="item.purchaseDepositRatio||item.saleDepositRatio">{{item.purchaseDepositRatio}}<br>{{item.saleDepositRatio}}</span>
                 <span v-else>跌 0% 补 0 %</span>
               </td>
               <td width="100px" v-show="activeId === 0 || activeId === 2 || activeId === 3">
-                {{parseInt(item.purchaseContractSchedule * 100)}}%
-                <br>{{parseInt(item.saleContractSchedule * 100)}}%
+                  <span v-if="item.purchaseContractCode">{{parseInt(item.purchaseContractSchedule * 100)}}%</span><br>
+                  <span v-if="item.saleContractCode">{{parseInt(item.saleContractSchedule * 100)}}%</span>
               </td>
-              <td width="100px" v-show="activeId === 0 || activeId === 3">
-                <span v-if="item.purchaseProfitLossAccount||item.saleProfitLossAccount">{{item.purchaseProfitLossAccount}}<br>{{item.saleProfitLossAccount}}</span>
+              <td class="text-r" width="100px" v-show="activeId === 0 || activeId === 3">
+                <span v-if="item.purchaseProfitLossAccount">{{item.purchaseProfitLossAccount| numToCash}}</span>
                 <span v-else>-</span>
               </td>
-              <td width="80px">{{item.purchaseSkuQuantity | numToCash}}<br>{{item.saleSkuQuantity | numToCash}}</td>
-              <td width="120px">{{item.purchaseSkuPrice | numToCash}}<br>{{item.saleSkuPrice | numToCash}}</td>
-              <td width="130px">{{item.purchaseTotalAmount | numToCash}}</td>
-              <td width="130px">{{item.saleTotalAmount | numToCash}}</td>
-              <td width="180px">{{item.sellerCompanyName?item.sellerCompanyName:"-"}}</td>
-              <td width="180px">{{item.buyerCompanyName?item.buyerCompanyName:"-"}}</td>
+              <td class="text-r" width="80px">
+                  <span  v-if="item.purchaseContractCode">{{item.purchaseSkuQuantity |numToQuantity}}</span><br>
+                  <span v-if="item.saleContractCode">{{item.saleSkuQuantity |numToQuantity}}</span></td>
+              <td class="text-r" width="120px">
+                  <span v-if="item.purchaseContractCode">{{item.purchaseSkuPrice |numToCash(true)}}</span><br>
+                  <span  v-if="item.saleContractCode">{{item.saleSkuPrice |numToCash(true)}}</span></td>
+              <td class="text-r" width="130px">{{item.purchaseTotalAmount | numToCash}}</td>
+              <td class="text-r" width="130px">{{item.saleTotalAmount | numToCash}}</td>
               <td width="120px">{{item.usrOrganization?item.usrOrganization:"-"}}</td>
-            </tr>
-            <tr class="total">
-              <td colspan="9">总计</td>
-              <td colspan="1">{{all.purchaseSkuQuantityTotal}}<br>{{all.saleSkuQuantityTotal}}</td>
-              <td colspan="1">{{all.purchaseTotalAmountTotal | numToCash}}</td>
-              <td colspan="5">{{all.saleTotalAmountTotal | numToCash}}</td>
             </tr>
           </tbody>
           <tbody v-else>
@@ -172,7 +171,19 @@
           </tbody>
         </table>
       </div>
-      <div class="departmentName">共计{{total}}条记录</div>
+        <el-row>
+            <el-col :span="24">
+                <div class="grid-content bg-purple">
+                    <span style="width:120px">所有页合计</span>采购数量(吨):<span style="width:150px">{{all.purchaseSkuQuantityTotal|numToQuantity}}</span>采购合同总金额(元):<span>{{all.purchaseTotalAmountTotal | numToCash}}</span>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple">
+                    <span style="width:120px">&nbsp;</span>销售数量(吨):<span style="width:150px">{{all.saleSkuQuantityTotal|numToQuantity}}</span>销售合同总金额(元):<span>{{all.saleTotalAmountTotal | numToCash}}</span>
+                </div>
+            </el-col>
+        </el-row>
+      <div class="departmentName">共 {{total}} 条记录</div>
       <el-pagination
         background
         :total="total"
@@ -214,33 +225,26 @@ export default {
             tabs: [
                 {
                     id: '',
-                    value: '准现货交易合同总控表',
+                    value: '合同总控表',
                     data: null
                 },
                 {
                     id: 1,
-                    value: '准现货交易保证金情况监控表',
+                    value: '保证金监控表',
                     data: null
                 },
                 {
                     id: 2,
-                    value: '准现货交易交割情况监控表',
+                    value: '交割监控表',
                     data: null
                 },
                 {
                     id: 3,
-                    value: '准现货交易盈亏情况监控表',
+                    value: '盈亏监控表',
                     data: null
                 }
             ],
-            activeId: 0,
-            // 业务类型
-            list: [
-                {
-                    id: 1,
-                    value: '准现货交易'
-                }
-            ]
+            activeId: 0
         };
     },
     created () {
@@ -259,7 +263,7 @@ export default {
             });
         },
         change (v, type) {
-            type === 1 ? this.search.purchaseContractEndDate = v + 86399000 : this.search.saleContractEndDate = v + 86399000;
+            type === 1 ? this.search.saleContractEndDate = v + 86399000 : this.search.purchaseContractEndDate = v + 86399000;
         },
         // 分页
         turnPage (v) {
@@ -288,17 +292,17 @@ export default {
         color: #666;
     }
     .box {
-      margin: 30px 16px 0;
+      margin: 0 16px;
       overflow-x: scroll;
     }
     .gy-table {
-      width: 2200px;
+      width: 2250px;
       color: #666666;
       font-size: 12px;
       th{
         font-weight: bold;
         color: #666666;
-        padding: 9px 0 9px 20px
+        // padding: 9px 0 9px 20px;
       }
     }
     .search-btn {
@@ -311,4 +315,37 @@ export default {
       }
     }
   }
+  .el-row {
+      margin-bottom: 20px;
+      &:last-child {
+          margin-bottom: 0;
+      }
+  }
+
+  .el-col {
+      border-radius: 4px;
+  }
+  .bg-purple-dark {
+      background: #99a9bf;
+      color: white;
+      padding-left: 10px;
+  }
+  .bg-purple-light {
+      background: #e5e9f2;
+  }
+  .bg-purple {
+      background: #d3dce6;
+      padding-left: 10px;
+  }
+  .grid-content {
+      height: 36px;
+      line-height: 36px;
+      background-color: #ecf5ff;
+      span {
+          min-width: 30px;
+          display: inline-block;
+          margin-left: 10px;
+      }
+  }
+
 </style>

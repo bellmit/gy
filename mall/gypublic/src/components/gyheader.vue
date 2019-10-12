@@ -1,28 +1,32 @@
 <template>
     <div class="header">
         <div class="t">
-            <div class="inner">
+            <div class="inner clearfix">
                 <span class="hot-line"><i class="iconfont icon-hotline"></i>客服热线: 400-777-6777<a
                   href="http://old.chinayie.com" target="_blank">返回旧版</a></span>
                 <ul class="menu">
-                    <li><a href="/point" class="highlight">积分商城</a></li>
                     <li v-if="!isLogin"><a href="/my/#/login">登录</a> | <a href="/my/#/register">注册</a></li>
-                    <!--<li><a href="">语言</a></li>-->
-                    <li><a href="http://chinayie.cn/about.php">关于我们</a></li>
-                    <li><a href="/mall/#/help">帮助中心</a></li>
-                    <li v-if="isLogin"><a href="javascript:;" @click="goMenu">{{userInfo.account}}</a></li>
+                    <li v-if="isLogin" class="account">
+                        <a href="javascript:;" class="account-link" @click="goMenu">{{userInfo.account}}<i class="iconfont"></i></a>
+                        <div class="pop-account">
+                            <span class="company-logo" :style="'background-image: url(' + defaultCompanyLogo + ')'"></span><span class="company-phone">{{userInfo.phone}}</span><a href="javascript:;" @click="logout">退出</a>
+                        </div>
+                    </li>
                     <li v-if="isLogin"><a href="/my/#/news"><i class="iconfont icon-news"></i>消息<i class="icon-new-news" v-if="newMessage || unread"></i></a></li>
-                    <li v-if="isLogin"><a href="javascript:;" @click="logout">退出</a></li>
+                    <li><a href="javascript:;" @click="goMycenter">我的中心</a></li>
+                    <li><a href="#" @click="setJump('/point')">积分商城</a></li>
+                    <li><a href="/my/#/help">帮助中心</a></li>
+                    <li><a href="http://chinayie.cn/about.php">关于我们</a></li>
                 </ul>
             </div>
         </div>
         <div class="b">
-            <div class="inner">
+            <div class="inner clearfix">
                 <div class="nav">
                     <a href="/" class="logo"><img src="../assets/images/gy-logo.png" alt=""></a>
                     <ul v-if="isHeader === false && page !== '积分'">
                         <li v-for="nav in navList" :key="nav.id">
-                            <a :href="nav.link" :class="{'selected': nav.selected}"><i class="iconfont" :class="'icon-' + nav.icon"></i>{{nav.name}}</a>
+                            <a @click="setJump(nav.link)" href="#" :class="{'selected': nav.selected}"><i class="iconfont" :class="'icon-' + nav.icon"></i>{{nav.name}}</a>
                         </li>
                     </ul>
                 </div>
@@ -118,7 +122,8 @@ export default {
             companyId: null,
             newMessage: false,
             unread: false,
-            newMessageNote: false
+            newMessageNote: false,
+            defaultCompanyLogo: require('../assets/images/mylogo.png')
         };
     },
     props: ['page'],
@@ -128,6 +133,7 @@ export default {
             this.companyId = this.$route.query.companyId;
         }
         this.isHeader = (this.$route.name === 'shopHome' || this.$route.name === 'shop-profile');
+        localStorage.setItem('jump', true);
     },
     computed: mapGetters([
         'getUserinfo',
@@ -162,6 +168,10 @@ export default {
                 item.selected = (item.name === this.page);
             });
         },
+        setJump (href) {
+            localStorage.setItem('jump', true);
+            location.href = href;
+        },
         handleSearch () {
             location.href = `/mall/#/search?fullSearch=${this.keywordStr}`;
         },
@@ -171,9 +181,10 @@ export default {
                     this.$http.post('/trade/user/v1/logout')
                         .then(res => {
                             if (res.data.code === 0) {
+                                this.isLogin = false;
                                 localStorage.removeItem('userInfo');
                                 location.href = '/my/#/login';
-                                location.reload();
+                                this.userInfo = null;
                                 return;
                             }
                             this.$alert(res.data.message, '出错了');
@@ -220,6 +231,9 @@ export default {
             };
             localStorage.setItem('firstMenu', JSON.stringify(firstMenuData));
             location.href = '/my/#/order/list';
+        },
+        goMycenter () {
+            location.href = this.isLogin ? '/my/#/order/list' : '/my/#/login';
         }
     }
 };
@@ -245,9 +259,10 @@ export default {
         .inner {
             margin: 0 auto;
             width: 1200px;
-            overflow: hidden;
         }
         .t {
+            height: 30px;
+            line-height: 30px;
             .hot-line {
                 float: left;
                 color: $color-minor;
@@ -265,7 +280,66 @@ export default {
                 float: right;
                 font-size: $small-font;
                 color: $color-black;
-                line-height: 30px;
+                .account{
+                    position: relative;
+                    .iconfont{
+                        margin-left: 8px;
+                        color: #999;
+                        &:before{
+                            content: "\e620";
+                        }
+                    }
+                    .account-link{
+                        padding: 0 10px;
+                        margin-right: -10px;
+                        display: inline-block;
+                        border: 1px solid #f5f5f5;
+                        border-bottom: none;
+                    }
+                    .pop-account{
+                        position: absolute;
+                        background-color: #fff;
+                        border: 1px solid $color-border;
+                        padding: 10px;
+                        z-index: 22222;
+                        top: 30px;
+                        left: 0;
+                        border-top: none;
+                        width: 216px;
+                        display: none;
+                        .company-logo{
+                            background-color: #f5f5f5;
+                            height: 60px;
+                            width: 60px;
+                            display: inline-block;
+                            border-radius: 100%;
+                            overflow: hidden;
+                            background-position: center center;
+                            background-size: cover;
+                            background-repeat: no-repeat;
+                            vertical-align: middle;
+                            border: 6px solid #f5f5f5;
+                        }
+                        .company-phone{
+                            padding: 0 16px;
+                            display: inline-block;
+                        }
+                    }
+                    &:hover{
+                        .account-link{
+                            background-color: #fff;
+                            border-color: $color-border;
+                        }
+                        .iconfont{
+                            &:before{
+                                content: "\e61f";
+                            }
+                        }
+                        .pop-account{
+                            display: block;
+                        }
+                    }
+                }
                 .message {
                     position: relative;
                     display: inline-block;

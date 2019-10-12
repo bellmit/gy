@@ -2,8 +2,8 @@
     <div class="product-list">
         <input type="text" class="gy-input" v-model="keywords" @keyup="getList"  @keyup.13="handleGetList" :disabled="defaultProduct">
         <ul v-show="showList" v-clickOutside="handleHiddenList">
-            <li v-for="(item, index) in list" :key="index" @click="handleList(item)" v-if="list.length > 0">{{item.goodsName}}</li>
             <li class="none-tips" v-if="list.length === 0">没有搜到相关产品</li>
+            <li v-for="(item, index) in list" :key="index" @click="handleList(item)" v-else>{{item.goodsName}}</li>
         </ul>
         <i class="iconfont icon-search" @click="handleGetList"></i>
     </div>

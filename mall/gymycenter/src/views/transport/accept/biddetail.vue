@@ -89,7 +89,7 @@
                         <el-option
                             v-for="item in carType"
                             :key="item.id"
-                            :label="item.name"
+                            :label="item.logisticsDictionaryName"
                             :value="item.id">
                         </el-option>
                     </el-select>
@@ -126,7 +126,7 @@
                 <span v-for="pro in enquiryInfo.enquiryNoteItemList" :key="pro.id"
                       v-if="isOrderStarted || !isOrderStarting">{{pro.skuPrice}}元/{{pro.infUnitOfMeasureName}}</span>
                 <span v-for="(pro, index) in enquiryInfo.enquiryNoteItemList" :key="index" v-else>
-                    <input type="text" class="gy-input" v-model="skuPrice">
+                    <input type="text" class="gy-input" v-model="skuPrice" disabled>
                     <strong class="unit">{{pro.intCurrencyName}}/{{pro.infUnitOfMeasureName}}</strong>
                 </span>
             </div>
@@ -135,23 +135,7 @@
                 <span v-for="pro in enquiryInfo.enquiryNoteItemList" :key="pro.id"
                       v-if="isOrderStarted || !isOrderStarting">{{pro.damageRate}}</span>
                 <span v-else>
-                    <input type="text" class="gy-input" v-model="damageRate">
-                </span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">期望支付方式</span>
-                <span v-if="isOrderStarted || !isOrderStarting">{{payWay[enquiryInfo.freightPaymentType]}}</span>
-                <span v-else>
-                    <label><input type="radio" v-model="startOrderData.freightPaymentType" name="payway" value="0">在线支付</label>
-                    <label><input type="radio" v-model="startOrderData.freightPaymentType" name="payway" value="1">线下支付</label>
-                </span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">期望签约方式</span>
-                <span v-if="isOrderStarted || !isOrderStarting">{{signType[enquiryInfo.consignmentSignType]}}</span>
-                <span v-else>
-                    <label><input type="radio" v-model="startOrderData.consignmentSignType" name="signway" value="0">在线签约</label>
-                    <label><input type="radio" v-model="startOrderData.consignmentSignType" name="signway" value="1">线下签约</label>
+                    <input type="text" class="gy-input" v-model="damageRate" disabled>
                 </span>
             </div>
             <div class="gy-form-group single-row">
@@ -162,8 +146,11 @@
                 </span>
             </div>
         </div>
-        <div class="gy-form-button" style="padding-bottom: 20px;" v-if="isOrderStarting">
-            <button class="gy-button-extra" @click="orderSendConfirm">提交</button>
+        <div class="gy-form-button foot" style="padding-bottom: 20px;" v-if="isOrderStarting">
+            <div class="l"><span class="wxts">温馨提示：</span>请注意交易信息真实合规。如需配置订单审批流程，请联系客服热线：400-777-6777</div>
+            <div class="r">
+                <button class="gy-button-extra" @click="orderSendConfirm">提交</button>
+            </div>
         </div>
         <div class="pop-order-confirm" v-show="showConfirm">
             <div class="main">
@@ -331,9 +318,9 @@ export default {
                 });
         },
         getCarList () {
-            this.$http.post(this.$api.transport.carType)
+            this.$http.get(this.$api.transport.carType)
                 .then(res => {
-                    this.carType = res.data.data.list;
+                    this.carType = res.data.data;
                 });
         },
         bidSend () {
@@ -423,10 +410,10 @@ export default {
                 this.$message.error('重量最多保留3位小数');
                 return;
             }
-            if (!/^[0-9]+(.[0-9]{1,2})?$/.test(this.damageRate) || this.damageRate > 10) {
-                this.$message.error('货损限制最多保留2位小数且不能大于10');
-                return;
-            }
+            // if (!/^[0-9]+(.[0-9]{1,2})?$/.test(this.damageRate) || this.damageRate > 10) {
+            //     this.$message.error('货损限制最多保留2位小数且不能大于10');
+            //     return;
+            // }
             if (!this.skuPrice || !/^[0-9]+(.[0-9]{1,2})?$/.test(this.skuPrice)) {
                 this.$message.error('货值不能为空且最多保留2位小数');
                 return;
@@ -616,6 +603,24 @@ export default {
         display: block;
         i{
             font-size: 12px;
+        }
+    }
+    .foot {
+        display: flex;
+        margin-left:30px;
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .l{
+            width: 70%;
+            line-height: 30px;
+            text-align: left;
+        }
+        .r{
+            width: 30%;
+            text-align: right;
         }
     }
 </style>

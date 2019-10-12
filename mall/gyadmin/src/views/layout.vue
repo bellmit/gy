@@ -2,7 +2,7 @@
   <el-container class="layout">
       <el-header><top></top></el-header>
       <el-container>
-          <el-aside width="240px">
+          <el-aside width="240px" class="aside">
             <gy-menu></gy-menu>
           </el-aside>
           <el-container>
@@ -40,5 +40,8 @@ export default {
 
   .el-header {
     padding: 0;
+  }
+  .aside {
+    background-color: #5a5959;
   }
 </style>

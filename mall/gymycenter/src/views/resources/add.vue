@@ -14,7 +14,7 @@
                         <el-row :gutter="60">
                             <el-col :span="12">
                                 <el-form-item label="品名" prop="skuName">
-                                    <template v-if="offerId">{{info.skuName}}</template>
+                                    <span v-if="offerId">{{info.skuName}}</span>
                                     <template v-else>
                                         <product-search :selected.sync="selectedProduct"></product-search>
                                     </template>
@@ -24,31 +24,43 @@
                                 <el-form-item label="有效时间" prop="effectiveMinutes">
                                     <el-select v-model="info.effectiveMinutes">
                                         <el-option
-                                            v-for="item in timeOptions"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                          v-for="item in timeOptions"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                         </el-row>
                         <el-row :gutter="60">
-                            <el-col :span="12" class="display-inlinecol">
+                            <el-col :span="12" class="display-inlinecol pricecenter">
                                 <el-form-item  label="单价(元)" prop="skuPrice">
-                                    <el-input placeholder="请输入" v-model.number="info.skuPrice" v-bind:disabled="disabledInput"
-                                              @focus="changeInput"></el-input>
-                                    <el-select v-model="info.intCurrencyCode" placeholder="请选择">
+                                    <span class="">
+                                    <el-select v-model="info.skuPriceFlag" @change="changeprice" placeholder="请选择">
                                         <el-option
-                                            v-for="item in currencies"
-                                            :key="item.currencyCode"
-                                            :label="item.friendlyName"
-                                            :value="item.currencyCode">
+                                          v-for="item in skuPriceList"
+                                          :key="item.id"
+                                          :label="item.userName"
+                                          :value="item.id">
                                         </el-option>
                                     </el-select>
-                                    <el-radio-group v-model="info.ismianmin" @change="change">
+                                    </span>
+                                    <div class="inlineblock" v-if="info.skuPriceFlag!=2">
+                                    <el-input placeholder="请输入" v-model.number="info.skuPrice" v-bind:disabled="disabledInput"
+                                              @focus="changeInput" :min="0" ></el-input>
+                                    <el-select v-model="info.intCurrencyCode" placeholder="请选择">
+                                        <el-option
+                                          v-for="item in currencies"
+                                          :key="item.currencyCode"
+                                          :label="item.friendlyName"
+                                          :value="item.currencyCode">
+                                        </el-option>
+                                    </el-select>
+                                    </div>
+                                    <!-- <el-radio-group v-model="info.ismianmin" @change="change">
                                         <el-radio label="面议"></el-radio>
-                                    </el-radio-group>
+                                    </el-radio-group> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
@@ -72,9 +84,9 @@
                                         <el-row>
                                             <el-col :span="21">
                                                 <el-date-picker
-                                                    v-model="info.deliveryBeginDate"
-                                                    type="date"
-                                                    placeholder="选择日期">
+                                                  v-model="info.deliveryBeginDate"
+                                                  type="date"
+                                                  placeholder="选择日期">
                                                 </el-date-picker>
                                             </el-col>
                                             <el-col :span="3">以前</el-col>
@@ -92,10 +104,10 @@
                                     <el-input placeholder="请输入" style="width: 214px;" v-model="info.skuQuantity"></el-input>
                                     <el-select v-model="info.infUnitOfMeasureId">
                                         <el-option
-                                            v-for="item in options"
-                                            :key="item.id"
-                                            :label="item.name"
-                                            :value="item.id">
+                                          v-for="item in options"
+                                          :key="item.id"
+                                          :label="item.name"
+                                          :value="item.id">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
@@ -114,10 +126,10 @@
                                         <div class="img-holder" v-if="imageUrl&&!isReupload"
                                              :style='"background-image: url(" + imageUrl + ")"'></div>
                                         <el-upload
-                                            class="product-upload"
-                                            action="api"
-                                            list-type="picture-card"
-                                            :http-request="uploadImg">
+                                          class="product-upload"
+                                          action="api"
+                                          list-type="picture-card"
+                                          :http-request="uploadImg">
                                             <i class="el-icon-plus"></i>
                                         </el-upload>
                                         <p class="tips">您可以用默认图片，也可以点击上传自己的商品图片，大小为260*260px，展示风格支持jpg，jpeg，gif，png风格。</p>
@@ -134,7 +146,7 @@
                             <el-col :span="12">
                                 <el-form-item label="交割库">
                                     <div class="product-list">
-                                        <input style="width: 92%" placeholder="请输入" type="text" class="gy-input" v-model="deliveryWarehouseName"
+                                        <input placeholder="请输入" type="text" class="gy-input" v-model="deliveryWarehouseName"
                                                @keyup.enter="getWarehouses" @blur="hideList">
                                         <ul v-show="showList">
                                             <li v-for="(item, index) in warehousesList" :key="index"
@@ -150,30 +162,30 @@
                                     <el-col :span="8">
                                         <el-select v-model="info.provinceName" placeholder="选择省" @change="handleProvince">
                                             <el-option
-                                                v-for="item in Province"
-                                                :key="item.id"
-                                                :label="item.name"
-                                                :value="item.id">
+                                              v-for="item in Province"
+                                              :key="item.id"
+                                              :label="item.name"
+                                              :value="item.id">
                                             </el-option>
                                         </el-select>
                                     </el-col>
                                     <el-col :span="8">
                                         <el-select v-model="info.cityName" placeholder="选择市" @change="handleDelivery">
                                             <el-option
-                                                v-for="item in deliveryCity"
-                                                :key="item.id"
-                                                :label="item.name"
-                                                :value="item.id">
+                                              v-for="item in deliveryCity"
+                                              :key="item.id"
+                                              :label="item.name"
+                                              :value="item.id">
                                             </el-option>
                                         </el-select>
                                     </el-col>
                                     <el-col :span="8">
                                         <el-select v-model="info.districtName" placeholder="选择区" @change="handleDistrict">
                                             <el-option
-                                                v-for="item in deliveryDistrict"
-                                                :key="item.id"
-                                                :label="item.name"
-                                                :value="item.id">
+                                              v-for="item in deliveryDistrict"
+                                              :key="item.id"
+                                              :label="item.name"
+                                              :value="item.id">
                                             </el-option>
                                         </el-select>
                                     </el-col>
@@ -188,17 +200,17 @@
                                 <el-form-item label="货源" prop="skuOrigin">
                                     <el-select v-model="info.skuOrigin" placeholder="请选择">
                                         <el-option
-                                            v-for="item in skuOriginOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                          v-for="item in skuOriginOption"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12" prop="depositRatio">
                                 <el-form-item label="保证金(%)" class="bao">
-                                    <el-input-number v-model="info.depositRatio" :min="0" :step="1"></el-input-number>
+                                    <el-input-number v-model="info.depositRatio" :min="0" :step="1" :max="100"></el-input-number>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -208,10 +220,10 @@
                                     <el-select v-model="info.deliveryType" placeholder="请选择" style="width: 97%;
     margin-left: 10px">
                                         <el-option
-                                            v-for="item in deliveryTypeOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                          v-for="item in deliveryTypeOption"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
@@ -221,10 +233,10 @@
                                     <el-select v-model="info.paymentType" placeholder="请选择" style="width: 97%;
     margin-left: 10px">
                                         <el-option
-                                            v-for="item in paymentTypeOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                          v-for="item in paymentTypeOption"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
@@ -235,24 +247,24 @@
                                 <el-form-item label="促销方式">
                                     <el-select v-model="info.promoType" placeholder="请选择">
                                         <el-option
-                                            v-for="item in promoTypeOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                          v-for="item in promoTypeOption"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
-                                <el-form-item label="发票">
+                                <el-form-item label="发票月份">
                                     <el-row :gutter="0">
                                         <el-col :span="11">
                                             <el-select v-model="provideInvoiceType" placeholder="请选择">
                                                 <el-option
-                                                    v-for="item in provideInvoiceOption"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value">
+                                                  v-for="item in provideInvoiceOption"
+                                                  :key="item.value"
+                                                  :label="item.label"
+                                                  :value="item.value">
                                                 </el-option>
                                             </el-select>
                                         </el-col>
@@ -271,7 +283,7 @@
                             </el-col>
                         </el-row>
                         <el-row class="new-resoursebtn">
-                           <div class="gy-button-extra" @click.prevent="submitFormValid"> 提交</div>
+                            <div class="gy-button-extra" @click.prevent="submitFormValid"> 提交</div>
                         </el-row>
                     </div>
                 </el-form>
@@ -290,15 +302,15 @@ export default {
             }
             callback();
         };
-            // var imgs = (rule, value, callback) => {
-            //     if (!this.imageUrl && !this.imgUrl) {
-            //         callback(new Error('请上传图片'));
-            //     }
-            //     callback();
-            // };
+        // var imgs = (rule, value, callback) => {
+        //     if (!this.imageUrl && !this.imgUrl) {
+        //         callback(new Error('请上传图片'));
+        //     }
+        //     callback();
+        // };
         var validatePrice = (rule, value, callback) => {
-            if (!this.info.ismianmin && !this.info.skuPrice) {
-                callback(new Error('请输入价格或选择面议'));
+            if (!(this.info.skuPriceFlag === '2') && !this.info.skuPrice) {
+                callback(new Error('请输入价格'));
             }
             callback();
         };
@@ -310,7 +322,7 @@ export default {
         };
         return {
             ruleForm: {
-                skuName: [{required: true, message: '请输入产品名称', trigger: 'blur'}], // 产品名称
+                skuName: [{required: true, message: '请输入产品名称', trigger: 'change'}], // 产品名称
                 skuPrice: [{required: true, validator: validatePrice, trigger: 'blur'}], // 单价
                 skuQuantity: [{required: true, message: '请输入可供量', trigger: 'blur'}], // 可供量
                 skuMinQuantity: [{required: true, message: '请输入最小起订量', trigger: 'blur'}], // 可供量
@@ -319,7 +331,7 @@ export default {
                 skuOrigin: [{required: false, message: '请选择货源类型', trigger: 'blur'}], // 货源
                 depositRatio: [{required: true, message: '保证金不能为空', trigger: 'blur'}], // 货源
                 deliveryType: [{required: true, message: '请选择交割方式', trigger: 'blur'}], // 交割方式
-                effectiveMinutes: [{required: true, message: '请输入有效时间', trigger: 'blur'}], // 有效时间
+                effectiveMinutes: [{required: true, message: '请输入有效时间', trigger: 'change'}], // 有效时间
                 devV: [{required: true, validator: validate3, trigger: 'blur'}]// 有效时间
                 // imgUrl: [{ required: true, validator: imgs, trigger: 'blur' }] // 图片
             },
@@ -341,6 +353,7 @@ export default {
             list: [],
             warehousesList: [],
             info: {
+                skuPriceFlag: '0',
                 districtName: '',
                 skuOrigin: '国产', // 货源
                 skuName: '', // 品名
@@ -348,7 +361,7 @@ export default {
                 promoType: 0, // 促销方式
                 intCurrencyCode: 'RMB',
                 depositRatio: 0,
-                isPublic: '',
+                isPublic: 1,
                 infUnitOfMeasureId: 2,
                 deliveryType: 0,
                 skuPictureUrl: '',
@@ -358,7 +371,8 @@ export default {
                 deliveryDateFlag: 3,
                 deliveryDateText: '双方协商为准',
                 provideInvoiceText: '',
-                deliveryBeginDate: ''
+                deliveryBeginDate: '',
+                prdSkuId: 0
             },
             deliveryWarehouseName: '',
             isPublic: true,
@@ -382,6 +396,14 @@ export default {
             {
                 value: 10080,
                 label: '7天'
+            },
+            {
+                value: 43200,
+                label: '一个月'
+            },
+            {
+                value: 5256000,
+                label: '长期'
             }
             ],
             skuOriginOption: [{
@@ -447,6 +469,11 @@ export default {
                 value: 4,
                 label: '优惠'
             }],
+            skuPriceList: [
+                {id: '0', userName: '固定价'},
+                {id: '1', userName: '可议价'},
+                {id: '2', userName: '面议'}
+            ],
             showList: false,
             provideInvoiceType: '',
             currencies: [], // 存币种
@@ -486,6 +513,7 @@ export default {
     },
     created () {
         this.offerId = this.$route.query.offerId;
+        this.typeId = this.$route.query.type; // 存在是再次发起
         this.offerId && this.getInfo(); // 基础信息
         this.getcurrencies(); // 调币种
         this.measures(); // 获取单位
@@ -514,6 +542,13 @@ export default {
         }
     },
     methods: {
+        changeprice () {
+            if (this.info.skuPriceFlag === '2') {
+                this.ruleForm.skuPrice[0].trigger = 'change';
+            } else {
+                this.ruleForm.skuPrice[0].trigger = 'blur';
+            }
+        },
         changeInvoiceText () {
             this.provideInvoiceType = '';
         },
@@ -521,7 +556,7 @@ export default {
             this.info.ismianmin = true;
         },
         change () {
-            if (this.info.ismianmin) {
+            if (this.info.skuPriceFlag === '2') {
                 this.info.skuPrice = '';
             }
         },
@@ -561,6 +596,7 @@ export default {
             let that = this;
             that.$http.post(that.$api.offers.measures).then(function (res) {
                 that.options = res.data.data.list;
+                console.log(that.options);
             });
         },
         getcurrencies () { // 获取币种
@@ -574,8 +610,8 @@ export default {
             that.$http.get(that.$api.offers.resources + '/' + that.offerId).then(function (res) {
                 if (res.data.code === 0) {
                     that.info = res.data.data;
-                    // that.isPublic = res.data.data.isPublic ? true : false;
-                    if (that.isPublic === res.data.data.isPublic) {
+                    // that.isPublic = res.data.data.isPublic;
+                    if (res.data.data.isPublic === 1) {
                         that.isPublic = true;
                     } else {
                         that.isPublic = false;
@@ -586,10 +622,14 @@ export default {
                         that.info.deliveryDate[1] = res.data.data.deliveryEndDate;
                     }
                     that.provideInvoiceType = that.info.provideInvoiceType;
+                    that.info.skuPriceFlag = that.info.skuPriceFlag.toString();
                     that.imgUrl = res.data.data.skuPictureUrl;
                     if (!that.info.skuPrice) {
                         that.info.ismianmin = '面议';
                         that.info.skuPrice = '';
+                    }
+                    if (that.typeId) {
+                        that.info.skuQuantity = null;
                     }
                     that.deliveryWarehouseName = res.data.data.deliveryWarehouseName;
                 }
@@ -613,7 +653,7 @@ export default {
                         param = {};
                     }
                 } else {
-                    console.log('服务器繁忙');
+                    this.$message(res.data.message);
                 }
             });
         },
@@ -653,9 +693,14 @@ export default {
             this.info.deliveryWarehouseId = this.deliveryWarehouseId;
             this.info.deliveryWarehouseName = this.deliveryWarehouseName;
             that.info.provideInvoiceType = that.provideInvoiceType;
-            that.info.prdSkuId = that.selectedProduct.id;
-            that.info.skuCode = that.selectedProduct.goodsCode;
-            that.info.skuName = that.selectedProduct.skuName;
+            if (!that.offerId) {
+                that.info.skuCode = that.selectedProduct.goodsCode;
+                that.info.prdSkuId = that.selectedProduct.id;
+                that.info.skuName = that.selectedProduct.skuName;
+            }
+            if (this.info.skuPriceFlag === '2') {
+                this.info.skuPrice = '';
+            }
             if (that.imageUrl) {
                 that.info.skuPictureUrl = that.imageUrl; // 上传图片
             } else {
@@ -666,6 +711,9 @@ export default {
             }
             if (that.offerId) {
                 that.info.id = that.offerId;
+                if (that.typeId) {
+                    that.info.id = null;
+                }
             }
             that.$http.post(this.$api.offers.resources, that.info).then(function (res) {
                 if (res.data.code === 0) {
@@ -712,9 +760,21 @@ export default {
     }
 };
 </script>
+<style lang="scss" scoped>
+.resource-add{
+  .display-inlinecol{
+      .inlineblock{
+          display: inline-block;
+      }
+  }
+}
+</style>
 
 <style lang="scss">
     .resource-add {
+        .pricecenter .el-form-item--mini .el-form-item__error{
+            margin-left: 110px;
+        }
         .new-resoursebtn{
             margin-top: 20px;
             text-align: right;
@@ -745,9 +805,9 @@ export default {
                     }
                 }
             }
-            .icon-search {
+            .icon-mySearch {
                 position: absolute;
-                right: 0;
+                right: 7px;
                 top: 0;
             }
         }
@@ -774,7 +834,7 @@ export default {
             padding-right: 0 !important;
         }
         .display-inlinecol .el-input--mini {
-            width: 120px;
+            width: 104px;
             display: inline-block;
         }
         .display-inlinecol .el-select .el-input input {
@@ -856,6 +916,9 @@ export default {
         .bao .el-input input {
             width: 132px
         }
+        .el-checkbox__input.is-checked+.el-checkbox__label{
+            color: #606266;
+        }
     }
 
     .img-holder {
@@ -892,7 +955,7 @@ export default {
             padding: 0px 30px 20px 15px;
         }
         .top333{
-            padding: 0px 30px;
+            padding: 0px 25px;
         }
         .top4{
             padding: 0 16px 20px;

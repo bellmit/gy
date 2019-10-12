@@ -1,7 +1,7 @@
 <template>
     <section class="integral-goods f-container">
-        <h3 class="gy-h3">兑换品管理</h3>
-        <div class="gy-form gy-search advanced-search">
+        <div class="gy-h4">兑换品管理</div>
+        <div class="selected gy-search advanced-search">
             <ul class="classify">
                 <li
                     v-for="(item, key) of classifyList"
@@ -14,11 +14,13 @@
             </ul>
             <label class="gy-label">
                 <input v-model="searchStr" type="text" class="gy-input" placeholder="请输入品名" maxlength="30" @keydown.13="getGoods">
-                <span class="input-limit" @click="getGoods">搜索</span>
+                <span class="input-limit" @click="getGoods">
+                    <i class="iconfont icon-search"></i>
+                </span>
             </label>
         </div>
         <div class="gy-form-button">
-            <button class="gy-button-normal" @click="$router.push(`/index/integral/addGoods`)">新增</button>
+            <button class="gy-button-extra" @click="$router.push(`/index/integral/addGoods`)">新增</button>
             <button class="gy-button-normal" @click="editDel('edit')">编辑</button>
             <button class="gy-button-normal" @click="editDel">删除</button>
         </div>
@@ -41,11 +43,13 @@
             <el-table-column prop="inventory" label="库存" width="120"></el-table-column>
             <el-table-column label="操作" width="160">
                 <template slot-scope="{row}">
-                    <span class="gy-button-view" @click="$router.push(`/index/integral/goodsDetail?i=${row.id}`)">查看</span>
-                    <!-- <span class="gy-button-view" @click="$router.push(`/index/integral/addGoods?i=${row.id}`)">编辑</span> -->
-                    <span class="gy-button-view" v-if="row.status" @click="editGoods({ id: row.id, status: 0,redemptionName: row.redemptionName}, '下架')">下架</span>
-                    <span class="gy-button-view" v-else @click="editGoods({ id: row.id, status: 1 ,redemptionName: row.redemptionName}, '上架')">上架</span>
-                    <!-- <span class="gy-button-view" @click="editGoods({ id: row.id, valid: 0 }, '删除')">删除</span> -->
+                    <div class="centerItem">
+                        <span class="gy-button-view" @click="$router.push(`/index/integral/goodsDetail?i=${row.id}`)">查看</span>
+                        <!-- <span class="gy-button-view" @click="$router.push(`/index/integral/addGoods?i=${row.id}`)">编辑</span> -->
+                        <span class="gy-button-view" v-if="row.status" @click="editGoods({ id: row.id, status: 0,redemptionName: row.redemptionName}, '下架')">下架</span>
+                        <span class="gy-button-view" v-else @click="editGoods({ id: row.id, status: 1 ,redemptionName: row.redemptionName}, '上架')">上架</span>
+                        <!-- <span class="gy-button-view" @click="editGoods({ id: row.id, valid: 0 }, '删除')">删除</span> -->
+                    </div>
                 </template>
             </el-table-column>
         </el-table>
@@ -114,13 +118,30 @@ export default {
                 this.$message.error(`获取商品状态统计失败`);
             });
         },
-        editGoods (params, str) {
-            services.integral.editGoods(params).then(result => {
+        edltGoods (params, str) {
+            services.integral.delGoods(params).then(result => {
                 this.$message.success(`${str}成功`);
                 this.getGoods();
             }).catch(() => {
                 this.$message.error(`${str}失败`);
             });
+        },
+        editGoods (params, str) {
+            if (params.status === 0) {
+                services.integral.lowerGoods(params).then(result => {
+                    this.$message.success(`${str}成功`);
+                    this.getGoods();
+                }).catch(() => {
+                    this.$message.error(`${str}失败`);
+                });
+            } else {
+                services.integral.upGoods(params).then(result => {
+                    this.$message.success(`${str}成功`);
+                    this.getGoods();
+                }).catch(() => {
+                    this.$message.error(`${str}失败`);
+                });
+            }
         },
         async editDel (type) {
             if (!this.selection.length) {
@@ -131,7 +152,7 @@ export default {
                 this.$router.push(`/index/integral/addGoods?i=${this.selection[0].id}`);
             } else {
                 await this.$confirm('确定删除所选兑换品');
-                this.editGoods({ id: this.selection[0].id, valid: 0 }, '删除');
+                this.edltGoods({ id: this.selection[0].id, valid: 0 }, '删除');
             }
         },
         pageChange (pageNum) {
@@ -175,6 +196,10 @@ export default {
         }
         .td-img {
             width: 30px;
+        }
+        .centerItem{
+            width:100%;
+            text-align: center;
         }
     }
 </style>

@@ -1,5 +1,6 @@
 const state = {
     showLoading: false,
+    userInfo: {},
     socket: {
         // pending 连接中 success 成功 fail 失败
         status: 'pending',
@@ -7,11 +8,7 @@ const state = {
         type: 'order',
         msg: '',
         ind: 0
-    },
-    loginBeforeRoute: Object,
-    breadcrumb: String,
-    userInfo: {},
-    currentRoute: String
+    }
 };
 
 const mutations = {
@@ -24,9 +21,6 @@ const mutations = {
     setUserinfo (state, data) {
         state.userInfo = data;
     },
-    updateBreadcrumb (state, breadcrumb) {
-        state.breadcrumb = breadcrumb;
-    },
     updateSocketStatus (state, status) {
         state.socket.status = status;
     },
@@ -38,27 +32,12 @@ const mutations = {
     },
     updateSocketInd (state, ind) {
         state.socket.ind = ind;
-    },
-    updateLoginBeforeRoute (state, loginBeforeRoute) {
-        state.loginBeforeRoute = loginBeforeRoute;
-    },
-    setCurrentRoute (state, route) {
-        state.currentRoute = route;
     }
 };
 
 const getters = {
     showLoading (state) {
         return state.showLoading;
-    },
-    breadcrumb (state) {
-        return state.breadcrumb;
-    },
-    socket (state) {
-        return state.socket;
-    },
-    loginBeforeRoute (state) {
-        return state.loginBeforeRoute;
     },
     getUserinfo (state) {
         let userInfo = state.userInfo;
@@ -67,8 +46,8 @@ const getters = {
         }
         return userInfo;
     },
-    currentRoute (state) {
-        return state.currentRoute;
+    socket (state) {
+        return state.socket;
     }
 };
 

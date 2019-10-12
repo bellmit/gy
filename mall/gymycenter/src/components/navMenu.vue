@@ -40,6 +40,8 @@
 <script>
 import Bus from '@/config/bus.js';
 import gyMenuItem from '@/components/menu-item';
+import {mapGetters} from 'vuex';
+import store from '@/store';
 export default {
     data () {
         return {
@@ -58,11 +60,29 @@ export default {
                 userId: null
             },
             avatars: null,
-            showList: true
+            showList: true,
+            submitFlag: false
         };
     },
     created () {
         this.refresh();
+    },
+    computed: mapGetters([
+        'socket'
+    ]),
+    watch: {
+        socket: {
+            handler (newValue, oldValue) {
+                if (newValue.msg && JSON.parse(newValue.msg).notifyCompanyId) {
+                    let msg = JSON.parse(newValue.msg);
+                    let localId = JSON.parse(localStorage.getItem('userInfo')).companyId;
+                    if (msg.event === 'change_company_id' && msg.id !== localId) {
+                        this.setCompanyMain(msg);
+                    }
+                }
+            },
+            deep: true
+        }
     },
     methods: {
         refresh () {
@@ -108,10 +128,14 @@ export default {
             });
         },
         handleSelect (index, indexPath, target) {
+            if (index === 'forensicServices') {
+                this.isShowList();
+            }
             this.$router.push({name: index});
             let firstMenuData = {
                 isToFirst: false,
-                menudef: index
+                menudef: index,
+                isToLogin: false
             };
             localStorage.setItem('firstMenu', JSON.stringify(firstMenuData));
         },
@@ -175,26 +199,29 @@ export default {
         },
         setCompanyMain (data) {
             let that = this;
-            if (data.isChief === 1) return;
+            if (data.isChief === 1 || this.submitFlag) return;
+            this.submitFlag = true;
             // 设为主企业
-            this.$http.put(this.$api.account.setMain + data.id)
+            this.$http.put(this.$api.account.setMain + data.id, {}, {unLoading: true})
                 .then(res => {
                     if (res.data.code === 0) {
                         localStorage.setItem('userInfo', JSON.stringify(res.data.data));
                         Bus.$emit('resetmenuList', res.data.data.menuList);
-                        this.$alert('设置成功', '提示')
-                            .then(() => {
-                                let firstMenuData = {
-                                    isToFirst: true,
-                                    menudef: null,
-                                    firstPath: ''
-                                };
-                                localStorage.setItem('firstMenu', JSON.stringify(firstMenuData));
-                                that.isShowList();
-                            });
+                        this.$message.success('公司切换成功');
+                        let firstMenuData = {
+                            isToFirst: true,
+                            menudef: null,
+                            firstPath: ''
+                        };
+                        localStorage.setItem('firstMenu', JSON.stringify(firstMenuData));
+                        that.isShowList();
+                        store.commit('updateContentKey', new Date());
+                        setTimeout(() => {
+                            this.submitFlag = false;
+                        }, 2000);
                         return;
                     }
-                    this.$alert(res.data.message, '出错了');
+                    this.$alert(res.data.message, '出错了', {type: 'error'});
                 });
         },
         isShowList () {
@@ -259,6 +286,7 @@ export default {
             bottom: 0;
             left: auto;
             top: auto;
+            width:13px;
             height: 10px;
         }
     }

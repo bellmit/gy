@@ -1,11 +1,10 @@
 <template>
     <li class="list-item" v-if="menuData">
         <div :style="{paddingLeft: left + 'px'}" class="fa" :class="{'back': Array.from(checkedId, e => e.id).includes(menuData.id)}">
-            <div  @click='checkDepartment(menuData)'>
+            <div class="list-content"  @click='checkDepartment(menuData)'>
             <span @click.stop="toggle" style="padding-right: 2px" v-if='menuData && menuData.list && menuData.list.length > 0'><i :class="open ? 'el-tree-node__expand-icon el-icon-caret-bottom' : 'el-tree-node__expand-icon el-icon-caret-bottom el-rotate'"></i></span>
             <span v-else style="padding-left: 15px"></span>
-            <!--isTitle判断是否存在子级改变图标-->
-            {{menuData.name}}
+            <span class="list-title">{{menuData.name}}</span>
             </div>
         </div>
         <transition name="slide-fade">
@@ -67,6 +66,14 @@ export default {
            &:hover {
                background-color: #f5f7fa;
            }
+        }
+        .list-content {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .list-title {
+            overflow: hidden;
+            white-space: nowrap;
         }
     }
 

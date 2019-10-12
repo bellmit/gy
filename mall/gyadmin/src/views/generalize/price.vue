@@ -2,7 +2,7 @@
   <div>
     <div class="recommend news">
         <div class="container">
-            <h3 class="gy-h3">热门价格</h3>
+            <div class="gy-h4">热门价格</div>
             <div class="list">
                 <div class="operation-menu">
                     <router-link :to="{ name: 'generalize-price-myadd' }" class="gy-button-extra">新增</router-link>
@@ -181,9 +181,6 @@ export default {
 </script>
 <style lang="scss" scoped>
     .recommend.news{
-        .container{
-            padding: 25px 35px;
-        }
         .gy-h3{
             font-weight: normal;
             margin: 0;

@@ -1,12 +1,17 @@
 <template>
     <div class="mall-home-box">
         <div class="mall-home">
-            <div class="mall-home-banner" :style="bannerStyle">
+            <div class="mall-home-banner">
+                <el-carousel :interval="5000">
+                    <el-carousel-item v-for="item in kvList" :key="item.id">
+                        <a class="item bg-img home-carousel-img" :style='"background-image: url(" + item.imageUrl + ")"' :href="item.linkUrl"></a>
+                    </el-carousel-item>
+                </el-carousel>
                 <div class="mall-home-banner-content">
                     <!--banner-category start-->
                     <div class="banner-category" @mouseleave="hideItems">
                         <div class="banner-category-first">
-                            <div class="first-tit mall-nav-tit">商品分类</div>
+                            <!-- <div class="first-tit mall-nav-tit title-pro-type">商品分类</div> -->
                             <div class="first-items" v-if="categories.first.length>1">
                                 <div @mouseover.capture="showItems" class="first-item mg-top20" v-for="(item,index) in categories.first" :key="index"
                                      :myindex="index">
@@ -16,14 +21,17 @@
                             </div>
                         </div>
                         <div class="category-second" v-show="myindex" v-if="categories.second.length>1">
-                            <div class="category-second-item" v-for="(item,index) in categories.second" :key="index">
+                            <div class="category-second-item" v-for="(item,index) in categories.second" :key="index" style="margin-left: 10px;">
                                 <div v-show="index == myindex">
-                                    <div v-for="(categs, thirdindex) in item.items" :key="thirdindex" class="mg-top20">
+                                    <div v-for="(categs, thirdindex) in item.items" :key="thirdindex" class="mg-top20 mg-tops">
                                         <div class="second-item-category mall-nav-tit">{{categs.catalogueName}}</div>
-                                        <span class="second-item-content"
-                                              :item-id="categ.productId"
-                                              @click="gotoPage($event,'search-page-prod')"
-                                              v-for="(categ, fourindex) in categs.productList" :key="fourindex">{{categ.productName}}</span>
+                                        <p class="second-item-content"
+                                           :item-id="categ.productId"
+                                           @click="gotoPage($event,'search-page-prod')"
+                                           v-for="(categ, fourindex) in categs.productList" :key="fourindex">
+                                            <span class="second-item-content-span" :class="{'highlight': categ.count > 0}">{{categ.productName}}</span>
+                                            <span class="second-item-content-spans">|</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -58,520 +66,237 @@
                 </div>
             </div>
             <!--banner============== end-->
+             <div  class="mall-home-content">
+             <!-- 热销榜单 -->
+               <div class="home-hot">
+                    <div class="home-hot-left">
+                        <div class="bg-img"><img src="../assets/images/hot-item.png" alt=""></div>
+                        <div class="hot-title">
+                            <div>热推榜单</div>
+                            <div>打榜优质商品</div>
+                            <div>国烨商城推荐名企</div>
+                        </div>
+                    </div>
+                    <div class="home-hot-center">
+                          <el-carousel  :interval="0" arrow="never">
+                            <el-carousel-item class="hot-center-con" v-for="(item,index) in recommend"
+                             :key="index" v-if="index<recommend.length/4">
+                                  <div class="hot-center-item"
+                                        :item-id="recommend[4*index+ subIndex].offerId"
+                                        @click="gotoPage($event,'product-detail')"
+                                      v-for="(product,subIndex) in 4" :key="subIndex" v-if="4*index+ subIndex<recommend.length">
+                                      <div class="item-name">{{recommend[4*index+ subIndex].prodName}}</div>
+                                      <div class="item-price"  v-if="recommend[4*index+ subIndex].skuPriceFlag == 2">面议</div>
+                                       <div class="item-price"  v-else>
+                                       {{recommend[4*index+ subIndex].currencyMark}}{{recommend[4*index+ subIndex].price}}
+                                       <span>/{{recommend[4*index+ subIndex].priceUnit}} {{recommend[4*index+ subIndex].skuPriceFlag == 1 ? "(可议价)" : ''}}</span>
+                                       </div>
+                                      <div class="decorate"><img src="../assets/images/hot-decorate.png" alt=""></div>
+                                      <div class="item-bg"><img   :src="recommend[4*index+ subIndex].formulaImg" /></div>
+                                  </div>
+                            </el-carousel-item>
+                        </el-carousel>
+                    </div>
+                    <div class="home-hot-right">
+                        <div class="hot-right-top">
+                            <el-carousel  class="right-top-swiper" :interval="0" arrow="never">
+                                <el-carousel-item class="hot-right-top-con"  v-for="(item,index) in hot" :key="index"   v-if="index<hot.length/6">
+                                    <div class="top-con-item"  :item-id="hot[6*index+ subIndex].companyId"    @click="gotoPage($event,'shop-home')"    v-for="(product,subIndex) in 6" :key="subIndex" v-if="6*index+ subIndex<hot.length">
+                                        <div class="top-con-img" >
+                                            <img :src="hot[6*index+ subIndex].companyLogo" alt=""  v-if="hot[6*index+ subIndex].companyLogo">
+                                            <img src="../assets/images/V_logo.jpg" v-else/>
+                                        </div>
+                                        <div class="top-con-name">{{hot[6*index+ subIndex].companyName}}</div>
+                                    </div>
+                               </el-carousel-item>
+                        </el-carousel>
+                        </div>
+                          <div class="hot-right-bottom" @click='gotoCompany'>
+                              <div><img src="../assets/images/company-img.png" alt=""></div>
+                              <div>前往名企专区</div>
+                         </div>
+                    </div>
+               </div>
 
-            <div class="mall-home-body">
-                <div class="clearfix mall-home-recommend">
-                    <div class="home-recommend-item fl">
-                        <div class="recommend-item-tit">推荐商品</div>
-                        <div class="recommend-item-body">
-                            <div class="block">
-                                <el-carousel height="450px" arrow="never" indicator-position="outside">
-                                    <el-carousel-item v-for="(item,index) in recommend" :key="index">
-                                        <span class="clearfix recommend-item-body-item"
-                                              :item-id="product.offerId"
-                                              @click="gotoPage($event,'product-detail')"
-                                              v-for="(product,index) in item.items" :key="index">
-                                            <img class="fl recommend-item-body-item" :src="product.formulaImg"/>
-                                            <div class="fl">
-                                                <p class="recommend-item-body-item-name">{{product.prodName}}</p>
-                                                <p>{{product.currencyMark}}{{product.price}}{{product.priceUnit}}</p>
-                                            </div>
-                                        </span>
-                                    </el-carousel-item>
-                                </el-carousel>
-                            </div>
-                        </div>
+               <!-- 化工商城 -->
+                <div class="home-common">
+                    <div class="home-common-title">
+                        <div>化工商城</div>
+                        <div   :item-id="chemicalId"  @click="gotoPage($event,'search-page-cata')">更多></div>
                     </div>
-                    <div class="home-recommend-item home-recommend-item-second fl">
-                        <div class="recommend-item-tit">热门推荐</div>
-                        <div class="recommend-item-body">
-                            <div class="block">
-                                <el-carousel height="450px" arrow="never" indicator-position="outside">
-                                    <el-carousel-item v-for="(item,index) in hot" :key="index">
-                                        <span class="clearfix recommend-item-body-item"
-                                              :item-id="product.companyId"
-                                              @click="gotoPage($event,'shop-home')"
-                                              v-for="(product,index) in item.items" :key="index">
-                                            <img :src="product.companyLogo" class="fl recommend-item-body-item" alt="" v-if="product.companyLogo != null"/>
-                                            <img src="../assets/images/V_logo.jpg" class="fl recommend-item-body-item" alt="" v-if="product.companyLogo == null"/>
-                                            <div class="fl">
-                                                <p class="recommend-item-body-item-name">{{product.companyName}}</p>
-                                                <p class="recommend-item-body-item-profile">{{product.profile}}</p>
-                                            </div>
-                                        </span>
-                                    </el-carousel-item>
-                                </el-carousel>
-                            </div>
-                        </div>
+                    <div class="home-common-content">
+                       <div class="common-content-left">
+                           <div class="bg-img"><img src="../assets/images/industry-item.png" alt=""></div>
+                           <div class="conetnt-left-title">
+                               <div>化工商城</div>
+                               <div>汇聚行业正品</div>
+                           </div>
+                           <div :item-id="chemicalId"  @click="gotoPage($event,'search-page-cata')" class="common-icon"><i class="iconfont icon-jiantou"></i></div>
+                       </div>
+                       <div class="common-content-right">
+                          <div class="common-content-right-item"  :item-id="item.offerId"
+                               @click="gotoPage($event,'product-detail')"
+                               v-for="(item,index) in mall1" :key="index"
+                               v-if="index<8">
+                              <div class="item-img-con" :style='"background-image:url("+item.productImg+")"'></div>
+                              <div class="dec-con">
+                                  <div class="product-name">{{item.prodName}}</div>
+                                  <div>可供量：{{item.supplies}}</div>
+                                  <div  class="product-price"  v-if="item.skuPriceFlag == 2">面议</div>
+                                  <div  class="product-price" v-else>{{item.currencyMark}}{{item.price}}<span></span>/{{item.priceUnit}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</div>
+                              </div>
+                              <div class="pop">
+                                  <ul>
+                                      <li>货源：{{item.origin}}</li>
+                                      <li>交割库：{{item.place}}</li>
+                                      <li>交割时间：{{item.tradeDate}}</li>
+                                      <li class="button-box"><a href="javascript:;" class="gy-button-extra">我要询价</a></li>
+                                  </ul>
+                                  <span class="mask"></span>
+                              </div>
+                          </div>
+                       </div>
                     </div>
-                    <div class="home-recommend-item home-recommend-item-three fr">
-                        <div class="recommend-item-tit">
-                            <span>热门价格</span>
-                            <div class="home-recommend-item-three-btns">
-                                <button class="btn" @click="drawEchart('b')" :class="{'btn-active': btnStatus == 'b'||btnStatus==0}">{{mychat1[2]}}</button>
-                                <button class="btn" @click="drawEchart('y')" :class="{'btn-active': btnStatus == 'y'}">{{mychat2[2]}}</button>
+                </div>
+
+                   <!-- 油品 -->
+                <div class="home-common">
+                    <div class="home-common-title">
+                        <div>油品商城</div>
+                        <div  :item-id="oilId" @click="gotoPage($event,'search-page-cata')">更多></div>
+                    </div>
+                    <div class="home-common-content">
+                       <div class="common-content-left" style="color:#B27A31;">
+                           <div class="bg-img"><img src="../assets/images/oil-item.png" alt=""></div>
+                           <div class="conetnt-left-title">
+                               <div>油品商城</div>
+                               <div>精选低价资源</div>
+                           </div>
+                           <div :item-id="oilId" @click="gotoPage($event,'search-page-cata')" class="common-icon"><i class="iconfont icon-jiantou"></i></div>
+                       </div>
+                       <div class="common-content-right">
+                          <div class="common-content-right-item"  :item-id="item.offerId"
+                               @click="gotoPage($event,'product-detail')"
+                               v-for="(item,index) in mall2" :key="index"
+                               v-if="index<8">
+                              <div class="item-img-con" :style='"background-image:url("+item.productImg+")"'></div>
+                              <div class="dec-con">
+                                  <div class="product-name">{{item.prodName}}</div>
+                                  <div>可供量：{{item.supplies}}</div>
+                                  <div  class="product-price"  v-if="item.skuPriceFlag == 2">面议</div>
+                                  <div  class="product-price" v-else>{{item.currencyMark}}{{item.price}}<span></span>/{{item.priceUnit}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</div>
+                              </div>
+                              <div class="pop">
+                                  <ul>
+                                      <li>货源：{{item.origin}}</li>
+                                      <li>交割库：{{item.place}}</li>
+                                      <li>交割时间：{{item.tradeDate}}</li>
+                                      <li class="button-box"><a href="javascript:;" class="gy-button-extra">我要询价</a></li>
+                                  </ul>
+                                  <span class="mask"></span>
+                              </div>
+                          </div>
+                       </div>
+                    </div>
+                </div>
+
+                     <!-- 塑料商城 -->
+                <div class="home-common">
+                    <div class="home-common-title">
+                        <div>塑料商城</div>
+                        <div  :item-id="plasticsId"  @click="gotoPage($event,'search-page-cata')">更多></div>
+                    </div>
+                    <div class="home-common-content">
+                       <div class="common-content-left" style="color:#0E669E;">
+                           <div class="bg-img"><img src="../assets/images/plastic-item.png" alt=""></div>
+                           <div class="conetnt-left-title">
+                               <div>塑料商城</div>
+                               <div>塑料行货精品</div>
+                           </div>
+                           <div :item-id="plasticsId"  @click="gotoPage($event,'search-page-cata')" class="common-icon"><i class="iconfont icon-jiantou"></i></div>
+                       </div>
+                       <div class="common-content-right">
+                          <div class="common-content-right-item"  :item-id="item.offerId"
+                               @click="gotoPage($event,'product-detail')"
+                               v-for="(item,index) in mall3" :key="index"
+                               v-if="index<8">
+                              <div class="item-img-con" :style='"background-image:url("+item.productImg+")"'></div>
+                              <div class="dec-con">
+                                  <div class="product-name">{{item.prodName}}</div>
+                                  <div>可供量：{{item.supplies}}</div>
+                                  <div  class="product-price"  v-if="item.skuPriceFlag == 2">面议</div>
+                                  <div  class="product-price" v-else>{{item.currencyMark}}{{item.price}}<span></span>/{{item.priceUnit}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</div>
+                              </div>
+                              <div class="pop">
+                                  <ul>
+                                      <li>货源：{{item.origin}}</li>
+                                      <li>交割库：{{item.place}}</li>
+                                      <li>交割时间：{{item.tradeDate}}</li>
+                                      <li class="button-box"><a href="javascript:;" class="gy-button-extra">我要询价</a></li>
+                                  </ul>
+                                  <span class="mask"></span>
+                              </div>
+                          </div>
+                       </div>
+                    </div>
+                </div>
+
+             <!-- 推荐营销 -->
+               <div class="home-common">
+                    <div class="home-common-title">
+                        <div>推荐销售中心</div>
+                        <div    @click="gotoCompany">更多></div>
+                    </div>
+                    <div class="home-common-shop">
+                          <div class="home-item"   v-for="(item,index) in shopList.slice(0,4)" :key="index"
+                         :item-id="item.companyId"
+                         @click="gotoPage($event,'shop-home')">
+                            <div class="company-img">
+                                <img :src="item.homeFirstPicture" alt="">
+                                <!-- <img src="../assets/images/V_logo.jpg" alt=""  v-else> -->
                             </div>
+                            <div class="company-name">
+                                <img :src="item.companyLogo" alt=""  v-if="item.companyLogo">
+                                <img src="../assets/images/V_logo.jpg" alt=""  v-else>
+                                <span>{{item.companyName}}</span>
+                            </div>
+                          </div>
+                    </div>
+                </div>
+
+                  <!-- 行业数据 -->
+               <div class="home-common">
+                    <div class="home-common-title">
+                        <div>行业数据</div>
+                    </div>
+                    <div class="home-common-industry">
+                        <div class="industry-left">
+                             <div class="industry-left-top">
+                                 <img src="../assets/images/industry-bg.png" alt="">
+                             </div>
+                             <div  class="industry-left-bottom">
+                                <el-carousel  :interval="3000">
+                                    <el-carousel-item class="hot-center-con"  v-for="(item,index) in hotIndex"  :key="index" v-if="index<hotIndex.length/4">
+                                        <div   v-for="(product,subIndex) in 2" :key="subIndex" v-if="2*index+ subIndex<hotIndex.length">
+                                            {{hotIndex[4*index+ subIndex].indexName}} &nbsp;&nbsp;{{hotIndex[4*index+ subIndex].indexNum}}（{{hotIndex[4*index+ subIndex].unitValue}}）
+                                        </div>
+                                    </el-carousel-item>
+                              </el-carousel>
+                             </div>
                         </div>
-                        <div class="recommend-item-body">
-                            <div class="recommend-item-body-top charts">
+                        <div class="industry-right">
+                             <div class="industry-right-button">
+                                <div class="chart-btn" @click="drawEchart('b')" :class="{'btn-active': btnStatus == 'b'||btnStatus==0}">{{mychat1[2]}}</div>
+                                <div class="chart-btn" @click="drawEchart('y')" :class="{'btn-active': btnStatus == 'y'}">{{mychat2[2]}}</div>
+                            </div>
+                             <div class="recommend-item-body-top charts">
                                 <div id="myChart" class="myChart"></div>
                             </div>
-                            <div class="recommend-item-body-bottom">
-                                <div class="recommend-item-tit">行业数据</div>
-                                <div>
-                                    <el-carousel height="210px">
-                                        <el-carousel-item>
-                                            <div class="mynewdiv" v-bind:key="index" v-if='index<6' v-for="(item,index) in hotIndex">{{item.indexName}} &nbsp;&nbsp;{{item.indexNum}}（{{item.unitValue}}）</div>
-                                        </el-carousel-item>
-                                        <el-carousel-item>
-                                            <div class="mynewdiv" v-bind:key="index" v-if='index<13&&index>6' v-for="(item,index) in hotIndex">{{item.indexName}} &nbsp;&nbsp;{{item.indexNum}}（{{item.unitValue}}）</div>
-                                        </el-carousel-item>
-                                    </el-carousel>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-                <!--recommend============== end-->
 
-                <!--化工商城============== start-->
-                <div class="common-mg">
-                    <div class="common-banner">
-                        <div class="common-banner-line"></div>
-                        <div class="common-banner-content">
-                            <h2 class="common-banner-content-tit">化工商城</h2>
-                        </div>
-                    </div>
-                    <div class="more-box">
-                        <a href="javascript:void(0);"
-                           :item-id="chemicalId"
-                           @click="gotoPage($event,'search-page-cata')"
-                           class="more-box-link">更多></a>
-                    </div>
-                    <div class="mall-home-product clearfix">
-                        <div class="mall-home-product-left fl">
-                            <a class="mall-home-product-left-50 clearfix"
-                               href="javascript:void(0);"
-                               :item-id="mall1[0].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <div class="mall-home-product-left-50-info fl">
-                                    <div class="mall-home-product-left-50-info-name">{{mall1[0].prodName}}</div>
-                                    <div class="mall-home-product-left-50-info-delivery">
-                                        <p>可供量  | {{mall1[0].supplies}}</p>
-                                        <p>提货地 | {{mall1[0].place}}</p>
-                                        <p>交割日期 | {{mall1[0].tradeDate}}</p>
-                                    </div>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall1[0].currencyMark}}{{mall1[0].price}}</span>/{{mall1[0].priceUnit}}</p>
-                                </div>
-                                <img class="fr" :src="mall1[0].productImg"/>
-                            </a>
-                            <div class="clearfix">
-                                <a class="mall-home-product-left-25 fl"
-                                   href="javascript:void(0);"
-                                   :item-id="mall1[1].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall1[1].productImg"/>
-                                    <p>{{mall1[1].prodName}}</p>
-                                    <p>可供量 | {{mall1[1].supplies}}</p>
-                                    <p>提货地 | {{mall1[1].place}}</p>
-                                    <p>交割日期 | {{mall1[1].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall1[1].currencyMark}}{{mall1[1].price}}</span>/{{mall1[1].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 border-left fr"
-                                   href="javascript:void(0);"
-                                   :item-id="mall1[2].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall1[2].productImg"/>
-                                    <p>{{mall1[2].prodName}}</p>
-                                    <p>可供量 | {{mall1[2].supplies}}</p>
-                                    <p>提货地 | {{mall1[2].place}}</p>
-                                    <p>交割日期 | {{mall1[2].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall1[2].currencyMark}}{{mall1[2].price}}</span>/{{mall1[2].priceUnit}}</p>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mall-home-product-right fr clearfix">
-                            <div class="mall-home-product-right-left fl">
-                                <a class="mall-home-product-left-25 border-bottom"
-                                   href="javascript:void(0);"
-                                   :item-id="mall1[3].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall1[3].productImg"/>
-                                    <p>{{mall1[3].prodName}}</p>
-                                    <p>可供量 | {{mall1[3].supplies}}</p>
-                                    <p>提货地 | {{mall1[3].place}}</p>
-                                    <p>交割日期 | {{mall1[3].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall1[3].currencyMark}}{{mall1[3].price}}</span>/{{mall1[3].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 "
-                                   href="javascript:void(0);"
-                                   :item-id="mall1[4].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall1[4].productImg"/>
-                                    <p>{{mall1[4].prodName}}</p>
-                                    <p>可供量 | {{mall1[4].supplies}}</p>
-                                    <p>提货地 | {{mall1[4].place}}</p>
-                                    <p>交割日期 | {{mall1[4].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall1[4].currencyMark}}{{mall1[4].price}}</span>/{{mall1[4].priceUnit}}</p>
-                                </a>
-                            </div>
-                            <a class="mall-home-product-right-right fr border-left"
-                               href="javascript:void(0);"
-                               :item-id="mall1[5].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <p>{{mall1[5].prodName}}</p>
-                                <div class="mall-home-product-left-50-info-delivery">
-                                    <p>可供量 | {{mall1[5].supplies}}</p>
-                                    <p>提货地 @after-appear=""| {{mall1[5].place}}</p>
-                                    <p>交割日期 | {{mall1[5].tradeDate}}</p>
-                                </div>
-                                <p><span class="mall-home-product-left-50-info-price">{{mall1[5].currencyMark}}{{mall1[5].price}}</span>/{{mall1[5].priceUnit}}</p>
-                                <img :src="mall1[5].productImg"/>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!--化工商城============== end-->
-
-                <!--油品商城============== start-->
-                <div class="common-mg">
-                    <div class="common-banner">
-                        <div class="common-banner-line"></div>
-                        <div class="common-banner-content">
-                            <h2 class="common-banner-content-tit">油品商城</h2>
-                        </div>
-                    </div>
-                    <div class="more-box">
-                        <a href="javascript:void(0);"
-                           :item-id="oilId"
-                           @click="gotoPage($event,'search-page-cata')"
-                           class="more-box-link">更多></a>
-                    </div>
-                    <div class="mall-home-product clearfix">
-                        <div class="mall-home-product-left fl">
-                            <a class="mall-home-product-left-50 clearfix"
-                               href="javascript:void(0);"
-                               :item-id="mall2[0].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <div class="mall-home-product-left-50-info fl">
-                                    <div class="mall-home-product-left-50-info-name">{{mall2[0].prodName}}</div>
-                                    <div class="mall-home-product-left-50-info-delivery">
-                                        <p>可供量 | {{mall2[0].supplies}}</p>
-                                        <p>提货地 | {{mall2[0].place}}</p>
-                                        <p>交割日期 | {{mall2[0].tradeDate}}</p>
-                                    </div>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall2[0].currencyMark}}{{mall2[0].price}}</span>/{{mall2[0].priceUnit}}</p>
-                                </div>
-                                <img class="fr" :src="mall2[0].productImg"/>
-                            </a>
-                            <div class="clearfix">
-                                <a class="mall-home-product-left-25 fl"
-                                   href="javascript:void(0);"
-                                   :item-id="mall2[1].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall2[1].productImg"/>
-                                    <p>{{mall2[1].prodName}}</p>
-                                    <p>可供量 | {{mall2[1].supplies}}</p>
-                                    <p>提货地 | {{mall2[1].place}}</p>
-                                    <p>交割日期 | {{mall2[1].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall2[1].currencyMark}}{{mall2[1].price}}</span>/{{mall2[1].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 border-left fr"
-                                   href="javascript:void(0);"
-                                   :item-id="mall2[2].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall2[2].productImg"/>
-                                    <p>{{mall2[2].prodName}}</p>
-                                    <p>可供量 | {{mall2[2].supplies}}</p>
-                                    <p>提货地 | {{mall2[2].place}}</p>
-                                    <p>交割日期 | {{mall2[2].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall2[2].currencyMark}}{{mall2[2].price}}</span>/{{mall2[2].priceUnit}}</p>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mall-home-product-right fr clearfix">
-                            <div class="mall-home-product-right-left fl">
-                                <a class="mall-home-product-left-25 border-bottom"
-                                   href="javascript:void(0);"
-                                   :item-id="mall2[3].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall2[3].productImg"/>
-                                    <p>{{mall2[3].prodName}}</p>
-                                    <p>可供量 | {{mall2[3].supplies}}</p>
-                                    <p>提货地 | {{mall2[3].place}}</p>
-                                    <p>交割日期 | {{mall2[3].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall2[3].currencyMark}}{{mall2[3].price}}</span>/{{mall2[3].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 "
-                                   href="javascript:void(0);"
-                                   :item-id="mall2[4].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall2[4].productImg"/>
-                                    <p>{{mall2[4].prodName}}</p>
-                                    <p>可供量 | {{mall2[4].supplies}}</p>
-                                    <p>提货地 | {{mall2[4].place}}</p>
-                                    <p>交割日期 | {{mall2[4].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall2[4].currencyMark}}{{mall2[4].price}}</span>/{{mall2[4].priceUnit}}</p>
-                                </a>
-                            </div>
-                            <a class="mall-home-product-right-right fr border-left"
-                               href="javascript:void(0);"
-                               :item-id="mall2[5].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <p>{{mall2[5].prodName}}</p>
-                                <div class="mall-home-product-left-50-info-delivery">
-                                    <p>可供量 | {{mall2[5].supplies}}</p>
-                                    <p>提货地 | {{mall2[5].place}}</p>
-                                    <p>交割日期 | {{mall2[5].tradeDate}}</p>
-                                </div>
-                                <p><span class="mall-home-product-left-50-info-price">{{mall2[5].currencyMark}}{{mall2[5].price}}</span>/{{mall2[5].priceUnit}}</p>
-                                <img :src="mall2[5].productImg"/>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!--油品商城============== end-->
-                <!--塑料商城============== start-->
-                <div class="common-mg">
-                    <div class="common-banner">
-                        <div class="common-banner-line"></div>
-                        <div class="common-banner-content">
-                            <h2 class="common-banner-content-tit">塑料商城</h2>
-                        </div>
-                    </div>
-                    <div class="more-box">
-                        <a href="javascript:void(0);"
-                           :item-id="plasticsId"
-                           @click="gotoPage($event,'search-page-cata')"
-                           class="more-box-link">更多></a>
-                    </div>
-                    <div class="mall-home-product clearfix">
-                        <div class="mall-home-product-left fl">
-                            <a class="mall-home-product-left-50 clearfix"
-                               href="javascript:void(0);"
-                               :item-id="mall3[0].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <div class="mall-home-product-left-50-info fl">
-                                    <div class="mall-home-product-left-50-info-name">{{mall3[0].prodName}}</div>
-                                    <div class="mall-home-product-left-50-info-delivery">
-                                        <p>可供量 | {{mall3[0].supplies}}</p>
-                                        <p>提货地 | {{mall3[0].place}}</p>
-                                        <p>交割日期 | {{mall3[0].tradeDate}}</p>
-                                    </div>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall3[0].currencyMark}}{{mall3[0].price}}</span>/{{mall3[0].priceUnit}}</p>
-                                </div>
-                                <img class="fr" :src="mall3[0].productImg"/>
-                            </a>
-                            <div class="clearfix">
-                                <a class="mall-home-product-left-25 fl"
-                                   href="javascript:void(0);"
-                                   :item-id="mall3[1].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall3[1].productImg"/>
-                                    <p>{{mall3[1].prodName}}</p>
-                                    <p>可供量 | {{mall3[1].supplies}}</p>
-                                    <p>提货地 | {{mall3[1].place}}</p>
-                                    <p>交割日期 | {{mall3[1].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall3[1].currencyMark}}{{mall3[1].price}}</span>/{{mall3[1].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 border-left fr"
-                                   href="javascript:void(0);"
-                                   :item-id="mall3[2].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall3[2].productImg"/>
-                                    <p>{{mall3[2].prodName}}</p>
-                                    <p>可供量 | {{mall3[2].supplies}}</p>
-                                    <p>提货地 | {{mall3[2].place}}</p>
-                                    <p>交割日期 | {{mall3[2].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall3[2].currencyMark}}{{mall3[2].price}}</span>/{{mall3[2].priceUnit}}</p>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mall-home-product-right fr clearfix">
-                            <div class="mall-home-product-right-left fl">
-                                <a class="mall-home-product-left-25 border-bottom"
-                                   href="javascript:void(0);"
-                                   :item-id="mall3[3].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall3[3].productImg"/>
-                                    <p>{{mall3[3].prodName}}</p>
-                                    <p>可供量 | {{mall3[3].supplies}}</p>
-                                    <p>提货地 | {{mall3[3].place}}</p>
-                                    <p>交割日期 | {{mall3[3].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall3[3].currencyMark}}{{mall3[3].price}}</span>/{{mall3[3].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 "
-                                   href="javascript:void(0);"
-                                   :item-id="mall3[4].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall3[4].productImg"/>
-                                    <p>{{mall3[4].prodName}}</p>
-                                    <p>可供量 | {{mall3[4].supplies}}</p>
-                                    <p>提货地 | {{mall3[4].place}}</p>
-                                    <p>交割日期 | {{mall3[4].tradeDate}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall3[4].currencyMark}}{{mall3[4].price}}</span>/{{mall3[4].priceUnit}}</p>
-                                </a>
-                            </div>
-                            <a class="mall-home-product-right-right fr border-left"
-                               href="javascript:void(0);"
-                               :item-id="mall3[5].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <p>{{mall3[5].prodName}}</p>
-                                <div class="mall-home-product-left-50-info-delivery">
-                                    <p>可供量 | {{mall3[5].supplies}}</p>
-                                    <p>提货地 | {{mall3[5].place}}</p>
-                                    <p>交割日期 | {{mall3[5].tradeDate}}</p>
-                                </div>
-                                <p><span class="mall-home-product-left-50-info-price">{{mall3[5].currencyMark}}{{mall3[5].price}}</span>/{{mall3[5].priceUnit}}</p>
-                                <img :src="mall3[5].productImg"/>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!--塑料商城============== end-->
-
-                <!--其他============== start-->
-                <div class="common-mg" style="display:none">
-                    <div class="common-banner">
-                        <div class="common-banner-line"></div>
-                        <div class="common-banner-content">
-                            <h2 class="common-banner-content-tit">其他</h2>
-                        </div>
-                    </div>
-                    <div class="more-box">
-                        <a href="javascript:void(0);"
-                           :item-id="otherId"
-                           @click="gotoPage($event,'search-page-cata')"
-                           class="more-box-link">更多></a>
-                    </div>
-                    <div class="mall-home-product clearfix">
-                        <div class="mall-home-product-left fl">
-                            <a class="mall-home-product-left-50 clearfix"
-                               href="javascript:void(0);"
-                               :item-id="mall4[0].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <div class="mall-home-product-left-50-info fl">
-                                    <div class="mall-home-product-left-50-info-name">{{mall4[0].prodName}}</div>
-                                    <div class="mall-home-product-left-50-info-delivery">
-                                        <p>可供量 | {{mall4[0].supplies}}</p>
-                                        <p>提货地 | {{mall4[0].place}}</p>
-                                        <p>交割日期 | {{mall4[0].tradeDate}}</p>
-                                    </div>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall4[0].currencyMark}}{{mall4[0].price}}</span>/{{mall4[0].priceUnit}}</p>
-                                </div>
-                                <img class="fr" :src="mall4[0].productImg"/>
-                            </a>
-                            <div class="clearfix">
-                                <a class="mall-home-product-left-25 fl"
-                                   href="javascript:void(0);"
-                                   :item-id="mall4[1].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall4[1].productImg"/>
-                                    <p>{{mall4[1].prodName}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall4[1].currencyMark}}{{mall4[1].price}}</span>/{{mall4[1].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 border-left fr"
-                                   href="javascript:void(0);"
-                                   :item-id="mall4[2].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall4[2].productImg"/>
-                                    <p>{{mall4[2].prodName}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall4[2].currencyMark}}{{mall4[2].price}}</span>/{{mall4[2].priceUnit}}</p>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mall-home-product-right fr clearfix">
-                            <div class="mall-home-product-right-left fl">
-                                <a class="mall-home-product-left-25 border-bottom"
-                                   href="javascript:void(0);"
-                                   :item-id="mall4[3].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall4[3].productImg"/>
-                                    <p>{{mall4[3].prodName}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall4[3].currencyMark}}{{mall4[3].price}}</span>/{{mall4[3].priceUnit}}</p>
-                                </a>
-                                <a class="mall-home-product-left-25 "
-                                   href="javascript:void(0);"
-                                   :item-id="mall4[4].offerId"
-                                   @click="gotoPage($event,'product-detail')"
-                                >
-                                    <img :src="mall4[4].productImg"/>
-                                    <p>{{mall4[4].prodName}}</p>
-                                    <p><span class="mall-home-product-left-50-info-price">{{mall4[4].currencyMark}}{{mall4[4].price}}</span>/{{mall4[4].priceUnit}}</p>
-                                </a>
-                            </div>
-                            <a class="mall-home-product-right-right fr border-left"
-                               href="javascript:void(0);"
-                               :item-id="mall4[5].offerId"
-                               @click="gotoPage($event,'product-detail')"
-                            >
-                                <p>{{mall4[5].name}}</p>
-                                <div class="mall-home-product-left-50-info-delivery">
-                                    <p>可供量 | {{mall4[5].supplies}}</p>
-                                    <p>提货地 | {{mall4[5].place}}</p>
-                                    <p>交割日期 | {{mall4[5].tradeDate}}</p>
-                                </div>
-                                <p><span class="mall-home-product-left-50-info-price">{{mall4[5].currencyMark}}{{mall4[5].price}}</span>/{{mall4[5].priceUnit}}</p>
-                                <img :src="mall4[5].productImg"/>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!--其他============== end-->
-                <!--START 推荐店铺-->
-                <div class="main-title">
-                    <h2>推荐店铺</h2>
-                </div>
-                <div class="shop">
-                    <div class="gy-box"
-                         v-for="(item,index) in shopList" :key="index"
-                         :item-id="item.companyId"
-                         @click="gotoPage($event,'shop-home')"
-                    >
-                        <span class="tag">主营业务</span>
-                        <dl>
-                            <dt class="clearfix">
-                                <span class="fl" style="display: inline-block;width: 25px;height: 25px;background-size: cover;margin-top: -6px;">
-                                    <img :src="item.companyLogo" style="height:25px;width:25px" alt="" v-if="item.companyLogo != null"/>
-                                    <img src="../assets/images/V_logo.jpg" style="height:25px;width:25px" alt="" v-if="item.companyLogo == null"/>
-                                </span>
-                                <div class="fl" style="width: 80%;margin-left: 10px;">
-                                    <p class="company-name">{{item.companyName}}</p>
-                                    <p class="products">{{item.profile}}</p>
-                                </div>
-                            </dt>
-                        </dl>
-                    </div>
-                </div>
-                <!--END 推荐店铺-->
-                <div class="gy-ad" v-if="adImgUrl!=null">
-                    <a :href="adLinkUrl" target="_blank" v-if="adLinkUrl!=null"><img :src="adImgUrl" alt=""></a>
-                    <img :src="adImgUrl" alt="" v-if="adLinkUrl==null">
-                </div>
-            </div>
-
+             </div>
         </div>
     </div>
 </template>
@@ -585,6 +310,7 @@ export default {
         return {
             isActive: true,
             isLogin: false,
+            kvList: [],
             bannerStyle: {
                 backgroundImage: 'url(' + require('../assets/images/banner1.jpg') + ')'
             },
@@ -674,7 +400,9 @@ export default {
             });
         },
         showItems (event) {
+            console.log(event);
             const target = event.currentTarget;
+            console.log(target);
             if (target.classList.contains('first-item')) {
                 this.myindex = target.getAttribute('myindex');
                 event.stopPropagation();
@@ -762,6 +490,17 @@ export default {
             } else if (componetName === 'search-page-cata') {
                 this.$router.push({path: '/search', query: {catalogueId: itemId}});
             }
+        },
+        gotoCompany () {
+            window.location.href = '/mall/#/shop/more';
+        },
+        getAdList () {
+            this.$http.get(this.$api.mallHome.adList + '2')
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.kvList = res.data.data;
+                    }
+                });
         }
     },
     mounted () {
@@ -784,6 +523,8 @@ export default {
         const me = this;
         this.getCategories();// 获取分类列表
 
+        this.getAdList();
+
         // 获取推荐商品
         me.$http.post(me.$api.mallHome.prodRecommend,
             {
@@ -793,25 +534,7 @@ export default {
         ).then(function (response) {
             if (response.data.code === 0) {
                 const prodList = response.data.data.prodList;
-                prodList.forEach((item, index) => {
-                    if (item.formulaImg && item.formulaImg.startsWith('http')) {
-                        return;
-                    }
-                    let timestmp = (new Date()).valueOf();
-                    item.formulaImg = me.$api.payment.paymentImage + '?filePath=' + item.formulaImg + '&t=' + timestmp;
-                });
-
-                if (prodList.length > 5) {
-                    me.recommend.push({'items': prodList.slice(0, 5)});
-                    if (prodList.length > 10) {
-                        me.recommend.push({'items': prodList.slice(5, 10)});
-                        me.recommend.push({'items': prodList.slice(10, 15)});
-                    } else {
-                        me.recommend.push({'items': prodList.slice(5)});
-                    }
-                } else {
-                    me.recommend.push({'items': prodList});
-                }
+                me.recommend = prodList;
             } else {
                 me.$alert(response.data.code + ' ' + response.data.message);
             }
@@ -829,17 +552,19 @@ export default {
         ).then(function (response) {
             if (response.data.code === 0) {
                 const shopList = response.data.data.shopList;
-                if (shopList.length > 5) {
-                    me.hot.push({'items': shopList.slice(0, 5)});
-                    if (shopList.length > 10) {
-                        me.hot.push({'items': shopList.slice(5, 10)});
-                        me.hot.push({'items': shopList.slice(10, 15)});
-                    } else {
-                        me.hot.push({'items': shopList.slice(5)});
-                    }
-                } else {
-                    me.hot.push({'items': shopList});
-                }
+                // if (shopList.length > 5) {
+                //     me.hot.push({'items': shopList.slice(0, 5)});
+                //     if (shopList.length > 10) {
+                //         me.hot.push({'items': shopList.slice(5, 10)});
+                //         me.hot.push({'items': shopList.slice(10, 15)});
+                //     } else {
+                //         me.hot.push({'items': shopList.slice(5)});
+                //     }
+                // } else {
+                //     me.hot.push({'items': shopList});
+                // }
+                me.hot = shopList;
+                console.log(shopList);
             } else {
                 me.$alert(response.data.code + ' ' + response.data.message);
             }
@@ -851,12 +576,13 @@ export default {
         me.$http.post(me.$api.mallHome.prodFeatured,
             {
                 pageNo: 1,
-                pageSize: 6
+                pageSize: 8
             }
         ).then(function (response) {
             if (response.data.code === 0) {
                 const respData = response.data.data;
                 me.mall1 = respData.prodList1;
+                console.log(me.mall1);
                 me.mall1.forEach((item, index) => {
                     if (item.productImg && item.productImg.startsWith('http')) {
                         return;
@@ -864,12 +590,12 @@ export default {
                     let timestmp = (new Date()).valueOf();
                     item.productImg = me.$api.payment.paymentImage + '?filePath=' + item.productImg + '&t=' + timestmp;
                 });
-                let listLen = me.mall1.length;
-                if (listLen < 6) {
-                    for (var i = 0; i < 6 - listLen; i++) {
-                        me.mall1.push({});
-                    }
-                }
+                // let listLen = me.mall1.length;
+                // if (listLen < 8) {
+                //     for (var i = 0; i < 8 - listLen; i++) {
+                //         me.mall1.push({});
+                //     }
+                // }
                 me.mall2 = respData.prodList2;
                 me.mall2.forEach((item, index) => {
                     if (item.productImg && item.productImg.startsWith('http')) {
@@ -878,12 +604,12 @@ export default {
                     let timestmp = (new Date()).valueOf();
                     item.productImg = me.$api.payment.paymentImage + '?filePath=' + item.productImg + '&t=' + timestmp;
                 });
-                listLen = me.mall2.length;
-                if (listLen < 6) {
-                    for (var j = 0; j < 6 - listLen; j++) {
-                        me.mall2.push({});
-                    }
-                }
+                // listLen = me.mall2.length;
+                // if (listLen < 8) {
+                //     for (var j = 0; j < 8 - listLen; j++) {
+                //         me.mall2.push({});
+                //     }
+                // }
                 me.mall3 = respData.prodList3;
                 me.mall3.forEach((item, index) => {
                     if (item.productImg && item.productImg.startsWith('http')) {
@@ -892,12 +618,12 @@ export default {
                     let timestmp = (new Date()).valueOf();
                     item.productImg = me.$api.payment.paymentImage + '?filePath=' + item.productImg + '&t=' + timestmp;
                 });
-                listLen = me.mall3.length;
-                if (listLen < 6) {
-                    for (var m = 0; m < 6 - listLen; m++) {
-                        me.mall3.push({});
-                    }
-                }
+                // listLen = me.mall3.length;
+                // if (listLen < 8) {
+                //     for (var m = 0; m < 8 - listLen; m++) {
+                //         me.mall3.push({});
+                //     }
+                // }
                 me.mall4 = respData.prodList4;
                 me.mall4.forEach((item, index) => {
                     if (item.productImg && item.productImg.startsWith('http')) {
@@ -906,12 +632,12 @@ export default {
                     let timestmp = (new Date()).valueOf();
                     item.productImg = me.$api.payment.paymentImage + '?filePath=' + item.productImg + '&t=' + timestmp;
                 });
-                listLen = me.mall4.length;
-                if (listLen < 6) {
-                    for (var n = 0; n < 6 - listLen; n++) {
-                        me.mall4.push({});
-                    }
-                }
+                // listLen = me.mall4.length;
+                // if (listLen < 8) {
+                //     for (var n = 0; n < 8 - listLen; n++) {
+                //         me.mall4.push({});
+                //     }
+                // }
             } else {
                 me.$alert(response.data.code + ' ' + response.data.message);
             }
@@ -945,6 +671,7 @@ export default {
             .then(res => {
                 if (res.data.code === 0) {
                     this.hotIndex = res.data.data;
+                    // console.log(this.hotIndex);
                 }
             });
     }
@@ -953,6 +680,9 @@ export default {
 
 <style lang="scss" scoped>
     .mall-home {
+        .type-1-img{
+            margin: 60px 80px 0 0 !important;
+        }
         .mall-home-product-left-50-info-price{
             color: $color-highlight;
         }
@@ -974,30 +704,79 @@ export default {
         }
         /*banner start==========================================*/
         .mall-home-banner {
-            height: 447px;
-            background-size: cover;
+            position: relative;
+            height: 400px;
+            width: 100%;
+            .carouselImg{
+                display: block;
+            }
+            .bg-img{
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+            .el-carousel{
+                height: 100%;
+            }
+            .el-carousel__container{
+                height: 100% !important;
+            }
+            .item{
+                height: 100%;
+                position: relative;
+                display: block;
+                z-index: 9;
+            }
+            .el-pagination{
+                margin: 0 !important;
+                .el-pager{
+                    li:hover{
+                        background-color: $color-extra;
+                    }
+                }
+            }
+            .mall-home-banner-content {
+                width: 1200px;
+                overflow: hidden;
+                height: 100%;
+                position: absolute;
+                left: 50%;
+                margin-left: -600px;
+                top: 0;
+            }
         }
         .mg-top20 {
             margin-top: 20px;
+        }
+        .second-item-content:last-child{
+            .second-item-content-spans{
+                display: none;
+            }
         }
         .mall-nav-tit {
             font-size: 16px;
             color: $color-title;
             font-weight: bold;
         }
+        .title-pro-type{
+            font-size: 18px;
+        }
         .second-item-content,
         .first-item-content {
             display: inline-block;
             margin-right: 8px;
         }
-        .second-item-content:hover{
+        .first-item-content{
+            color: #a2a2a2;
+        }
+        .first-item-content:hover{
             color: #E0370f;
         }
-        .mall-home-banner-content {
-            width: 1200px;
-            height: 100%;
-            position: relative;
-            margin: 0 auto;
+        .second-item-content-span:hover{
+            color: #E0370f;
+        }
+        .second-item-content-spans{
+            color: #F7B608;
         }
         .banner-category {
             display: inline-block;
@@ -1006,41 +785,69 @@ export default {
         }
         .banner-category-first {
             position: absolute;
-            top: 1px;
+            top: 0;
             left: 0;
             width: 285px;
-            height: 447px;
-            background: #fff;
+            height: 400px;
             overflow: auto;
-        }
-        .first-tit {
-            padding: 20px 10px 0 22px;
+            background-color: rgba(0,0,0,0.8);
+            color: #FFFFFF;
+            z-index: 2;
         }
         .first-item {
             padding: 0 10px 0 22px;
             cursor: pointer;
             &:hover {
-                background: #eee;
-                color: #E03912;
+                background-color: rgba(255,255,255,200);
+                color: #666666;
                 .first-item-category {
                     color: #E03912;
                 }
+                .first-item-content{
+                    color: #333333;
+                }
             }
+        }
+        .banner-category-first::-webkit-scrollbar-track-piece { //滚动条凹槽的颜色，还可以设置边框属性
+            background-color:#FFFFFF;
+        }
+        .banner-category-first::-webkit-scrollbar {//滚动条的宽度
+            width:9px;
+            height:9px;
+        }
+        .banner-category-first::-webkit-scrollbar-thumb {//滚动条的设置
+            background-color:#dddddd;
+            background-clip:padding-box;
+            min-height:28px;
+        }
+        .banner-category-first::-webkit-scrollbar-thumb:hover {
+            background-color:#bbb;
+        }
+        .first-item-category{
+            color: #FFFFFF;
+        }
+        .first-item-category:hover{
+            color: #E03912;
+        }
+        .first-tit {
+            color: #e0370f;
+            padding: 20px 10px 0 22px;
         }
         .category-second {
             width: 658px;
             position: absolute;
             left: 285px;
-            border: 1px solid #979797;
-            height: 447px;
+            margin-top: 1px;
+            height: 400px;
             overflow-y: scroll;
             background: #fff;
             padding: 10px;
+            z-index: 2;
         }
         .second-item-content {
             cursor: pointer;
+            display: inline-block;
         }
-
         .banner-login {
             width: 260px;
             height: 413px;
@@ -1095,12 +902,13 @@ export default {
                 max-width: 60px;
                 max-height: 60px;
                 margin: 6px;
-                padding: 15px;
+                padding: 8px;
                 border: none;
             }
         }
         .recommend-item-body-item-name {
             margin-top: 11px;
+            z-index: 9999;
         }
         .recommend-item-body-item:last-child {
             border-bottom: 1px solid #eee;
@@ -1119,10 +927,10 @@ export default {
             }
         }
         .myChart {
-            width: 385px;
-            height: 186px;
-            border-top: 1px solid #eee;
+            width: 500px;
+            height: 247px;
             padding-left: 20px;
+            margin: 50px auto;
         }
         .home-recommend-item-three-btns {
             display: inline-block;
@@ -1215,7 +1023,6 @@ export default {
         .mall-home-product-left {
             width: 50%;
             font-size: 0;
-            border-right: 1px solid #eee;
             .mall-home-product-left-50-info-name{
                 font-size: 18px;
                 font-weight: bold;
@@ -1233,17 +1040,45 @@ export default {
             }
         }
         .mall-home-product-left-50 {
-            height: 280px;
-            width: 598px;
+            height: 281px;
+            width: 600px;
             border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
             img {
-                width: 200px;
-                margin: 30px 20px 0 0;
+                width: 160px;
+                margin: 45px 20px 0 0;
             }
+        }
+        .headerName{
+            padding: 0 30px;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .mall-home-product-right-right{
+            .headerName{
+                padding-left: 0 !important;
+            }
+        }
+        .mall-home-product-left-50-info-name.headerName{
+            padding-left: 0 !important;
+        }
+        .mall-home-product-left-50:hover{
+            box-shadow:0 9px 10px rgba(74, 74, 74, 0.2);
+            border-left: none!important;
+            color: #666;
+            transition:all 0.5s;
+            .headerName{
+                color: $color-highlight;
+            }
+        }
+        .headerName{
+            font-weight: bold;
         }
         .mall-home-product-left-50-info {
             display: inline-block;
-            width: 60%;
+            width: 56%;
             padding: 20px 30px;
         }
         .mall-home-product-left-50-info-delivery {
@@ -1251,18 +1086,33 @@ export default {
             margin: 30px 0;
         }
         .mall-home-product-left-25 {
-            width: 298px;
-            text-align: center;
-            height: 280px;
+            width: 299px;
+            text-align: left;
+            height: 281px;
+            display: inline-block;
+            border-right: 1px solid #eee;
             img {
                 display: block;
-                max-width: 100px;
-                margin: 15px auto;
+                width: 100px;
                 height: 100px;
+                margin: 20px auto;
+            }
+            p{
+                padding-left: 30px;
+            }
+        }
+        .mall-home-product-left-25:hover{
+            box-shadow:0 9px 10px rgba(74, 74, 74, 0.2);
+            border-left: none!important;
+            color: #666;
+            transition:all 0.5s;
+            .headerName{
+                color: $color-highlight;
             }
         }
         .border-left {
-            border-left: 1px solid #eee;
+            margin-left: 1px;
+            /*border-left: 1px solid #eee;*/
         }
         .border-bottom {
             border-bottom: 1px solid #eee;
@@ -1277,25 +1127,32 @@ export default {
             }
         }
         .mall-home-product-right-right {
-            width: 295px;
-            height: 560px;
+            width: 297px;
+            height: 561px;
             padding: 20px 0 0 30px;
+            position: relative;
             img {
-                max-width: 100px;
-                display: block;
-                margin: 30px auto;
+                width: 160px;
+                height: 160px;
+                position: absolute;
+                margin-left: -80px;
+                left: 50%;
+                bottom: 96px;
             }
             > p:first-child{
                 font-size: 18px;
                 font-weight: bold;
             }
-            &:hover{
-                > p:first-child{
-                    color: $color-highlight;
-                }
+        }
+        .mall-home-product-right-right:hover{
+            box-shadow:0 9px 10px rgba(74, 74, 74, 0.2);
+            border-left: none!important;
+            color: #666;
+            transition:all 0.5s;
+            .headerName{
+                color: $color-highlight;
             }
         }
-
         .shop {
             width: 1300px;
             overflow: hidden;
@@ -1309,7 +1166,7 @@ export default {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                margin-bottom: 24px;
+                margin-bottom: 12px;
             }
             .products{
                 color: #333333;
@@ -1382,9 +1239,514 @@ export default {
         white-space: nowrap;
         width: 280px;
     }
+
+    .mall-home-content {
+        width: 1200px;
+        margin:0 auto;
+        box-sizing: border-box;
+        font-size: 0;
+        .home-hot {
+             width: 100%;
+             margin: 11px 0;
+             height: 447px;
+            background-color: #fff;
+             &>div {
+                height: 100%;
+                vertical-align: middle;
+                display: inline-block;
+                font-size: 16px;
+             }
+            .el-carousel{
+                height: 100%;
+            }
+            .el-carousel__container{
+                height: 100% !important;
+            }
+            .home-hot-left {
+                width: 232px;
+                height:100%;
+                position:relative;
+                .bg-img  {
+                        width: 100%;
+                        height: 100%;
+                        position: absolute;
+                        img {
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                // background: url('../assets/images/hot-item.png');
+                // background-size: 100% 100%;
+                .hot-title {
+                   top: 42px;
+                   text-align: center;
+                   font-size: 16px;
+                   color: #FFD4A0;
+                   position:absolute;
+                   margin: 0 auto;
+                   width:100%;
+                   &>div:nth-child(1) {
+                        font-size: 34px;
+                        color: #fff;
+                        line-height: 53px;
+                   }
+                }
+            }
+            .home-hot-center {
+                width: 488px;
+                font-size: 16px;
+                padding: 15px 0 0 6px;
+                box-sizing: border-box;
+                .el-carousel__item {
+                    height: 93%!important;
+                }
+
+                .hot-center-con {
+                    &>div {
+                        width: 50%;
+                        height: 50%;
+                        float: left;
+                        padding-left: 10px;
+                        box-shadow: border-box;
+                        border-right: 1px solid #E3E3E3;
+                        border-bottom: 1px solid #E3E3E3;
+                    }
+                   div:nth-child(4n+3) {
+                        border-bottom: none;
+                    }
+                    div:nth-child(4n+4) {
+                            border-bottom: none;
+                    }
+                    .hot-center-item {
+                            font-size: 16px;
+                            // height: 95%;
+                            cursor: pointer;
+                            position: relative;
+                        .item-name {
+                            color: #000000;
+                        }
+                        .item-price {
+                            color: #E03912;
+                            span {
+                                color: #ccc;
+                            }
+                        }
+                        .decorate {
+                             width: 52px;
+                             line-height: 10px;
+                             img {
+                                width: 100%;
+                             }
+                        }
+                        .item-bg {
+                            width: 132px;
+                            height: 132px;
+                            position: absolute;
+                            bottom: 15px;
+                            right: 15px;
+                            border-radius: 50%;
+                            overflow: hidden;
+                            background-color: #f9f9f9;
+                            img {
+                                width: 85%;
+                                position: absolute;
+                                left: 50%;
+                                top :50%;
+                                transform: translate(-50%,-50%);
+                            }
+                        }
+                    }
+                }
+            }
+            .home-hot-right {
+                width: 477px;
+                height: 100%;
+                position: relative;
+                .hot-right-top {
+                    width: 100%;
+                    height: 336px;
+                    .right-top-swiper {
+                        width: 100%;
+                        height: 100%;
+                        position: relative;
+                    }
+                    .hot-right-top-con {
+                        width: 100%;
+                        height: 100%;
+                        display: inline-block;
+                        padding-left: 20px;
+                        .top-con-item {
+                                width: 33.3%;
+                                 padding-right: 20px;
+                                cursor: pointer;
+                                display: inline-block;
+                                text-align: center;
+                             .top-con-img {
+                                width: 80px;
+                                height: 80px;
+                                border-radius: 50%;
+                                overflow: hidden;
+                                margin: 15px auto;
+                                img {
+                                    width: 100%;
+                                }
+                          }
+                            .top-con-name {
+                                font-size: 12px;
+                                width: 100%;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                                color: #4A4A4A;
+                            }
+
+                        }
+                    }
+                }
+                .hot-right-bottom {
+                    width: 100%;
+                    height: 86px;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    &>div:nth-child(1) {
+                        width: 309px;
+                        height: 100%;
+                        display: inline-block;
+                        vertical-align: middle;
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            cursor: pointer;
+                        }
+                    }
+                     &>div:nth-child(2) {
+                        width: 131px;
+                        height: 40px;
+                        line-height: 40px;
+                        margin-left:10px ;
+                        cursor: pointer;
+                        display: inline-block;
+                        text-align: center;
+                        color: #fff;
+                        background: #E03912;
+                        vertical-align: middle;
+                    }
+                }
+            }
+
+        }
+        .home-common {
+            margin: 15px auto;
+            min-height:200px ;
+            .home-common-title {
+                height: 50px;
+                line-height: 50px;
+                div:nth-child(1) {
+                    font-size: 24px;
+                    color: #000000;
+                    float: left;
+                }
+                  div:nth-child(2) {
+                    font-size: 14px;
+                    color: #ccc;
+                    float: right;
+                    cursor: pointer;
+                }
+            }
+            .home-common-content {
+                width: 100%;
+                height: 605px;
+                 .common-content-left {
+                    width: 232px;
+                    height: 100%;
+                    position: relative;
+                    display: inline-block;
+                    vertical-align: middle;
+                    color: #9D5557;
+                    .bg-img  {
+                        width: 100%;
+                        height: 100%;
+                        position: absolute;
+                        img {
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .conetnt-left-title {
+                        position: absolute;
+                        width: 100%;
+                        margin-top: 42px;
+                        text-align: center;
+                        font-size: 16px;
+                        &>div:nth-child(1) {
+                            font-size: 34px;
+                            color: #fff;
+                            line-height: 53px;
+                        }
+                    }
+                }
+                .common-content-right {
+                    width: 966px;
+                    height: 100%;
+                    display: inline-block;
+                    vertical-align: middle;
+                    &>div {
+                         width: 221px;
+                         height: 296px;
+                         background: #FFFFFF;
+                         display: inline-block;
+                         margin:0 0 15px 20px;
+                    }
+                    .common-content-right-item {
+                        cursor: pointer;
+                        position: relative;
+                        .pop{
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            height: 100%;
+                            width: 100%;
+                            color: #f00;
+                            font-size: 14px;
+                            opacity: 0;
+                            transition: all 0.5s;
+                            ul{
+                                position: absolute;
+                                z-index: 9;
+                                color: #fff;
+                                width: 100%;
+                                left: 0;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                padding: 0 16px;
+                                li.button-box{
+                                    text-align: center;
+                                    margin-top: 70px;
+                                }
+                            }
+                            .mask{
+                                position: absolute;
+                                height: 100%;
+                                width: 100%;
+                                z-index: 1;
+                                background-image: linear-gradient(#767676, #000);
+                                left: 0;
+                                top: 0;
+                                opacity: 0.75;
+                            }
+                        }
+                        &:hover{
+                            .pop{
+                                opacity: 1;
+                            }
+                        }
+                        .item-img-con {
+                            width: 170px;
+                            height: 170px;
+                            background-position: 50%;
+                            background-size: cover;
+                            background-repeat: no-repeat;
+                            margin: 10px auto;
+                            position: relative;
+                            img {
+                                width: 100%;
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%,-50%);
+                                vertical-align: middle;
+                            }
+                        }
+                        .dec-con {
+                            width: 100%;
+                            text-indent: 10px;
+                            font-size: 14px;
+                            color: #9B9B9B;
+                            margin-top:20px ;
+                            .product-name {
+                                font-size: 15px;
+                                color: #4A4A4A;
+                                width: 98%;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                            .product-price {
+                                color: #E03912;
+                                font-size: 16px;
+                                span {
+                                    font-size: 12px;
+                                    color: #4A4A4A;
+                                }
+                            }
+                        }
+                    }
+                     .common-content-right-item:hover{
+                        box-shadow:0 9px 10px rgba(74, 74, 74, 0.2);
+                        color: #666;
+                        transition:all 0.5s;
+                        .product-name {
+                            color: $color-highlight!important;
+                     }
+                }
+                }
+            }
+            .home-common-shop {
+                width: 100%;
+                height: 208px;
+                .home-item {
+                    width: 285px;
+                    height: 100%;
+                    display: inline-block;
+                    background-color: #fff;
+                    cursor: pointer;
+                    &:nth-child(n+1) {
+                        margin-right:20px;
+                    }
+                      &:nth-last-child(1){
+                        margin-right:0;
+                    }
+                    .company-img {
+                        width: 100%;
+                        height: 145px;
+                        img {
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .company-name {
+                        width: 100%;
+                        text-align: center;
+                        height: 60px;
+                        line-height: 60px;
+                        img {
+                            width: 38px;
+                            height: 38px;
+                            border-radius:50%;
+                            vertical-align: middle;
+                            margin-right:5px ;
+                        }
+                        span {
+                            display: inline-block;
+                            font-size: 16px;
+                            color: #4A4A4A;
+                            vertical-align: middle;
+                            max-width: 180px;
+                            overflow: hidden;
+                            white-space: nowrap;
+                            text-overflow:ellipsis;
+                        }
+                    }
+                }
+            }
+            .home-common-industry {
+                width: 100%;
+                height: 325px;
+                margin-bottom:30px ;
+                overflow: hidden;
+                .industry-left {
+                    width: 50%;
+                    height: 100%;
+                    display: inline-block;
+                    vertical-align: middle;
+                    .industry-left-top {
+                         width: 100%;
+                         height: 244px;
+                         img {
+                             width: 100%;
+                             height: 100%;
+                         }
+                    }
+                }
+                .industry-left-bottom {
+                    width: 100%;
+                    height: 80px;
+                    font-size: 14px;
+                    color: #333333;
+                    line-height: 30px;
+                    text-align: center;
+                    padding-top:10px;
+                    box-sizing:border-box;
+                    // div {
+                    //     height:40px;
+                    //     line-height: 40px;
+                    // }
+                      .el-carousel{
+                        height: 100%;
+                      }
+                        .el-carousel__container{
+                            height: 100% !important;
+                        }
+                        .el-carousel__indicators {
+                            display: none!important;
+                        }
+                }
+                .industry-right {
+                    display: inline-block;
+                    width: 50%;
+                    height: 100%;
+                    background-color: #fff;
+                    vertical-align: middle;
+                    position: relative;
+                    .industry-right-button {
+                        position: absolute;
+                        left: 50px;
+                        top: 10px;
+                        color: #333;
+                        .chart-btn:nth-child(2) {
+                            margin-left:20px ;
+                        }
+                        .chart-btn {
+                            cursor: pointer;
+                            display: inline-block;
+                            color: #333;
+                            font-weight:800;
+                            font-size: 12px;
+                        }
+                        .btn-active {
+                            color: #E0370F;
+                            border-bottom: 1px solid #E0370F;
+                            background-color:transparent;
+                        }
+                    }
+                }
+            }
+        }
+        .common-icon {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            text-align: center;
+            background-color: #fff;
+            text-indent: 5px;
+            i {
+              font-size: 30px;
+              color: #9E7A7B ;
+              cursor: pointer;
+            }
+        }
+    }
 </style>
 <style lang="scss">
     .mall-home-box {
+        .isBlock {
+            .el-carousel__indicators {
+                display: none;
+            }
+        }
+        .el-carousel__item{
+            .recommend-item-body-item-total:hover{
+                .recommend-item-body-item-name{
+                    color: red;
+                }
+            }
+        }
         .el-tabs__item {
             font-size: 12px !important;
             padding: 0 10px;
@@ -1393,12 +1755,28 @@ export default {
             left: -6% !important;
             width: 26% !important;
         }
-        .el-carousel__button {
-            padding: 4px;
-            border-radius: 100%;
-            width: 10px;
-            height: 10px;
-            background: #333;
+        .mall-home-content{
+            .el-carousel__button {
+                padding: 4px;
+                border-radius: 100%;
+                width: 10px;
+                height: 10px;
+                background: rgba(0,0,0,0.5);
+            }
+            // .el-carousel__indicators--horizontal {
+            //     bottom: -15px;
+            // }
         }
+        .el-carousel__container{
+            height: 100%;
+        }
+        .el-carousel__indicators{
+            z-index: 5 !important;
+        }
+        .industry-left-bottom {
+            .el-carousel__indicators {
+                display: none !important;
+            }
+         }
     }
 </style>

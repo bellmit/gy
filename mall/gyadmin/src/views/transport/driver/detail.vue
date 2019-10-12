@@ -1,177 +1,301 @@
 <template>
-  <div class="transport-wrap order">
-    <div class="gy-h4">司机信息</div>
-    <div class="gy-form-box-14">
+  <div class="transportUserInfo">
+    <div class="gy-h4">驾驶员/押运员详情</div>
+    <div class="title"><i class="iconfont icon-qiye"></i>所属公司</div>
+    <div class="gy-form">
       <div class="gy-form-group">
-        <span class="l">承运商</span>
-        <el-select v-if="Model!=null" v-model="Model.companyId" filterable placeholder="请选择">
-          <el-option
-            v-for="item in carrierCompanyList"
-            :key="item.companyId"
-            :label="item.companyName"
-            :value="item.companyId">
-          </el-option>
-        </el-select>
+        <span class="l"><strong>*</strong>承运商</span>
+        {{datas.companyName}}
       </div>
-      <div class="gy-form-group">
-        <span class="l">姓名</span>
-        <span class="2" v-if="Model!=null">{{Model.username}}</span>
+    </div>
+    <div class="title title-padding"><i class="iconfont icon-icon_shenqing"></i>基础信息</div>
+    <div class="gy-form">
+      <div class="gy-form-group form-height">
+        <span class="l"><strong>*</strong>姓名</span>
+        {{datas.username}}
       </div>
-      <div class="gy-form-group">
-        <span class="l">人员类型</span>
-        <span class="2" v-if="Model!=null" v-text="explainPersonnelType(Model.personnelType)"></span>
+      <div class="gy-form-group form-height">
+        <span class="l"><strong>*</strong>性别</span>
+        {{datas.sex === 1 ? '男' : '女'}}
       </div>
-      <div class="gy-form-group">
-        <span class="l">性别</span>
-        <label v-if="Model!=null" v-text="explainSexType(Model.sex)"></label>
+      <div class="gy-form-group form-height">
+        <span class="l"><strong>*</strong>身份证号码</span>
+        {{datas.identityCode}}
       </div>
-      <div class="gy-form-group">
-        <span class="l">手机号</span>
-        <span class="2" v-if="Model!=null">{{Model.phone}}</span>
+      <div class="gy-form-group form-height">
+        <span class="l"><strong>*</strong>手机号码</span>
+        {{datas.phone}}
       </div>
-      <div class="gy-form-group">
-        <span class="l">身份证号</span>
-        <span class="2" v-if="Model!=null">{{Model.identityCode}}</span>
+      <div class="gy-form-group form-height">
+        <span class="l"><strong>*</strong>人员类型</span>
+        {{datas.personnelType === 0 ? '驾驶员/押运员' : datas.personnelType === 1 ? '驾驶员' : '押运员'}}
       </div>
-      <div class="gy-form-group">
-        <span class="l">从业资格证号</span>
-        <span class="2" v-if="Model!=null">{{Model.qualificationCode}}</span>
+      <div class="gy-form-group form-height">
+        <span class="l">出生日期</span>
+        {{datas.birthdayStr}}
       </div>
+    </div>
+    <div class="title title-padding"><i class="iconfont icon-bangdingxindetixianzhanghao"></i>证照信息</div>
+    <div class="gy-form">
       <div class="gy-form-group">
-        <span class="l">初次领证日期</span>
-        <span class="2" v-if="Model!=null">{{Model.receiveDate | date}}</span>
-      </div>
-      <div class="gy-form-group">
-        <span class="l">证件有效期</span>
-        <span class="2" v-if="Model!=null">{{Model.validDate | date}}</span>
-      </div>
-      <div class="gy-form-group">
-        <span class="l">准驾车型</span>
-        <span class="2" v-if="Model!=null">{{Model.vehicleModel}}</span>
+        <span class="l"><strong>*</strong>身份证正面</span>
+        <gy-upload
+                :url="imgApi"
+                :disabled="true"
+                v-model="imgList.identityFrontPath.list"
+                :limit="1"
+                :upload-data="{filetype: imgList.identityFrontPath.type}">
+        </gy-upload>
       </div>
       <div class="gy-form-group">
-        <span class="l">状态</span>
-        <span class="2" v-if="Model!=null" v-text="explainValidType(Model.valid)"></span>
+        <span class="l"><strong>*</strong>身份证背面</span>
+        <gy-upload
+                :url="imgApi"
+                :disabled="true"
+                v-model="imgList.identityOppositePath.list"
+                :limit="1"
+                :upload-data="{filetype: imgList.identityOppositePath.type}">
+        </gy-upload>
       </div>
-      <div class="gy-form-button">
-        <button class="gy-button-extra" type="reset" @click="backToList">取消</button>
+      <!-- 驾驶员 -->
+      <div class="gy-form-group" v-if="datas.personnelType !== 2">
+        <span class="l"><strong>*</strong>驾驶证主页</span>
+        <gy-upload
+                :url="imgApi"
+                :disabled="true"
+                v-model="imgList.drivingCertificateFrontPath.list"
+                :limit="1"
+                :upload-data="{filetype: imgList.drivingCertificateFrontPath.type}">
+        </gy-upload>
       </div>
-      <div class="clear"></div>
+      <div class="gy-form-group" v-if="datas.personnelType !== 2">
+        <span class="l"><strong>*</strong>驾驶证副页</span>
+        <gy-upload
+                :url="imgApi"
+                :disabled="true"
+                v-model="imgList.drivingCertificateOppositePath.list"
+                :limit="1"
+                :upload-data="{filetype: imgList.drivingCertificateOppositePath.type}">
+        </gy-upload>
+      </div>
+      <div class="gy-form-group" v-if="datas.personnelType !== 2">
+        <span class="l"><strong>*</strong>准驾车型</span>
+        {{datas.vehicleModel}}
+      </div>
+      <div class="gy-form-group" v-if="datas.personnelType !== 2">
+        <span class="l"><strong>*</strong>驾驶证有效期</span>
+        <el-col :span="2">至</el-col>
+        <el-col :span="22">
+          {{datas.drivingCertificateValidDate | date}}
+        </el-col>
+      </div>
+      <div class="gy-form-group" v-if="datas.personnelType !== 2">
+        <span class="l"><strong>*</strong>从业资格证 <br> (驾驶员）</span>
+        <gy-upload
+                :url="imgApi"
+                :disabled="true"
+                v-model="imgList.qualificationCertificatePath.list"
+                :limit="1"
+                :upload-data="{filetype: imgList.qualificationCertificatePath.type}">
+        </gy-upload>
+      </div>
+      <div class="gy-form-group" style="height:96px;" v-if="datas.personnelType !== 2">
+        <span class="l">从业资格证编号 <br> (驾驶员）</span>
+        {{datas.qualificationCode}}
+      </div>
+      <div class="gy-form-group" v-if="datas.personnelType !== 2">
+        <span class="l"><strong>*</strong>从业资格证有效期</span>
+        <el-col :span="2">至</el-col>
+        <el-col :span="22">
+          {{datas.validDate | date}}
+        </el-col>
+      </div>
+      <div class="gy-form-group" style="height:50px;" v-if="datas.personnelType !== 2"></div>
+      <!-- 押运员 -->
+      <div class="gy-form-group" v-if="datas.personnelType !== 1">
+        <span class="l"><strong>*</strong>从业资格证 <br> (押运员）</span>
+        <gy-upload
+                :url="imgApi"
+                :disabled="true"
+                v-model="imgList.escortQualificationCertificatePath.list"
+                :limit="1"
+                :upload-data="{filetype: imgList.escortQualificationCertificatePath.type}">
+        </gy-upload>
+      </div>
+      <div class="gy-form-group" style="height:96px;" v-if="datas.personnelType !== 1">
+        <span class="l">从业资格证编号 <br> (押运员）</span>
+        {{datas.escortQualificationCode}}
+      </div>
+      <div class="gy-form-group" v-if="datas.personnelType !== 1">
+        <span class="l"><strong>*</strong>从业资格证有效期</span>
+        <el-col :span="2">至</el-col>
+        <el-col :span="22">
+          {{datas.escortQualificationValidDate | date}}
+        </el-col>
+      </div>
+    </div>
+    <div class="gy-form-button button-padding">
+      <button class="gy-button-extra" @click="backToList">取消</button>
     </div>
   </div>
 </template>
 
 <script>
+import gyUpload from '@/components/upload';
+const imgMap = {
+    identityFrontPath: 0, // 身份证正面
+    identityOppositePath: 1, // 身份证背面
+    drivingCertificateFrontPath: 2, // 驾驶证主页
+    drivingCertificateOppositePath: 3, // 驾驶证副页
+    qualificationCertificatePath: 4, // 从业资格证(驾驶员）
+    escortQualificationCertificatePath: 5 // 从业资格证(押运员）
+};
+const getImgList = () => {
+    const imgList = {};
+    for (const [key, value] of Object.entries(imgMap)) {
+        imgList[key] = {
+            type: value,
+            list: []
+        };
+    }
+    return imgList;
+};
 export default {
-    name: 'detail',
+    components: {
+        gyUpload
+    },
     data () {
         return {
-            getModel: {
-                pageNum: null,
-                pageSize: null,
-                data: {
-                    id: this.$route.query.id
-                }
+            datas: {
+                username: '', // 姓名
+                sex: 1, // 性别
+                identityCode: '', // 身份证号码
+                phone: '', // 手机号码
+                personnelType: 1, // 人员类型 0：全选；1：驾驶员；2：押运员
+                birthdayStr: '', // 出生日期
+                valid: 1, // 是否有效
+                identityFrontPath: [], // 身份证正面照
+                identityOppositePath: [], // 身份证背面照
+                drivingCertificateFrontPath: [], // 驾驶证主页照
+                drivingCertificateOppositePath: [], // 驾驶证副页照
+                vehicleModel: '', // 准驾车型
+                drivingCertificateValidDate: '', // 驾驶证有效期
+                qualificationCertificatePath: [], // 驾驶员从业资格证书路径
+                qualificationCode: '', // 驾驶员从业资格证书编号
+                validDate: '', // 驾驶员从业资格证书有效时间
+                escortQualificationCode: '', // 押运员从业资格证编号
+                escortQualificationCertificatePath: [], // 押运员从业资格证路径
+                escortQualificationValidDate: '' // 从业资格证书有效时间（押运人）
             },
-            Model: null,
-            // 人员状态
-            validState: [
-                {initKeys: '1', initValues: '已启用'},
-                {initKeys: '0', initValues: '未启用'}
-            ],
-            // 人员类型
-            personnelTypeState: [
-                {initKeys: '1', initValues: '驾驶人'},
-                {initKeys: '2', initValues: '押运人'}
-            ],
-            // 承运商列表数据
-            carrierCompanyList: []
+            imgApi: this.$api.transport.upload,
+            imgList: getImgList()
         };
     },
     created () {
-        this.initData();
+        this.$route.query.id && this.getData(); // 详情 初始化数据
     },
     methods: {
-        // 初始化数据
-        initData () {
-        // alert(this.getModel.id);
-            this.$http.post(this.$api.transport.transportUserList, this.getModel)
-                .then((res) => {
-                    this.Model = res.data.data.list[0];
+        // 初始化
+        getData () {
+            let id = this.$route.query.id;
+            let List = {
+                data: {
+                    id: id
+                },
+                pageNum: 1,
+                pageSize: 10
+            };
+            this.$http.post(this.$api.transport.transportUserList, List)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.datas = res.data.data.list[0];
+                        // 照片
+                        for (const imgItem of Object.keys(this.imgList)) {
+                            let url = this.datas[imgItem];
+                            url && this.imgList[imgItem].list.push({url, filePath: url});
+                        }
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            message: res.data.message
+                        });
+                    }
+                }).catch(error => {
+                    console.log(error);
                 });
-            this.getCarryierCompany();
         },
-        // 查找所有承运商
-        getCarryierCompany () {
-            this.$http.get(this.$api.transport.carryierCompany)
-                .then((res) => {
-                    this.carrierCompanyList = res.data.data;
-                });
-        },
-        // 解析人员类型
-        explainPersonnelType (personnelType) {
-            if (personnelType === 1) {
-                return '驾驶人';
-            } else if (personnelType === 2) {
-                return '押运人';
-            } else {
-                return '未知';
-            }
-        },
-        // 解析人员状态
-        explainValidType (validType) {
-            if (validType === 0) {
-                return '已禁用';
-            } else if (validType === 1) {
-                return '已启用';
-            } else {
-                return '未知';
-            }
-        },
-        // 解析性别
-        explainSexType (sexType) {
-            if (sexType === 0) {
-                return '女';
-            } else if (sexType === 1) {
-                return '男';
-            } else {
-                return '未知';
-            }
-        },
-        // 退回到人员列表页面
         backToList () {
             this.$router.push({name: 'driverList'});
         }
-
     }
-
 };
 </script>
-<style lang="scss" scoped>
-.gy-form-box-14 {
-   padding: 6px 14px 30px;
-}
 
-.gy-form-button {
-   padding: 0;
-}
-
-.gy-form-group {
-  padding-left: 95px;
-  .l {
-    width: 85px;
+<style scoped lang="scss">
+  .transportUserInfo{
+    padding-bottom:30px;
+    .title{
+      padding:20px 16px 0 16px;
+      font-size: 14px;
+      color: #333333;
+      font-weight: bold;
+      position: relative;
+      i{
+        font-size: 14px;
+        margin-right: 5px;
+        line-height: 14px;
+        text-align: center;
+        position: absolute;
+        top: 26px;
+        left: -4px;
+        color: #666666;
+        font-weight: normal;
+      }
+    }
+    .title-padding{
+      padding:0 16px;
+      i{
+        top: 6px;
+      }
+    }
+    .gy-form-group{
+      padding: 8px 30px 10px 133px;
+      .l{
+        width:162px;
+        top:8px;
+        strong{
+          top:10px;
+          left:-10px;
+        }
+      }
+      img{
+        display: block;
+        width:66px;
+        height:66px;
+      }
+    }
+    .form-height{
+      height:46px;
+    }
+    .gy-button-normal:hover{
+      color:#e59640;
+      border-color:#e59640;
+    }
+    .gy-form-button{
+      padding-right:0;
+    }
   }
-}
-
-.gy-form-group:nth-child(odd) {
-  padding-right: 30px;
-}
-
-.gy-form-group:nth-child(even) {
-  padding-left: 125px;
-  .l {
-    width: 115px;
-    padding-left: 30px;
+</style>
+<style lang="scss">
+  .transportUserInfo{
+    .el-upload--picture-card{
+      width:66px;
+      height:66px;
+      line-height: 66px;
+    }
+    .el-upload-list--picture-card .el-upload-list__item{
+      width:66px;
+      height:66px;
+    }
   }
-}
 </style>

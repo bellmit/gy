@@ -10,8 +10,8 @@
                     <th style="width: 60px">序号</th>
                     <th style="width: 120px">审批人</th>
                     <th style="width: 100px">状态</th>
-                    <th style="width: 150px">时间</th>
                     <th style="width: 200px">备注</th>
+                    <th style="width: 150px">时间</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -19,8 +19,8 @@
                     <td>{{index+1}}</td>
                     <td>{{item.username}}</td>
                     <td>{{$constant.approveType[item.resultCode]}}</td>
-                    <td>{{item.createdDate | date(item.createdDate)}}</td>
                     <td>{{item.msg}}</td>
+                    <td>{{item.createdDate | date(item.createdDate)}}</td>
                 </tr>
                 </tbody>
             </table>

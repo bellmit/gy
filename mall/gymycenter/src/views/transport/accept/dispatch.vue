@@ -24,11 +24,11 @@
                 </div>
                 <div class="gy-form-group">
                     <span class="l"><strong>*</strong>车型</span>
-                    <el-select v-model="dispatchData.infCarrierTypeId" @change="handleCarTypeChange" placeholder="请选择">
+                    <el-select v-model="dispatchData.infLogisticsDictionaryIdVehicleType" @change="handleCarTypeChange" placeholder="请选择">
                         <el-option
                             v-for="item in carType"
                             :key="item.id"
-                            :label="item.name"
+                            :label="item.logisticsDictionaryName"
                             :value="item.id">
                         </el-option>
                     </el-select>
@@ -108,7 +108,7 @@ export default {
             carList: [],
             dispatchData: {
                 lgsConsignmentNoteId: null,
-                infCarrierTypeId: null,
+                infLogisticsDictionaryIdVehicleType: null,
                 lgsVehicleId: null,
                 estimatedLoadingDate: null,
                 estimatedUnloadingDate: null,
@@ -145,22 +145,20 @@ export default {
                 });
         },
         getCarType () {
-            this.$http.post(this.$api.transport.carType)
+            this.$http.get(this.$api.transport.carType)
                 .then(res => {
-                    this.carType = res.data.data.list;
+                    this.carType = res.data.data;
                 });
         },
         handleCarTypeChange () {
             this.dispatchData.carId = null;
-            this.$http.post(this.$api.transport.carList, {
-                data: {
-                    infCarrierTypeId: this.dispatchData.infCarrierTypeId
-                },
-                pageNum: 1,
-                pageSize: 10000000
+            this.$http.post(this.$api.transport.list, {
+                infLogisticsDictionaryIdVehicleType: this.dispatchData.infLogisticsDictionaryIdVehicleType,
+                valid: 1
             })
                 .then(res => {
-                    this.carList = res.data.data.data.list;
+                    this.dispatchData.lgsVehicleId = '';
+                    this.carList = res.data.data;
                 });
         },
         getDriverList () {
@@ -182,7 +180,7 @@ export default {
                 });
         },
         dispatch () {
-            if (!this.dispatchData.infCarrierTypeId) {
+            if (!this.dispatchData.infLogisticsDictionaryIdVehicleType) {
                 this.$message.error('请选择车型');
                 return;
             }
@@ -220,7 +218,9 @@ export default {
                             }).catch(() => {
                                 this.$router.push({name: 'transparentOrderDetail', query: {view: true, orderId: this.orderId}});
                             });
+                        return;
                     }
+                    this.$message.error(res.data.message);
                 });
         }
     }

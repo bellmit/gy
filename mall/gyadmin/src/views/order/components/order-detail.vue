@@ -34,24 +34,24 @@
               <td v-else-if="item.deliveryDateFlag === 2" >{{item.deliveryBeginDate|date}}以前</td>
               <td v-else>{{item.deliveryBeginDate|date}}到{{item.deliveryEndDate|date}}</td>
                 <td>{{item.deliveryWarehouseName}}</td>
-                <td>{{item.skuPrice|numToCash}}元/{{item.infUnitOfMeasureDisplayName}}</td>
-                <td>{{item.skuQuantity|numToCash(3)}}{{item.infUnitOfMeasureDisplayName}}</td>
-                <td>{{orderData.intCurrencyMark}}{{item.skuTotalAmount|numToCash}}元</td>
+                <td class="align-r">{{item.skuPrice|numToCash}}元/{{item.infUnitOfMeasureDisplayName}}</td>
+                <td class="align-r">{{item.skuQuantity|numToCash(3)}}{{item.infUnitOfMeasureDisplayName}}</td>
+                <td class="align-r">{{item.skuTotalAmount|numToCash}}元</td>
             </tr>
           </tbody>
         </table>
         <div class="total-detail">
             <dl>
                 <dt>货款总额:</dt>
-                <dd>{{orderData.intCurrencyMark}}{{orderData.totalAmount-orderData.depositAmount|| 0 | numToCash}}元</dd>
+                <dd>{{orderData.totalAmount-orderData.depositAmount|| 0 | numToCash}}元</dd>
             </dl>
             <dl style="border-bottom: 1px solid #e6eaea">
                 <dt>保证金总额:</dt>
-                <dd>{{orderData.intCurrencyMark}}{{orderData.depositAmount |numToCash}}元</dd>
+                <dd>{{orderData.depositAmount |numToCash}}元</dd>
             </dl>
             <dl>
                 <dt>总额:</dt>
-                <dd>{{orderData.intCurrencyMark}}{{orderData.totalAmount |numToCash}}元</dd>
+                <dd>{{orderData.totalAmount |numToCash}}元</dd>
             </dl>
         </div>
     </div>
@@ -71,5 +71,13 @@ export default {
     .order .tabs table tr:first-child td{
         background-color:#D4D4D4;
         text-align: left;
+    }
+    .total-detail{
+      dl{
+        dd{
+          min-width:120px;
+          text-align: right;
+        }
+      }
     }
 </style>

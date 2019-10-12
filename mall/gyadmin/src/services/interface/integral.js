@@ -125,6 +125,36 @@ const editGoods = params => {
         });
     });
 };
+// 编辑兑换品-上架
+const upGoods = params => {
+    return new Promise((resolve, reject) => {
+        http.put('/platform//point/v1/redemptions/up', params).then(result => {
+            resolve(result);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+};
+// 编辑兑换品-下架
+const lowerGoods = params => {
+    return new Promise((resolve, reject) => {
+        http.put('/platform/point/v1/redemptions/down', params).then(result => {
+            resolve(result);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+};
+// 删除兑换品
+const delGoods = params => {
+    return new Promise((resolve, reject) => {
+        http.put('/platform/point/v1/redemptions/delete', params).then(result => {
+            resolve(result);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+};
 // 添加兑换品
 const addGoods = params => {
     return new Promise((resolve, reject) => {
@@ -152,9 +182,13 @@ const getOrders = (option) => {
                 pointNoteCode: item.pointNoteCode,
                 receiveName: item.receiveName,
                 receivePhone: item.receivePhone,
+                name: item.name,
+                companyName: item.companyName,
                 createdDate: item.createdDate,
                 gross: item.gross,
                 status: item.status,
+                userName: item.userName,
+                phone: item.phone,
                 odrPointNoteItemModelList: item.odrPointNoteItemModelList.length ? item.odrPointNoteItemModelList : [{ redemptionName: 'testName', redemptionQuantity: 'testCount' }]
             }));
             resolve({
@@ -311,6 +345,9 @@ export default {
     getGoodsStatus,
     getGoodsDetail,
     editGoods,
+    lowerGoods,
+    upGoods,
+    delGoods,
     addGoods,
     getOrders, // 兑换单管理
     getOrder,

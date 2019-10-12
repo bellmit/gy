@@ -9,9 +9,9 @@
     </div> -->
     <div class="container">
       <!-- h1 -->
-      <div class="gy-h3">推荐管理</div>
+      <div class="gy-h4">推荐管理</div>
       <!-- 模糊搜索 -->
-      <div class="gy-form my-form">
+      <div class="gy-form my-form" style="padding:0;">
         <div class="query clearfix">
           <div class="more fr cursor" @click="advancedSearch=!advancedSearch">
             <span>高级搜索</span>
@@ -19,7 +19,7 @@
           </div>
           <div class="iptbox fr">
             <input class="ipt" v-model="search.queryCriteria" type="text" placeholder="请输入标题"/>
-            <span class="search" @click="dimSearch">搜索</span>
+            <i class="iconfont icon-search" @click="dimSearch"></i>
           </div>
         </div>
       </div>
@@ -60,8 +60,8 @@
         </div>
       </div>
       <!-- 事件区域 -->
-      <div class="gy-form-button">
-        <button class="gy-button-normal" @click="add">新增</button>
+      <div class="btnGroup">
+        <button class="gy-button-extra" @click="add">新增</button>
         <button class="gy-button-normal" :disabled="isDisabled" @click="edit" :class="{disabledColor: isDisabled}">编辑
         </button>
         <button class="gy-button-normal" @click="dele">删除</button>
@@ -163,7 +163,9 @@
                   <div class="tab-td4">{{item.skuMinQuantity}}</div>
                 </td>
                 <td>
-                  <div class="tab-td5">{{item.skuPrice}}</div>
+                  <div class="tab-td5"><span v-if="item.skuPriceFlag ==2">面议</span>
+                    <span v-else>{{item.skuPrice}}{{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</span>
+                  </div>
                 </td>
                 <td class="tab-td6" v-if="item.deliveryDateFlag === 3">{{item.deliveryDateText}}</td>
                 <td class="tab-td6" v-else-if="item.deliveryDateFlag === 2" >{{item.deliveryBeginDate|date}}以前</td>
@@ -489,19 +491,34 @@ export default {
                 });
         },
         // 公用提交请求
-        post (url, params) {
+        post (url, params, type) {
             const me = this;
-            me.$http.post(url, params)
-                .then(function (res) {
-                    if (res.data.code === 0) {
-                        me.get(me.$api.market.recommendList, me.search);
-                        me.isDialog = false;
-                    } else {
-                        me.$message.error(res.data.message);
-                    }
-                }).catch(function (error) {
-                    console.log(error);
-                });
+            if (type === 1) {
+                me.$http.post(url, params)
+                    .then(function (res) {
+                        if (res.data.code === 0) {
+                            me.get(me.$api.market.recommendList, me.search);
+                            me.isDialog = false;
+                        } else {
+                            me.$message.error(res.data.message);
+                        }
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+            }
+            if (type === 2) {
+                me.$http.put(url, params)
+                    .then(function (res) {
+                        if (res.data.code === 0) {
+                            me.get(me.$api.market.recommendList, me.search);
+                            me.isDialog = false;
+                        } else {
+                            me.$message.error(res.data.message);
+                        }
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+            }
         },
         // 新增
         add () {
@@ -570,7 +587,7 @@ export default {
             console.log(me.form);
             me.form.displayOrder = Number(me.form.displayOrder);
             if (!this.check()) return false;
-            this.post(this.$api.market.recommendSave, me.form);
+            this.post(this.$api.market.recommendSave, me.form, this.editType);
         },
         // 清空表单
         clear () {
@@ -668,6 +685,7 @@ export default {
                 pageNum: me.search2.pageNum,
                 pageSize: me.search2.pageSize,
                 data: {
+                    offerType: 1,
                     flag: 3, // 3 只查询已上架
                     keyword: me.search2.skuName,
                     offerSn: me.search2.offerSn,
@@ -719,7 +737,6 @@ export default {
 <style lang="scss" scoped>
   .recommend {
     .container {
-      padding: 26px 36px;
       .my-form-group {
         .inline-input {
           width: 100%;
@@ -729,16 +746,8 @@ export default {
         i {
           position: absolute;
           right: 0;
-          bottom: 15px;
-          font-weight: bold;
-          color: $color-black;
+          top: 7px;
           line-height: 1;
-        }
-      }
-      .gy-form-group {
-        padding: 10px 20px 10px 90px;
-        .l {
-          width: 100px;
         }
       }
       .query {
@@ -750,7 +759,7 @@ export default {
           .ipt {
             border: none;
             display: inline-block;
-            width: 230px;
+            width: 260px;
           }
           ipt::-webkit-input-placeholder { /* WebKit browsers */
             opacity: 0.5;
@@ -769,10 +778,11 @@ export default {
         }
         .cursor {
           cursor: pointer;
+          color:#666;
+          i{
+            font-weight: bold;
+          }
         }
-      }
-      .advancedSearch {
-        width: 80%;
       }
       .tips {
         color: $color-minor;
@@ -783,6 +793,22 @@ export default {
     }
     .disabledColor {
       background-color: $color-light;
+    }
+    .advancedSearch{
+      padding: 0 0 12px 14px;
+    }
+    .btnGroup{
+      text-align: right;
+    }
+    .gy-form-group{
+      padding:0 30px 12px 80px;
+    }
+    .gy-form-group:nth-child(even) {
+      padding-left: 105px;
+      .l {
+        width: 86px;
+        padding-left: 30px;
+      }
     }
   }
 

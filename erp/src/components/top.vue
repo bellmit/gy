@@ -8,6 +8,7 @@
             <span>{{userInfo.companyName}},&nbsp;&nbsp;{{userInfo.username}}</span>&nbsp;&nbsp;&nbsp;
             <span><i class="iconfont icon-iconRemind"></i></span>
             <!--<span><i class="iconfont icon-remove"></i>&nbsp;{{userInfo.account}}&nbsp;&nbsp;&nbsp;</span>-->
+            <span @click="modify">修改密码</span>
             <span @click="logout()"><i class="iconfont icon-remove"></i>&nbsp;退出</span>
         </div>
     </div>
@@ -17,7 +18,6 @@ export default {
     data: function () {
         return {
             userInfo: null
-
         };
     },
     created () {
@@ -27,33 +27,24 @@ export default {
         init () {
             this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
         },
+        modify () {
+            this.$router.push({name: 'changePassword'});
+        },
         logout () {
-            this.$confirm('确定退出登录吗？', '提示')
-                .then(() => {
-                    this.$http.post(this.$api.login.logout)
-                        .then(res => {
-                            if (res.data.code === 0) {
-                                localStorage.removeItem('userInfo');
-                                this.$router.push({name: 'login'});
-                                // location.href = '/#/login';
-                                // location.reload();
-                                return;
-                            }
-                            this.$alert(res.data.message, '出错了');
-                        });
-                });
-        },
-        setPassWord () {
-            let id = this.userInfo.id;
-            this.$router.push({name: 'password', query: {id: id, account: this.userInfo.account}});
-        },
-        downloadFile () {
-            this.$http.post('platform/v1/offers/exportExcel', {responseType: 'arraybuffer', chartset: 'utf-8'})
-                .then(res => {
-                    let blob = new Blob([res.data], {type: 'application/vnd.ms-excel'});
-                    let objectUrl = URL.createObjectURL(blob);
-                    window.location.href = objectUrl;
-                });
+            this.$confirm('确定退出登录吗？', '提示', {
+                cancelButtonText: '取消',
+                confirmButtonText: '确定'
+            }).then(() => {
+                this.$http.post(this.$api.login.logout)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            localStorage.removeItem('userInfo');
+                            this.$router.push({name: 'login'});
+                            return;
+                        }
+                        this.$alert(res.data.message, '出错了');
+                    });
+            });
         }
     }
 };
@@ -84,7 +75,6 @@ export default {
             transform: translate(0px, -15px);
         }
         .log img {
-            width: 183px;
             height: 28px;
         }
         .info {
@@ -99,5 +89,18 @@ export default {
     .el-header {
         width: 100%;
         border: red solid 1px;
+    }
+</style>
+<style lang="scss">
+    .el-message-box__wrapper{
+        .el-message-box__btns{
+            text-align: right;
+            .el-button--default{
+                float: none;
+            }
+            .el-button--primary{
+                margin-right: -0px;
+            }
+        }
     }
 </style>

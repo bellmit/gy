@@ -52,7 +52,7 @@
                     <div class="createPayment-detail-amount">
                         <el-input
                             v-model="amount"
-                            type="number"
+                            type="text"
                             debounce="50"
                             @input="hanldeInput"
                             placeholder="请输入金额"

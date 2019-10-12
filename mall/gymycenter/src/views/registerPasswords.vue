@@ -81,12 +81,12 @@ export default {
                 that.isActivePasswords = true;
                 return;
             }
-            if (that.verificationPassword !== '') {
-                return;
-            }
-            if (that.verificationPasswords !== '') {
-                return;
-            }
+            // if (that.verificationPassword !== '') {
+            //     return;
+            // }
+            // if (that.verificationPasswords !== '') {
+            //     return;
+            // }
             that.rePassword.phone = that.phone;
             that.rePassword.newPassword = that.password;
             that.rePassword.newPassword2 = that.passwords;
@@ -151,7 +151,9 @@ export default {
                 } else if (/^[0-9]+$/.test(rule)) {
                     that.verificationPasswords = '不能全是数字';
                 } else {
+                    // "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$"
                     let reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,20}$/;
+                    // let reg = /(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/;
                     if (!reg.test(rule)) {
                         that.verificationPasswords = '包含大小写字母和数字，不能使用特殊字符，8-20个字符';
                     } else {
@@ -257,7 +259,7 @@ export default {
                         background: #D1D2D5;
                         position: absolute;
                         top: 10px;
-                        left: 512px;
+                        left: 550px;
                         text-align: center;
                         line-height: 40px;
                         cursor: pointer;

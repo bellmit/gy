@@ -106,21 +106,21 @@ export default {
             position: absolute;
             background-color: #fff;
             width: 800px;
-            height: 400px;
+            height: 398px;
             left: 50%;
             top: 50%;
             border-radius: $border-radius-base;
-            margin: -200px 0 0 -400px;
+            margin: -199px 0 0 -400px;
             h6{
                 font-size: 16px;
                 color: $color-title;
                 border-bottom: 1px solid $color-border;
-                line-height: 48px;
+                line-height: 35px;
                 margin: 0;
-                padding: 0 15px;
+                padding: 0 16px;
             }
             .form-box{
-                padding: 10px 15px;
+                padding: 10px 16px;
                 .t{
                     position: relative;
                     margin-bottom: 15px;
@@ -150,13 +150,13 @@ export default {
                 }
                 .button-box{
                     text-align: right;
-                    padding-top: 15px;
+                    padding-top: 20px;
                 }
             }
             .icon-close{
                 position: absolute;
-                right: 15px;
-                top: 10px;
+                right: 16px;
+                top: 0;
                 color: $color-minor;
                 font-size: 20px;
                 cursor: pointer;

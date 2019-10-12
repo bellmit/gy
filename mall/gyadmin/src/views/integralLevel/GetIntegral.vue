@@ -1,8 +1,8 @@
 <template>
     <section class="get-level f-container">
-        <h3 class="gy-h3">积分获取设置</h3>
+        <div class="gy-h4">积分获取设置</div>
         <div class="gy-form-button">
-            <button class="gy-button-normal" @click="edit">编辑</button>
+            <button class="gy-button-extra" @click="edit">编辑</button>
         </div>
         <el-table
             class="gy-table"
@@ -58,6 +58,10 @@ export default {
 };
 </script>
 
-<style lang="scss">
-
+<style lang="scss" scoped>
+    .get-level{
+        .gy-form-button{
+            padding:0;
+        }
+    }
 </style>

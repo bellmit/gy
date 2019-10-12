@@ -21,7 +21,7 @@
         style="width: 100%">
         <el-table-column
           property="id"
-          label="#"
+          label="No."
           width="120">
         </el-table-column>
         <el-table-column
@@ -86,6 +86,10 @@ export default {
         },
         changeXrefUser (type) {
             this.isShowUser = false;
+            if (type === 0) {
+                // 如果是取消，则没有回调
+                return false;
+            }
             this.currXrefUser['type'] = type;
             this.$emit('affirmRole', this.currXrefUser);
         },

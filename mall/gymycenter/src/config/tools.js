@@ -16,7 +16,7 @@ const parseDate = (obj) => {
 
 // 格式化js的Date对象
 const formatDate = function (obj, format) {
-    let o = {
+    var o = {
         'M+': obj.getMonth() + 1, // month
         'd+': obj.getDate(), // day
         'h+': obj.getHours(), // hour
@@ -30,7 +30,7 @@ const formatDate = function (obj, format) {
         rstlStr = rstlStr.replace(RegExp.$1,
             (obj.getFullYear() + '').substr(4 - RegExp.$1.length));
     }
-    for (let k in o) {
+    for (var k in o) {
         if (new RegExp('(' + k + ')').test(rstlStr)) {
             rstlStr = rstlStr.replace(RegExp.$1,
                 RegExp.$1.length === 1 ? o[k]
@@ -42,16 +42,16 @@ const formatDate = function (obj, format) {
 
 // 手机号验证
 const verifyMobile = function (value) {
-    if (!(/^1[3456789]\d{9}$/.test(value))) {
+    if (!(/^1[345789]\d{9}$/.test(value))) {
         return false;
     } else {
         return true;
     }
 };
 
-// 身份证号验证
-const verifyIdCard = function (code) {
-    if (!(/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(code))) {
+// 邮编验证
+const verzipCode = function (value) {
+    if (!(/^[0-9]{6}$/.test(value))) {
         return false;
     } else {
         return true;
@@ -94,7 +94,7 @@ export default {
     parseDate,
     formatDate,
     verifyMobile,
+    verzipCode,
     toFixedFn,
-    verifyIdCard,
     downloadFile
 };

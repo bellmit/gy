@@ -83,7 +83,7 @@ export default {
                 },
                 {
                     id: 3,
-                    value: '数量',
+                    value: '数量（吨）',
                     width: '108'
                 },
                 {

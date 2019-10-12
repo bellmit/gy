@@ -1,10 +1,18 @@
 <template>
     <div class="gy-header">
         <div class="content">
-            <div class="logo"><img src="../assets/images/gy-logo.png" height="69" width="292"/><span>CRM</span></div>
+            <div class="logo"><img src="../assets/images/gy-logo.png" height="69" width="292"/></div>
             <ul class="user-msg">
-                <li><a href="javascript:;"><i class="iconfont icon-header-user"></i>{{userInfo.account}}</a></li>
-                <!--<li><a href="javascript:;" @click="msg"><i class="iconfont icon-header-msg"></i></a></li>-->
+                <li>
+                    <a href="javascript:;" class="name">
+                        <i class="iconfont icon-header-user"></i>
+                        <el-tooltip :content='userInfo.companyName' placement="bottom" effect="light">
+                            <span class="companyName">{{userInfo.companyName}}</span>
+                        </el-tooltip>
+                        <span class="account">{{userInfo.account}}</span>
+                    </a>
+                </li>
+                <li><a href="javascript:;" @click="msg"><i class="iconfont icon-header-msg"></i></a></li>
                 <li><a href="javascript:;" @click="logout"><i class="iconfont icon-header-layout"></i>退出</a></li>
             </ul>
         </div>
@@ -83,6 +91,34 @@ export default {
                 display: inline-block;
                 margin-left: 15px;
                 line-height: 40px;
+                vertical-align: text-top;
+            }
+            .name {
+                &:after {
+                    content: ' ';
+                    clear: both;
+                }
+                i {
+                    width: 19px;
+                    float: left;
+                }
+                .account {
+                    float: left;
+                    width: auto;
+                    padding-left: 15px;
+                    max-width: 100px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+                .companyName {
+                    float: left;
+                    width: auto;
+                    max-width: 168px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
             }
         }
     }
@@ -90,9 +126,6 @@ export default {
 .iconfont {
     position: relative;
     top: -2px;
-}
-.icon-header-user {
-    margin-right: 5px;
 }
 .icon-header-layout {
     margin-right: 5px;

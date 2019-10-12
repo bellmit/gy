@@ -3,7 +3,10 @@
         <span class="l text-top">{{label}}</span>
         <template v-for="(item, index) of imgs">
             <span class="gy-img-label" v-for="subItem of imgList[item].list" :key="subItem.id">
-                <img v-if="type === 'view'" :class="['img-size', imgClass]" :src="contain(subItem.filePath)" @click="emit(subItem)"/>
+                <img v-if="type === 'view' && subItem.fileTypeAlias !== 'pdf'" :class="['img-size', imgClass]" :src="contain(subItem.filePath)" @click="emit(subItem)"/>
+                <a :class="['img-size', imgClass]" v-if="subItem.fileTypeAlias === 'pdf'" target="_Blank" :href="contain(subItem.filePath)">
+                    <img :class="['img-size', imgClass]" :src="pdfThumbnail">
+                </a>
             </span>
             <el-upload
                 v-if="type !== 'view'"
@@ -58,10 +61,18 @@ export default {
     },
     data () {
         return {
-            imgEdit: []
+            imgEdit: [],
+            pdfThumbnail: require('@/assets/images/pdf.png'),
+            isLt2M: null
         };
     },
     methods: {
+        beforeAvatarUpload (file) {
+            this.isLt2M = file.size / 1024 / 1024;
+            if (this.isLt2M > 20) {
+                this.$message.error('操作失败：上传文件过大，请重新上传');
+            }
+        },
         contain (img) {
             return img.includes('chinayie') ? img : `${this.appendImages}${img}`;
         },
@@ -69,6 +80,7 @@ export default {
             this.$emit('imgClick', this.contain(item.filePath));
         },
         uploadImg (index) {
+            console.log(index);
             return file => {
                 const formData = new FormData();
                 const headers = {
@@ -78,8 +90,14 @@ export default {
                 formData.append('storage', 'platform-mgmt');
 
                 axios.post('/platform/v1/uploadImage', formData, headers).then(result => {
-                    this.imgEdit[index].push({ url: result.data });
+                    if (result.status === 200) {
+                        this.imgEdit[index].push({ url: result.data });
+                        console.log(this.imgEdit);
+                    } else {
+                        // this.$message.error(data.message);
+                    }
                 }).catch(err => {
+                    this.$message.error('图片过大超过20M，请重新上传');
                     console.log(err);
                 });
             };
@@ -94,7 +112,15 @@ export default {
             };
         },
         initImg () {
-            this.imgEdit = this.imgs.map(item => this.imgList[item].list.map(subItem => ({ url: this.contain(subItem.filePath) })));
+            this.imgEdit = this.imgs.map(item => this.imgList[item].list.map(subItem => ({url: this.contain(subItem.filePath)})));
+            Object.keys(this.imgList).forEach((e) => {
+                if (this.imgList[e].list.length > 0) {
+                    this.imgList[e].list.forEach((s) => {
+                        s.fileTypeAlias = this.$tools.getFileTypeAlias(s.filePath);
+                    });
+                }
+            });
+            console.log(this.imgList);
         },
         getEditImg () {
             const obj = {};

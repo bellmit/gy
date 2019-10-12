@@ -1,6 +1,6 @@
 <!-- 合同详情 -->
 <template>
-  <div class="add-contract">
+  <div class="contract-detail">
     <div class="essential-information">
       <p class="paydetail-title">基本信息</p>
       <cont :list="list"></cont>
@@ -13,29 +13,47 @@
           <div class="essential-row">
             <div class="essential-item">
               <div class="essential-title">采购合同编号</div>
-              <div class="essential-text">{{list.sellerInfo.contractCode}}</div>
+              <div class="essential-text">{{list.upstreamInfo.contractCode}}</div>
             </div>
           </div>
           <cont-sell :list="list" :isCont="contract"></cont-sell>
+            <div class="essential-row">
+                <div class="essential-item">
+                    <div class="essential-title">纸质合同号</div>
+                    <div class="essential-text">
+                        <div class="essential-text">{{list.upstreamInfo.planNumber || '--'}}</div>
+                    </div>
+                </div>
+            </div>
           <div class="essential-row">
             <div class="essential-item">
               <div class="essential-title">采购合同</div>
               <div class="essential-text">
                 <div class="essential-text">
-                  <span v-if="list.sellerInfo.fileAttachList && list.sellerInfo.fileAttachList.length !== 0" @click="showImg(4)"><i class="iconfont icon-photo"></i></span>
-                  <span v-if="list.sellerInfo.fileDocUrl && list.sellerInfo.fileDocUrl.length !== 0" @click="showImg(5)"><i class="iconfont icon-photo"></i></span>
+                    <span
+                      v-if="list.upstreamInfo.fileAttachList && list.upstreamInfo.fileAttachList.length !== 0"
+                      @click="showContImg(list.upstreamInfo.fileAttachList)"><i class="iconfont icon-photo"></i></span>
+                    <span v-if="list.upstreamInfo.fileDocUrl && list.upstreamInfo.fileDocUrl.length !== 0"
+                        @click="showImg(list.upstreamInfo.fileDocUrl)"><i class="iconfont icon-photo"></i></span>
                 </div>
               </div>
             </div>
           </div>
+            <div class="essential-row">
+                <div class="essential-item">
+                    <div class="essential-title">创建合同备注</div>
+                    <div class="essential-text">{{list.buyRemark || '--'}}</div>
+                </div>
+            </div>
           <!-- 查看采购合同 -->
-          <template v-if="list.sellerInfo.fileAttachCertifiedList && list.sellerInfo.fileAttachCertifiedList.length > 0">
+          <template
+            v-if="list.upstreamInfo.fileAttachCertifiedList && list.upstreamInfo.fileAttachCertifiedList.length > 0">
             <div class="essential-row">
               <div class="essential-item">
                 <div class="essential-title">盖章合同</div>
                 <div class="essential-text">
                   <div class="essential-text">
-                    <span @click="showImg(6)"><i class="iconfont icon-photo"></i></span>
+                    <span @click="showContImg(list.upstreamInfo.fileAttachCertifiedList)"><i class="iconfont icon-photo"></i></span>
                   </div>
                 </div>
               </div>
@@ -43,33 +61,19 @@
             <div class="essential-row">
               <div class="essential-item">
                 <div class="essential-title">盖章合同备注</div>
-                <div class="essential-text">{{list.sellerInfo.executeRemarks}}</div>
+                <div class="essential-text">{{list.upstreamInfo.executeRemarks || '--'}}</div>
               </div>
             </div>
           </template>
           <!-- 上传采购合同 -->
-          <template v-if="$route.query.homeFromFlg === 1 && $route.query.doneFlg === 0 && list.approveStatus === 6 && list.sellerInfo.fileAttachCertifiedList && list.sellerInfo.fileAttachCertifiedList.length === 0">
+          <template v-if="canUploadContract && ($route.query.homeFromFlg === 1 || $route.query.homeFromFlg === '1') && ($route.query.doneFlg === 0 || $route.query.doneFlg === '0')
+              && list.approveStatus === 6 && list.upstreamInfo.fileAttachCertifiedList && list.upstreamInfo.fileAttachCertifiedList.length === 0">
             <div class="essential-row">
               <div class="essential-item" v-if="isSingleBuyContract">
-                <div class="essential-title" style="padding-left: 10px"><span class="isMust">*</span>上传盖章采购合同</div>
+                <div class="essential-title"><span class="isMust">*</span>盖章采购合同
+                </div>
                 <div class="essential-text">
-                  <template v-for="(item, index) in  buyContImg">
-                    <div class="contImgItem" :key="item">
-                      <img v-if="$constant.imgType.indexOf(item.split('.').pop()) !== -1" :src="item" width="52" height="52" alt="">
-                      <img v-if="item.split('.').pop() === 'pdf'" src="../../assets/images/PDF.png" height="52" width="52"/>
-                      <img v-if="$constant.fileType.indexOf(item.split('.').pop()) !== -1" src="../../assets/images/WORD.png" height="52" width="52"/>
-                      <div>
-                        <i @click="deleteImg(index, 'buy')" class="el-icon-delete"></i>
-                      </div>
-                    </div>
-                  </template>
-                  <el-upload class="avatar-uploader"
-                             action=""
-                             :http-request="uploadBuy"
-                             :show-file-list="false"
-                             :before-upload="beforeAvatarUpload">
-                    <i class="el-icon-plus avatar-uploader-icon"></i>
-                  </el-upload>
+                    <gy-file-upload ref="pFileUpload" @callbackFileUpload="onCallbackBuyFileUpload"></gy-file-upload>
                 </div>
               </div>
             </div>
@@ -77,7 +81,7 @@
               <div class="essential-item" v-if="isSingleBuyContract">
                 <div class="essential-title">盖章合同备注</div>
                 <div class="essential-text">
-                  <textarea name="" class="gy-textarea" v-model="purchaseExecuteRemarks" cols="30" rows="10"></textarea>
+                    <textarea name="" class="gy-textarea" v-model="purchaseExecuteRemarks" cols="30" rows="10"></textarea>
                 </div>
               </div>
             </div>
@@ -91,29 +95,47 @@
           <div class="essential-row">
             <div class="essential-item">
               <div class="essential-title">销售合同编号</div>
-              <div class="essential-text">{{list.buyerInfo.contractCode}}</div>
+              <div class="essential-text">{{list.downstreamInfo.contractCode}}</div>
             </div>
           </div>
           <cont-buy :list="list" :isCont="contract"></cont-buy>
+            <div class="essential-row">
+                <div class="essential-item">
+                    <div class="essential-title">纸质合同号</div>
+                    <div class="essential-text">
+                        <div class="essential-text">{{list.downstreamInfo.planNumber || '--'}}</div>
+                    </div>
+                </div>
+            </div>
           <div class="essential-row">
             <div class="essential-item">
               <div class="essential-title">销售合同</div>
               <div class="essential-text">
                 <div class="essential-text">
-                  <span v-if="list.buyerInfo.fileAttachList && list.buyerInfo.fileAttachList.length !== 0" @click="showImg(1)"><i class="iconfont icon-photo"></i></span>
-                  <span v-if="list.buyerInfo.fileDocUrl && list.buyerInfo.fileDocUrl.length !== 0" @click="showImg(2)"><i class="iconfont icon-photo"></i></span>
+                    <span
+                      v-if="list.downstreamInfo.fileAttachList && list.downstreamInfo.fileAttachList.length !== 0"
+                      @click="showContImg(list.downstreamInfo.fileAttachList)"><i class="iconfont icon-photo"></i></span>
+                    <span v-if="list.downstreamInfo.fileDocUrl && list.downstreamInfo.fileDocUrl.length !== 0"
+                        @click="showImg(list.downstreamInfo.fileDocUrl)"><i class="iconfont icon-photo"></i></span>
                 </div>
               </div>
             </div>
           </div>
+            <div class="essential-row">
+                <div class="essential-item">
+                    <div class="essential-title">创建合同备注</div>
+                    <div class="essential-text">{{list.saleRemark || '--'}}</div>
+                </div>
+            </div>
           <!-- 查看销售合同 -->
-          <template v-if="list.buyerInfo.fileAttachCertifiedList && list.buyerInfo.fileAttachCertifiedList.length > 0">
+          <template
+            v-if="list.downstreamInfo.fileAttachCertifiedList && list.downstreamInfo.fileAttachCertifiedList.length > 0">
             <div class="essential-row">
               <div class="essential-item">
                 <div class="essential-title">盖章合同</div>
                 <div class="essential-text">
                   <div class="essential-text">
-                    <span @click="showImg(3)"><i class="iconfont icon-photo"></i></span>
+                    <span @click="showContImg(list.downstreamInfo.fileAttachCertifiedList)"><i class="iconfont icon-photo"></i></span>
                   </div>
                 </div>
               </div>
@@ -121,32 +143,18 @@
             <div class="essential-row">
               <div class="essential-item">
                 <div class="essential-title">盖章合同备注</div>
-                <div class="essential-text">{{list.buyerInfo.executeRemarks}}</div>
+                <div class="essential-text">{{list.downstreamInfo.executeRemarks || '--'}}</div>
               </div>
             </div>
           </template>
           <!-- 上传销售合同 -->
-          <template v-if="$route.query.homeFromFlg === 1 && $route.query.doneFlg === 0 && list.approveStatus === 6 && list.buyerInfo.fileAttachCertifiedList && list.buyerInfo.fileAttachCertifiedList.length === 0">
+          <template v-if="canUploadContract && ($route.query.homeFromFlg === 1 || $route.query.homeFromFlg === '1') && ($route.query.doneFlg === 0 || $route.query.doneFlg === '0')
+                && list.approveStatus === 6 && list.downstreamInfo.fileAttachCertifiedList && list.downstreamInfo.fileAttachCertifiedList.length === 0">
             <div class="essential-row">
               <div class="essential-item" v-if="isSingleSaleContract">
-                <div class="essential-title" style="padding-left: 10px"><span class="isMust">*</span>上传盖章销售合同</div>
+                <div class="essential-title"><span class="isMust">*</span>盖章销售合同</div>
                 <div class="essential-text">
-                  <template v-for="(item, index) in  saleContImg">
-                    <div class="contImgItem" :key="item">
-                      <img v-if="$constant.imgType.indexOf(item.split('.').pop()) !== -1" :src="item" width="52" height="52" alt="">
-                      <img v-if="item.split('.').pop() === 'pdf'" src="../../assets/images/PDF.png" height="52" width="52"/>
-                      <img v-if="$constant.fileType.indexOf(item.split('.').pop()) !== -1" src="../../assets/images/WORD.png" height="52" width="52"/>
-                      <div>
-                        <i @click="deleteImg(index, 'sale')" class="el-icon-delete"></i>
-                      </div>
-                    </div>
-                  </template>
-                  <el-upload class="avatar-uploader" action=""
-                             :http-request="uploadSell"
-                             :show-file-list="false"
-                             :before-upload="beforeAvatarUpload">
-                    <i class="el-icon-plus avatar-uploader-icon"></i>
-                  </el-upload>
+                    <gy-file-upload ref="sFileUpload" @callbackFileUpload="onCallbackSaleFileUpload"></gy-file-upload>
                 </div>
               </div>
             </div>
@@ -154,22 +162,32 @@
               <div class="essential-item" v-if="isSingleSaleContract">
                 <div class="essential-title">盖章合同备注</div>
                 <div class="essential-text">
-                  <textarea name="" class="gy-textarea" v-model="saleExecuteRemarks" cols="30" rows="10"></textarea>
+                    <textarea name="" class="gy-textarea" v-model="saleExecuteRemarks" cols="30" rows="10"></textarea>
                 </div>
               </div>
             </div>
           </template>
+            <div class="essential-row">
+                <div class="essential-item">
+                    <div class="essential-title">下游统计口径</div>
+                    <div class="essential-text">
+                        <div class="essential-text" style="padding-left: 10px;">{{list.downstreamInfo.statisticalCaliber}}</div>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
     </div>
+    <!-- 变更记录 -->
+    <modifyFieldInfo v-if="list.modifyFieldInfo !== null" :source-cont-ess-id="list.sourceContEssId" :updated-cont-ess-id="list.id"
+                       :modify-field-info="modifyFieldInfo"></modifyFieldInfo>
     <div class="essential-information" v-if="hasPass">
-      <p class="">审批备注</p>
+      <p class="paydetail-title">审批备注</p>
       <div class="essential-wrapper">
         <div class="essential-row">
           <div class="essential-item">
             <div class="essential-text">
-              <textarea name="" class="gy-textarea" v-model="remarks" placeholder="请填写审批备注" id="" cols="30"
-                        rows="10"></textarea>
+              <textarea name="" class="gy-textarea" v-model="remarks" placeholder="请填写审批备注" id="" cols="30" rows="10"></textarea>
             </div>
           </div>
         </div>
@@ -177,49 +195,37 @@
     </div>
     <div class="foot">
       <button class="gy-button-normal" @click="goback">返回</button>
-      <button v-if="$route.query.homeFromFlg === 1 && $route.query.doneFlg === 0 && list.approveStatus === 6" class="gy-button-extra" @click="submit()">提交</button>
-      <template v-if="hasPass && $route.query.homeFromFlg === 1">
+      <button v-if="canUploadContract && homeFromFlg === 1 && ($route.query.doneFlg === 0 || $route.query.doneFlg === '0') && list.approveStatus === 6"
+              class="gy-button-extra" @click="submit()">提交
+      </button>
+      <template v-if="hasPass && homeFromFlg === 1">
         <button class="gy-button-normal" @click="reject">驳回</button>
         <button class="gy-button-extra confirmations" @click="approveSub(1)">通过</button>
       </template>
     </div>
-    <div class="essential-information">
-      <p class="paydetail-title">操作流程</p>
-      <div class="essential-wrapper">
-        <table class="gy-table">
-          <thead>
-          <tr>
-            <th style="width: 80px">序号</th>
-            <th style="width: 120px">操作人</th>
-            <th style="width: 150px">操作时间</th>
-            <th style="width: 150px">操作结果</th>
-            <th style="width: 200px">备注</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="(item, index) in history" :key="index">
-            <td>{{index + 1}}</td>
-            <td>{{item.username}}</td>
-            <td>{{item.createdDate | date(item.createdDate)}}</td>
-            <td>{{$constant.approveType[item.resultCode]}}</td>
-            <td>{{item.msg}}</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="button-wrap" v-if="showCommentBtn && (homeFromFlg === 1 || homeFromFlg === 2)">
+      <button class="gy-button-extra" @click="comment()">评论</button>
     </div>
-    <dialog-img v-if="dialogVisible" @closedialogvisible="closedialogvisible" :dialogVisible="dialogVisible" :dialogImg="dialogImg"></dialog-img>
+    <gy-operation-history v-if="showCommentBtn" @checkHistory="checkHistory" ref="operationHis"></gy-operation-history>
+    <gy-comment-remark v-if="commentDiog.dialogVisibleRemark === true" :dialog = "commentDiog" :invoice="contractDetailCommpany"></gy-comment-remark>
+    <gy-file-view ref="contFileView"></gy-file-view>
   </div>
 </template>
 
 <script>
-import contSell from './sell';
-import contBuy from './buy';
+import contSell from './orderSell';
+import contBuy from './orderBuy';
 import cont from './cont';
-import dialogImg from './../components/dialogImg';
+import gyFileView from './../components/gyFileView';
+import gyFileUpload from './../components/gyFileUpload';
+import gyOperationHistory from './../../components/gyOperationHistoryComment';
+import gyCommentRemark from './../../components/gyCommentRemark';
+import modifyFieldInfo from './../components/modifyFieldInfo';
+
 export default {
     data () {
         return {
+            commitType: '1', // TODO暂定 标识为修改类型的合同
             buyContImg: [], // 采购文件
             saleContImg: [], // 销售文件
             saleContTmplId: null, // 销售合同模板ID
@@ -240,7 +246,7 @@ export default {
                 planSaleDlvyDate: null, // 计划交割日(卖家)
                 targetCorpId: null, // 居间方公司Id(我方公司)
                 targetCorpName: null, // 居间方公司名称(我方公司)
-                buyerInfo: { // 下游公司信息
+                downstreamInfo: { // 下游销售信息
                     buyerCompanyId: null, // 下游公司id
                     buyerCompanyName: null, // 下游公司名称
                     skuOrigin: null, // 货源（国产、进口、自定义）
@@ -265,7 +271,7 @@ export default {
                     fileDocUrl: null, // 电子合同
                     fileAttachList: null // 合同模板
                 },
-                sellerInfo: {// 上游公司信息
+                upstreamInfo: {// 上游采购信息
                     buyerCompanyId: null, // 下游公司id
                     buyerCompanyName: null, // 下游公司名称
                     skuOrigin: null, // 货源（国产、进口、自定义）
@@ -291,90 +297,121 @@ export default {
                     fileAttachList: null // 合同模板
                 }
             },
-            imageUrl: false,
-            history: [
-                {
-                    approverId: null, // 审批人ID
-                    username: null, // 审批人名称
-                    resultCode: null, // 审批结果（0:未审批 1:审批通过 2:审批驳回）
-                    msg: null, // 审批意见
-                    createdDate: null // 审批日期（时间戳）
-                }
-            ],
             hasPass: false,
+            canUploadContract: false,
             remarks: null,
             contract: 'contract',
             purchaseExecuteRemarks: null, // 采购盖章备注
             saleExecuteRemarks: null, // 销售盖章备注
-            dialogVisible: false,
-            dialogImg: [],
             isSingleBuyContract: false,
-            isSingleSaleContract: false
+            isSingleSaleContract: false,
+            commentDiog: {
+                dialogVisibleRemark: false
+            },
+            contractDetailCommpany: {
+                targetType: 2,
+                subSysType: 0,
+                targetId: null,
+                refFunc: {}
+            },
+            showCommentBtn: true,
+            homeFromFlg: null,
+            modifyFieldInfo: {},
+            isModify: false // 是否有变更记录
         };
     },
-    created () {
+    mounted () {
         this.getdetailOrder();
         this.approve1History();
-        this.approveJurisdiction();
+        this.contractDetailCommpany.targetId = Number(this.$route.query.id);
+        this.homeFromFlg = Number(this.$route.query.homeFromFlg);
     },
     watch: {
         remarks (val) {
-            if (val.length >= 100) {
+            if (val.length > 2500) {
                 this.$message({
-                    message: '备注最多可填写100字',
+                    message: '审批备注最多可填写2500字',
                     type: 'warning'
                 });
-                this.remarks = this.remarks.substr(0, 100);
+                this.remarks = this.remarks.substr(0, 2500);
+            }
+        },
+        purchaseExecuteRemarks (val) {
+            if (val.length > 2500) {
+                this.$message({
+                    message: '盖章合同备注最多可填写2500字',
+                    type: 'warning'
+                });
+                this.purchaseExecuteRemarks = this.purchaseExecuteRemarks.substr(0, 2500);
+            }
+        },
+        saleExecuteRemarks (val) {
+            if (val.length > 2500) {
+                this.$message({
+                    message: '盖章合同备注最多可填写2500字',
+                    type: 'warning'
+                });
+                this.saleExecuteRemarks = this.saleExecuteRemarks.substr(0, 2500);
             }
         }
     },
     methods: {
+        checkHistory () {
+            // 没有操作流程数据时不显示'评论'按钮
+            this.showCommentBtn = false;
+        },
         getdetailOrder () { // 合同要素详情
-            let that = this;
-            this.$http.get(this.$api.payment.getDetailOrder + that.$route.query.id).then(function (response) {
+            this.$http.get(this.$api.order.orderDetail + '/' + this.$route.query.id).then(response => {
                 if (response.data.code === 0) {
                     // 去结果画面
-                    that.list = response.data.data;
-                    if (that.list.sellerInfo.fileAttachCertifiedList === null || that.list.sellerInfo.fileAttachCertifiedList.length === 0) {
-                        that.isSingleBuyContract = true;
+                    this.list = response.data.data;
+
+                    // 有变更记录
+                    if (this.list.modifyFieldInfo && this.list.sourceContEssId) {
+                        this.isModify = true;
+                        this.modifyFieldInfo = JSON.parse(this.list.modifyFieldInfo);
                     }
-                    if (that.list.buyerInfo.fileAttachCertifiedList === null || that.list.buyerInfo.fileAttachCertifiedList.length === 0) {
-                        that.isSingleSaleContract = true;
+                    if (this.list.upstreamInfo && (this.list.upstreamInfo.fileAttachCertifiedList === null || this.list.upstreamInfo.fileAttachCertifiedList.length === 0)) {
+                        this.isSingleBuyContract = true;
                     }
+                    if (this.list.downstreamInfo && (this.list.downstreamInfo.fileAttachCertifiedList === null || this.list.downstreamInfo.fileAttachCertifiedList.length === 0)) {
+                        this.isSingleSaleContract = true;
+                    }
+
+                    // 如果该合同要素已被单边关联
+                    if (this.list.correlatedEssenceId) {
+                        this.showCommentBtn = false;
+                    }
+                    // 确认当前用户是否可以上传盖章合同
+                    if ((this.$route.query.homeFromFlg === 1 || this.$route.query.homeFromFlg === '1') && (this.$route.query.doneFlg === 0 || this.$route.query.doneFlg === '0') && this.list.approveStatus === 6 && this.$tools.hasBizAuth('to_create_contract')) {
+                        this.canUploadContract = true;
+                    }
+                    this.approveJurisdiction();
                 } else {
-                    that.$alert(response.data.code + ' ' + response.data.message);
+                    this.$alert(response.data.code + ' ' + response.data.message);
                 }
             }).catch((e) => {
                 console.log(e);
             });
-        },
-        deleteImg (idx, type) {
-            type === 'sale' ? this.saleContImg.splice(idx, 1) : this.buyContImg.splice(idx, 1);
         },
         // 合同审批记录
         approve1History () {
-            let that = this;
             let params = {
-                targetId: that.$route.query.id, // 合同要素ID
+                targetId: Number(this.$route.query.id), // 合同要素ID
                 targetType: 2
             };
-            this.$http.post(this.$api.contract.approve1History, params).then(function (res) {
-                if (res.data.code === 0) {
-                    that.history = res.data.data;
-                }
-            }).catch((e) => {
-                console.log(e);
-            });
+            this.$refs.operationHis.display(this.$api.contract.approve1History, params);
         },
         // 合同审批权限
         approveJurisdiction () {
             let that = this;
             let params = {
-                targetId: that.$route.query.id,
+                targetId: Number(that.$route.query.id),
                 targetType: 2
             };
             this.$http.post(this.$api.apprProc.hasApproveAuth, params).then(function (response) {
-                if (response.data.code === 0) {
+                if (response.data.code === 0 && that.list.approveStatus === 5) {
+                    // 必须是合同审核中
                     that.hasPass = true;
                 }
             }).catch((e) => {
@@ -385,11 +422,20 @@ export default {
         approveSub (type) {
             let that = this;
             let params = {
+                todoId: that.$route.query.todoId,
                 id: Number(that.$route.query.id), // 合同要素ID
-                processId: Number(that.$route.query.actTaskId),
                 operaType: type, // 审批结果（1：同意 2：驳回）
                 remarks: this.remarks // 审批备注
             };
+            // 是变更记录审批 新增两个变更标识字段
+            if (this.isModify) {
+                params['sourceContEssId'] = this.list.sourceContEssId;
+                params['commitType'] = '1';
+            }
+            if (that.list.sourceContEssId != null) {
+                params.commitType = 1;
+                params.sourceContEssId = that.list.sourceContEssId;
+            }
             this.$http.post(this.$api.contract.approve1, params).then(function (response) {
                 if (response.data.code === 0) {
                     that.$message({
@@ -400,6 +446,8 @@ export default {
                     // that.getdetailOrder();
                     // that.approve1History();
                     that.$router.push({name: 'home'});
+                } else {
+                    that.$message.error(response.data.code + ' ' + response.data.message);
                 }
             }).catch((e) => {
                 console.log(e);
@@ -408,46 +456,34 @@ export default {
         goback () {
             this.$router.go(-1);
         },
-        beforeAvatarUpload (file) {
-            // if (file.type !== 'image/png' && file.type !== 'image/jpeg' && file.type !== 'image/jpg') {
-            //     this.$message({
-            //         showClose: true,
-            //         message: `文件扩展名错误`,
-            //         type: 'error'
-            //     });
-            //     return false;
-            // }
+        // 图片上传的回调-采购合同
+        onCallbackBuyFileUpload (fileList) {
+            this.buyContImg = [];
+            fileList.forEach((e) => {
+                this.buyContImg.push(e.fileUrl);
+            });
         },
-        uploadBuy (file) {
-            this.upload(file, '1');
-        },
-        uploadSell (file) {
-            this.upload(file, '2');
-        },
-        upload (file, l) {
-            let that = this;
-            let formData = new FormData();
-            let headers = {
-                'Content-Type': 'multipart/form-data'
-            };
-            formData.append('file', file.file);
-            formData.append('storage', 'platform-mgmt');
-            this.$http.post(this.url || this.$api.upload.imgUpload, formData, headers)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        l === '1' ? that.buyContImg.push(res.data.data) : that.saleContImg.push(res.data.data);
-                    }
-                });
+        // 图片上传的回调-销售合同
+        onCallbackSaleFileUpload (fileList) {
+            this.saleContImg = [];
+            fileList.forEach((e) => {
+                this.saleContImg.push(e.fileUrl);
+            });
         },
         submit () {
             let that = this;
             let query = {
+                todoId: that.$route.query.todoId,
                 id: Number(this.$route.query.id), // 合同要素ID
                 purchaseCertifiedFileAttachList: this.buyContImg, // 采购合同文件
                 purchaseExecuteRemarks: this.purchaseExecuteRemarks, // 采购合同备注
                 saleCertifiedFileAttachList: this.saleContImg, // 销售文件附件
                 saleExecuteRemarks: this.saleExecuteRemarks // 销售文件备注
             };
+            if (that.list.sourceContEssId != null) {
+                query.commitType = 1;
+                query.sourceContEssId = that.list.sourceContEssId;
+            }
             if (this.isSingleBuyContract) {
                 if ((this.list.contractType === 1 || this.list.contractType === 2) && this.list.approveStatus === 6 && this.buyContImg.length === 0) {
                     this.$message({
@@ -473,110 +509,84 @@ export default {
                         type: 'success'
                     });
                     that.goback();
+                } else {
+                    this.$message.error(res.data.code + ' ' + res.data.message);
                 }
             });
         },
         reject () {
-            this.$confirm('确认驳回?', '提示', {
+            this.$confirm('<span><i class="iconfont icon-message-warning"></i>确认驳回?</span>', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
-                type: 'warning'
+                dangerouslyUseHTMLString: true
             }).then(() => {
                 this.approveSub(2);
             });
         },
-        showImg (type) {
-            this.dialogVisible = true;
-            let arr = [];
-            switch (type) {
-            case 1:
-                this.list.buyerInfo.fileAttachList.forEach((e) => {
-                    arr.push({fileUrl: e.filepath});
-                });
-                this.dialogImg = arr;
-                break;
-            case 2:
-                this.list.buyerInfo.fileDocUrl.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.dialogImg = arr;
-                break;
-            case 3:
-                this.list.buyerInfo.fileAttachCertifiedList.forEach((e) => {
-                    arr.push({fileUrl: e.filepath});
-                });
-                this.dialogImg = arr;
-                break;
-            case 4:
-                this.list.sellerInfo.fileAttachList.forEach((e) => {
-                    arr.push({fileUrl: e.filepath});
-                });
-                this.dialogImg = arr;
-                break;
-            case 5:
-                this.list.sellerInfo.fileDocUrl.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.dialogImg = arr;
-                break;
-            case 6:
-                this.list.sellerInfo.fileAttachCertifiedList.forEach((e) => {
-                    arr.push({fileUrl: e.filepath});
-                });
-                this.dialogImg = arr;
-                break;
-            default:
-                this.dialogImg = [];
-                this.dialogVisible = false;
-                break;
-            }
+        showImg (imgList) {
+            this.$refs.contFileView.open4MultiFile(imgList);
         },
-        closedialogvisible () {
-            this.dialogVisible = false;
+        showContImg (imgList) {
+            let arr = [];
+            imgList.forEach((e) => {
+                arr.push({fileUrl: e.filepath});
+            });
+            this.$refs.contFileView.open(arr);
+        },
+        // 评论
+        comment () {
+            this.commentDiog.dialogVisibleRemark = true;
+            this.contractDetailCommpany.targetId = Number(this.$route.query.id);
+            this.contractDetailCommpany.refFunc = this.$refs.operationHis.display;
+            this.contractDetailCommpany.refParam = {
+                targetId: this.$route.query.id,
+                targetType: 2
+            };
         }
     },
     components: {
         contSell,
         contBuy,
-        dialogImg,
-        cont
+        cont,
+        gyFileView,
+        gyFileUpload,
+        gyOperationHistory,
+        gyCommentRemark,
+        modifyFieldInfo
     }
 };
 </script>
 
 <style lang="scss" scoped>
-  .add-contract {
+  .contract-detail {
     margin-top: 20px;
-    padding: 0 16px;
+    .change-list {
+        padding: 18px 36px 30px 30px;
+    }
     .essential-wrapper {
       overflow: auto;
       .gy-table {
         min-width: 700px;
       }
     }
+    .plus {
+      margin-left: 0px;
+    }
   }
-  .avatar-uploader-icon {
-    font-size: 20px;
-    color: #8c939d;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-  }
-  .avatar {
-    width: 50px;
-    height: 50px;
-    display: block;
-  }
-  .search1{
+
+  .search1 {
     position: absolute;
     right: 0;
     bottom: 10px;
     line-height: 1;
   }
+
+  .isMust {
+    left: -10px;
+  }
 </style>
 <style lang="scss">
-  .add-contract {
+  .contract-detail {
     .el-input-number__decrease {
       border-right: 0;
       background: #fff;
@@ -585,19 +595,23 @@ export default {
       border-left: 0;
       background: #fff;
     }
-    .el-upload {
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    .el-upload:hover {
-      border-color: #409EFF;
-    }
+
     .el-dialog__body {
       padding-top: 0;
       height: 100%;
+    }
+      .paydetail-title {
+          font-size: 14px;
+      }
+    .button-wrap{
+      text-align: right;
+      padding-right: 30px;
+      position: relative;
+      .gy-button-extra{
+        position: absolute;
+        right: 30px;
+        top: 3px;
+      }
     }
   }
 </style>

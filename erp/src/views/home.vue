@@ -1,175 +1,182 @@
 <template>
     <div class="erp-home">
-      <div class="page-bottom">
-        <!-- 处理事项 -->
-        <div class="card matter card-big">
-          <div class="top">
-            <div class="title l">事项管理</div>
-            <div class="r">
-              <ul class="m-l">
-                <li :class="{'active': 0 === activeId}" @click="tabClick(0)">
-                  <span>待办事项({{todoCount}})</span>
-                </li>
-                <li :class="{'active': 1 === activeId}" @click="tabClick(1)">
-                  <span>已办事项({{doneCount}})</span>
-                </li>
-              </ul>
-              <div class="m-r" @click="moreTodoListClick()">更多</div>
-            </div>
-          </div>
-          <div class="bottom">
-            <ul>
-              <li v-for="(item, index) in todoList" :key="index">
+        <div class="page-bottom clearfix">
+            <!-- 处理事项 -->
+            <div class="card matter card-big">
+                <div class="top">
+                    <div class="title l">事项管理</div>
+                    <div class="r">
+                        <ul class="m-l">
+                            <li :class="{'active': 0 === activeId}" @click="tabClick(0)">
+                                <span>待办事项({{todoCount}})</span>
+                            </li>
+                            <li :class="{'active': 1 === activeId}" @click="tabClick(1)">
+                                <span>已办事项({{doneCount}})</span>
+                            </li>
+                        </ul>
+                        <div class="m-r" @click="moreTodoListClick()">更多</div>
+                    </div>
+                </div>
+                <div class="bottom">
+                    <ul>
+                        <li v-for="(item, index) in todoList" :key="index">
                 <span class="l"><a href="javascript:;" @click="gotoBizPage(item)">
                   <i v-if="item.targetBizType === 1" class="iconfont icon-element"></i>
-                  <i v-else-if="item.targetBizType === 2 || item.targetBizType === 16 || item.targetBizType === 19" class="iconfont icon-contract"></i>
-                  <i v-else-if="item.targetBizType === 7 || item.targetBizType === 8" class="iconfont icon-seledelivery"></i>
-                  <i v-else-if="item.targetBizType === 4 || item.targetBizType === 6 || item.targetBizType === 11 || item.targetBizType === 17 || item.targetBizType === 14" class="iconfont icon-billing"></i>
-                  <i v-else-if="item.targetBizType === 3 || item.targetBizType === 5 || item.targetBizType === 12 || item.targetBizType === 13" class="iconfont icon-receiptPayments1"></i>
+                  <i v-else-if="item.targetBizType === 2 || item.targetBizType === 16 || item.targetBizType === 19"
+                     class="iconfont icon-contract"></i>
+                  <i v-else-if="item.targetBizType === 7 || item.targetBizType === 8"
+                     class="iconfont icon-seledelivery"></i>
+                  <i v-else-if="item.targetBizType === 4 || item.targetBizType === 6 || item.targetBizType === 11 || item.targetBizType === 17 || item.targetBizType === 14"
+                     class="iconfont icon-billing"></i>
+                  <i v-else-if="item.targetBizType === 3 || item.targetBizType === 5 || item.targetBizType === 12 || item.targetBizType === 13"
+                     class="iconfont icon-receiptPayments1"></i>
+                  <i v-else-if="item.targetBizType === 30"
+                     class="iconfont icon-yongyin"></i>
+                  <i v-else-if="item.targetBizType === 29"
+                     class="iconfont icon-jiesuan"></i>
                   <i v-else class="iconfont icon-element"></i>
                   {{activeId == 0 ? item.todoMsg : item.doneMsg}}</a></span>
-                <span class="r">{{item.createdDate|date(2)}}</span>
-              </li>
-              <li v-if="todoList.length == 0">
-                <span class="l">{{noTodoDesc}}</span>
-                <span class="r"></span>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <!-- 预警消息 -->
-        <div class="card warningMsg card-big">
-          <div class="top">
-            <div class="title l">预警消息</div>
-            <div class="r">
-              <div class="m-r" @click="moreAlarmListClick()">更多</div>
+                            <span class="r">{{item.createdDate|date(2)}}</span>
+                        </li>
+                        <li v-if="todoList.length == 0">
+                            <span class="l">{{noTodoDesc}}</span>
+                            <span class="r"></span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
-          <div class="bottom">
-            <ul>
-              <!-- 收付款 -->
-              <li>
-                <div class="min-title">
-                  <i class="iconfont icon-receiptPayments"></i>
-                  收款({{warningMsgObj.collectionPaymentCount}})
+            <!-- 预警消息 -->
+            <div class="card warningMsg card-big">
+                <div class="top">
+                    <div class="title l">预警消息</div>
+                    <div class="r">
+                        <div class="m-r" @click="moreAlarmListClick()">更多</div>
+                    </div>
                 </div>
-                <div class="min-wrap">
-                  <div class="min-item" v-for="(item, index) in warningMsgObj.receiptPayments" :key="index">
+                <div class="bottom">
+                    <ul>
+                        <!-- 收付款 -->
+                        <li>
+                            <div class="min-title">
+                                <i class="iconfont icon-receiptPayments"></i>
+                                收款({{warningMsgObj.collectionPaymentCount}})
+                            </div>
+                            <div class="min-wrap">
+                                <div class="min-item" v-for="(item, index) in warningMsgObj.receiptPayments"
+                                     :key="index">
                     <span class="l">
                       <a href="javascript:;" @click="msgGoPage(item)">{{item.message}}</a>
                     </span>
-                  </div>
-                  <div class="min-item" v-if="warningMsgObj.receiptPayments.length == 0">
-                    <span class="l">暂无收款预警消息</span>
-                    <span class="r"></span>
-                  </div>
-                </div>
-              </li>
-              <!-- 货物交割 -->
-              <li>
-                <div class="min-title">
-                  <i class="iconfont icon-goodsDelivery"></i>
-                  货物交割({{warningMsgObj.deliveryAlarmingCount}})
-                </div>
-                <div class="min-wrap">
-                  <div class="min-item" v-for="(item, index) in warningMsgObj.delivery" :key="index">
+                                </div>
+                                <div class="min-item" v-if="warningMsgObj.receiptPayments.length == 0">
+                                    <span class="l">暂无收款预警消息</span>
+                                    <span class="r"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- 货物交割 -->
+                        <li>
+                            <div class="min-title">
+                                <i class="iconfont icon-goodsDelivery"></i>
+                                货物交割({{warningMsgObj.deliveryAlarmingCount}})
+                            </div>
+                            <div class="min-wrap">
+                                <div class="min-item" v-for="(item, index) in warningMsgObj.delivery" :key="index">
                     <span class="l">
                       <a href="javascript:;" @click="msgGoPage(item)">{{item.message}}</a>
                     </span>
-                  </div>
-                  <div class="min-item" v-if="warningMsgObj.delivery.length == 0">
-                    <span class="l">暂无交割预警消息</span>
-                    <span class="r"></span>
-                  </div>
-                </div>
-              </li>
-              <!-- 库存 -->
-              <li>
-                <div class="min-title">
-                  <i class="iconfont icon-repertory"></i>
-                  库存({{warningMsgObj.stockCount}})
-                </div>
-                <div class="min-wrap">
-                  <div class="min-item" v-for="(item, index) in warningMsgObj.inventory" :key="index">
+                                </div>
+                                <div class="min-item" v-if="warningMsgObj.delivery.length == 0">
+                                    <span class="l">暂无交割预警消息</span>
+                                    <span class="r"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- 库存 -->
+                        <li>
+                            <div class="min-title">
+                                <i class="iconfont icon-repertory"></i>
+                                库存({{warningMsgObj.stockCount}})
+                            </div>
+                            <div class="min-wrap">
+                                <div class="min-item" v-for="(item, index) in warningMsgObj.inventory" :key="index">
                     <span class="l">
                       <a href="javascript:;" @click="msgGoPage(item)">{{item.message}}</a>
                     </span>
-                  </div>
-                  <div class="min-item" v-if="warningMsgObj.inventory.length == 0">
-                    <span class="l">暂无库存预警消息</span>
-                    <span class="r"></span>
-                  </div>
+                                </div>
+                                <div class="min-item" v-if="warningMsgObj.inventory.length == 0">
+                                    <span class="l">暂无库存预警消息</span>
+                                    <span class="r"></span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <!-- 提醒消息 -->
-        <div class="card msgTip card-small">
-          <div class="top">
-            <div class="title l">提醒消息</div>
-            <div class="r">
-              <ul class="m-l">
-                <li :class="{'active': 0 === msgActiveId}" @click="msgtabClick(0)">
-                  <span>提醒消息</span>
-                </li>
-                <li :class="{'active': 1 === msgActiveId}" @click="msgtabClick(1)">
-                  <span>抄送消息</span>
-                </li>
-              </ul>
-              <div class="m-r" @click="moreMsgListClick()">更多</div>
             </div>
-          </div>
-          <div class="bottom">
-            <ul>
-              <li v-for="(item, index) in msgList" :key="index">
-                <span class="l"><a href="javascript:;" @click="gotoBizPage(item)">{{item.message}}</a></span>
-                <span class="r">{{item.createdDate|date(2)}}</span>
-              </li>
-              <li v-if="msgList.length == 0">
-                <span class="l">{{noMsgDesc}}</span>
-                <span class="r"></span>
-              </li>
-            </ul>
-          </div>
+            <!-- 提醒消息 -->
+            <div class="card msgTip card-small">
+                <div class="top">
+                    <div class="title l">提醒消息</div>
+                    <div class="r">
+                        <ul class="m-l">
+                            <li :class="{'active': 0 === msgActiveId}" @click="msgtabClick(0)">
+                                <span>提醒消息</span>
+                            </li>
+                            <li :class="{'active': 1 === msgActiveId}" @click="msgtabClick(1)">
+                                <span>抄送消息</span>
+                            </li>
+                        </ul>
+                        <div class="m-r" @click="moreMsgListClick()">更多</div>
+                    </div>
+                </div>
+                <div class="bottom">
+                    <ul>
+                        <li v-for="(item, index) in msgList" :key="index">
+                            <span class="l"><a href="javascript:;" @click="gotoBizPage(item, 2)">{{item.message}}</a></span>
+                            <span class="r">{{item.createdDate|date(2)}}</span>
+                        </li>
+                        <li v-if="msgList.length === 0">
+                            <span class="l">{{noMsgDesc}}</span>
+                            <span class="r"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- 快捷入口 -->
+            <div class="card speedy card-small">
+                <div class="top">
+                    <div class="title l">快捷入口</div>
+                </div>
+                <div class="bottom">
+                    <ul>
+                        <div style="margin-bottom:15px;margin-left:5px" v-gy-auth="'to_create_cont_ess'">
+                        <li >
+                            <div @click="goToLink(speedyList[0].linkTo)">
+                                <i class="iconfont" :class="speedyList[0].iconfont"></i>
+                                <span class="text">{{speedyList[0].value}}</span>
+                            </div>
+                        </li>
+                        </div>
+                        <span style="margin-left:5px" v-gy-auth="'look_standingbook'">
+                        <li >
+                            <div @click="goToLink(speedyList[1].linkTo)">
+                                <i class="iconfont" :class="speedyList[1].iconfont"></i>
+                                <span class="text">{{speedyList[1].value}}</span>
+                            </div>
+                        </li>
+                        </span>
+                        <span style="margin-left:5px" v-gy-auth="'look_control_report'">
+                        <li >
+                            <div @click="goToLink(speedyList[2].linkTo)">
+                                <i class="iconfont" :class="speedyList[2].iconfont"></i>
+                                <span class="text">{{speedyList[2].value}}</span>
+                            </div>
+                        </li>
+                        </span>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <!-- 快捷入口 -->
-        <div class="card speedy card-small">
-          <div class="top">
-            <div class="title l">快捷入口</div>
-          </div>
-          <div class="bottom">
-            <ul>
-                <!-- if需求有变更 启用 -->
-                <!-- <li v-for="(item, index) in speedyList" :key="index" :class="{'speedyActive': index === speedyActiveId}" @click="speedytabClick(index)">
-                  <div @click="goToLink(item.linkTo)">
-                      <i class="iconfont" :class="item.iconfont"></i>
-                      <span class="text">{{item.value}}</span>
-                  </div>
-                </li> -->
-                <li v-gy-auth="'to_create_cont_ess'">
-                  <div @click="goToLink(speedyList[0].linkTo)">
-                      <i class="iconfont" :class="speedyList[0].iconfont"></i>
-                      <span class="text">{{speedyList[0].value}}</span>
-                  </div>
-                </li>
-                <br>
-                <li>
-                  <div @click="goToLink(speedyList[1].linkTo)">
-                      <i class="iconfont" :class="speedyList[1].iconfont"></i>
-                      <span class="text">{{speedyList[1].value}}</span>
-                  </div>
-                </li>
-                <li>
-                  <div @click="goToLink(speedyList[2].linkTo)">
-                      <i class="iconfont" :class="speedyList[2].iconfont"></i>
-                      <span class="text">{{speedyList[2].value}}</span>
-                  </div>
-                </li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
 </template>
 
@@ -178,7 +185,6 @@ import axios from 'axios';
 export default {
     data () {
         return {
-            to_create: 'g32ty43',
             todoCount: 0,
             doneCount: 0,
             todoList: [],
@@ -208,13 +214,13 @@ export default {
                 },
                 {
                     id: 2,
-                    value: '高频台账',
+                    value: '台账',
                     iconfont: 'icon-standingBook',
                     linkTo: 'transactionStanding'
                 },
                 {
                     id: 3,
-                    value: '高频管控表',
+                    value: '交易管控表',
                     iconfont: 'icon-control',
                     linkTo: 'control'
                 }
@@ -257,6 +263,9 @@ export default {
         },
         msgtabClick (i) {
             this.msgActiveId = i;
+            if (this.msgTabs.length === 0) {
+                return;
+            }
             this.msgList = this.msgTabs[i];
             if (i === 0 && this.msgList.length === 0) {
                 this.noMsgDesc = '暂无提醒消息';
@@ -283,7 +292,8 @@ export default {
                 this.$router.push({name: 'paymentDetail', query: {homeFromFlg: 1, id: item.contEssId, sellerOrderId: item.saleOrderId, purchaseOrderId: item.purchaseOrderId}});
             }
         },
-        gotoBizPage (todoInfo) {
+        gotoBizPage (todoInfo, homeFromFlg) {
+            // homeFromFlg为1表示待办事项，2表示提醒消息(要去处理)
             // 根据业务区分，去不同页面
             let todoId = todoInfo.id;
             let bizId = todoInfo.targetBizId;
@@ -294,60 +304,144 @@ export default {
             let doneFlg = todoInfo.doneFlg;
             let companyId = todoInfo.companyId;
             let actTaskId = todoInfo.actTaskId;
-            if (todoInfo.subSysType !== 0) {
+            if ((todoInfo.subSysType !== null && todoInfo.subSysType !== undefined && todoInfo.subSysType !== 0) ||
+                    (todoInfo.subSysType === 0 && bizType === 30)) {
                 // 去通用的审批页面
-                this.$router.push({name: 'apprCreate', query: {homeFromFlg: 1, bizId: bizId, bizType: bizType, subSysType: todoInfo.subSysType, doneFlg: doneFlg, todoId: todoId, companyId: companyId}});
+                this.$router.push({name: 'apprCreate', query: {homeFromFlg: 1, bizId: bizId, bizType: bizType, subSysType: todoInfo.subSysType, doneFlg: doneFlg, todoId: todoId, companyId: companyId, actTaskId: actTaskId}});
+                return false;
+            }
+            if (todoInfo.frontPageUrlName) {
+                // 去定制的审批页面
+                todoInfo.homeFromFlg = 1;
+                todoInfo.todoId = todoInfo.id;
+                this.$router.push({name: todoInfo.frontPageUrlName, query: todoInfo});
                 return false;
             }
 
+            let homeFlg = 1;
+            if (homeFromFlg === 2) {
+                // 这是提醒消息
+                homeFlg = 2;
+                if (todoInfo.msgType === 4) {
+                    // 驳回的情况
+                    homeFlg = 4;
+                }
+            }
+            let queryParam = {homeFromFlg: homeFlg, homeBizType: bizType, doneFlg: doneFlg, actTaskId: actTaskId, todoId: todoId};
             if (bizType === 1) {
                 // 合同要素审批
-                this.$router.push({name: 'contEssDetail', query: {id: contEssId, homeFromFlg: 1, doneFlg: doneFlg}});
+                queryParam.id = contEssId;
+                this.$router.push({name: 'contEssDetail', query: queryParam});
             } else if (bizType === 2 || bizType === 19) {
                 // 合同审批
-                this.$router.push({name: 'contractDetail', query: {id: contEssId, homeFromFlg: 1, doneFlg: doneFlg, actTaskId: actTaskId}});
+                queryParam.id = contEssId;
+                this.$router.push({name: 'contractDetail', query: queryParam});
             } else if (bizType === 16 && this.activeId === 0) {
                 // 创建合同
-                this.$router.push({name: 'createContract', query: {id: bizId, homeFromFlg: 1, doneFlg: doneFlg}});
+                queryParam.id = bizId;
+                if (homeFlg === 4) {
+                    // 驳回的，去合同要素详情
+                    this.$router.push({name: 'contEssDetail', query: queryParam});
+                } else {
+                    this.$router.push({name: 'createContract', query: queryParam});
+                }
             } else if (bizType === 16 && this.activeId === 1) {
                 // 创建合同(已完成)，去合同详情
-                this.$router.push({name: 'contractDetail', query: {id: bizId, homeFromFlg: 1, doneFlg: doneFlg}});
-            } else if (bizType === 3 || bizType === 13) {
-                // 付款审批 / 出纳付款
-                this.$router.push({name: 'paymentBuy', query: {homeFromFlg: 1, homeBizType: bizType, payId: bizId, contEssId: contEssId, purchaseOrderId: purchaseOrderId}});
+                queryParam.id = bizId;
+                this.$router.push({name: 'contractDetail', query: queryParam});
+            } else if (bizType === 3 || bizType === 13 || bizType === 27 || bizType === 28) {
+                // 付款审批 / 出纳付款 / 多次付款
+                if (bizType === 27 || bizType === 28) {
+                    // 如果是分批付款，则使用分批付款ID
+                    queryParam.multiPayId = bizId;
+                } else {
+                    queryParam.payId = bizId;
+                }
+                if (homeFlg === 2) {
+                    // 从提醒消息跳转的，不做业务处理(没有业务按钮)
+                    queryParam.doneFlg = 1;
+                }
+                queryParam.contEssId = contEssId;
+                queryParam.purchaseOrderId = purchaseOrderId;
+                this.$router.push({name: 'paymentBuy', query: queryParam});
             } else if (bizType === 4 || bizType === 11 || bizType === 17) {
                 // 开发票
-                this.$router.push({name: 'auditOperation', query: {homeFromFlg: 1, homeBizType: bizType, id: contEssId, saleOrderId: saleOrderId, purchaseOrderId: purchaseOrderId, doneFlg: doneFlg, todoId: todoId}});
-            } else if (bizType === 8) {
+                queryParam.id = contEssId;
+                queryParam.saleOrderId = saleOrderId;
+                queryParam.purchaseOrderId = purchaseOrderId;
+                queryParam.invoiceId = bizId;
+                this.$router.push({name: 'auditOperation', query: queryParam});
+            } else if (bizType === 8 || bizType === 22) {
                 // 销售交割复核
-                this.$router.push({name: 'deliverySalesView', query: {homeFromFlg: 1, homeBizType: bizType, todoId: todoId, dlvItemId: bizId, contEssId: contEssId}});
-            } else if (bizType === 5) {
+                queryParam.dlvItemId = bizId;
+                queryParam.contEssId = contEssId;
+                this.$router.push({name: 'deliverySalesView', query: queryParam});
+            } else if (bizType === 5 || bizType === 12) {
                 // 收款确认（财务出纳确认）
-                this.$router.push({name: 'paymentSell', query: {homeFromFlg: 1, homeBizType: bizType, contEssId: contEssId, collId: bizId, todoId: todoId}});
-            } else if (bizType === 6) {
+                queryParam.collId = bizId;
+                queryParam.contEssId = contEssId;
+                this.$router.push({name: 'paymentSell', query: queryParam});
+            } else if (bizType === 6 || bizType === 14) {
                 // 收票（财务出纳确认）
-                this.$router.push({name: 'financialConfirmation', query: {homeFromFlg: 1, homeBizType: bizType, id: contEssId, saleOrderId: saleOrderId, purchaseOrderId: purchaseOrderId, doneFlg: doneFlg, todoId: todoId}});
+                queryParam.id = contEssId;
+                queryParam.saleOrderId = saleOrderId;
+                queryParam.purchaseOrderId = purchaseOrderId;
+                this.$router.push({name: 'financialConfirmation', query: queryParam});
             } else if (bizType === 45) {
                 // 去收付款详情(已过付款期-提醒)
-                this.$router.push({name: 'paymentDetail', query: {homeFromFlg: 1, id: contEssId, sellerOrderId: saleOrderId, purchaseOrderId: purchaseOrderId}});
-            } else if (bizType === 25) {
+                queryParam.id = contEssId;
+                queryParam.sellerOrderId = saleOrderId;
+                queryParam.purchaseOrderId = purchaseOrderId;
+                this.$router.push({name: 'paymentDetail', query: queryParam});
+            } else if (homeFlg === 1 && bizType === 25) {
                 // 去分配执行人员
-                this.$router.push({name: 'executionAllocation', query: {homeFromFlg: 1, id: contEssId}});
-            } else if (bizType === 7) {
+                queryParam.id = contEssId;
+                this.$router.push({name: 'executionAllocation', query: queryParam});
+            } else if ((homeFlg === 2 || homeFlg === 4) && bizType === 25) {
+                // 消息提醒界面，分配执行时驳回，也去要素详情页面
+                queryParam.id = contEssId;
+                this.$router.push({name: 'contEssDetail', query: queryParam});
+            } else if (bizType === 7 || bizType === 26) {
                 // 采购交割复核
-                this.$router.push({name: 'deliveryPurchaseView', query: {homeFromFlg: 1, homeBizType: bizType, todoId: todoId, dlvItemId: bizId, contEssId: contEssId}});
+                queryParam.dlvItemId = bizId;
+                queryParam.contEssId = contEssId;
+                this.$router.push({name: 'deliveryPurchaseView', query: queryParam});
+            } else if (bizType === 31 || bizType === 30) {
+                // 用印-上传文件
+                queryParam.id = bizId;
+                this.$router.push({name: 'stampApproval', query: queryParam});
+            } else if (bizType === 23 || bizType === 29) {
+                // 结算
+                queryParam.id = todoId;
+                queryParam.contEssId = contEssId;
+                queryParam.targetBizId = bizId;
+                this.$router.push({name: 'settlementDetailBuy', query: queryParam});
             }
         },
         retrieveWorkbenchInformation () {
             let me = this;
             this.getLastMsgList(1);
 
+            let staDate = new Date();
+            staDate.setHours(0);
+            staDate.setMinutes(0);
+            staDate.setSeconds(0);
+            staDate.setMilliseconds(0);
+            staDate = staDate.getTime();
+            let endDate = new Date();
+            endDate.setHours(23);
+            endDate.setMinutes(59);
+            endDate.setSeconds(59);
+            endDate.setMilliseconds(0);
+            endDate = endDate.getTime();
             // 收付款预警
             let hollowMoreObj = {
                 pageNo: 1,
                 pageSize: 3,
                 msgType: 3,
-                targetBizType: 2
+                targetBizType: 2,
+                staDate: staDate,
+                endDate: endDate
             };
             this.$http.post(this.$api.workbench.getWbMsgList, hollowMoreObj).then((res) => {
                 if (res.data.code === 0) {
@@ -360,7 +454,9 @@ export default {
                 pageNo: 1,
                 pageSize: 3,
                 msgType: 3,
-                targetBizType: 1
+                targetBizType: 1,
+                staDate: staDate,
+                endDate: endDate
             };
             this.$http.post(this.$api.workbench.getWbMsgList, hollowMoreObj).then((res) => {
                 if (res.data.code === 0) {
@@ -373,7 +469,9 @@ export default {
                 pageNo: 1,
                 pageSize: 3,
                 msgType: 3,
-                targetBizType: 3
+                targetBizType: 3,
+                staDate: staDate,
+                endDate: endDate
             };
             this.$http.post(this.$api.workbench.getWbMsgList, hollowMoreObj).then((res) => {
                 if (res.data.code === 0) {
@@ -456,7 +554,14 @@ export default {
     },
     mounted () {
         this.retrieveWorkbenchInformation();
-        this.msgTimer = setInterval(this.getLastMsgList, 10000);
+        // 只有uat1和生产环境才定时刷新
+        let envVal = null;
+        if (process && process.env) {
+            envVal = process.env.NODE_ENV;
+        }
+        if (envVal !== 'development' && envVal !== 'testing') {
+            this.msgTimer = setInterval(this.getLastMsgList, 10000);
+        }
     },
     beforeDestroy () {
         if (this.msgTimer) {
@@ -468,6 +573,7 @@ export default {
 
 <style lang="scss" scoped>
   .erp-home {
+      width: 953px;
       .title {
         height: 50px;
         line-height: 50px;
@@ -482,10 +588,10 @@ export default {
         border: 1px solid #E7ECF1;
       }
       .card-big {
-        min-height: 390px;
+        height: 390px;
       }
       .card-small {
-        min-height: 225px;
+        height: 225px;
       }
       .page-top, .page-bottom {
         width: 100%;
@@ -544,7 +650,7 @@ export default {
         .card {
           vertical-align: top;
           margin-top: 16px;
-          width: 49.5%;
+          // width: 49.5%;
           display: inline-block;
           .top {
             margin: 0 16px;
@@ -600,21 +706,26 @@ export default {
           }
         }
         .card:nth-child(odd) {
-          width: 58.55%;
-          margin-right: 1%;
+          width: 58%;
+          float: left;
+          // margin-right: 1%;
         }
         .card:nth-child(even) {
-          width: 40%
+          width: 40%;
+          float: right;
         }
         .matter {
           ul li {
-            .l {
-              width: 70%;
-              overflow: hidden;
-              text-overflow:ellipsis;
-              white-space: nowrap;
-              display: inline-block;
-            }
+              .l {
+                  width: 70%;
+                  display: inline-block;
+                  a {
+                      width: 100%;
+                      overflow: hidden;
+                      text-overflow:ellipsis;
+                      white-space: nowrap;
+                  }
+              }
           }
           .icon-element {
             color: #BAC3D0;
@@ -630,6 +741,12 @@ export default {
           }
           .icon-receiptPayments1 {
             color: #ED6B75;
+          }
+          .icon-yongyin {
+            color: #ED6B75;
+          }
+          .icon-jiesuan {
+            color: #F1C40F;
           }
           ul li {
             span {
@@ -671,11 +788,14 @@ export default {
                 margin-bottom: 6px;
                 margin-left: 33px;
                 .l {
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;
                   width: 100%;
                   display: inline-block;
+                  a {
+                      width: 100%;
+                      overflow: hidden;
+                      text-overflow:ellipsis;
+                      white-space: nowrap;
+                  }
                 }
               }
             }
@@ -688,7 +808,7 @@ export default {
           ul {
             li {
               width: 140px;
-              display: inline-block;
+              display: inline-block!important;
               margin-right: 10px;
               cursor: pointer;
               border: 1px solid #E7ECF1;
@@ -722,13 +842,24 @@ export default {
           ul li {
             .l {
               width: 73%;
-              overflow: hidden;
-              text-overflow:ellipsis;
-              white-space: nowrap;
               display: inline-block;
+              a {
+                  width: 100%;
+                  overflow: hidden;
+                  text-overflow:ellipsis;
+                  white-space: nowrap;
+              }
             }
           }
         }
       }
+      // .page-bottom {
+      //   .matter .msgTip {
+      //     float: left;
+      //   }
+      //   .warningMsg .speedy {
+      //     float: right;
+      //   }
+      // }
   }
 </style>

@@ -11,6 +11,11 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
     to.meta.title && (document.title = to.meta.title);
+    if (from.meta.type === 'detail') {
+        to.meta.isBack = true;
+    } else {
+        to.meta.isBack = false;
+    }
     next();
 });
 

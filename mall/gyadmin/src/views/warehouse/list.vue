@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page memberList">
     <div class="m-panel">
       <div class="selected">
         <div class="gy-h4">仓储公司</div>
@@ -66,8 +66,8 @@
               :value="item.id">
             </el-option>
           </el-select>
-          <i class="iconfont icon-search" @click="searchGood"></i>
         </div>
+          <i class="iconfont icon-search" @click="searchGood"></i>
         <div class="clear"></div>
       </div>
       <div class="btns-wrapper">
@@ -95,52 +95,35 @@
           <th>审核日期</th>
           <th>电话号码</th>
           <th>启用状态</th>
-          <!--<th>操作</th>-->
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(item, index) in list" :key="index">
+        <tr v-for="(item, index) in list" :key="index" @dblclick='dbCheckItem(item, checkModel)'>
           <td>
             <label class="u-checkbox">
-              <input type="checkbox" v-model="checkModel" :value="item">
+              <input type="checkbox" v-model="checkModel" :value="item.id">
               <span></span>
             </label>
             {{item.id}}
           </td>
           <td>{{item.name}}</td>
           <td>{{item.username}}</td>
+          <td>{{typeOptions[item.companyTypeId]}}</td>
           <td>
-            <el-tag size="info">{{item.companyTypeName}}</el-tag>
+            <span :style="colors[item.authStatus]">{{item.authStatus | authStatus}}</span>
           </td>
           <td>
-            <el-tag v-if="item.authStatus === 1" size="warning">待审核</el-tag>
-            <el-tag v-if="item.authStatus === 2" size="small">已通过</el-tag>
-            <el-tag v-if="item.authStatus === 3" size="danger">已驳回</el-tag>
+            <span :style="colors[item.caAuthStatus]">{{item.caAuthStatus | authStatus}}</span>
           </td>
           <td>
-            <el-tag v-if="item.caAuthStatus === 0" size="info">未认证</el-tag>
-            <el-tag v-if="item.caAuthStatus === 1" size="warning">待审核</el-tag>
-            <el-tag v-if="item.caAuthStatus === 2" size="small">已通过</el-tag>
-            <el-tag v-if="item.caAuthStatus === 3" size="danger">已驳回</el-tag>
-          </td>
-          <td>
-            <el-tag v-if="item.bankAuthStatus === 0" size="info">未认证</el-tag>
-            <el-tag v-if="item.bankAuthStatus === 1" size="warning">待审核</el-tag>
-            <el-tag v-if="item.bankAuthStatus === 2" size="small">已通过</el-tag>
-            <el-tag v-if="item.bankAuthStatus === 3" size="danger">已驳回</el-tag>
+            <span :style="colors[item.bankAuthStatus]">{{item.bankAuthStatus | authStatus}}</span>
           </td>
           <td>{{item.authDate | date(true)}}</td>
           <td>{{item.phone}}</td>
           <td>
-            <el-tag v-if="item.valid === 0" size="danger">停用</el-tag>
-            <el-tag v-if="item.valid === 1" size="success">启用</el-tag>
+            <span v-if="item.valid === 0">停用</span>
+            <span v-if="item.valid === 1">启用</span>
           </td>
-          <!--<td>-->
-          <!--<router-link :to="{ path: 'manage', query: {id: item.id}}">-->
-          <!--<button class="gy-button-normal warning">修改</button>-->
-          <!--</router-link>&nbsp;&nbsp;&nbsp;-->
-          <!--<button class="gy-button-normal selected" @click="deleteGood(item.id)">删除</button>-->
-          <!--</td>-->
         </tr>
         </tbody>
       </table>
@@ -157,7 +140,6 @@
           style="margin-top: 40px;"
           @current-change="turnPage">
         </el-pagination>
-        <!--<span>总共 {{totalRs}} 个结果</span>-->
       </div>
     </div>
   </div>
@@ -167,7 +149,7 @@
 export default {
     data () {
         return {
-            authStatusList: [{id: null, name: '全部'}, {id: 1, name: '待审核'}, {id: 2, name: '已通过'}, {id: 3, name: '已驳回'}],
+            authStatusList: [{id: null, name: '全部'}, {id: 0, name: '未认证'}, {id: 1, name: '待审核'}, {id: 2, name: '已通过'}, {id: 3, name: '已驳回'}],
             caAuthStatusList: [{id: null, name: '全部'}, {id: 0, name: '未认证'}, {id: 1, name: '待审核'}, {
                 id: 2,
                 name: '已通过'
@@ -177,12 +159,13 @@ export default {
                 name: '已通过'
             }, {id: 3, name: '已驳回'}],
             validList: [{id: null, name: '全部'}, {id: 0, name: '停用'}, {id: 1, name: '启用'}],
+            typeOptions: ['', '贸易商', '物流商', '仓储商', '', '', '', '', '', '交易仓储商'],
             pageSize: 10,
             pageCount: 5,
             total: 0,
             currentPage: 1,
-            searchName: '',
-            inputName: '',
+            searchName: null,
+            inputName: null,
             list: [],
             toggleSelect: false,
             checkedAll: false,
@@ -190,18 +173,24 @@ export default {
             authStatus: null,
             bankAuthStatus: null,
             caAuthStatus: null,
-            username: '',
+            username: null,
             searchAuthStatus: null,
             searchCaAuthStatus: null,
             searchBankAuthStatus: null,
-            searchUserName: '',
+            searchUserName: null,
             searchValid: null,
             valid: null,
             companyTypeName: '',
             companyTypeList: [],
-            companyType: '',
+            companyType: null,
             dataObj: {
                 companyIdList: []
+            },
+            colors: {
+                0: 'color: #909399!important', // 未认证
+                1: 'color: #e6a23c!important', // 待审核
+                2: 'color: #409eff!important', // 已通过
+                3: 'color: #f56c6c!important' // 已驳回
             }
         };
     },
@@ -214,6 +203,9 @@ export default {
         }
     },
     methods: {
+        dbCheckItem (item) {
+            this.$tools.dbCheckItem(item, this.checkModel);
+        },
         getCompanyType () {
             this.$http.get(this.$api.memberCompany.companyType)
                 .then((res) => {
@@ -224,28 +216,40 @@ export default {
             if (this.checkModel.length !== 1) {
                 this.$message.error('不能多选且只能选择一个编辑项！');
             } else {
-                this.$router.push({name: 'memberCompanyManage', query: {id: this.checkModel[0].id.toString()}});
+                this.goNewPage('/index/warehouse/edit', this.checkModel[0].toString());
             }
+        },
+        goNewPage (url, id) {
+            let routeUrl = this.$router.resolve({
+                path: url,
+                query: {id}
+            });
+            window.open(routeUrl.href, '_blank');
         },
         getList (currentPage) {
             if (!this.isAuth('member:company:list')) return;
             let setPara = {
                 'pageNum': currentPage,
                 'pageSize': this.pageSize,
-                'name': this.searchName,
-                'username': this.searchUserName,
-                'authStatus': this.searchAuthStatus,
-                'caAuthStatus': this.searchCaAuthStatus,
-                'bankAuthStatus': this.searchBankAuthStatus,
-                'valid': this.searchValid,
-                companyTypeId: this.companyType
+                'data': {
+                    'keywords': this.searchName,
+                    'username': this.searchUserName,
+                    'authStatus': this.searchAuthStatus,
+                    'caAuthStatus': this.searchCaAuthStatus,
+                    'bankAuthStatus': this.searchBankAuthStatus,
+                    'valid': this.searchValid,
+                    companyTypeId: this.companyType
+                }
             };
-            this.$http.post(this.$api.warehouse.list, setPara).then((data) => {
-                if (data.data.code === 0) {
-                    this.list = data.data.data.list;
+            this.$http.post(this.$api.warehouse.listv2, setPara).then((res) => {
+                if (res.data.code === 0) {
+                    this.list = res.data.data.list;
+                    this.list.forEach(item => {
+                        item['flag'] = false;
+                    });
                     // 设置分页信息
-                    this.total = data.data.data.total;
-                    this.currentPage = data.data.data.pageNum;
+                    this.total = res.data.data.total;
+                    this.currentPage = res.data.data.pageNum;
                     // 设置check
                     this.cancelCheck();
                 }
@@ -294,7 +298,7 @@ export default {
                 dangerouslyUseHTMLString: true
             }).then(() => {
                 this.$http({
-                    url: this.$api.memberCompany.stop,
+                    url: this.$api.memberCompany.storageStop,
                     method: 'put',
                     data: this.dataObj
                 }).then(({data}) => {
@@ -317,7 +321,7 @@ export default {
                 this.dataObj.companyIdList.push(obj.id);
             });
             this.$http({
-                url: this.$api.memberCompany.start,
+                url: this.$api.memberCompany.storageStart,
                 method: 'put',
                 data: this.dataObj
             }).then(({data}) => {
@@ -332,10 +336,9 @@ export default {
         verifyAll () {
             if (this.checkModel.length !== 1) {
                 this.$message.error('只能选择一个审核项！');
-            } else if (this.checkModel[0].companyOpentype === 0) {
-                this.$router.push({name: 'memberCompanyView', query: {id: this.checkModel[0].id.toString()}});
             } else {
-                this.$message.error('此条信息你没有权限审核');
+                this.goNewPage(`/index/member/company/view?valueList=2`, this.checkModel[0].toString());
+                // this.$router.push({name: 'memberCompanyView', query: {id: this.checkModel[0].toString(), valueList: '2'}});
             }
         },
         cancelCheck (e) {
@@ -347,7 +350,7 @@ export default {
             this.checkModel = [];
             if (this.checkedAll) {
                 this.list.forEach((obj) => {
-                    this.checkModel.push(obj);
+                    this.checkModel.push(obj.id);
                 });
             }
         }
@@ -435,5 +438,10 @@ export default {
       width: 114px;
       padding-left: 30px;
     }
+  }
+</style>
+<style>
+  .memberList .el-input__inner{
+    line-height: 40px!important;
   }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <section class="edit-get-integral f-container">
-        <h3 class="gy-h3">积分获取编辑</h3>
+        <div class="gy-h4">积分获取编辑</div>
         <el-form class="gy-detail-form" :model="info" ref="form" label-width="106px">
             <el-form-item label="商品类目" prop="type">
                 {{info.categoryName}}
@@ -90,10 +90,22 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .edit-get-integral {
         .submit-btn-group {
             margin-top: 60px;
+        }
+        .gy-form-button{
+            padding-right:0;
+        }
+        .gy-detail-form{
+            margin-top:0;
+            .el-form-item{
+                padding-left: 14px;
+                padding-right: 0;
+                margin: 0;
+                width: 50%;
+            }
         }
     }
 </style>

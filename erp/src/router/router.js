@@ -1,5 +1,5 @@
 // 引入子路由
-// import Sub from '../frame/subroute.vue';
+import Sub from '../frame/subroute.vue';
 
 // 首页
 import index from '../views/layout.vue';
@@ -8,16 +8,31 @@ import homeMoreTodoList from '../views/home_more_todolist.vue';
 import homeMoreMsgList from '../views/home_more_msglist.vue';
 import homeMoreAlarmList from '../views/home_more_alarmlist.vue';
 
+// 修改密码
+import changePassword from '../views/user/changePassword.vue';
+import addUser from '../views/user/addUser.vue';
+
 // 收付款
 import paymentIndex from '../views/payment/index';
 import paymentList from '../views/payment/payment-list';
 import paymentDetail from '../views/payment/payment-detail';
 import paymentBuy from '../views/payment/paymentbuy';
 import paymentSell from '../views/payment/paymentsell';
+import payReceiptList from '../views/payment/pay-receipt-list';
+import payPaymentList from '../views/payment/pay-payment-list';
+
+// 结算
+import buySettleList from '../views/settlement/settlementListBuy';
+import saleSettleList from '../views/settlement/settlementListSell';
+import settlementDetailBuy from '../views/settlement/detailBuy';
+import settlementDetailSell from '../views/settlement/detailSell';
+import settlementApproval from '../views/settlement/settlementApproval';
 
 // 发票
 import invoiceIndex from '../views/invoice/index';
 import invoiceList from '../views/invoice/invoiceList.vue';
+import invoiceReceiptList from '../views/invoice/invoice-receipt-list.vue';
+import invoiceApplyList from '../views/invoice/invoice-apply-list.vue';
 import invoiceDetail from '../views/invoice/invoiceDetails';
 import auditOperation from '../views/invoice/approve-invoice.vue';
 import financialConfirmation from '../views/invoice/financialConfirmation.vue';
@@ -29,7 +44,11 @@ import contEssList from '../views/contract/cont-ess-list.vue';
 import contEssDetail from '../views/contract/cont-ess-detail';
 import contractDetail from '../views/contract/contract-detail';
 import createContract from '../views/contract/create-contract';
+import creatEssRevise from '../views/contract/cont-ess-revise';
 import executionAllocation from '../views/contract/execution-allocation';
+import modifyContractView from '../views/contract/modify-cont-view';
+import modifyContract from '../views/contract/modify-contract';
+import addOfflineContract from '../views/contract/add-offline_contract';
 
 // 合同管理
 import orderIndex from '../views/order/index';
@@ -40,7 +59,9 @@ import orderNoList from '../views/order/orderNoList.vue';
 
 // 交割
 import deliveryIndex from '../views/delivery/index';
-import deliveryList from '../views/delivery/deliveryList.vue';
+import deliveryList from '../views/delivery/delivery-all-list.vue';
+import dlvyBuyList from '../views/delivery/delivery-buy-list.vue';
+import dlvySaleList from '../views/delivery/delivery-sale-list.vue';
 import deliveryDetail from '../views/delivery/delivery-detail.vue';
 import deliveryPurchaseView from '../views/delivery/purchaseView.vue';
 import deliverySalesView from '../views/delivery/salesView.vue';
@@ -63,6 +84,12 @@ import apprCreate from '../views/flow/appr-proc-page.vue';
 import contDistList from '../views/flow/cont-dist-list.vue';
 import bizProductXref from '../views/flow/biz-product-xref.vue';
 import exeProductXref from '../views/flow/exe-product-xref.vue';
+
+// 用印申请管理
+import stampView from '../views/stamp/index.vue';
+import createStamp from '../views/stamp/create-stamp.vue';
+import stampApplyList from '../views/stamp/stamp-list.vue';
+import stampDetail from '../views/stamp/stamp-detail.vue';
 
 export default [
     {
@@ -99,8 +126,28 @@ export default [
                         name: 'contEssDetailmenu',
                         component: contEssDetail,
                         meta: {
-                            title: '合同要素详情'
+                            title: '合同要素详情',
+                            type: 'detail',
+                            keepAlive: false
                         }
+                    },
+                    {
+                        path: 'modifyContractView',
+                        name: 'modifyContractView',
+                        component: modifyContractView,
+                        meta: {
+                            title: '合同要素详情'
+                        },
+                        children: [
+                            {
+                                path: 'modifyContract',
+                                name: 'modifyContract',
+                                component: modifyContract,
+                                meta: {
+                                    title: '修改合同'
+                                }
+                            }
+                        ]
                     },
                     {
                         path: 'Cdetailmenu',
@@ -111,11 +158,22 @@ export default [
                         }
                     },
                     {
+                        path: 'CRevise',
+                        name: 'creatEssRevise',
+                        component: creatEssRevise,
+                        meta: {
+                            title: '合同要素修改',
+                            type: 'revise'
+                        }
+                    },
+                    {
                         path: 'contactlist',
                         name: 'contEssList',
                         component: contEssList,
                         meta: {
-                            title: '合同要素列表'
+                            title: '合同要素列表',
+                            isBack: false,
+                            keepAlive: true
                         }
                     }
                 ]
@@ -133,16 +191,99 @@ export default [
                         name: 'paymentList',
                         component: paymentList,
                         meta: {
-                            title: '收付款列表'
+                            title: '收付款列表',
+                            isBack: false,
+                            keepAlive: true
                         }
                     },
-
+                    {
+                        path: 'payment/receiptList',
+                        name: 'payReceiptList',
+                        component: payReceiptList,
+                        meta: {
+                            title: '收款列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'payment/paymentList',
+                        name: 'payPaymentList',
+                        component: payPaymentList,
+                        meta: {
+                            title: '付款列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
                     {
                         path: 'detail',
                         name: 'paymentDetail',
                         component: paymentDetail,
                         meta: {
-                            title: '收付款详情'
+                            title: '收付款详情',
+                            type: 'detail',
+                            keepAlive: false
+                        }
+                    }
+                ]
+            },
+            // 结算管理
+            {
+                path: 'settlement',
+                component: Sub,
+                meta: {
+                    title: '结算管理'
+                },
+                children: [
+                    {
+                        path: 'listbuy',
+                        name: 'buySettleList',
+                        component: buySettleList,
+                        meta: {
+                            title: '采购结算列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'listsell',
+                        name: 'saleSettleList',
+                        component: saleSettleList,
+                        meta: {
+                            title: '销售结算列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'detailbuy',
+                        name: 'settlementDetailBuy',
+                        component: settlementDetailBuy,
+                        meta: {
+                            title: '结算详情',
+                            type: 'detail',
+                            keepAlive: false
+                        }
+                    },
+                    {
+                        path: 'detailsell',
+                        name: 'settlementDetailSell',
+                        component: settlementDetailSell,
+                        meta: {
+                            title: '结算详情',
+                            type: 'detail',
+                            keepAlive: false
+                        }
+                    },
+                    {
+                        path: 'detailapproval',
+                        name: 'settlementApproval',
+                        component: settlementApproval,
+                        meta: {
+                            title: '结算审批',
+                            type: 'detail',
+                            keepAlive: false
                         }
                     }
                 ]
@@ -168,7 +309,9 @@ export default [
                         name: 'orderList',
                         component: orderList,
                         meta: {
-                            title: '合同列表'
+                            title: '合同列表',
+                            isBack: false,
+                            keepAlive: true
                         }
                     },
                     {
@@ -176,7 +319,9 @@ export default [
                         name: 'orderDetails',
                         component: orderDetails,
                         meta: {
-                            title: '交易详情'
+                            title: '交易详情',
+                            type: 'detail',
+                            keepAlive: false
                         }
                     }
                 ]
@@ -194,7 +339,29 @@ export default [
                         name: 'deliveryList',
                         component: deliveryList,
                         meta: {
-                            title: '交割列表'
+                            title: '交割列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'delivery/dlvyBuyList',
+                        name: 'dlvyBuyList',
+                        component: dlvyBuyList,
+                        meta: {
+                            title: '采购交割列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'delivery/dlvySaleList',
+                        name: 'dlvySaleList',
+                        component: dlvySaleList,
+                        meta: {
+                            title: '销售交割列表',
+                            isBack: false,
+                            keepAlive: true
                         }
                     },
                     {
@@ -202,7 +369,9 @@ export default [
                         name: 'deliveryDetail',
                         component: deliveryDetail,
                         meta: {
-                            title: '交割详情'
+                            title: '交割详情',
+                            type: 'detail',
+                            keepAlive: false
                         }
                     }
                 ]
@@ -220,7 +389,29 @@ export default [
                         name: 'invoiceList',
                         component: invoiceList,
                         meta: {
-                            title: '发票列表'
+                            title: '发票列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'invoice/receiptList',
+                        name: 'invoiceReceiptList',
+                        component: invoiceReceiptList,
+                        meta: {
+                            title: '收票列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'invoice/applyList',
+                        name: 'invoiceApplyList',
+                        component: invoiceApplyList,
+                        meta: {
+                            title: '开票列表',
+                            isBack: false,
+                            keepAlive: true
                         }
                     },
                     {
@@ -228,7 +419,47 @@ export default [
                         name: 'invoiceDetail',
                         component: invoiceDetail,
                         meta: {
-                            title: '发票详情'
+                            title: '发票详情',
+                            type: 'detail',
+                            keepAlive: false
+                        }
+                    }
+                ]
+            },
+            // 用印申请管理
+            {
+                path: 'stampView',
+                component: stampView,
+                meta: {
+                    title: '用印申请管理'
+                },
+                children: [
+                    {
+                        path: 'createStamp',
+                        name: 'createStamp',
+                        component: createStamp,
+                        meta: {
+                            title: '新建用印申请'
+                        }
+                    },
+                    {
+                        path: 'stamp/list',
+                        name: 'stampApplyList',
+                        component: stampApplyList,
+                        meta: {
+                            title: '用印申请列表',
+                            isBack: false,
+                            keepAlive: true
+                        }
+                    },
+                    {
+                        path: 'stamp/detail',
+                        name: 'stampDetail',
+                        component: stampDetail,
+                        meta: {
+                            title: '用印申请详情',
+                            type: 'detail',
+                            keepAlive: false
                         }
                     }
                 ]
@@ -238,7 +469,7 @@ export default [
                 path: 'transaction',
                 component: transactionIndex,
                 meta: {
-                    title: '准现货报表'
+                    title: '业务报表'
                 },
                 children: [
                     {
@@ -246,7 +477,7 @@ export default [
                         name: 'transactionDaily',
                         component: transactionDaily,
                         meta: {
-                            title: '准现货业务日报'
+                            title: '业务日报'
                         }
                     },
                     {
@@ -254,7 +485,7 @@ export default [
                         name: 'transactionLedger',
                         component: transactionLedger,
                         meta: {
-                            title: '准现货台账'
+                            title: '台账'
                         }
                     },
                     {
@@ -270,7 +501,7 @@ export default [
                         name: 'control',
                         component: control,
                         meta: {
-                            title: '准现货交易管控表'
+                            title: '交易管控表'
                         }
                     }
                 ]
@@ -289,7 +520,9 @@ export default [
                         name: 'flowList',
                         component: flowList,
                         meta: {
-                            title: '流程审批列表'
+                            title: '流程审批列表',
+                            isBack: false,
+                            keepAlive: true
                         }
                     },
                     {
@@ -297,7 +530,9 @@ export default [
                         name: 'flowDetail',
                         component: flowDetail,
                         meta: {
-                            title: '流程规则新增'
+                            title: '流程规则新增',
+                            type: 'detail',
+                            keepAlive: false
                         }
                     },
                     {
@@ -305,7 +540,9 @@ export default [
                         name: 'apprCreate',
                         component: apprCreate,
                         meta: {
-                            title: '发起审批流程'
+                            title: '发起审批流程',
+                            type: 'detail',
+                            keepAlive: false
                         }
                     },
                     {
@@ -313,7 +550,9 @@ export default [
                         name: 'contDistList',
                         component: contDistList,
                         meta: {
-                            title: '合同执行分配'
+                            title: '合同执行分配',
+                            isBack: false,
+                            keepAlive: true
                         }
                     },
                     {
@@ -341,7 +580,7 @@ export default [
         name: 'index',
         component: index,
         meta: {
-            title: '工作台'
+            title: ''
         },
         children: [
             // 工作台
@@ -350,7 +589,15 @@ export default [
                 name: 'home',
                 component: home,
                 meta: {
-                    title: ''
+                    title: '工作台'
+                }
+            },
+            {
+                path: '/changePassword',
+                name: 'changePassword',
+                component: changePassword,
+                meta: {
+                    title: '修改密码'
                 }
             },
             {
@@ -358,7 +605,9 @@ export default [
                 name: 'homeMoreTodoList',
                 component: homeMoreTodoList,
                 meta: {
-                    title: '中控台-更多事项'
+                    title: '工作台-更多事项',
+                    isBack: false,
+                    keepAlive: true
                 }
             },
             {
@@ -366,7 +615,9 @@ export default [
                 name: 'homeMoreMsgList',
                 component: homeMoreMsgList,
                 meta: {
-                    title: '中控台-更多消息'
+                    title: '工作台-更多消息',
+                    isBack: false,
+                    keepAlive: true
                 }
             },
             {
@@ -374,7 +625,9 @@ export default [
                 name: 'homeMoreAlarmList',
                 component: homeMoreAlarmList,
                 meta: {
-                    title: '中控台-预警消息'
+                    title: '工作台-预警消息',
+                    isBack: false,
+                    keepAlive: true
                 }
             },
             // 收付款
@@ -400,7 +653,9 @@ export default [
                 name: 'auditOperation',
                 component: auditOperation,
                 meta: {
-                    title: '开票查询-审核'
+                    title: '开票查询-审核',
+                    type: 'detail',
+                    keepAlive: false
                 }
             },
             {
@@ -458,7 +713,8 @@ export default [
                 name: 'contractDetail',
                 component: contractDetail,
                 meta: {
-                    title: '合同审批'
+                    title: '合同审批',
+                    type: 'detail'
                 }
             },
             {
@@ -466,7 +722,36 @@ export default [
                 name: 'executionAllocation',
                 component: executionAllocation,
                 meta: {
-                    title: '执行分配'
+                    title: '执行分配',
+                    type: 'detail',
+                    keepAlive: false
+                }
+            },
+            {
+                path: 'addOfflineContract',
+                name: 'addOfflineContract',
+                component: addOfflineContract,
+                meta: {
+                    title: '添加线下合同'
+                }
+            },
+            {
+                path: 'addUser',
+                name: 'addUser',
+                component: addUser,
+                meta: {
+                    title: '添加erp用户'
+                }
+            },
+            // 用印
+            {
+                path: 'stampApproval',
+                name: 'stampApproval',
+                component: stampDetail,
+                meta: {
+                    title: '用印申请审批',
+                    type: 'detail',
+                    keepAlive: false
                 }
             }
         ]

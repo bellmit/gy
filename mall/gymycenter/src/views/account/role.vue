@@ -15,7 +15,7 @@
             <div class="box2">
                 <div>
                     <span @click="newadd" class="gy-button-extra">新增</span>
-                    <span @click="deladdAll" class="gy-button-normal">批量删除</span>
+                    <span @click="deladdAll" class="gy-button-normal">删除</span>
                 </div>
             </div>
         </div>
@@ -24,24 +24,24 @@
                 <table class="gy-table">
                     <thead>
                     <tr class="title">
-                        <td><input type="checkbox" :checked="companySelectedList.length === dataList.length"
+                        <td style="width: 50px;text-align: center"><input type="checkbox" :checked="companySelectedList.length === dataList.length"
                                    @change="handleCheckAllChange"></td>
-                        <td>ID</td>
-                        <td>角色名称</td>
-                        <td>类型</td>
-                        <td>创建时间</td>
-                        <td>操作</td>
+                        <td style="width: 100px;">ID</td>
+                        <td style="width: 200px;">角色名称</td>
+                        <td style="width: 150px;">类型</td>
+                        <td style="width: 200px;">创建时间</td>
+                        <td style="width: 100px;">操作</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-for="(item , index) in dataList" :key="index">
-                        <td><input type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0"
+                        <td style="width: 50px;text-align: center"><input type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0"
                                    @change="handleCheckChange(item.id)"></td>
-                        <td><div>{{item.id}}</div></td>
-                        <td><div>{{item.name}}</div></td>
-                        <td><div>{{item.companyId===null?'系统':'自定义'}}</div></td>
-                        <td><div>{{item.createDate | date}}</div></td>
-                        <td>
+                        <td style="width: 100px;"><div>{{item.id}}</div></td>
+                        <td style="width: 200px;"><div>{{item.name}}</div></td>
+                        <td style="width: 150px;"><div>{{item.companyId===null?'系统':'自定义'}}</div></td>
+                        <td style="width: 200px;"><div>{{item.createDate | date}}</div></td>
+                        <td style="width: 100px;text-align: center">
                             <a @click="goPage(10,item.id)" class="gy-button-view">查看</a>
                             <a v-show="item.companyId!=null" @click="goPage(20,item.id)" class="gy-button-view">编辑</a>
                             <!--<a v-show="item.companyId!=null" @click="goPage(30,item.id)" class="gy-button-view">删除</a>-->
@@ -50,7 +50,7 @@
                     </tbody>
                 </table>
                 <div class="totaljl">
-                    共{{total}}条记录
+                    共 {{total}} 条记录
                 </div>
                 <el-pagination
                     background
@@ -420,13 +420,12 @@ export default {
             }
         },
         deladdAll () {
-            console.log(this.companySelectedList.length === 0);
             if (this.companySelectedList.length === 0) {
-                this.$alert('请选择角色', '提示')
+                this.$alert('请选择角色', '提示', {type: 'warning'})
                     .then(() => {
                     });
             } else {
-                this.$alert('确认删除该角色？', '提示')
+                this.$alert('确认删除该角色？', '提示', {type: 'warning'})
                     .then(() => {
                         this.$http.put(this.$api.account.validDel, {
                             'roleIdList': this.companySelectedList
@@ -513,7 +512,6 @@ export default {
                 border-collapse: collapse;
                 td {
                     color: $color-main;
-                    text-align: center;
                     font-size: 12px
                 }
             }
@@ -526,11 +524,12 @@ export default {
                         float: left;
                         width: 40px;
                         text-align: center;
-                        margin-right: 20px;
+                        margin-right: 10px;
+                        padding:0 5px;
                     }
                     .liActive {
                         color: #E0370F;
-                        border-bottom: 1px solid #E0370F;
+                        border-bottom: 2px solid #E0370F;
                     }
                 }
                 li:hover{
@@ -568,11 +567,19 @@ export default {
 <style lang="scss">
     .myrole{
         .el-dialog__body{
-            padding: 20px 30px 30px;
+            padding: 20px 10px 30px 20px;
         }
         .el-dialog__footer{
             padding: 0;
             /*padding: 10px 20px 30px;*/
+        }
+        .newAdd{
+            .el-dialog{
+                width: 750px;
+            }
+            .el-dialog__headerbtn{
+                right:16px;
+            }
         }
     }
 </style>

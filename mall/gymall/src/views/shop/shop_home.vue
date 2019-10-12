@@ -36,7 +36,7 @@
                       <div>交割日期: {{item.deliveryEndDate | date}}</div>
                     </div>
                       <span class="price">
-                          <em v-if="item.skuPrice">￥{{item.skuPrice}}/{{item.infUnitOfMeasureDisplayName}}</em>
+                          <em v-if="item.skuPrice">￥{{item.skuPrice}}/{{item.infUnitOfMeasureDisplayName}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</em>
                           <em v-else>单价面议</em>
                       </span>
                   </div>
@@ -95,6 +95,9 @@ export default {
             vals: [],
             initialIndex: 1
         };
+    },
+    created () {
+        window.scrollTo(0, 0);
     },
     mounted () {
         this.initHot();
@@ -211,8 +214,8 @@ export default {
           height: 42.7px;
         }
         .product-img {
-            width: auto;
-            height: 120px;
+            width: 100px;
+            height: 100px;
         }
         .price {
           font-size: 16px;
@@ -289,6 +292,10 @@ export default {
             }
             .item-wrap {
                 margin: 0 0 15px 30px;
+                .product-img {
+                    width: 100px;
+                    height: 100px;
+                }
             }
             .product-img {
                 margin-right: 30px;

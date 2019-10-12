@@ -85,21 +85,17 @@ a {
     color:#999!important;
     font-size: 14px!important;
 }
-textarea::-webkit-input-placeholder {
-    color:#999!important;
-    font-size: 14px!important;
-}
-textarea:-moz-placeholder {
-    color:#999!important;
-    font-size: 14px!important;
-}
-textarea::-moz-placeholder {
-    color:#999!important;
-    font-size: 14px!important;
-}
-textarea:-ms-input-placeholder {
-    color:#999!important;
-    font-size: 14px!important;
+.gy-textarea{
+    resize: none;
+    font-size: 14px;
+    height: 60px;
+    border: 1px solid $color-border;
+    border-radius: $border-radius-small;
+    font-family: "Microsoft YaHei";
+    &::-webkit-input-placeholder{
+        color: #999;
+        font-size: 14px;
+    }
 }
 input{
     font-size: 14px!important;

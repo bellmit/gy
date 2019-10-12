@@ -25,7 +25,7 @@
                 </el-cascader>
             </div>
             <div class="gy-form-group">
-                <div class="l">层级</div>
+                <div class="l l_right">层级</div>
                 <input type="text" v-model="keyObj.categoryLevel" placeholder="请输入层级"/>
                 <i class="iconfont icon-search" @click="bigSearchclick"></i>
             </div>
@@ -37,7 +37,7 @@
                 <!--<button @click="del" class="gy-button-normal">删除</button>-->
                 <button type="button" @click="attribute" class="gy-button-normal">属性</button>
                 <button type="button" @click="param" class="gy-button-normal">参数</button>
-                <button type="button" @click="view" class="gy-button-normal">查看</button>
+                <button type="button" @click="view" class="gy-button-normal mr0">查看</button>
             </div>
             <table class="gy-table">
                 <thead>
@@ -231,8 +231,15 @@ export default {
 @import './../../../styles/module/CMList';
 .gy-form-group {
   padding-left: 66px;
+  padding-right: 30px;
   .l {
     width: 56px;
   }
+}
+.gy-form-group:nth-child(even) {
+    .l {
+        width: 86px;
+        padding-left: 30px;
+    }
 }
 </style>

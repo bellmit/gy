@@ -23,7 +23,7 @@
               <td>{{item.createdDate | date}}</td>
               <td>{{item.carrierName}}</td>
               <td>{{tran.skuName}}</td>
-              <td>{{tran.skuQuantity |numToCash(3)}}</td>
+              <td class="align-r">{{tran.skuQuantity |numToCash(3)}}</td>
               <td>{{item.loadingWarehouseAddress }}</td>
               <td>{{item.unloadingWarehouseAddress }}</td>
               <td>{{status[item.consignmentNoteStatus ]}}</td>

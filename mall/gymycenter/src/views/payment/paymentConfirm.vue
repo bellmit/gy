@@ -6,13 +6,6 @@
                 <span class="userCenter-main-tit-left-tit">付款单</span>
                 <span class="userCenter-main-tit-left-no">付款单号：{{payNo}}</span>
             </div>
-            <!--<div class="userCenter-main-tit-right">-->
-            <!--<el-breadcrumb separator-class="el-icon-arrow-right">-->
-            <!--<el-breadcrumb-item>付款申请</el-breadcrumb-item>-->
-            <!--<el-breadcrumb-item class="createPayment-main-tit-right">财务付款</el-breadcrumb-item>-->
-            <!--<el-breadcrumb-item >收款确认</el-breadcrumb-item>-->
-            <!--</el-breadcrumb>-->
-            <!--</div>-->
         </div>
         <div class="createPayment-status createPayment-common clearfix">
             <div class="createPayment-status-left">
@@ -21,26 +14,6 @@
                     <span class="createPayment-status-left-tit">付款单状态</span>
                 </div>
                 <div class="createPayment-status-left-billStatus">
-                    <!--<step step="1" :isActive='this.payStatus >= -1' :isDone="this.payStatus >= -1">-->
-                    <!--<div class="createPayment-status-left-billStatus-unconfirm">-->
-                    <!--<span>付款申请</span>-->
-                    <!--</div>-->
-                    <!--</step>-->
-                    <!--<step step="2" :isActive="this.payStatus >= 10" isRight="true" showLine='true' :isDone="this.payStatus >= 10">-->
-                    <!--<div class="createPayment-status-left-billStatus-confirmed">-->
-                    <!--<span>财务付款</span>-->
-                    <!--</div>-->
-                    <!--</step>-->
-                    <!--<step step="3" :isActive="this.payStatus >= 20" isRight="true" showLine='true' :isDone="this.payStatus >= 20">-->
-                    <!--<div class="createPayment-status-left-billStatus-confirmed">-->
-                    <!--<span>收款确认</span>-->
-                    <!--</div>-->
-                    <!--</step>-->
-                    <!--<step step="4" :isActive="this.payStatus >= 50" isRight="true" showLine='true' :isDone="this.payStatus >= 50">-->
-                    <!--<div class="createPayment-status-left-billStatus-confirmed">-->
-                    <!--<span>已完成</span>-->
-                    <!--</div>-->
-                    <!--</step>-->
                     <step :step="(index+1)" :isActive="payStatus >= item.payStatus" :isRight="index > 0"
                           :showLine="index > 0" :isDone="payStatus >= item.payStatus" v-for="(item, index) in stepArr"
                           :key="index">
@@ -53,13 +26,10 @@
                     </step>
                 </div>
             </div>
-            <div class="createPayment-status-right fr">
-                <button @click="auditingPayment(3)" class="gy-button-extra mr10"
-                        v-if="switchPayment == 1">支付
-                </button>
-                <button @click="auditingPayment(1)" class="gy-button-extra mr10" v-else>确认
-                </button>
-                <button @click="auditingPayment(2)" class="gy-button-normal">驳回</button>
+            <div class="createPayment-status-right fr" v-if="showOperaButton">
+                    <button @click="auditingPayment(3)" class="gy-button-extra mr10" v-if="switchPayment === '1' || switchPayment === '3'">支付</button>
+                    <button @click="auditingPayment(1)" class="gy-button-extra mr10" v-else>确认</button>
+                    <button @click="auditingPayment(2)" class="gy-button-normal" v-if="!fromFinance">驳回</button>
             </div>
         </div>
 
@@ -67,13 +37,20 @@
             <div class="createPayment-status-left">
                 <i class="el-icon-tickets"></i>
                 <span class="createPayment-detail-tit">付款信息</span>
+                <button class="gy-button-views" style="position:absolute;right:110px;cursor: pointer" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
+                <button class="gy-button-views" style="position:absolute;right:30px;cursor: pointer" @click="uploadExcel">下载付款单</button>
             </div>
             <div class="content-info">
                 <el-row class="my-row">
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">{{amountTitle}}</el-col>
-                    <el-col :span="9"><span>{{amount}}</span> 元</el-col>
+                    <el-col :span="9"><input type="text" class="gy-input input-amount" v-model="amount" :disabled="tradeMode !== 1 && tradeMode !== 30 && tradeMode !== 3">元 <span v-if="!(Number(transactionType) === 10 || !isPointPay || tradeMode === 21 || pointAmount === 0)" class="by-pointpay"><input type="checkbox" v-model="checkedPointPay" @change="initPointPay(amount)"> 使用积分抵扣</span></el-col>
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">付款方式</el-col>
                     <el-col :span="9">{{paymentTerms}}</el-col>
+                </el-row>
+                <el-row class="my-row point-pay-item" v-if="checkedPointPay">
+                    <el-col :span="12">使用{{deductAmount}}积分（价值{{(deductAmount / 5).toFixed(2)}}元）抵扣{{pointMoney}}元</el-col>
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'" style="margin-left: -8px;">实付金额</el-col>
+                    <el-col :span="9">{{customerPayMoney}}元</el-col>
                 </el-row>
                 <el-row class="my-row">
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">付款企业</el-col>
@@ -108,15 +85,6 @@
                 <el-row class="my-row">
                     <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">付款凭证</el-col>
                     <el-col :span="21">
-                        <!--<div class="createPayment-attachment-items">-->
-                        <!--<a class="createPayment-attachment-item" v-for="attachment in attachments" :key="attachment.tit" href="attachment.url">-->
-                        <!--<img class="createPayment-attachment-item-img" :src="attachment.imgUrl" />-->
-                        <!--<div class="createPayment-attachment-item-right">-->
-                        <!--<p class="createPayment-attachment-item-right-name">{{attachment.tit}}</p>-->
-                        <!--<span class="createPayment-attachment-item-right-look">点击查看</span>-->
-                        <!--</div>-->
-                        <!--</a>-->
-                        <!--</div>-->
                         <el-upload
                             action="api"
                             :auto-upload="true"
@@ -153,66 +121,48 @@
                     <h3>提交信息</h3>
                     <i class="iconfont icon-close" @click="showPop = false"></i>
                     <div class="pop-inner">
-                        <!--<div class="tips">-->
-                        <!--<i class="iconfont icon-tipserror"></i><span>公司上传认证信息有误，请重新提交！<a href="" class="highlight">联系客服</a></span>-->
-                        <!--</div>-->
-                        <el-form ref="form" :model="form" label-width="95px" :rules="rules">
-                            <el-form-item label="账号名称" prop="accountNameVal">
-                                <el-input v-model="form.accountNameVal"></el-input>
-                            </el-form-item>
-                            <el-form-item label="银行名称" prop="bankName">
-                                <el-input v-model="form.bankName"></el-input>
-                            </el-form-item>
-                            <el-form-item label="银行账号" prop="companyAccount">
-                                <el-input v-model="form.companyAccount"></el-input>
-                            </el-form-item>
-                            <el-form-item label="开户行名称" prop="depositBank">
-                                <el-input v-model="form.depositBank"></el-input>
-                            </el-form-item>
-                            <el-form-item style="text-align:right;">
-                                <el-button @click.stop="verificationForm('form')" type="danger">保存</el-button>
-                            </el-form-item>
-                        </el-form>
-                        <!--<form action="javascript:;">-->
-                        <!--<div class="gy-form">-->
-                        <!--<div class="gy-form-group">-->
-                        <!--<span class="l"><strong>*</strong>账号名称：</span>-->
-                        <!--<input type="text" name="accountName"  v-model="form.accountNameVal">-->
-                        <!--</div>-->
-                        <!--<div class="gy-form-group">-->
-                        <!--<span class="l"><strong>*</strong>银行名称</span>-->
-                        <!--<input type="text" name="bankName" v-model="bankName">-->
-                        <!--</div>-->
-                        <!--<div class="gy-form-group">-->
-                        <!--<span class="l"><strong>*</strong>银行账号</span>-->
-                        <!--<input type="text" name="companyAccount" v-model="companyAccount">-->
-                        <!--</div>-->
-                        <!--<div class="gy-form-group">-->
-                        <!--<span class="l"><strong>*</strong>开户行名称</span>-->
-                        <!--<input type="text" name="depositBank" v-model="depositBank">-->
-                        <!--</div>-->
-                        <!--<div class="gy-form-button">-->
-                        <!--&lt;!&ndash;<button class="gy-button-extra" @click.stop="verificationForm('form')">提交</button>&ndash;&gt;-->
-                        <!--<el-button type="primary" @click.stop="verificationForm('form')">提交</el-button>-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--</form>-->
+                        <div class="adrd-warp clearfix">
+                            <div class="gy-form-group">
+                                <span class="l isrequired">账号名称</span>
+                                <input class="gy-input" v-model="form.accountNameVal" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
+                                <span class="l isrequired">银行名称</span>
+                                <input class="gy-input" v-model="form.bankName" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
+                                <span class="l isrequired">银行账号</span>
+                                <input class="gy-input" v-model="form.companyAccount" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
+                                <span class="l isrequired">开户行名称</span>
+                                <input class="gy-input" v-model="form.depositBank" placeholder="请输入" type="text">
+                            </div>
+                        </div>
+                        <div class="adddialog-footer">
+                            <span slot="footer" class="dialog-footer fr">
+                                <button class="gy-button-extra confirmations" @click="verificationForm('form')" type="danger">保存</button>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <span class="mask" @click="showPop=false;accountNumber='请选择'"></span>
             </div>
         </transition>
         <!--END Pop Company-->
+        <!-- 审批历史 弹窗组件 -->
+        <approveHistory ref="myApprHisDlg"></approveHistory>
     </div>
 </template>
 
 <script>
 import step from '../../components/step';
+import approveHistory from '../../components/approveHistory';
 import {paymentMethod} from '@/utils';
 
 export default {
     name: 'confirm-offline-pay',
-    components: {step},
+    components: {step, approveHistory},
     data () {
         return {
             paymentId: 0,
@@ -220,6 +170,8 @@ export default {
             payStatus: 0,
             installment: false,
             payMethod: 0,
+            fromFinance: '',
+            defaultAmount: '',
             payNo: '',
             amount: '',
             depositRatio: 0,
@@ -270,12 +222,31 @@ export default {
                     {required: true, message: '开户行名称不能为空', trigger: 'blur'}
                 ]
             },
-            switchPayment: 1
+            switchPayment: 1,
+            isApproving: false, // 是否正在付款申请审批中
+            showOperaButton: true,
+            orderNumber: '',
+            isPointPay: false,
+            pointAmount: 0,
+            checkedPointPay: false,
+            customerPayMoney: 0,
+            deductAmount: 0,
+            pointMoney: 0,
+            deductFlag: 0,
+            guaranteed: 0,
+            transactionType: null
         };
     },
     watch: {
         'payMethod' (newValue, oldValue) {
             this.amountTitle = newValue === 2 ? '本次支付保证金' : '本次支付货款';
+        },
+        'amount' (newValue, oldValue) {
+            if (newValue < 0) {
+                this.$message({message: '付款金额不能为负数', type: 'error'});
+                return;
+            }
+            newValue !== oldValue && this.initPointPay(newValue);
         }
     },
     computed: {
@@ -285,22 +256,52 @@ export default {
         computeAccountNumber: function () {
             return this.accountNumber.split('||||||')[0];
         }
-        // defaultAccountName: function () {
-        //     // return this.buyerAccounts[0].bankName;
-        // },
-        // defaultAccountNumber: function () {
-        // return this.buyerAccounts[0].bankAccount;
-        // }
     },
     methods: {
-        verificationForm: function (form) {
-            this.$refs[form].validate((valid) => {
-                if (valid) {
-                    this.addBank();
-                } else {
-                    return false;
+        // 积分支付
+        initPointPay (amount) {
+            let needPoint = Math.ceil(amount * 5);
+            if (this.pointAmount >= needPoint) {
+                this.deductAmount = needPoint;
+                this.pointMoney = amount;
+                this.customerPayMoney = 0.00;
+            } else {
+                this.deductAmount = this.pointAmount;
+                this.pointMoney = this.deductAmount / 5;
+                this.customerPayMoney = (amount - this.pointMoney).toFixed(2);
+            }
+        },
+        // 验证
+        checkDialogData () {
+            let flag = true;
+            let data = [
+                {value: this.form.accountNameVal, msg: '账号名称不能为空'},
+                {value: this.form.bankName, msg: '银行名称不能为空'},
+                {value: this.form.companyAccount, msg: '银行账号不能为空'},
+                {value: this.form.depositBank, msg: '开户行名称不能为空'}
+            ];
+            for (let i = 0; i < data.length; i++) {
+                if (!data[i].value && data[i].value !== 0) {
+                    this.$message({message: data[i].msg, type: 'error'});
+                    flag = false;
+                    break;
                 }
-            });
+            }
+            return flag;
+        },
+        verificationForm: function (form) {
+            if (!this.checkDialogData()) {
+                return false;
+            } else {
+                this.addBank();
+            }
+            // this.$refs[form].validate((valid) => {
+            //     if (valid) {
+            //         this.addBank();
+            //     } else {
+            //         return false;
+            //     }
+            // });
         },
         addBank () {
             const me = this;
@@ -370,7 +371,8 @@ export default {
                 this.accountNumber = '请选择';
                 return;
             }
-            if (this.tradeMode === '1') { // this.tradeMode为1时为线上也说明是中信银行,判断选择accountType为1时显示“支付，驳回”按钮，判断选择accountType为2时显示“确认，驳回”按钮
+            if (this.tradeMode === 1 || this.tradeMode === 30) {
+                // this.tradeMode为1时为线上也说明是中信银行,判断选择accountType为1时显示“支付，驳回”按钮，判断选择accountType为2时显示“确认，驳回”按钮
                 this.switchPayment = accountType;
             }
             this.accountObj = this.buyerAccounts.filter(account => account.bankAccount === bankAccount)[0];
@@ -381,7 +383,11 @@ export default {
             let statusCommand;
             // 确认校验
             if (opeType === 3) {
-                if (me.payStatus !== 10) {
+                if (Number(me.amount) > Number(me.defaultAmount)) {
+                    this.openError('本次支付金额不能超过申请付款金额！');
+                    return;
+                }
+                if (me.payStatus !== 10 && me.payStatus !== 8) {
                     this.openError('当前付款单不允许确认，请检查！');
                     return;
                     // } else if (me.fileList.length === 0) {
@@ -406,14 +412,20 @@ export default {
                         remark: me.remark,
                         opeType: opeType,
                         accountObj: me.accountObj,
-                        accountNumber: me.computeAccountNumber
+                        accountNumber: me.computeAccountNumber,
+                        fromFinance: this.fromFinance,
+                        deductFlag: this.checkedPointPay ? 1 : 0,
+                        customerPayMoney: this.customerPayMoney,
+                        deductAmount: this.deductAmount,
+                        pointMoney: this.pointMoney,
+                        guaranteed: this.guaranteed
                     }
                 });
                 return;
             }
             // 驳回校验
             if (opeType === 2) {
-                if (me.payStatus !== 10) {
+                if (me.payStatus !== 10 && me.payStatus !== 8) {
                     this.openError('当前付款单不允许驳回，请检查！');
                     return;
                 }
@@ -422,7 +434,7 @@ export default {
             }
             // 确认校验
             if (opeType === 1) {
-                if (me.payStatus !== 10) {
+                if (me.payStatus !== 10 && me.payStatus !== 8) {
                     this.openError('当前付款单不允许确认，请检查！');
                     return;
                 }
@@ -457,28 +469,54 @@ export default {
             }).catch(function (error) {
                 console.log(error);
             });
+        },
+        openApprListDlg () {
+            // 打开审批历史对话框
+            let params = {targetId: this.$route.query.paymentId, targetType: 3};
+            let user = JSON.parse(localStorage.getItem('userInfo'));
+            if (user) {
+                params.affiliatedCompanyId = user.companyId;
+            }
+            if (params.affiliatedCompanyId == null || params.affiliatedCompanyId === undefined || params.affiliatedCompanyId === 0) {
+                this.$alert('未获取到当前用户所在公司信息，不能查询审批操作记录');
+                return false;
+            }
+
+            this.$refs.myApprHisDlg.getAppHisList(params);
+        },
+        // 下载付款单
+        uploadExcel () {
+            let paymentUpload = {paymentId: this.$route.query.paymentId, purchaseOrderNumber: this.orderNumber};
+            console.log(paymentUpload);
+            let fileName = '付款单--' + this.$route.query.paymentId + '.xls';
+            this.$tools.exporttoExcel(this, this.$api.payment.upload, paymentUpload, fileName);
         }
     },
     created: function () {
         // 获取付款单信息
         const me = this;
-        this.imgBaseUrl = process.env.API_ROOT_MAIN + '/trade/v1/companies/images?filePath=';
+        me.imgBaseUrl = process.env.API_ROOT_MAIN + '/trade/v1/companies/images?filePath=';
         me.paymentId = me.$route.query.paymentId;
+        me.fromFinance = me.$route.query.fromFinance;
         me.$http.get(me.$api.payment.paymentInfo + me.paymentId)
             .then(function (response) {
                 if (response.data.code === 0) {
+                    console.log(response.data.data);
+                    me.orderNumber = response.data.data.orderNumber;
                     me.processId = response.data.data.payJobId;
-                    me.payStatus = response.data.data.payStatus;
+                    me.payStatus = me.fromFinance ? 10 : response.data.data.payStatus;
                     me.stepArr = me.payStatus === 60 ? me.tempStepArr2 : me.tempStepArr1;
                     me.payMethod = response.data.data.payMethod;
                     me.payNo = response.data.data.payNumber;
                     me.depositRatio = response.data.data.depositRatioStr;
-                    me.amount = response.data.data.payTotalStr;
+                    me.amount = response.data.data.leftTotal.toFixed(2);
+                    me.defaultAmount = response.data.data.leftTotal.toFixed(2);
                     me.tradeMode = response.data.data.tradeMode; // tradeMode为1表示为线上
                     me.remark = response.data.data.remarks;
                     me.paymentTerms = paymentMethod(response.data.data.transactionType, response.data.data.isBatchDelivery);
                     me.switchPayment = me.tradeMode;
-
+                    me.transactionType = response.data.data.transactionType;
+                    me.guaranteed = response.data.data.guaranteed;
                     // payBillType：1 :付款；2:退款
                     if (response.data.data.payBillType === 1) {
                         me.sellerId = response.data.data.sellerId;
@@ -512,12 +550,42 @@ export default {
                         .then(function (response) {
                             if (response.data.code === 0) {
                                 me.buyerAccounts = response.data.data.bankInfoList.reverse();
+                                me.isPointPay = response.data.data.acceptPointDeduct === 1;
+                                me.pointAmount = response.data.data.pointAmount;
                                 // if (me.buyerAccounts.length > 1){
                                 //     me.accountObj = me.buyerAccounts[0];
                                 //     me.accountNumber = me.buyerAccounts[0].bankAccount;
                                 // }
                             }
                         });
+
+                    // 检查审批状态，如果是正在审批中则显示'查看审批流程'的链接
+                    let params = {targetId: me.paymentId, targetType: 3, subSysType: 1};
+                    let user = JSON.parse(localStorage.getItem('userInfo'));
+                    if (user) {
+                        params.affiliatedCompanyId = user.companyId;
+                    }
+                    if (params.affiliatedCompanyId == null || params.affiliatedCompanyId === undefined || params.affiliatedCompanyId === 0) {
+                        this.$alert('未获取到当前用户所在公司信息，不能查询审批操作状态');
+                        return false;
+                    }
+                    me.$http.post(me.$api.processes.bizApproveStatus, params).then((res) => {
+                        if (res.data.code === 0) {
+                            if (res.data.data.rsltStatus === 1 && res.data.data.controlStatus === 1) {
+                                // 强控时不显示操作按钮
+                                me.showOperaButton = false;
+                            }
+                            if (res.data.data.rsltStatus === 1 || res.data.data.rsltStatus === 2) {
+                                // 只要是有审批就显示审批历史
+                                me.isApproving = true;
+                            }
+                        } else {
+                            me.$message({
+                                type: 'error',
+                                message: res.data.message
+                            });
+                        }
+                    });
                 } else {
                     console.log(response.data.code + ' ' + response.data.message);
                 }
@@ -577,7 +645,6 @@ export default {
             right: 0;
         }
     }
-
     .mr10 {
         margin-right: 10px;
     }
@@ -740,6 +807,21 @@ export default {
         margin: 20px 0 0 -20px;
         border: none;
     }
+    .font-weight {
+        color: #333333;
+    }
+    .fontWidth {
+        color: #333333;
+        width:104px;
+    }
+    .input-amount{
+        width: 31%;
+    }
+    .point-pay-item{
+        .el-col{
+            color: #999 !important;
+        }
+    }
 </style>
 <style lang="scss">
     .createPayment-main-tit-right {
@@ -778,13 +860,30 @@ export default {
         height: 100%;
         z-index: 999;
         .pop-inner {
-            width: 85%;
-            margin: 0 auto;
+            padding: 20px 0 8px;
+            .gy-form-group{
+                position: relative;
+                .isrequired::before {
+                    content: "*";
+                    color: #e0370f;
+                    font-size: 12px;
+                    font-weight: 400;
+                    position: absolute;
+                    margin-left: 16px;
+                    left: 0px;
+                    top: 0;
+                }
+            }
+            .adddialog-footer{
+                width:100%;
+                height:30px;
+                padding: 0 30px;
+                margin: 22px auto;
+            }
         }
         .pop-main {
             position: absolute;
-            width: 400px;
-            height: 350px;
+            width: 45%;
             left: 50%;
             top: 50%;
             border-radius: $border-radius-base;
@@ -812,7 +911,7 @@ export default {
                 font-size: 16px;
                 color: #333;
                 padding-left: 15px;
-                font-weight: normal;
+                font-weight: bold;
                 border-bottom: 1px solid #e6eaea;
             }
             .icon-close{
@@ -933,20 +1032,13 @@ export default {
 
     .my-row {
         .gy-textarea{
-            height: 40px;
+            /*height: 40px;*/
             margin-top: 10px;
         }
         .el-col {
             color: #666666;
             line-height: 40px;
             /*border:red solid 1px;*/
-        }
-        .font-weight {
-            color: #333333;
-        }
-        .fontWidth {
-            color: #333333;
-            width:104px;
         }
     }
 </style>

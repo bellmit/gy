@@ -33,8 +33,8 @@
       </div>
     </el-form>
     <div class="add-wrap">
-      <el-button type="primary" :loading="cacheLoading"  class="gy-button-extra"   @click="syncCache">同步到缓存中 </el-button>
-      <button type="button" class="gy-button-extra" @click="addBiz">添加</button>
+      <el-button type="primary" :loading="cacheLoading"  class="gy-button-extra" @click="syncCache">同步到缓存中 </el-button>
+      <button type="button" class="gy-button-normal" @click="addBiz">添加</button>
     </div>
     <div class="div">
       <table class="gy-table">
@@ -53,7 +53,7 @@
           <td><span>{{item.bizType | businessTradeType}}</span></td>
           <td><span>{{item.productName}}</span></td>
           <td><span>{{item.userName}}</span><br>
-          <td>
+          <td class="caoz">
               <button class="gy-button-view edit" @click="dele(item)">删除</button>
           </td>
         </tr>
@@ -68,9 +68,9 @@
       @prev-click="prevClick('xref',$event)"
       @next-click="nextClick('xref',$event)">
     </el-pagination>
-    <el-dialog title="添加" :visible.sync="outerVisible" width="450px">
+    <el-dialog title="添加" :visible.sync="outerVisible" class="addBizDlg" width="450px">
       <el-form :model="addUserForm">
-        <el-form-item label="业务类型"  class="el-form-item "  :label-width="formLabelWidth" >
+        <el-form-item label="业务类型" class="el-form-item" :label-width="formLabelWidth" >
           <el-select v-model="addUserForm.bizType" @change="changeBizType4Add()" clearable placeholder="请选择">
             <el-option
               v-for="item in $constant.bizType4CreateEss"
@@ -90,13 +90,13 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item  label="人员"  class="el-form-item "  :label-width="formLabelWidth">
+        <el-form-item  label="人员" class="el-form-item " :label-width="formLabelWidth">
           <el-input placeholder="请点击选择人员" v-model="addUserForm.userName" @focus="openUsrSelDlg()"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="outerVisible = false">取 消</el-button>
-        <el-button type="primary"  @click="addXref">确 定</el-button>
+        <button class="gy-button-normal" @click="outerVisible = false">取 消</button>
+        <button class="gy-button-extra" @click="addXref">确 定</button>
       </div>
     </el-dialog>
     <userList ref="myUserDlg" @affirmUser="affirmUser"></userList>
@@ -294,3 +294,31 @@ export default {
     }
 };
 </script>
+<style lang="scss" scoped>
+  .dialog-footer {
+    button:nth-child(1) {
+      margin-right: 10px;
+    }
+  }
+  .gy-table .caoz {
+      text-align: center !important;
+      padding: 0 10px !important;
+  }
+</style>
+<style lang="scss">
+  .flow-list {
+    .el-dialog__close {
+      position: absolute;
+      right: 1px;
+      top: -8px;
+    }
+    .el-form-item {
+      margin-bottom: 15px;
+    }
+    .addBizDlg {
+      .el-dialog__body {
+        padding-bottom: 10px;
+      }
+    }
+  }
+</style>

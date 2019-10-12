@@ -1,144 +1,39 @@
 <template>
-    <div class="suppyAdd">
+    <div>
         <div class="new-title-public">
             <div class="mytop">
                 <div class="top1">
-                    供应链申请单详情
-                </div>
-                <div class="top2">
-                    申请单号：{{parameter.code}}
-                </div>
-                <div class="top3">
-                    状态：{{parameter.status}}
+                    供应链申请单
                 </div>
             </div>
         </div>
-        <div class="div1">
+        <application :scsAppModel="parameter" :isRemark="true" :statusName="statusName"></application>
+        <div>
+            <div style="border-bottom: 8px solid #f5f5f5">
+                <div class="title-wrapper">
+                    <i class="iconfont icon-bangdingxindetixianzhanghao"></i><span
+                    class="gy-h5">公司信息</span>
+                </div>
+                <div class="application-info-content">
+                    <view1 :scsAppModel="parameter"></view1>
+                </div>
+            </div>
             <div>
-                <el-row>
-                    <p class="title">
-                        <i class="iconfont icon-shenqingren myi1" style="margin-top: -5px;
-    display: inline-block;"></i>
-                        <span class="myspan">申请人</span>
-                    </p>
-                </el-row>
-            </div>
-            <div class="div3">
-                <el-row :gutter="60">
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="5" class="left_name">企业名称</el-col>
-                            <el-col :span="19">{{newName}}</el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="5" class="left_name">联系人</el-col>
-                            <el-col :span="19">{{parameter.contactName}}</el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">企业地址</el-col>
-                            <el-col :span="19">
-                                {{parameter.companyAddress}}</el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">联系方式</el-col>
-                            <el-col :span="19">
-                                {{parameter.contactPhone}}
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                </el-row>
-            </div>
-            <el-row>
-                <p class="title">
-                    <i class="iconfont icon-dingdanxinxi myi1"></i>
-                    <span class="myspan">详细信息</span>
-                </p>
-            </el-row>
-            <div class="div3">
-                <el-row :gutter="60">
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="5" class="left_name">
-                                服务类型
-                            </el-col>
-                            <el-col :span="19">
-                                {{parameter.serviceTypeName}}
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-row>
-                            <el-col :span="5" class="left_name">
-                                申请时间
-                            </el-col>
-                            <el-col :span="19">
-                                {{parameter.createdDate| date('h')}}
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">商品名称</el-col>
-                            <el-col :span="19">
-                                {{parameter.productName}}
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">数量</el-col>
-                            <el-col :span="18">
-                                {{parameter.productAmount}}吨
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">资金周期</el-col>
-                            <el-col :span="19">
-                                {{parameter.period}}天
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">单价</el-col>
-                            <el-col :span="19">
-                                {{parameter.productPriceMin}}-{{parameter.productPriceMax}} 元/吨
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">
-                                指定供应商
-                            </el-col>
-                            <el-col :span="18">
-                                {{parameter.thirdPartyName}}
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :span="12" class="top_1">
-                        <el-row>
-                            <el-col :span="5" class="left_name">备注信息</el-col>
-                            <el-col :span="19">
-                                {{parameter.memo}}
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                </el-row>
+                <div class="title-wrapper">
+                    <i class="iconfont icon-icon_shenqing"></i><span
+                    class="gy-h5">申请详细信息</span>
+                </div>
+                <div class="application-info-content">
+                    <view2 :scsAppModel="parameter"></view2>
+                </div>
             </div>
         </div>
-
     </div>
 </template>
 <script>
+import view1 from './component/view1';
+import view2 from './component/view2';
+import application from './component/application';
 import productSearch from '@/components/productSearch';
 export default {
     data () {
@@ -199,12 +94,19 @@ export default {
                 'providerCompanyId': '',
                 'providerCompanyName': '',
                 'memo': '',
+                'companyName': '',
+                'thirdPartyName': '',
+                'skuName': '',
+                'deliveryWarehouseName': '',
+                'shortOverflowRate': '',
+                'needTransport': '',
                 'companyId': JSON.parse(localStorage.getItem('userInfo')).companyId
-            }
+            },
+            statusName: 'color: #999'
         };
     },
     components: {
-        productSearch
+        productSearch, view1, view2, application
     },
     created () {
         this.myId = this.$route.query.myId;
@@ -214,109 +116,85 @@ export default {
         // goback () {
         //     this.$router.push({name: 'supplyList'});
         // },
-        getInfo () { // 编辑时调接口获取资源单详情
+        getInfo () { // 申请单详情
             if (this.myId) {
-                this.$http.get(this.$api.account.supplyChainedit + '/' + this.myId).then(res => {
-                    if (res.data.code === 0) {
-                        console.log(res.data.data);
-                        this.parameter.serviceTypeId = res.data.data.serviceTypeId;
-                        this.parameter.contactName = res.data.data.contactName;
-                        this.parameter.companyAddress = res.data.data.companyAddress;
-                        this.parameter.contactPhone = res.data.data.contactPhone;
-                        this.parameter.productAmount = res.data.data.productAmount;
-                        this.parameter.productName = res.data.data.productName;
-                        this.parameter.selectedProduct = res.data.data.selectedProduct;
-                        this.parameter.period = res.data.data.period;
-                        this.parameter.productPriceMin = res.data.data.productPriceMin;
-                        this.parameter.productPriceMax = res.data.data.productPriceMax;
-                        this.parameter.thirdPartyName = res.data.data.thirdPartyName;
-                        this.parameter.memo = res.data.data.memo;
-                        this.parameter.serviceTypeName = res.data.data.serviceTypeName;
-                        this.parameter.createdDate = res.data.data.createdDate;
-                        this.parameter.code = res.data.data.code;
-                        if (res.data.data.status === 0) {
-                            this.parameter.status = '待受理';
-                        } else if (res.data.data.status === 1) {
-                            this.parameter.status = '已受理';
-                        } else if (res.data.data.status === 2) {
-                            this.parameter.status = '已拒绝(很抱歉，您的申请不符合平台的要求)';
+                this.$http.get(this.$api.supply.getMyInfo + this.myId)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.parameter = res.data.data.scsAppModel;
+                            switch (res.data.data.scsAppModel.statusName) {
+                            case '平台审核':case '服务商审核':
+                                this.statusName = 'color: #F49A1E';
+                                break;
+                            case '已拒绝':case '违约和处置':
+                                this.statusName = 'color: #D12626';
+                                break;
+                            case '服务执行':case '已完成':
+                                this.statusName = 'color: #24C815';
+                                break;
+                            default:
+                                this.statusName = 'color: #999';
+                                break;
+                            }
+                            return;
                         }
-                    }
-                });
+                        this.$message.error(res.data.message);
+                    });
             }
-            console.log(this.myId);
         }
     }
 };
 </script>
 
 <style lang="scss" scoped>
-    .suppyAdd{
-        margin-bottom: 400px;
-        .myi1{
-            margin-top: -3px;
-            display: inline-block;
-            font-size: 12px;
-            color: #999;
+    .iconfont{
+        color: $color-highlight;
+    }
+    .title-wrapper {
+        padding: 15px 16px;
+        cursor: default;
+        .iconfont {
+            margin-left: -6px;
+            margin-right: 8px;
+            vertical-align: baseline;
         }
-        .myspan{
-            color: #333333;
+        .gy-h5{
+            /*font-family: "PingFangSC-Medium";*/
             font-weight: bold;
         }
-        .listul{
-            background-color: #fff;
-            width: 80%;
-            max-height: 200px;
-            overflow: auto;
-            position: absolute;
-            top: 30px;
-            z-index: 9;
-            border: 1px solid #e6eaea;
-            border-top: none;
-            margin-left: 20.5%;
-            li{
-                padding: 5px 10px;
-            }
-            li:hover{
-                cursor: pointer;
-                background-color: #f5f7fa;
-                color: #4a90e2;
+        span {
+            cursor: default;
+        }
+    }
+    /deep/ .company-info-content {
+        &:after {
+            display: block;
+            content: ' ';
+            clear: both;
+        }
+        .gy-form-group {
+            padding-left: 96px;
+            .l {
+                width: 86px;
             }
         }
-        .div1{
-            margin: 14px;
-            font-size: 14px;
+    }
+    /deep/ .application-info-content {
+        padding-bottom: 6px;
+        padding-left: 4px;
+        &:after {
+            display: block;
+            content: ' ';
+            clear: both;
         }
-        .div2{
-            margin-left: 16px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        .div3{
-            margin: 15px 16px;
-        }
-        .top_1{
-            margin-top: 10px;
-        }
-        .mytop{
-            overflow: hidden;
-            .top1{
-                float: left;
+        .gy-form-group {
+            padding-left: 125px;
+            line-height: 20px;
+            min-height: 36px;
+            .l {
+                width: 100px;
+                color: #000;
             }
-            .top2{
-                float: left;
-                font-size: 12px;
-                color: #666;
-                margin-left: 16px;
-            }
-            .top3{
-                float: right;
-                font-size: 14px;
-                color: #666;
-            }
-        }
-        .left_name{
-            color: #333333;
         }
     }
 </style>

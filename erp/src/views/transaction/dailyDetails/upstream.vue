@@ -52,23 +52,24 @@
                       <td>{{item.saleContractSn?item.saleContractSn:'-'}}</td>
                       <td>{{item.productName?item.productName:'-'}}</td>
                       <td>{{item.unit?item.unit:'-'}}</td>
-                      <td>{{item.buyQuantity?item.buyQuantity:'-'}}</td>
-                      <td><span v-if="item.buyPrice">{{item.buyPrice | numToCash}}</span><span v-else>-</span></td>
-                      <td><span v-if="item.totalAmount">{{item.totalAmount | numToCash}}</span><span v-else>-</span></td>
+                      <td class="text-r">{{item.buyQuantity?item.buyQuantity:'-'|numToQuantity}}</td>
+                      <td class="text-r"><span v-if="item.buyPrice">{{item.buyPrice|numToCash(true)}}</span><span v-else>-</span></td>
+                      <td class="text-r"><span v-if="item.totalAmount">{{item.totalAmount|numToCash}}</span><span v-else>-</span></td>
                       <td><span v-if="item.staDeliveryDate">{{item.staDeliveryDate | date}}</span><span v-else>-</span></td>
                       <td><span v-if="item.endDeliveryDate">{{item.endDeliveryDate | date}}</span><span v-else>-</span></td>
-                      <td>{{item.depositRatio?item.depositRatio:'-'}}</td>
-                      <td>{{item.marginCall}}%</td>
-                      <td><span v-if="item.paymentType">{{item.paymentType | paymentType}}</span><span v-else>-</span></td>
-                      <td><span v-if="item.deliveryType">{{item.deliveryType | deliveryType}}</span><span v-if="item.deliveryTypeStr ===' '">-</span></td>
+                      <td>{{item.depositRatio}}</td>
+                      <td>{{item.marginCall}}</td>
+                      <td><span v-if="item.paymentTypeStr">{{item.paymentTypeStr}}</span><span v-else>-</span></td>
+                      <td><span v-if="item.deliveryType">{{item.deliveryType | deliveryType}}</span><span v-else>-</span></td>
                       <td>{{item.dlvyWarehouse?item.dlvyWarehouse:'-'}}</td>
                       <td>{{parseInt(item.contProgress * 100)}}%</td>
-                      <td><span v-if="item.actBuyQuantity">{{item.actBuyQuantity | numToCash}}</span><span v-else>-</span></td>
-                      <td>{{item.actbuyPrice?item.actbuyPrice:'-'}}</td>
-                      <td><span v-if="item.actContracrPrice">{{item.actContracrPrice | numToCash}}</span><span v-else>-</span></td>
+                      <!-- zheli -->
+                      <td class="text-r">{{item.actbuyPrice?item.actbuyPrice:'-'|numToCash(true)}}</td>
+                      <td class="text-r"><span v-if="item.actBuyQuantity">{{item.actBuyQuantity |numToQuantity}}</span><span v-else>-</span></td>
+                      <td class="text-r"><span v-if="item.actContracrPrice">{{item.actContracrPrice |numToCash(true)}}</span><span v-else>-</span></td>
                       <td>{{item.actDlvyWarehouse?item.actDlvyWarehouse:'-'}}</td>
-                      <td>
-                        {{item.totalDlvyQty?item.totalDlvyQty:'-'}}
+                      <td class="text-r">
+                        {{item.totalDlvyQty?item.totalDlvyQty:'-'|numToQuantity}}
                           <el-popover
                             placement="top-start"
                             width="430"
@@ -76,7 +77,9 @@
                             trigger="click">
                             <el-table :data="dialogData">
                               <el-table-column label="序号" width="60" type="index"></el-table-column>
-                              <el-table-column property="deliveryQuantity" label="交割数量" width="120"></el-table-column>
+                              <el-table-column label="交割数量" width="120">
+                                  <template slot-scope="scope">{{scope.row.deliveryQuantity | numToQuantity}}</template>
+                              </el-table-column>
                               <el-table-column label="交割时间" width="180">
                                 <template slot-scope="scope">{{scope.row.deliveryDate | date}}</template>
                               </el-table-column>
@@ -84,8 +87,8 @@
                             <el-button class="gy-button-view" slot="reference" v-if="item.totalDlvyQty">明细</el-button>
                           </el-popover>
                       </td>
-                      <td>{{item.unDlvyQty?item.unDlvyQty:'-'}}</td>
-                      <td>
+                      <td class="text-r">{{item.unDlvyQty?item.unDlvyQty:'-'|numToQuantity}}</td>
+                      <td class="text-r">
                         {{item.totalPayAmount | numToCash}}
                           <el-popover
                             placement="top-start"
@@ -104,9 +107,22 @@
                             <el-button class="gy-button-view" slot="reference" v-if="item.totalPayAmount">明细</el-button>
                           </el-popover>
                       </td>
-                      <td>{{item.needPayAmount | numToCash}}</td>
-                      <td>{{item.invoiceStatus?item.invoiceStatus:'-'}}</td>
-                      <td>{{item.remarks?item.remarks:'-'}}</td>
+                      <td class="text-r">{{item.needPayAmount | numToCash}}</td>
+                      <td>{{item.invoiceStatusStr?item.invoiceStatusStr:'-'}}</td>
+                      <td>
+                        <el-popover
+                            v-if="item.remarks"
+                            placement="top-start"
+                            title="备注"
+                            width="430"
+                            trigger="hover"
+                            :content="item.remarks">
+                            <!-- <div class="td-max-w" slot="reference">{{item.remarks}}</div> -->
+                            <div style="height: 300px;overflow-y:scroll">{{item.remarks?item.remarks:"-"}}</div>
+                                <div class="text-overflow" slot="reference"  >{{(item.remarks?item.remarks:"-") | cutstring(20)}}</div>
+                        </el-popover>
+                        <div v-else>-</div>
+                      </td>
                   </tr>
               </tbody>
               <tbody v-else>
@@ -117,7 +133,7 @@
           </table>
       </div>
       <!-- jiesu -->
-      <div class="departmentName">共计{{total}}条记录</div>
+      <div class="departmentName">共 {{total}} 条记录</div>
       <!-- 分页 -->
       <el-pagination
         background
@@ -196,28 +212,9 @@ export default {
         },
         // 导出
         excel (v) {
-            this.$http.post(this.$api.statement.standingBookReportExport, v, {responseType: 'blob'}).then(res => {
-                if (res.data.size > 0) {
-                    this.download(res.data);
-                    return;
-                }
-                this.$message.error('没有文件可下载');
-            });
-        },
-        download (data) {
-            var blob = new Blob([data]);
-            if (window.navigator.msSaveOrOpenBlob) {
-                // 兼容IE10
-                navigator.msSaveBlob(blob, 'excel.xls');
-            } else {
-                let url = window.URL.createObjectURL(new Blob([data]));
-                let link = document.createElement('a');
-                link.style.display = 'none';
-                link.href = url;
-                link.setAttribute('download', 'excel.xls');
-                document.body.appendChild(link);
-                link.click();
-            }
+            let that = this;
+            let fileName = '日报-上游采购合同-' + that.$tools.parseDate(new Date().getTime()) + '.xls';
+            that.$tools.exporttoExcel(that, that.$api.statement.dailyUptoExcel, v, fileName);
         },
         // 分页
         turnPage (v) {
@@ -233,19 +230,26 @@ export default {
         font-size: 12px;
         color: #666;
     }
+    .td-max-w {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 200px;
+        display: inline-block;
+    }
     .table-wrap {
         overflow-x: auto;
         .gy-table {
             overflow: auto;
             font-size: 12px;
             th {
-                padding: 9px 0 9px 20px;
                 white-space: nowrap;
                 font-weight: bold;
                 color: #666666;
             }
-            td{
+            td {
                 color: #666666;
+                padding-left: 10px;
             }
         }
     }

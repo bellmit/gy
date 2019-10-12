@@ -23,7 +23,7 @@
                 <!--<span class="input-limit err-color" v-if="control.upgradeEverymonthMostGet.status === 'error'">格式错误</span>-->
             <!--</el-form-item>-->
         <!--</el-form>-->
-        <h3 class="gy-h3">会员等级权益</h3>
+        <div class="gy-h4">会员等级权益</div>
         <el-form class="gy-detail-form clearfix short" :model="speed" ref="speedForm" label-width="106px">
             <el-form-item class="half gy-label" label="普通会员">
                 <!--<input type="text" class="gy-input" v-model="speed.commonRatio.value">-->

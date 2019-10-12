@@ -1,31 +1,35 @@
 <template>
     <div class="footer">
         <div class="menu">
-            <dl>
-                <dt>联系我们</dt>
-                <dd><a href="http://chinayie.cn/contactus.php">公司地址</a></dd>
-                <dd><a href="http://www.chinayie.cn/index.php?m=content&c=index&a=lists&catid=37">诚聘英才</a></dd>
-                <dd><a href="http://chinayie.cn/contactus.php">联系我们</a></dd>
-            </dl>
-            <dl>
-                <dt>关于我们</dt>
-                <dd><a href="http://chinayie.cn/about_speech.php">董事长致辞</a></dd>
-                <dd><a href="http://chinayie.cn/about_structure.php">组织架构</a></dd>
-                <dd><a href="http://chinayie.cn/about_bigevent.php">企业大事记</a></dd>
-            </dl>
-            <dl>
-                <dt>公司信息</dt>
-                <dd><a href="http://chinayie.cn/about.php">公司介绍</a></dd>
-                <dd><a href="http://chinayie.cn/about_culture.php">企业文化</a></dd>
-                <dd><a href="http://chinayie.cn/about_honor.php">荣誉资质</a></dd>
-            </dl>
-            <ul class="ewm">
-                <li><img src="../assets/images/ewm-wechat.png" alt=""><span>微信</span></li>
-                <li><img src="../assets/images/ewm-app.png" alt=""><span>APP</span></li>
-            </ul>
+            <div class="inner">
+                <dl>
+                    <dt>联系我们</dt>
+                    <dd><a href="http://chinayie.cn/contactus.php">公司地址</a></dd>
+                    <dd><a href="http://www.chinayie.cn/index.php?m=content&c=index&a=lists&catid=37">诚聘英才</a></dd>
+                    <dd><a href="http://chinayie.cn/contactus.php">联系我们</a></dd>
+                </dl>
+                <dl>
+                    <dt>关于我们</dt>
+                    <dd><a href="http://chinayie.cn/about_speech.php">董事长致辞</a></dd>
+                    <dd><a href="http://chinayie.cn/about_structure.php">组织架构</a></dd>
+                    <dd><a href="http://chinayie.cn/about_bigevent.php">企业大事记</a></dd>
+                </dl>
+                <dl>
+                    <dt>公司信息</dt>
+                    <dd><a href="http://chinayie.cn/about.php">公司介绍</a></dd>
+                    <dd><a href="http://chinayie.cn/about_culture.php">企业文化</a></dd>
+                    <dd><a href="http://chinayie.cn/about_honor.php">荣誉资质</a></dd>
+                </dl>
+                <ul class="ewm">
+                    <li><img src="../assets/images/ewm-wechat.png" alt=""><span>微信</span></li>
+                    <li><img src="../assets/images/ewm-app.png" alt=""><span>APP</span></li>
+                </ul>
+            </div>
         </div>
         <div class="copyright">
-            <span><a href="http://www.sgs.gov.cn/shaic" rel="nofollow" target="_blank"><img src="http://static.mall.chinayie.com/img/ib.png"></a></span><span id="kxscript"></span><span class="copy">上海国烨跨境电子商务有限公司  |  Copyright &copy; 2015 - 2018<br>国烨 chinayie.com 版权所有  |  <a href="http://www.miibeian.gov.cn" rel="nofollow" target="_blank">沪ICP备15040931号-1</a></span>
+            <div class="inner">
+                <span><a target="_blank" href="https://pic.chinayie.com/cdn/yyzz.jpg"><img src="https://pic.chinayie.com/cdn/ib.png"></a></span><span id="kxscript"></span><span class="copy">上海国烨跨境电子商务有限公司 | Copyright &copy; 2015 - 2019  国烨 chinayie.com 版权所有 <br>沪ICP备15040931号-1 | ICP证：沪B2-20160174<br/><a target="_blank" href="https://pic.chinayie.com/cdn/yyzz.jpg">营业执照</a> | <a target="_blank" href="https://pic.chinayie.com/cdn/whpzz.jpg">危险品经营许可证</a></span>
+            </div>
         </div>
     </div>
 </template>
@@ -48,25 +52,31 @@ export default {
 </script>
 <style lang="scss" scoped>
     .footer {
-        background-color: #fff;
-        border-top: 1px solid $color-border;
-        padding: 35px;
+        color: #bbb;
+        a{
+            color: #bbb;
+        }
         .menu {
-            overflow: hidden;
-            margin: 0 auto;
-            width: 1200px;
-            line-height: 1;
-            padding-bottom: 35px;
+            background-color: #333;
+            padding-top: 35px;
+            .inner{
+                overflow: hidden;
+                margin: 0 auto;
+                width: 1200px;
+                line-height: 1;
+                padding-bottom: 35px;
+            }
             dl {
                 float: left;
                 margin-right: 80px;
                 dt {
                     font-size: 18px;
-                    color: $color-title;
+                    color: #ddd;
                     margin-bottom: 20px;
                 }
                 dd {
                     margin-top: 15px;
+                    color: #bbb;
                 }
             }
             .ewm {
@@ -83,15 +93,23 @@ export default {
                 img {
                     width: 115px;
                     height: auto;
+                    border: 5px solid #fff;
                 }
             }
         }
         .copyright {
-            border-top: 1px solid $color-border;
-            margin: 0 auto;
-            width: 1200px;
-            padding-top: 35px;
-            text-align: center;
+            background-color: #000;
+            padding-bottom: 35px;
+            color: #999;
+            a{
+                color: #999;
+            }
+            .inner{
+                margin: 0 auto;
+                width: 1200px;
+                padding-top: 35px;
+                text-align: center;
+            }
             span {
                 display: inline-block;
                 vertical-align: middle;

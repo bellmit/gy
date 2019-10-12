@@ -9,7 +9,10 @@
               <el-main class="main-wrap">
                    <gy-breadcrumb></gy-breadcrumb>
                   <div class="root-router">
-                    <router-view></router-view>
+                    <keep-alive>
+                      <router-view :key="$route.fullPath" v-if="$route.meta.keepAlive"></router-view>
+                    </keep-alive>
+                    <router-view :key="$route.fullPath" v-if="!$route.meta.keepAlive"></router-view>
                   </div>
               </el-main>
           </el-container>

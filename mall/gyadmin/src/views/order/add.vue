@@ -96,7 +96,6 @@
           </el-col>
           <el-col :span="11" :offset="1">
             <el-form-item label="买方公司名" prop="companyName">
-              <el-row>
                 <el-col :span="23"><input @click="blur11" type="text" class="gy-input" v-model="info.companyName" @keyup.enter="onelist1click"></el-col>
                 <el-col :span="1"><i class="iconfont icon-search"  @click="onelist1click"></i></el-col>
                 <ul class="listul2"  v-show="onelist1Show">
@@ -105,7 +104,6 @@
                   </li>
                   <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
                 </ul>
-              </el-row>
             </el-form-item>
             <!--<el-form-item label="买方公司名" prop="companyName">-->
               <!--<div class="product-list">-->
@@ -389,7 +387,7 @@ export default {
     data () {
         var append = (rule, value, callback) => {
             if (this.info.depositRatioAppend || this.info.depositRatioSubtract) {
-                if (!this.info.depositAppendBenchmark || !this.info.depositAppendArea) {
+                if (!this.info.depositAppendBenchmark && !this.info.depositAppendArea) {
                     callback(new Error('请填写追保基准和地区'));
                 }
             }
@@ -610,7 +608,8 @@ export default {
                         picker.$emit('pick', [start, end]);
                     }
                 }]
-            }
+            },
+            topCatalogueId: null
         };
     },
     created () {
@@ -674,7 +673,7 @@ export default {
             });
         },
         getTem () {
-            this.$http.get(this.$api.orders.contractTemplates + 'companyId=' + this.sellerCompanyId + '&prdId=' + this.info.productId).then((res) => {
+            this.$http.get(this.$api.orders.contractTemplates + 'companyId=' + this.sellerCompanyId + '&prdId=' + this.info.productId + '&categoryId=' + this.topCatalogueId + '&typeId=1').then((res) => {
                 if (res.data.code === 0) {
                     // this.tempOptions = res.data.data;
                     let param = {};
@@ -707,6 +706,7 @@ export default {
                 if (res.data.code === 0) {
                     that.info = Object.assign(that.info, res.data.data);
                     that.sellerCompanyId = that.info.sellerCompanyId;
+                    that.topCatalogueId = that.info.topCatalogueId || 0;
                     that.skuQuantity = that.info.skuQuantity;
                     if (that.info.paymentType === 2) {
                         that.info.paymentType = 0;
@@ -781,6 +781,7 @@ export default {
             that.info.orderItemList = [];
             that.info.provideInvoiceType = that.provideInvoiceType;
             that.info.orderItemList.push(that.list);
+            that.info.packagingStandardType = 0; // 默认先0 2019.08.08修改
             that.$http.post(that.$api.orders.createOrderList, that.info)
                 .then(function (res) {
                     if (res.data.code === 0) {

@@ -1,49 +1,66 @@
 <template>
-    <div class="">
+    <div class="myIntegral-new">
         <div class="new-title-public clearfix">
             <span class="title">我的等级和积分</span>
         </div>
         <div class="vip">
-            <span class="title1">我的企业等级 </span><img :src="Data.gradestamp" class="vipLogo">{{Data.companyLevel}}<span class="title2">企业累积积分</span><span>{{Data.companyPoints}}</span>
-            <span class="title2">企业可用积分</span><span>{{Data.balancePoints}}</span><span v-if="Data.pointactivation === 0" class="unactive">积分待激活</span>
+            <span class="title1">我的企业等级 </span><img :src="Data.gradestamp" class="vipLogo">{{Data.companyLevel}}<span class="title2">企业累积积分</span><span class="title2-right">{{Data.totalHistoryPoints}}</span>
+            <span class="title2">企业待激活积分</span><span class="title2-right">{{Data.unActivedPoints}}</span>
+            <span class="title2">企业可用积分</span><span class="title2-right">{{Data.usablePoints}}</span>
+            <!--<span v-if="Data.pointactivation === 0" class="unactive">积分待激活</span>-->
         </div>
         <div class="integralList">
             <div class="integralDetail">
                 <div @click="integralDetailChange(1)" :class="integralDetail?'detailActive':''">积分累积明细</div>
                 <div @click="integralDetailChange(2)" :class="integralDetail?'':'detailActive'">积分消费明细</div>
+                <div class="integralDetail-right3">
+                    <i class="iconfont icon-search" @click.stop.prevent="search"></i>
+                </div>
+                <div class="integralDetail-right2">
+                    <el-date-picker
+                        v-model="createDate"
+                        type="daterange"
+                        align="right"
+                        unlink-panels
+                        range-separator="至"
+                        start-placeholder='开始日期'
+                        end-placeholder='结束日期'>
+                    </el-date-picker>
+                </div>
+                <div class="integralDetail-right1">日期</div>
             </div>
             <template v-if="integralDetail">
-                <table>
+                <table class="gy-table">
                     <thead>
                     <tr class="title">
-                        <td>
-                            <div class="user">日期</div>
-                        </td>
-                        <td>
-                            <div class="contribution">用户名</div>
-                        </td>
-                        <td>
-                            <div class="contribution">积分获取途径</div>
-                        </td>
-                        <td>
-                            <div class="consumption">积分数量</div>
-                        </td>
+                        <th>
+                            日期
+                        </th>
+                        <th width="250">
+                           订单号
+                        </th>
+                        <th>
+                           积分获取途径
+                        </th>
+                        <th width="200">
+                            积分数量
+                        </th>
                     </tr>
                     </thead>
                     <tbody v-if="integralData.length !== 0">
                     <template v-for="(item, index) in integralData">
                         <tr class="list-head" :key="index">
                             <td>
-                                <div class="user"><span>{{item.createdDate | pointdate}}</span></div>
+                                {{item.createdDate | pointdate}}
+                            </td>
+                            <td width="250">
+                                {{item.code}}
                             </td>
                             <td>
-                                <div class="contribution"><span>{{item.userName}}</span></div>
+                                {{item.accessName}}
                             </td>
-                            <td>
-                                <div class="contribution">{{item.accessName}}</div>
-                            </td>
-                            <td>
-                                <div class="consumption">{{item.points}}</div>
+                            <td style="text-align: right"  width="200">
+                               {{item.points}}
                             </td>
                         </tr>
                     </template>
@@ -52,48 +69,48 @@
                 <div v-if="integralData.length === 0" class="null-td null-msg">没有找到可显示的数据...</div>
                 <div class="departmentName">共 {{total}} 条记录</div>
                 <el-pagination
-                  v-if="integralData.length !== 0"
-                  background
-                  layout="prev, pager, next"
-                  style="margin: 20px 0 30px 0;"
-                  @current-change="handleCurrentChange"
-                  :current-page="page.pageNum"
-                  :page-size="page1.pageSize"
-                  :total=total>
+                    v-if="integralData.length !== 0"
+                    background
+                    layout="prev, pager, next"
+                    style="margin: 20px 0 30px 0;"
+                    @current-change="handleCurrentChange"
+                    :current-page="page.pageNum"
+                    :page-size="page1.pageSize"
+                    :total=total>
                 </el-pagination>
             </template>
             <template v-else>
-                <table>
+                <table  class="gy-table">
                     <thead>
                     <tr class="title">
-                        <td>
-                            <div class="user">日期</div>
-                        </td>
-                        <td>
-                            <div class="contribution">用户名</div>
-                        </td>
-                        <td>
-                            <div class="contribution">积分消费途径</div>
-                        </td>
-                        <td>
-                            <div class="consumption">积分数量</div>
-                        </td>
+                        <th>
+                            日期
+                        </th>
+                        <th>
+                            用户名
+                        </th>
+                        <th>
+                            积分消费途径
+                        </th>
+                        <th>
+                            积分数量
+                        </th>
                     </tr>
                     </thead>
                     <tbody v-if="integralData1.length !== 0">
                     <template v-for="(item, index) in integralData1">
                         <tr class="list-head" :key="index">
                             <td>
-                                <div class="user"><span>{{item.createdDate | pointdate}}</span></div>
+                                {{item.createdDate | pointdate}}
                             </td>
                             <td>
-                                <div class="contribution"><span>{{item.userName}}</span></div>
+                                {{item.userName}}
                             </td>
                             <td>
-                                <div class="contribution">{{item.accessName}}</div>
+                               {{item.accessName}}
                             </td>
-                            <td>
-                                <div class="consumption">{{item.points}}</div>
+                            <td style="text-align: right">
+                                {{item.points}}
                             </td>
                         </tr>
                     </template>
@@ -102,14 +119,14 @@
                 <div v-if="integralData1.length === 0" class="null-td null-msg">没有找到可显示的数据...</div>
                 <div class="departmentName">共 {{total1}} 条记录</div>
                 <el-pagination
-                  v-if="integralData1.length !== 0"
-                  background
-                  layout="prev, pager, next"
-                  style="margin: 20px 0 30px 0;"
-                  @current-change="handleCurrentChange1"
-                  :current-page="page1.pageNum"
-                  :page-size="page1.pageSize"
-                  :total=total1>
+                    v-if="integralData1.length !== 0"
+                    background
+                    layout="prev, pager, next"
+                    style="margin: 20px 0 30px 0;"
+                    @current-change="handleCurrentChange1"
+                    :current-page="page1.pageNum"
+                    :page-size="page1.pageSize"
+                    :total=total1>
                 </el-pagination>
             </template>
         </div>
@@ -163,7 +180,8 @@ export default {
                 pageSize: 10
             },
             username: null,
-            isMy: true
+            isMy: true,
+            createDate: [] // 存时间
         };
     },
     created () {
@@ -182,7 +200,9 @@ export default {
             let query = {
                 data: {
                     userCompanyId: this.userInfo.usrCompanyId,
-                    type: this.integralDetail ? '1' : '2'
+                    type: this.integralDetail ? '1' : '2',
+                    pointsDateStart: this.createDate && this.createDate[0],
+                    pointsDateEnd: this.createDate && this.createDate[1]
                 },
                 pageNum: this.integralDetail ? this.page.pageNum : this.page1.pageNum,
                 pageSize: this.integralDetail ? this.page.pageSize : this.page1.pageSize
@@ -209,6 +229,9 @@ export default {
         // 消费积分分页
         handleCurrentChange1 (e) {
             this.page1.pageNum = e;
+            this.getlist();
+        },
+        search () {
             this.getlist();
         }
     },
@@ -237,7 +260,13 @@ export default {
     }
 };
 </script>
-
+<style lang="scss">
+    .myIntegral-new{
+        .el-date-editor .el-range-separator{
+            margin-top: 9px !important;
+        }
+    }
+</style>
 <style lang="scss" scoped>
     .el-card__header {
         padding: 10px 20px;
@@ -247,6 +276,7 @@ export default {
         padding: 20px 0;
         .title1{
             padding: 0 20px 0 15px;
+            color: #333333;
         }
         .vipLogo {
             margin-right: 10px;
@@ -255,6 +285,10 @@ export default {
         }
         .title2 {
             padding: 0 25px 0 50px;
+            color: #333333;
+        }
+        .title2-right{
+            color: #666666;
         }
         .explain{
             padding-left: 20px;
@@ -270,7 +304,7 @@ export default {
             font-size: 12px;
             border: 0;
             vertical-align: middle;
-            text-align: center;
+            text-align: left;
         }
         .list-head {
             border: 1px solid $color-border;
@@ -293,23 +327,6 @@ export default {
         .title td{
             padding: 9px;
         }
-        .user {
-            width: 160px;
-            padding-left: 40px;
-            .userLogo{
-                width: 30px;
-                height: 30px;
-                margin-right: 10px;
-                border-radius: 30px;
-                background-color: #EEF3F8;
-            }
-        }
-        .contribution {
-            width: 200px;
-        }
-        .consumption{
-            width: 200px;
-        }
     }
     .vip {
         font-weight: 600;
@@ -331,14 +348,14 @@ export default {
             line-height: 39px;
             border: 1px solid #f2f2f2;
             text-align: center;
-       }
+        }
     }
     .integralDetail {
-        /*padding-top: 40px;*/
+        overflow: hidden;
         cursor: default;
         div{
             float: left;
-            padding: 0px 7px 10px 7px;
+            padding: 0px 5px 0px 5px;
             margin-right: 13px;
         }
         .detailActive {
@@ -347,6 +364,19 @@ export default {
             border-bottom: 2px solid #E0370F;
             font-size: 14px;
 
+        }
+        .integralDetail-right1{
+            float: right;
+        }
+        .integralDetail-right2{
+            float: right;
+            margin-top: -7px;
+            padding-right: 0px;
+            width: 350px;
+        }
+        .integralDetail-right3{
+            float: right;
+            padding-left: 0px;
         }
     }
     .unactive{

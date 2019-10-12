@@ -9,9 +9,9 @@
         </div> -->
         <div class="container">
             <!-- h1 -->
-            <div class="gy-h3">广告管理</div>
+            <div class="gy-h4">广告管理</div>
             <!-- 模糊搜索 -->
-            <div class="gy-form my-form">
+            <div class="gy-form my-form" style="padding:0">
               <div class="query clearfix">
                 <div class="more fr cursor" @click="advancedSearch=!advancedSearch">
                   <span>高级搜索</span>
@@ -19,7 +19,7 @@
                 </div>
                 <div class="iptbox fr">
                   <input class="ipt" v-model="search.title" type="text" placeholder="请输入标题"/>
-                  <span class="search" @click="dimSearch">搜索</span>
+                  <i class="iconfont icon-search" @click="dimSearch"></i>
                 </div>
               </div>
             </div>
@@ -50,7 +50,7 @@
             </div>
             <!-- 事件区域 -->
             <div class="gy-form-button">
-              <button class="gy-button-normal" @click="add">新增</button>
+              <button class="gy-button-extra" @click="add">新增</button>
               <button class="gy-button-normal" :disabled="isDisabled" @click="edit(tabRowItem)" :class="{disabledColor: isDisabled}">编辑</button>
               <button class="gy-button-normal" @click="dele">删除</button>
             </div>
@@ -139,6 +139,7 @@
                       class="my-upload anewH"
                       drag
                       :limit="1"
+                      :on-remove="handleRemove"
                       list-type="picture-card"
                       :http-request="uploadImg"
                       :file-list="form.fileImgList">
@@ -221,6 +222,22 @@ export default {
                 }, {
                     value: 3,
                     label: '积分商城广告'
+                }, {
+                    value: 4,
+                    label: '仓储首页'
+                }, {
+                    value: 5,
+                    label: '物流首页'
+                }, {
+                    value: 7,
+                    label: '推荐商品更多页面广告'
+                }, {
+                    value: 10,
+                    label: '平台首页广告'
+                },
+                {
+                    value: 11,
+                    label: '推荐撮合公司广告'
                 }
             ]
         };
@@ -260,6 +277,10 @@ export default {
                         me.form.imageUrl = res.data.data;
                     }
                 });
+        },
+        // 点击移除图片
+        handleRemove () {
+            this.form.imageUrl = '';
         },
         // 公用获取数据
         get (url, params) {
@@ -363,19 +384,20 @@ export default {
         // 表单校验
         check () {
             console.log(this.form);
-            if (this.form.position === null) {
+            if (this.form.position === null || this.form.position === '') {
                 this.$message.error('广告分类不能为空');
                 return false;
             }
-            if (this.form.title === null) {
+            if (this.form.title === null || this.form.title === '') {
                 this.$message.error('广告标题不能为空');
                 return false;
             }
-            if (this.form.linkUrl === null) {
-                this.$message.error('广告链接目标不能为空');
-                return false;
-            }
-            if (this.form.imageUrl === null) {
+            // 广告链接目标改为选填
+            // if (this.form.linkUrl === null || this.form.linkUrl === '') {
+            //     this.$message.error('广告链接目标不能为空');
+            //     return false;
+            // }
+            if (this.form.imageUrl === null || this.form.imageUrl === '') {
                 this.$message.error('请上传图片');
                 return false;
             }
@@ -433,12 +455,14 @@ export default {
         }
       }
     }
+    .advancedSearch{
+      padding: 0 0 12px 14px;
+    }
   }
 </style>
 <style lang="scss" scoped>
     .AD {
         .container {
-            padding: 26px 36px;
             .uoloadInfo {
               border: 2px dashed $color-border;
               width: 90%;
@@ -468,9 +492,7 @@ export default {
               i{
                 position: absolute;
                 right: 0;
-                bottom: 15px;
-                font-weight: bold;
-                color: $color-black;
+                top:14px;
                 line-height: 1;
               }
             }
@@ -478,6 +500,7 @@ export default {
               padding: 10px 20px 10px 90px;
               .l {
                 width: 100px;
+                top: 8px;
               }
             }
             .query {
@@ -489,7 +512,7 @@ export default {
                 .ipt {
                   border: none;
                   display: inline-block;
-                  width: 230px;
+                  width: 260px;
                 }
                 ipt::-webkit-input-placeholder { /* WebKit browsers */
                   opacity: 0.5;
@@ -508,10 +531,11 @@ export default {
               }
               .cursor {
                   cursor: pointer;
+                  color:#666;
+                  i{
+                    font-weight: bold;
+                  }
               }
-            }
-            .advancedSearch {
-              width: 80%;
             }
             .tips {
               color: $color-minor;
@@ -522,6 +546,19 @@ export default {
         }
       .disabledColor {
         background-color: $color-light;
+      }
+      .gy-form-button{
+        padding-right: 0;
+      }
+      .gy-form-group{
+        padding:0 30px 12px 80px;
+      }
+      .gy-form-group:nth-child(even) {
+        padding-left: 105px;
+        .l {
+          width: 86px;
+          padding-left: 30px;
+        }
       }
     }
     .clearfix:after {

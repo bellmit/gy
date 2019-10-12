@@ -12,7 +12,7 @@
         <button type="button" @click="$router.push({ path: 'add' })" class="gy-button-extra">添加</button>
         <button type="button" @click="edit" class="gy-button-normal">编辑</button>
         <!--<button @click="del" class="gy-button-normal">删除</button>-->
-        <button type="button" @click="view" class="gy-button-normal">查看</button>
+        <button type="button" @click="view" class="gy-button-normal mr0">查看</button>
       </div>
       <table class="gy-table">
         <thead>

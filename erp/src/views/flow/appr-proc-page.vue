@@ -1,12 +1,16 @@
 <!-- 通用的审批页面 -->
 <template>
     <div class="paydetail-wrapper my-payment">
-        <div class="receivables-information">
+        <div class="receivables-information" v-for="(formData, index) in formList" :key="index">
             <p class="paydetail-title">{{formData.title}}</p>
             <div class="essential-wrapper pay-detail essential-row-float">
                 <div class="essential-item" v-for="(item, index) in formData.dataList" :key="index">
                     <div class="essential-title">{{item.itemName}}</div>
-                    <div class="essential-text">{{item.itemValue}}</div>
+                    <div class="essential-text" v-if="item.itemType === 'text'">{{item.itemValue || '--'}}</div>
+                    <div class="essential-text" v-if="item.itemType === 'file'" style="width:100%;">
+                        <span v-if="item.itemValue && item.itemValue.length !== 0" @click="showImgs(item.itemValue)"><i class="iconfont icon-photo"></i></span>
+                        <span v-else><i class="iconfont icon-photo-null"></i></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -25,52 +29,43 @@
         <div class="foot">
             <button class="gy-button-normal" @click="$router.go(-1)">返回</button>
             <template v-if="isPass">
-                <button class="gy-button-normal" @click="approveSub(2)">驳回</button>
+                <button class="gy-button-normal" @click="reject()">驳回</button>
                 <button class="gy-button-extra confirmations" @click="approveSub(1)">通过</button>
             </template>
         </div>
-        <div class="essential-information">
-            <p class="paydetail-title">操作流程</p>
-            <div class="essential-wrapper">
-                <table class="gy-table box">
-                    <thead>
-                    <tr>
-                        <th style="width: 80px">序号</th>
-                        <th style="width: 120px">操作人</th>
-                        <th style="width: 280px">操作时间</th>
-                        <th style="width: 200px">操作结果</th>
-                        <th style="width: 200px">备注</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="(item, index) in history" :key="index">
-                        <td>{{index+1}}</td>
-                        <td>{{item.username}}</td>
-                        <td>{{item.createdDate | date(item.createdDate)}}</td>
-                        <td>{{$constant.approveType[item.resultCode]}}</td>
-                        <td>{{item.msg}}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="foot" v-if="this.$route.query.subSysType == 0">
+            <button class="gy-button-extra" @click="comment()">评论</button>
         </div>
+        <gy-operation-history ref="operationHis"></gy-operation-history>
+        <gy-comment-remark v-if="commentDiog.dialogVisibleRemark === true" :dialog = "commentDiog" :invoice="contractDetailCommpany"></gy-comment-remark>
+        <gy-file-view ref="contFileView"></gy-file-view>
     </div>
 </template>
 
 <script>
+import gyOperationHistory from './../../components/gyOperationHistoryComment';
+import gyFileView from '../components/gyFileView';
+import gyCommentRemark from './../../components/gyCommentRemark';
 export default {
+    components: {gyOperationHistory, gyFileView, gyCommentRemark},
     data () {
         return {
-            formData: {
-                title: null,
-                dataList: []
+            commentDiog: {
+                dialogVisibleRemark: false
             },
+            contractDetailCommpany: {
+                targetType: 2,
+                subSysType: 0,
+                targetId: null,
+                refFunc: {}
+            },
+            approveData: {},
+            formList: [],
             remarks: null, // 备注
-            history: [],
             isPass: false // 是否审核通过
         };
     },
-    created () {
+    mounted () {
         this.getDetail();
         this.getApproveHistory();
     },
@@ -81,7 +76,17 @@ export default {
             this.$http.post(this.$api.apprProc.getApprReqInfo, {todoId: this.$route.query.todoId}).then(function (response) {
                 if (response.data.code === 0) {
                     // 去结果画面
-                    that.formData = response.data.data;
+                    that.approveData = response.data.data;
+                    if (Array.isArray(that.approveData)) {
+                        // 兼容旧数据
+                        that.formList = that.approveData;
+                    } else if (that.approveData.formList && Array.isArray(that.approveData.formList)) {
+                        that.formList = that.approveData.formList;
+                    } else if (that.approveData.dataList && Array.isArray(that.approveData.dataList)) {
+                        // 兼容旧数据
+                        that.formList.push(that.approveData);
+                    }
+
                     that.approveJurisdiction();
                 } else {
                     that.$alert(response.data.code + ' ' + response.data.message);
@@ -92,20 +97,13 @@ export default {
         },
         // 获取审批记录
         getApproveHistory () {
-            let that = this;
             let params = {
                 targetId: this.$route.query.bizId,
                 targetType: this.$route.query.bizType,
                 subSysType: this.$route.query.subSysType,
                 affiliatedCompanyId: this.$route.query.companyId
             };
-            this.$http.post(this.$api.contract.approve1History, params).then(function (res) {
-                if (res.data.code === 0) {
-                    that.history = res.data.data;
-                }
-            }).catch((e) => {
-                console.log(e);
-            });
+            this.$refs.operationHis.display(this.$api.contract.approve1History, params);
         },
         // 查看是否可以审批
         approveJurisdiction () {
@@ -124,6 +122,16 @@ export default {
                 console.log(e);
             });
         },
+        // 驳回提示
+        reject () {
+            this.$confirm('<span><i class="iconfont icon-message-warning"></i>确认驳回?</span>', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                dangerouslyUseHTMLString: true
+            }).then(() => {
+                this.approveSub(2);
+            });
+        },
         // 审批
         approveSub (type) {
             let that = this;
@@ -138,11 +146,40 @@ export default {
                         message: '操作成功',
                         type: 'success'
                     });
+                    that.$router.go(-1);
+                } else {
+                    that.$alert(response.data.code + ' ' + response.data.message);
                 }
-                that.$router.go(-1);
             }).catch((e) => {
                 console.log(e);
             });
+        },
+        // 评论
+        comment () {
+            this.commentDiog.dialogVisibleRemark = true;
+            this.contractDetailCommpany.targetId = Number(this.$route.query.bizId);
+            this.contractDetailCommpany.targetType = Number(this.$route.query.bizType);
+            this.contractDetailCommpany.refFunc = this.$refs.operationHis.display;
+            this.contractDetailCommpany.refParam = {
+                targetId: this.$route.query.bizId,
+                targetType: this.$route.query.bizType
+            };
+        },
+        // 图片预览
+        showImgs (imgListStr) {
+            let imgList = JSON.parse(imgListStr);
+            this.$refs.contFileView.open4MultiFile(imgList);
+        }
+    },
+    watch: {
+        remarks (val) {
+            if (val.length > 2500) {
+                this.$message({
+                    message: '审批备注最多可填写2500字',
+                    type: 'warning'
+                });
+                this.remarks = this.remarks.substr(0, 2500);
+            }
         }
     }
 };
@@ -172,16 +209,6 @@ export default {
 </style>
 <style lang="scss">
     .paydetail-wrapper {
-        .el-upload {
-            border: 1px solid #d9d9d9;
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .el-upload:hover {
-            border-color: #409EFF;
-        }
         .order-dialoged {
             .el-dialog__header {
                 font-weight: bold;

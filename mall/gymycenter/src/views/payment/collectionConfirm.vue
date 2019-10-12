@@ -48,8 +48,13 @@
                 </div>
             </div>
             <div class="createPayment-status-right fr">
-                <button @click="auditingCollection(1)" class="gy-button-extra button-margin">确认</button>
-                <button @click="auditingCollection(2)" class="gy-button-normal">驳回</button>
+                <div  v-if="decideWarm" class="fl"><span class="wxts">温馨提示：</span>支付完成，资金进入担保账户，收款方将在您确认收货后收到款项。</div>
+                <div class="fr" v-if="!decideWarm">
+                    <!--<button class="createPayment-status-right-submit btn-active">打印</button>-->
+                    <button @click="auditingCollection(1)" class="gy-button-extra button-margin">确认</button>
+                    <button @click="auditingCollection(2)" class="gy-button-normal">驳回</button>
+                </div>
+                <!-- <br v-else/> -->
             </div>
         </div>
         <div class="createPayment-detail createPayment-common">
@@ -173,7 +178,8 @@ export default {
             sellerId: '',
             stepArr: [],
             tempStepArr1: [{collectionStatus: 10, text: '等待确认'}, {collectionStatus: 20, text: '已确认'}],
-            tempStepArr2: [{collectionStatus: 60, text: '状态失效'}]
+            tempStepArr2: [{collectionStatus: 60, text: '状态失效'}],
+            decideWarm: false
         };
     },
     computed: {
@@ -240,6 +246,11 @@ export default {
                     me.depositRatio = response.data.data.depositRatio;
                     me.amount = response.data.data.payTotal;
                     me.remark = response.data.data.remarks;
+                    me.collectionStatus = response.data.data.collectionStatus;
+                    // 担保支付的温馨提示
+                    if (response.data.data.guaranteed === 1 && me.payMethod === 1 && me.collectionStatus === 10 && response.data.data.guaranteeStatus === 1) {
+                        me.decideWarm = true;
+                    }
                     if (response.data.data.payBillType === 1) {
                         me.sellerId = response.data.data.sellerId;
                         me.sellerCorpName = response.data.data.sellerCorpName;
@@ -259,7 +270,6 @@ export default {
                         me.buyerDepositBank = response.data.data.sellerDepositBank;
                         me.buyerCorpName = response.data.data.sellerCorpName;
                     }
-                    me.collectionStatus = response.data.data.collectionStatus;
                     me.stepArr = me.collectionStatus === 60 ? me.tempStepArr2 : me.tempStepArr1;
                     me.paymentId = response.data.data.paymentId;
                     me.paymentTerms = paymentMethod(response.data.data.transactionType, response.data.data.isBatchDelivery);
@@ -267,7 +277,11 @@ export default {
                     fileNames.forEach((item, index) => {
                         let obj = {};
                         let timestmp = (new Date()).valueOf();
-                        obj.url = process.env.API_ROOT_MAIN + me.$api.payment.paymentImage + '?filePath=' + item.fileUrl + '&t=' + timestmp;
+                        if (item.fileUrl.indexOf('http') !== -1) {
+                            obj.url = item.fileUrl;
+                        } else {
+                            obj.url = process.env.API_ROOT_MAIN + me.$api.payment.paymentImage + '?filePath=' + item.fileUrl + '&t=' + timestmp;
+                        }
                         me.fileList.push(obj);
                     });
                 }
@@ -314,7 +328,15 @@ export default {
             right: -12px;
         }
     }
-
+    .createPayment-status-right{
+        margin-top: 30px;
+        width:100%;
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    }
     .createPayment-status-right-submit {
         margin-right: 10px;
     }
@@ -482,6 +504,13 @@ export default {
     .button-margin{
         margin-right:10px;
     }
+    .font-weight {
+        width:104px;
+        color: #333;
+    }
+    .yanse{
+        color: #333;
+    }
 </style>
 <style lang="scss">
     .createPayment-main-tit-right {
@@ -522,13 +551,6 @@ export default {
             line-height: 40px;
             /*border:red solid 1px;*/
             color: #666666;
-        }
-        .font-weight {
-            width:104px;
-            color: #333;
-        }
-        .yanse{
-            color: #333;
         }
     }
 </style>

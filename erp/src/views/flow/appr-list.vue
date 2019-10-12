@@ -15,7 +15,7 @@
           </el-option>
         </el-select>
       </div>
-      <div class="gy-form-group">
+      <div class="gy-form-group last-active">
           <span class="l">流程名称</span>
           <input type="text" placeholder="请输入" v-model.trim="params.keywords">
           <span class="searchicon" @click="search"><i class="iconfont icon-search"></i></span>
@@ -46,7 +46,7 @@
               v-model="item.applyStatus">
             </el-switch>
           </td>
-          <td>
+          <td class="caoz">
               <button class="gy-button-view edit" @click="edit(item)">详情</button>
           </td>
         </tr>
@@ -77,8 +77,16 @@ export default {
             apprRuleList: []
         };
     },
+    activated () {
+        // 获取付款单信息
+        if (!this.$route.meta.isBack) {
+            this.params = {};
+            this.search();
+        }
+        this.$route.meta.isBack = false;
+    },
     created () {
-        this.search();
+        // this.search();
     },
     methods: {
         edit (apprRuleInfo) {
@@ -105,7 +113,6 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                console.log(2);
                 // 保存审批流程定义数据
                 let apprData = {};
                 apprData.id = item.id;
@@ -163,5 +170,9 @@ export default {
 <style lang="scss" scoped>
   .my-form {
     margin-bottom: 30px;
+  }
+  .caoz {
+      text-align: center;
+      padding: 0 10px;
   }
 </style>

@@ -7,9 +7,9 @@
             <div class="userCenter-content" :style="{minHeight: mainHeight + 'px'}">
                 <Breadcrumb/>
                 <div class="userCenter-main">
-                    <router-view></router-view>
+                    <router-view :key="contentKey.getTime()"></router-view>
                     <ul class="tools-bar">
-                        <li @click="goIm"><a href="javascript:;" class="iconfont icon-im"></a></li>
+                        <li @click="goIm"><a href="javascript:;" class="iconfont icon-imnew"></a></li>
                     </ul>
                 </div>
             </div>
@@ -21,6 +21,7 @@
 import NavMenu from '@/components/navMenu';
 import Breadcrumb from '@/components/breadcrumb';
 import Bus from '@/config/bus.js';
+import {mapGetters} from 'vuex';
 
 export default {
     name: 'userCenterContainer',
@@ -262,6 +263,9 @@ export default {
             currentPhone: null
         };
     },
+    computed: mapGetters([
+        'contentKey'
+    ]),
     created () {
         if (localStorage.getItem('userInfo')) {
             this.isConsign = JSON.parse(localStorage.getItem('userInfo')).companyTypeId === 1;
@@ -276,6 +280,7 @@ export default {
         window.onresize = () => {
             this.mainHeight = document.documentElement.clientHeight - 106;
         };
+        localStorage.removeItem('jump', true);
     },
     methods: {
         getBreadcrumbItem (index) {
@@ -347,8 +352,8 @@ export default {
                     background-color: #fff;
                     border-radius: $border-radius-small;
                     border: 1px solid $color-border;
-                    line-height: 45px;
-                    width: 40px;
+                    line-height: 30px;
+                    width: 30px;
                     color: #999;
                     text-align: center;
                     a {

@@ -22,7 +22,7 @@
                         <i  @click="getPaymentList(1)" class="iconfont icon-search"></i>
                     </div>
                     <span class="search-btn" @click="isSeniorSearch =!isSeniorSearch">高级搜索<i
-                        class="iconfont" :class="isSeniorSearch ? 'icon-arrow-up' : 'icon-arrow-down'" style="margin-left:5px;"></i></span>
+                        class="iconfont" :class="isSeniorSearch ? 'icon-arrow-up' : 'icon-arrow-down'"></i></span>
                 </div>
             </div>
             <!-- 结束 -->
@@ -78,6 +78,10 @@
                                 </el-select>
                             </div>
                             <div class="gy-form-group">
+                                <span class="l">合同编号</span>
+                                <input class="gy-input" v-model="contractCode" placeholder="请输入" type="text">
+                            </div>
+                            <div class="gy-form-group">
                                 <span class="l">收款企业</span>
                                 <input @click="blur22" type="text" class="gy-input" placeholder="请输入" v-model="receiveCompanyIdname" @keyup.enter="onelist1click2">
                                 <i class="iconfont icon-mySearch searchposition"  @click="onelist1click2"></i>
@@ -101,24 +105,16 @@
                                     </ul>
                                 </el-row> -->
                             </div>
-                        </div>
-                        <div class="payment-list-content-item-box" v-show="isSeniorSearch">
-                            <div class="payment-list-content-item clearfix" style="width: 97%;">
-                                <el-row>
-                                    <el-col :span="2">付款类型</el-col>
-                                    <el-col :span="11" style="width:43%;margin-left: 10px;">
-                                        <el-radio-group v-model="payMethod">
-                                            <el-radio :label="''">全部</el-radio>
-                                            <el-radio :label="2">保证金</el-radio>
-                                            <el-radio :label="1">货款</el-radio>
-                                            <el-radio :label="3">结算</el-radio>
-                                            <el-radio :label="4">运费</el-radio>
-                                        </el-radio-group>
-                                    </el-col>
-                                    <el-col :span="2">
-                                    <i class="iconfont icon-search" @click="getPaymentList(2)"></i>
-                                    </el-col>
-                                </el-row>
+                            <div class="gy-form-group">
+                                <span class="l">付款类型</span>
+                                <el-radio-group v-model="payMethod">
+                                    <el-radio :label="''">全部</el-radio>
+                                    <el-radio :label="2">保证金</el-radio>
+                                    <el-radio :label="1">货款</el-radio>
+                                    <el-radio :label="3">结算</el-radio>
+                                    <el-radio :label="4">运费</el-radio>
+                                </el-radio-group>
+                                <i class="iconfont icon-search" @click="getPaymentList(2)"></i>
                             </div>
                         </div>
                     </div>
@@ -132,27 +128,27 @@
                         </el-row>
                     </div>
                     <!-- 开始 -->
-                  <div class="table-box table-wrap">
+                  <div class="paymentList table-wrap">
                         <table class="gy-table">
                             <thead>
                                 <tr>
                                     <th>付款单号</th>
                                     <th>收款企业</th>
                                     <th>付款单状态</th>
-                                    <th>订单编号</th>
-                                    <th>付款金额</th>
+                                    <th>订单编号/合同编号</th>
+                                    <th>付款金额(元)</th>
                                     <th>支付方式</th>
                                     <th>付款类型</th>
                                     <th>付款日期</th>
                                 </tr>
                             </thead>
                             <tbody v-if="resultList.length !== 0">
-                                <tr v-for="(item, index) in resultList" :key="index" @click="gotoDetail(item.id,item.payStatus)">
+                                <tr v-for="(item, index) in resultList" :key="index" @click="gotoDetail(item.id, item.payStatus)">
                                     <td class="wid150">{{item.payNumber}}</td>
                                     <td><span class="nowrap">{{item.receiveCompanyName}}</span></td>
                                     <td>{{item.payStatus|paymentStatus}}</td>
-                                    <td>{{item.orderNumber}}</td>
-                                    <td class="wid150">{{item.payTotalStr | numToCash(2) }}</td>
+                                    <td>{{item.orderNumber}}<br/><span style="color: #E0370F">{{item.contractCode}}</span></td>
+                                    <td class="wid150 align-r">{{item.payTotalStr | numToCash(2) }}</td>
                                     <td>{{item.tradeMode|tradeMode}}</td>
                                     <td>{{item.payMethod|payMethod}}</td>
                                     <td>{{item.payTime === ''? '-' : item.payTime}}</td>
@@ -245,6 +241,7 @@ export default {
             startDate: '',
             endDate: '',
             orderNumber: '',
+            contractCode: null,
             pageNo: 1,
             pageSize: 10,
             itemTotal: 0,
@@ -273,7 +270,8 @@ export default {
             tabsFifth: '已失效',
             onelist2Show: false,
             onelist2: [],
-            receiveCompanyIdname: ''
+            receiveCompanyIdname: '',
+            needControlFlg: null // 查询是否要强控, 1:要强控
         };
     },
     methods: {
@@ -315,6 +313,19 @@ export default {
                         me.companyType = response.data.data.companyType;
                     }
                 });
+
+            // 查询是否要强控
+            let user = JSON.parse(localStorage.getItem('userInfo'));
+            if (user) {
+                me.$http.get(me.$api.account.companyInfo + '/' + user.companyId)
+                    .then(res => {
+                        let r = res.data.data;
+                        me.needControlFlg = r.needControl;
+                        if (me.needControlFlg == null || me.needControlFlg === undefined) {
+                            me.needControlFlg = 0;
+                        }
+                    });
+            }
         },
         setPaymentStatus (tabName) {
             const mapList = {
@@ -350,14 +361,23 @@ export default {
             this.pageSize = val;
             this.getPaymentList();
         },
-        gotoDetail (itemId, payStatus) {
+        gotoDetail (itemId, payStatus, f) {
             // 根据不同状态跳转到各自业务画面（目前有确认，完成两个）
             if (payStatus === 10) {
                 // 已创建
-                this.$router.push({path: '/my/payment/confirm', query: {paymentId: itemId}});
-            } else if (payStatus === 20 || payStatus === 40 || payStatus === 50 || payStatus === 60 || payStatus === 8) {
+                this.$router.push({path: '/my/payment/confirm', query: {paymentId: itemId, fromFinance: f}});
+            } else if (payStatus === 20 || payStatus === 40 || payStatus === 50 || payStatus === 60) {
                 // 已确认
                 this.$router.push({path: '/my/payment/info', query: {paymentId: itemId}});
+            } else if (payStatus === 8) {
+                // 如果是审批中
+                if (this.needControlFlg === 1) {
+                    // 若必须强控，则去详情页，等待审批完成
+                    this.$router.push({path: '/my/payment/info', query: {paymentId: itemId}});
+                } else {
+                    // 其他，去操作页
+                    this.$router.push({path: '/my/payment/confirm', query: {paymentId: itemId}});
+                }
             } else {
                 console.log('未知付款单状态 status=' + payStatus + ', id=' + itemId);
             }
@@ -459,6 +479,7 @@ export default {
                     pageNo: me.pageNo,
                     pageSize: me.pageSize,
                     orderNumber: me.orderNumber,
+                    contractCode: me.contractCode,
                     payBillType: me.payBillType, // 付款单分类
                     payStatus: me.payStatus,
                     tradeMode: me.tradeMode, // 支付方式
@@ -503,6 +524,18 @@ export default {
                 console.log(error);
             });
         },
+        getTopayList () {
+            this.$http.get(this.$api.payment.topaylist)
+                .then(res => {
+                    if (res.data.data.length > 0) {
+                        let val = res.data.data[0];
+                        this.$confirm(`当前存在付款单${val.payNumber}没有全部付款，是否继续付款？`, '提示', {type: 'warning'})
+                            .then(() => {
+                                this.gotoDetail(val.id, 10, 1);
+                            });
+                    }
+                });
+        },
         clickPayBillTypeItem (value) {
             const me = this;
             // 查询供应商
@@ -546,7 +579,7 @@ export default {
         this.getPaymentList(2);
         this.clickPayBillTypeItem(1);
         this.paymentStatusCount();
-        // this.collectionStatusCount();
+        this.getTopayList();
     }
 };
 </script>
@@ -581,6 +614,11 @@ export default {
                         color: #4a90e2;
                     }
                 }
+                .icon-search {
+                    position: absolute;
+                    right: 20px;
+                    top: 10px;
+                }
             }
         }
         .table-wrap{
@@ -614,7 +652,7 @@ export default {
                 color: #666666;
                 &.active {
                     color: $color-a-active;
-                    border-bottom: 1px solid $color-a-active
+                    border-bottom: 2px solid $color-a-active
                 }
             }
             li:hover{
@@ -626,6 +664,10 @@ export default {
             }
             .search-btn {
                 font-size: 14px;
+                i{
+                    margin-left:5px;
+                    vertical-align: top;
+                }
             }
             .search-btn:hover{
                 cursor: pointer;
@@ -669,42 +711,25 @@ export default {
         .payment-list {
             background: #fff;
         }
-        .payment-list-content-item-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 0 auto;
-            width: 94%;
-            color: #333333;
-        }
-        .payment-list-content-item {
-            width: 410px;
-            margin-top: 10px;
-        }
-
-        .pagination-box {
-            text-align: center;
-            margin: 30px;
-        }
 
         .payment-list-tabs {
             padding: 20px 0 0 0;
         }
     }
-</style>
-<style lang="scss">
-    .payment-list{
-        .el-radio+.el-radio{
-            margin-left:20px;
-            color:#666666;
-        }
-        .el-range-separator, .el-input__icon{
-            line-height: 24px;
-        }
-        .el-input__inner{
-           height: 30px;
-           font-size: 14px;
+    /deep/ .el-radio:not(:last-child){
+        margin-right: 15px;
+        .el-radio__label {
+            color: $color-main;
         }
     }
-
+    /deep/ .el-radio+.el-radio {
+        margin-left: 0!important;
+    }
+    /deep/ .el-range-separator,/deep/ .el-input__icon{
+        line-height: 24px;
+    }
+    /deep/ .el-input__inner{
+        height: 30px;
+        font-size: 14px;
+    }
 </style>

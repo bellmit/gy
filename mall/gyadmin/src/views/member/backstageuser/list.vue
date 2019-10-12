@@ -14,11 +14,11 @@
           <span class="l">用户名</span>
           <input type="text" v-model="userName" placeholder="请输入用户名">
         </div>
-        <div class="gy-form-group">
+        <div class="gy-form-group qystatus">
           <span class="l">启用状态</span>
           <el-radio-group v-model="valid">
             <el-radio :label="''">全部</el-radio>
-            <el-radio :label="1">启用</el-radio>
+            <el-radio class="qystatus-radio-c" :label="1">启用</el-radio>
             <el-radio :label="0">停用</el-radio>
           </el-radio-group>
           <i class="iconfont icon-search" @click="searchGood"></i>
@@ -28,7 +28,7 @@
         <button class="gy-button-extra" v-if="isAuth('member:backstageuser:add')" @click="$router.push({path: 'manage'})">添加</button>
         <!--<button class="gy-button-normal" @click="editAll" v-if="isAuth('member:backstageuser:edit')">编辑</button>测试要求上面不放编辑按钮-->
         <button class="gy-button-normal" @click="deleteAll" v-if="isAuth('member:backstageuser:batch_stop')">批量停用</button>
-        <button class="gy-button-normal" @click="startAll" v-if="isAuth('member:backstageuser:batch_start')">批量启用</button>
+        <button class="gy-button-normal mr0" @click="startAll" v-if="isAuth('member:backstageuser:batch_start')">批量启用</button>
       </div>
         <div class="m-panel">
             <table class="gy-table">
@@ -46,11 +46,11 @@
                     <th>手机号</th>
                     <th>性别</th>
                     <th>是否停用</th>
-                    <th style="text-align: left">操作</th>
+                    <th style="text-align: center;">操作</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(item, index) in list" :key="index">
+                <tr v-for="(item, index) in list" :key="index" @dblclick.stop='$tools.dbCheckItem(item, checkModel)'>
                     <td>
                         <label class="u-checkbox">
                             <input type="checkbox" v-model="checkModel" :value="item.id">
@@ -63,19 +63,18 @@
                     <td>{{item.email}}</td>
                     <td>{{item.phone}}</td>
                     <td>
-                        <el-tag v-if="item.sex === 0" size="small" type="success">男</el-tag>
-                        <el-tag v-else-if="item.sex === 1" size="small" type="warning">女</el-tag>
+                        <span v-if="item.sex === 0">男</span>
+                        <span v-else-if="item.sex === 1">女</span>
                     </td>
                     <td>
-                        <el-tag v-if="item.valid === 0" size="danger">停用</el-tag>
-                        <el-tag v-if="item.valid === 1" size="success">启用</el-tag>
+                        <span v-if="item.valid === 0">停用</span>
+                        <span v-if="item.valid === 1">启用</span>
                     </td>
-                    <td style="text-align: left;">
-                    <router-link :to="{ path: 'manage', query: {id: item.id}}" v-if="isAuth('member:backstageuser:edit')">
-                        <a href="javascript:;">编辑</a>
-                    </router-link>&nbsp;&nbsp;&nbsp;
+                    <td style="text-align: center;">
+                    <router-link :to="{ path: 'manage', query: {id: item.id}}" v-if="isAuth('member:backstageuser:edit')" class="gy-button-view">编辑</router-link>
                     <!--<a href="javascript:;" @click="showRoleList(item)" v-if="isAuth('member:backstageuser:authorization')">授权</a>&nbsp;&nbsp;&nbsp;<a href="javascript:;" @click="setPassWord(item)" v-if="isAuth('member:backstageuser:password')">重置密码</a>-->
-                    <a href="javascript:;" @click="showRoleList(item)">授权</a>&nbsp;&nbsp;&nbsp;<a href="javascript:;" @click="setPassWord(item)">重置密码</a>
+                    <span @click="showRoleList(item)" class="gy-button-view">授权</span>
+                    <span @click="setPassWord(item)" class="gy-button-view">重置密码</span>
                     </td>
                 </tr>
                 </tbody>
@@ -136,7 +135,7 @@ export default {
     },
     watch: {
         checkModel: {
-            handler () {
+            handler (newV, oldV) {
                 this.checkedAll = (this.checkModel.length === this.list.length);
             },
             deep: true
@@ -199,6 +198,9 @@ export default {
             }).then((data) => {
                 if (data.data.code === 0) {
                     this.list = data.data.data.list;
+                    this.list.forEach(item => {
+                        item['flag'] = false;
+                    });
                     // 设置分页信息
                     this.total = data.data.data.total;
                     this.currentPage = data.data.data.pageNum;
@@ -241,7 +243,7 @@ export default {
                 'userIdList': this.checkModel
             };
             this.$http({
-                url: this.$api.memberPersonal.start,
+                url: this.$api.memberPersonal.startUser,
                 method: 'put',
                 data: dataObj
             }).then(({data}) => {
@@ -266,7 +268,7 @@ export default {
                     'userIdList': this.checkModel
                 };
                 this.$http({
-                    url: this.$api.memberPersonal.stop,
+                    url: this.$api.memberPersonal.stopUser,
                     method: 'put',
                     data: dataObj
                 }).then(({data}) => {
@@ -306,7 +308,7 @@ export default {
 .search-wrapper {
   .icon-search {
     top: 1px;
-    right: 205px;
+    left: 400px;
   }
 }
 .cell-text-align-right{
@@ -328,4 +330,17 @@ export default {
     padding-left: 30px;
   }
 }
+</style>
+<style lang="scss">
+  .qystatus {
+    .el-radio {
+      margin: 0;
+    }
+    .qystatus-radio-c {
+      margin: 0 60px;
+    }
+    .icon-search {
+      right: 145px !important;
+    }
+  }
 </style>

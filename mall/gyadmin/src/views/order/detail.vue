@@ -19,7 +19,7 @@
         <div class="gy-h4"><i class="iconfont icon-info"></i>订单信息</div>
         <el-row>
             <el-col :span="24">
-                <gy-order-info @showContract="showContract" :order-data="info"></gy-order-info>
+                <gy-order-info @showContract="showContract" :order-data="info" v-if="info"></gy-order-info>
             </el-col>
         </el-row>
         <div class="tabs">
@@ -36,8 +36,13 @@
                 <el-tab-pane label="物流明细" name="four">
                     <gy-order-logistic :order-id="orderId" user-type="sell"></gy-order-logistic>
                 </el-tab-pane>
+                <el-tab-pane label="发票明细" name="five">
+                    <gy-order-invoice @getInfoList="getInvoiceInfos" :order-data="info" v-if="orderInvoiceList" :order-invoice-data="orderInvoiceList"></gy-order-invoice>
+                </el-tab-pane>
             </el-tabs>
+            <button class="gy-button-extra contrast" @click="contrast">订单与发票对比</button>
         </div>
+        <gy-contrast @hideContrastTable="showContrastTable = false" :contrast-data="contrastData" :show-contrast-table="showContrastTable"></gy-contrast>
     </div>
 </template>
 
@@ -47,9 +52,12 @@ import gyOrderPayment from './components/order-payment';
 import gyOrderDetail from './components/order-detail';
 import gyOrderTransaction from './components/order-transaction';
 import gyOrderLogistic from './components/order-logistic';
+import gyOrderInvoice from './components/order-invoice';
+import gyContrast from './components/contrast';
+
 export default {
     name: 'sales-order',
-    components: { gyOrderInfo, gyOrderDetail, gyOrderPayment, gyOrderTransaction, gyOrderLogistic },
+    components: { gyContrast, gyOrderInfo, gyOrderDetail, gyOrderPayment, gyOrderTransaction, gyOrderLogistic, gyOrderInvoice },
     data () {
         return {
             orderId: this.$route.query.orderId,
@@ -70,26 +78,42 @@ export default {
             orderStatusStepitem: {},
             orderStatusStepModel: {},
             isSign: true, // 只有签约时值为true
-            info: {},
+            info: null,
             quantityIssued: 0,
             item: [],
             orderItemList: [],
             outNum: '',
             itemList: [],
+            orderInvoiceList: null,
             stepList: [
                 {
                     id: 1,
                     name: '确认',
                     active: true
                 }
-            ]
+            ],
+            showContrastTable: false,
+            contrastData: ''
             // Model: {orderExecuteSubStatusModel:{}}
         };
     },
     created () {
         this.getInfo(); // 基础信息
+        this.getInvoiceInfos();
     },
     methods: {
+        // 获取发票明细
+        getInvoiceInfos () {
+            this.$http.get(this.$api.orders.DocUrl + this.orderId + '/invoiceInfos')
+                .then((res) => {
+                    this.orderInvoiceList = res.data.data;
+                });
+        },
+        getContrastData () {
+            this.$http.get(this.$api.orders.compare + this.orderId + '/compare').then((res) => {
+                this.contrastData = res.data.data;
+            });
+        },
         getInfo () {
             let that = this;
             that.$http.get(that.$api.orders.detail + '/' + that.orderId).then(res => {
@@ -177,14 +201,15 @@ export default {
         },
         showContract () {
             // this.$refs.orderStep.buyerReviewContract();
+        },
+        contrast () {
+            this.showContrastTable = true;
+            this.getContrastData();
         }
     }
 };
 </script>
 <style  lang="scss">
-    .icon-info {
-        margin-right: 7px;
-    }
     .order-detail{
         padding-bottom: 25px;
         .createPayment-status-right button{margin-left:3px}
@@ -295,83 +320,24 @@ export default {
         .tips span:first-child{color:#EEA443}
         .tips span.bill{color:#4A90E2;padding-left:5px}
         .tips img{width:35px;height:35px;vertical-align: bottom;margin-left:10px;}
-        .tabs,.dialog {
-            margin-top: 16px;
-            .el-tabs__item.is-active {
-                position: relative;
-                bottom: -1px;
-                z-index: 20;
-                box-sizing: border-box;
-                border-top-left-radius: 5px;
-                border-top-right-radius: 5px;
-                border: 1px solid $color-border;
-                border-bottom: 1px solid #fff;
-                color: $color-title;
-            }
-
-            .el-tabs--top .el-tabs__item.is-top:nth-child(2) {
-                padding-left: 20px;
-            }
-
-            .el-tabs--top .el-tabs__item.is-top:last-child {
-                padding-right: 20px;
-            }
-
-            .el-tabs__item:hover {
-                color: $color-title;
-            }
-
-            .el-tabs__item {
-                color: $color-main;
-            }
-
-            .el-tabs__nav-wrap::after {
-                height: 1px;
-            }
-
-            .el-tabs__active-bar {
-                background-color: #fff;
-            }
-            .el-tabs__header{
-                margin:0;
-            }
-            table{
-                width:100%;
-                border-collapse: collapse;
-                border:1px solid $color-border;
-                color:$color-main;
-                font-size: $small-font;
-            }
-            table td{
-                height:40px;
-                line-height:16px;
-                padding-left:10px;
-            }
-            table .ge td{
-                line-height:20px;
-            }
-            .transaction tr:not(:first-child) td{border:1px solid $color-border}
-            .transaction tr td{padding:10px }
-            td .img-box{
-                float:left;
-                border:1px solid $color-border;
-                margin-right:20px;
-                img{
-                    width:58px;
-                    height:58px;
-                }
-            }
+        .el-tabs__nav-wrap::after {
+            height: 0;
+        }
+        .el-tabs__header{
+            margin-bottom:5px;
+        }
+        .el-tabs__item{
+            height:34px;
         }
         .total-detail{
             float:right;
-            width:205px;
             margin:14px;
             dl{
                 font-size:$small-font;
                 color:$color-title;
                 overflow: hidden;
                 padding: 6px 0;
-                height:26px;
+                min-height:26px;
                 line-height: 1;
             }
             dl:last-child{
@@ -410,8 +376,20 @@ export default {
         .dialog dl dd .el-upload-list__item{width:40px;height:40px;
             img{width:40px;height:40px;margin-left:0}
         }
-    }
-    .el-dialog__body{
+        .icon-info {
+            margin-right: 5px;
+            margin-left: -7px
+        }
+      .el-dialog__body{
         border-top:1px solid $color-border;
+      }
+      .tabs {
+        position: relative;
+         .contrast {
+           position: absolute;
+           right: 0;
+           top: 0;
+         }
+      }
     }
 </style>

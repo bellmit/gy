@@ -31,9 +31,12 @@
             </dl>
             <dl>
                 <dt>付款方式</dt>
-                <dd>{{orderData.paymentType === 0 ? '先款后货' : '先货后款'}}
+                <dd>{{paymentType[orderData.paymentType]}}
                     <template v-if="orderData.paymentType === 1">
                         (买方收到货后{{orderData.paymentTypeText}}个工作日付款)
+                    </template>
+                    <template v-if="orderData.paymentType === 0 && orderData.orderItemList[0].topCatalogueId === 3">
+                        ({{orderData.orderExpandModel.paymentTypeDate | date}} 以前付款)
                     </template>
                 </dd>
             </dl>
@@ -49,10 +52,27 @@
             <dl>
                 <dt>发票</dt>
                 <dd v-if="orderData.provideInvoiceType === null">
-                    {{orderData.provideInvoiceText}}<img @click="showReceipt" :src=icon>
+                    {{orderData.provideInvoiceText}}
+                    <template v-if="orderImg.list.length > 0">
+                        <span v-for="(item, index) in orderImg.list" :key="index">
+                            <a v-if="item.fileTypeAlias === 'pdf'" :href="item.invoiceUrl" target="_Blank">
+                                <img :src="pdfThumbnail">
+                            </a>
+                            <img v-else @click="showReceipt" :src=icon2>
+                        </span>
+                    </template>
                 </dd>
                 <!--<dd>{{orderData.provideInvoiceType ? '交割月发票':'交割次月' }}<img @click="showReceipt" v-if="iconsTrue" :src=icons></dd>-->
-                <dd v-else>{{orderData.provideInvoiceType === 0 ? '交割当月发票':'交割次月发票' }}<img @click="showReceipt" :src=icon></dd>
+                <dd v-else>{{orderData.provideInvoiceType === 0 ? '交割当月发票':'交割次月发票' }}
+                    <template v-if="orderImg.list.length > 0">
+                        <span v-for="(item, index) in orderImg.list" :key="index">
+                            <a v-if="item.fileTypeAlias === 'pdf'" :href="item.invoiceUrl" target="_Blank">
+                                <img :src="pdfThumbnail">
+                            </a>
+                            <img v-else @click="showReceipt" :src=icon2>
+                        </span>
+                    </template>
+                </dd>
             </dl>
             <dl>
                 <dt>货源</dt>
@@ -74,6 +94,15 @@
                     <template v-else-if="orderData.packagingStandard==2">
                         袋装货
                     </template>
+                    <template v-if="orderData.packagingStandard==3">
+                        原厂原包 {{orderData.orderExpandModel.packagingStandardVal ?',' + orderData.orderExpandModel.packagingStandardVal : ''}}
+                    </template>
+                    <template v-else-if="orderData.packagingStandard==4">
+                        吨包 {{orderData.orderExpandModel.packagingStandardVal ?',' + orderData.orderExpandModel.packagingStandardVal + 'KG' : ''}}
+                    </template>
+                    <template v-else-if="orderData.packagingStandard==5">
+                        灌包
+                    </template>
                 </dd>
             </dl>
             <dl>
@@ -87,26 +116,51 @@
                     </template>
                 </dd>
             </dl>
-            <dl>
-                <dt>业务联系人</dt>
-                <dd>{{orderData.sellerContact}}</dd>
-            </dl>
             <dl v-if="orderData.orderContractCode">
                 <dt>合同编号</dt>
-                <dd>{{orderData.orderContractCode}}<img @click="showContract" :src=icon></dd>
+                <dd>{{orderData.orderContractCode}}
+                    <span v-show="orderView.list.length > 0" v-for = "(item, index) in orderView.list" :key="index">
+                        <a v-if="item.fileTypeAlias === 'pdf'" :href="item.filepath" target="_Blank">
+                            <img :src="pdfThumbnail">
+                        </a>
+                        <img v-else @click="showContractViews(item)" :src=icon2>
+                    </span>
+                    </dd>
             </dl>
             <dl>
-                <dt>业务联系方式</dt>
+                <dt>卖方联系人</dt>
+                <dd>{{orderData.sellerContact}}</dd>
+            </dl>
+            <dl>
+                <dt>卖方联系方式</dt>
                 <dd>{{orderData.sellerContactMobile}}</dd>
+            </dl>
+            <dl>
+                <dt>买方联系人</dt>
+                <dd>{{orderData.buyerContact}}</dd>
+            </dl>
+            <dl>
+                <dt>买方联系方式</dt>
+                <dd>{{orderData.buyerContactMobile}}</dd>
             </dl>
         </div>
         <!-- 预览图片 -->
         <el-dialog title="图片预览" :visible.sync="previewerImg.visible" width="600px" hight="1000px">
-            <el-carousel ref="previewerImg" trigger="click" :autoplay="false">
+            <el-carousel ref="previewerImg" trigger="click" :autoplay="false" v-show="previewerImg.list.length!=0">
                 <el-carousel-item v-for="(item, index) in previewerImg.list" :key="index">
                     <img class="previewer-img-detail" :src="item.invoiceUrl" style="width: 100%;height: 100%">
                 </el-carousel-item>
             </el-carousel>
+            <!-- <img v-show="previewerImg.list.length==0" src="@/assets/images/fp.png" alt="" style="width: 100%;height: 100%"> -->
+        </el-dialog>
+        <!-- 合同预览图片 -->
+        <el-dialog title="图片预览" :visible.sync="showContractView.visible" width="600px" hight="1000px">
+            <el-carousel ref="previewerImgOrder" trigger="click" :autoplay="false">
+                <el-carousel-item v-for="(item, index) in showContractView.list" :key="index">
+                    <img class="previewer-img-detail" :src="item.filepath" style="width: 100%;height: 100%">
+                </el-carousel-item>
+            </el-carousel>
+            <!-- <img v-show="previewerImgOrder.list.length==0" src="@/assets/images/fp.png" alt="" style="width: 100%;height: 100%"> -->
         </el-dialog>
     </div>
 
@@ -119,21 +173,39 @@ export default {
         userType: {
             type: String,
             default: 'sell'
-        }
+        },
+        orderView: Object,
+        orderImg: Object
     },
     data () {
         return {
             icon: require('@/assets/images/icon-piao.png'),
+            icon2: require('@/assets/images/newfp.png'),
+            pdfThumbnail: require('@/assets/images/pdf.png'),
             icons: '',
             iconsTrue: false,
             previewerImg: {
                 visible: false,
                 list: []
             },
-            prebiewImg: {
+            previewerImgOrder: {
+                list: [],
+                visible: false
+            },
+            showContractView: {
+                visible: false,
                 list: []
             },
-            orderId: ''
+            prebiewImg: {
+                list: [
+                ]
+            },
+            orderId: '',
+            paymentType: {
+                0: '先款后货',
+                1: '先货后款',
+                10: '担保交易'
+            }
         };
     },
     watch: {
@@ -144,22 +216,16 @@ export default {
             deep: true
         }
     },
-    created () {
-        console.log('created', this.orderData);
-        // this.previewerImg.list = this.orderData.orderInvoiceModel || [];
-    },
+    // mounted () {
+    //     this.showContractOrder();
+    // },
     methods: {
-        showReceipt () {
+        showReceipt (item) {
             // 查看发票
-            let that = this;
-            that.previewerImg.visible = true;
-            // this.$emit('showReceipt');
-            that.orderId = that.orderData.id;
-            that.$http.get(that.$api.invoice.sellerInvoiceImg + '/' + that.orderId)
-                .then((res) => {
-                    console.log(that.orderData);
-                    that.previewerImg.list = res.data.data;
-                });
+            this.previewerImg.list = [];
+            this.previewerImg.visible = true;
+            this.previewerImg.list.push(item);
+            console.log(this.previewerImg);
         },
         // showReceipts () {
         //     // 查看发票
@@ -177,16 +243,38 @@ export default {
         //             // }
         //         });
         // },
-        showContract () {
-            // 卖方已盖章合同
-            if (this.orderData.orderStatusHistoryModelList && this.orderData.orderStatusHistoryModelList.length > 0) {
-                this.$emit('showContract');
-            }
+        // 查看合同
+        showContractViews (item) {
+            this.showContractView.list = [];
+            this.showContractView.visible = true;
+            this.showContractView.list.push(item);
+            console.log(this.showContractView.list);
         }
+        // showContractOrder (item) {
+        //     this.$http.get(this.$api.invoice.DocUrl + item.id + '/contracts/getDocUrl')
+        //         .then((res) => {
+        //             if (res.data.code === 0) {
+        //                 let filepathObj = {
+        //                     fileTypeAlias: null,
+        //                     filepath: null
+        //                 };
+        //                 if (res.data.data.filepath.length > 0) {
+        //                     res.data.data.filepath.forEach((e) => {
+        //                         filepathObj.filepath = e;
+        //                         filepathObj.fileTypeAlias = this.$tools.getFileTypeAlias(e);
+        //                         this.previewerImgOrder.list.push(filepathObj);
+        //                     });
+        //                 }
+        //             }
+        //         });
+        // }
     }
 };
 </script>
 <style lang="scss" scoped>
+    .icon-icon-fapiao:hover{
+        cursor: pointer;
+    }
     .base-info {
         font-size: 14px;
         overflow: hidden;
@@ -214,4 +302,5 @@ export default {
             }
         }
     }
+    img{width:100%}
 </style>

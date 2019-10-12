@@ -1,4 +1,4 @@
-<template>
+<template><!-- 卖家结算 -->
     <div class="order">
         <el-card class="box-card">
             <div slot="header" class="order-header">
@@ -43,13 +43,13 @@
                         <span class="state-tips-first">温馨提示：</span>
                         <span>{{SettlementOrderMsg}}</span>
                         <button class="gy-button-views tt" @click="dialogVisible = true">结算明细</button>
-                        <button class="gy-button-views" style="cursor:pointer" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
+                        <button class="gy-button-views" style="cursor:pointer;font-size: 14px;" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
                     </p>
                     <div class="button-group">
                         <button class="gy-button-extra" v-if="infoRefund" @click="refundPayment()">退款</button>
                         <button class="gy-button-extra" v-if="infoRefunds">确认收款</button>
                         <button class="gy-button-extra" v-if="infofinsh" @click="finsh()">完成</button>
-                        <button class="gy-button-extra" v-if="infofinshs" @click="openVisible()">发票</button>
+                        <button class="gy-button-extra" v-if="infofinshs && !(showBillIcon ==3) " @click="openVisible()">发票</button>
                     </div>
                     <el-dialog width="1062px" class="settle-dialog" title="订单结算申请"
                                @open="handleOpen" :visible.sync="dialogVisible" @close="goback()">
@@ -160,25 +160,15 @@
                                 <span class="settleInfo-money settleInfo-pay">需对方支付:</span>
                                 <span class="settleInfo-money-color new-span2">{{settleAmount3-paidMoney + orderSettles | numToCash}} 元</span>
                         </div>
-                        <div class="settleInfo-totol">
-                            <button class="gy-button-extra" @click="handleToSettle()" v-if="resour">确认发起结算</button>
-                            <button class="gy-button-extra" @click="dialogVisiblesss" v-if="!resour">关闭</button>
+                        <div class="foot" v-if="resour">
+                            <div class="l"><i class="wxts">温馨提示：</i>如需配置结算审批流程，请联系客服热线：400-777-6777</div>
+                            <div class="r">
+                                <button class="gy-button-extra" @click="handleToSettle()">确认发起结算</button>
+                            </div>
                         </div>
-                    </el-dialog>
-                    <el-dialog width="100px;" class="settle-dialogs"
-                               :visible.sync="Visible">
-                        <div class="settleInfo-applys"><h3>发票</h3></div>
-                        <div class="img-holder" v-if="settleInfoUrl && !isReupload"
-                             :style='"background-image: url(" + imgBaseUrl + settleInfoUrl + ")"'></div>
-                        <el-upload
-                                action="api"
-                                list-type="picture-card"
-                                :http-request="settleInfoImg">
-                            <i class="el-icon-plus"></i>
-                        </el-upload>
-                        <span slot="footer" class="dialog-footer">
-                            <button class="gy-button-extra" @click="sureUrls">确认</button>
-                        </span>
+                        <div class="settleInfo-totol" v-if="!resour">
+                            <button class="gy-button-extra" @click="dialogVisiblesss">关闭</button>
+                        </div>
                     </el-dialog>
                 </template>
             </div>
@@ -187,7 +177,7 @@
             <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="mewmyfont">订单信息</span></p>
             <el-row>
                 <el-col :span="24">
-                    <gy-order-settle @showContract="showContracts" :order-data="info" user-type="sell"></gy-order-settle>
+                    <gy-order-settle @showContract="showContracts" :order-data="info" user-type="sell" :order-view="previewerImgOrder" :order-img="prebiewImg" v-if="info"></gy-order-settle>
                 </el-col>
             </el-row>
             <div class="tabs mynewtabs">
@@ -205,11 +195,16 @@
                     <el-tab-pane label="物流明细" name="four">
                         <gy-order-logistic :order-id="orderId" user-type="sell"></gy-order-logistic>
                     </el-tab-pane>
+                    <el-tab-pane label="发票明细" name="five">
+                        <gy-order-invoice :order-data="info" :order-invoice-data="orderInvoiceList" v-if="orderInvoiceList"></gy-order-invoice>
+                    </el-tab-pane>
                 </el-tabs>
             </div>
         </div>
         <!-- 审批历史 弹窗组件 -->
         <approveHistory ref="myApprHisDlg"></approveHistory>
+        <!-- 上传发票 -->
+        <upload-invoice ref="uploadInvoice"></upload-invoice>
     </div>
 </template>
 
@@ -222,9 +217,10 @@ import gyOrderPayment from '../order/components/order-payment';
 import gyOrderDetail from '../order/components/order-detail';
 import gyOrderTransaction from '../order/components/order-transaction';
 import gyOrderLogistic from '../order/components/order-logistic';
+import gyOrderInvoice from '../order/components/order-invoice';
 import gyOrderSettle from '../order/components/order-settle.vue';
 import approveHistory from '../../components/approveHistory';
-
+import uploadInvoice from '../order/components/upload-invoice';
 export default {
     name: 'settle',
     components: {
@@ -237,10 +233,14 @@ export default {
         gyOrderTransaction,
         gyOrderLogistic,
         gyOrderSettle,
-        approveHistory
+        approveHistory,
+        gyOrderInvoice,
+        uploadInvoice
     },
     data () {
         return {
+            showBillIcon: this.$route.query.showBillIcon,
+            imgType: false,
             tradeMetch: ['线下支付', '在线支付'],
             activeName: 'first',
             userId: '',
@@ -274,10 +274,11 @@ export default {
             tableDataList: false,
             payMent: {},
             orderItemList: [],
+            orderInvoiceList: null, // 发票明细
             infofinsh: false,
             infofinshs: false,
             gobacklList: false,
-            info: {},
+            info: null,
             src1: require('../../assets/images/default1.jpg'),
             src: require('../../assets/images/default.jpg'),
             icon: require('../../assets/images/icon-piao.png'),
@@ -316,7 +317,14 @@ export default {
             orderSettleBooer: true,
             infUnitOfMeasureDisplayName: null, // 单位
             isApproving: false, // 是否正在结算审批中
-            odrSettleId: null // 当前的结算ID
+            odrSettleId: null, // 当前的结算ID
+            previewerImgOrder: {
+                list: []
+            },
+            prebiewImg: {
+                list: [],
+                preBoolean: false
+            }
         };
     },
     created () {
@@ -325,6 +333,7 @@ export default {
         this.getOrderInfo();
         this.postStartSettlementOrderMsg();
         this.getInfo();
+        this.getInvoiceInfos();
     },
     computed: {
         settleAmount3: function () {
@@ -475,55 +484,13 @@ export default {
                     console.log('出错了');
                 });
         },
-        sureUrls () {
-            let that = this;
-            if (that.signUnderLineData.orderInvoiceModelList.length === 0) {
-                that.$message({
-                    type: 'error',
-                    message: '请上传发票'
-                });
-                return;
-            }
-            that.signUnderLineData.userId = that.userId;
-            console.log(that.signUnderLineData);
-            that.$http.post(that.$api.invoice.sellerSavaInvoice, that.signUnderLineData).then((res) => {
-                if (res.data.code === 0) {
-                    that.Visible = false;
-                } else {
-                    that.$message({
-                        type: 'error',
-                        message: res.data.message
-                    });
-                }
-            }).catch(() => {
-                console.log('出错了');
-            });
-        },
-        settleInfoImg (file) {
-            let that = this;
-            let formData = new FormData();
-            let headers = {
-                'Content-Type': 'multipart/form-data'
-            };
-            formData.append('file', file.file);
-            formData.append('storage', 'platform-mgmt');
-            that.$http.post(that.$api.invoice.settleInvoice, formData, headers)
-                .then(function (res) {
-                    that.isReupload = true;
-                    that.signUnderLineData.orderInvoiceModelList.push({
-                        orderId: that.orderId,
-                        invoiceUrl: res.data.data
-                    });
-                    console.log(that.signUnderLineData);
-                });
-        },
         getInfo () {
             let that = this;
             that.$http.get(that.$api.sale.detail + '/' + that.orderId)
                 .then(function (res) {
                     that.info = res.data.data;
-                    console.log(res.data);
-                    console.log(that.info.odrOrderSn);
+                    that.showContractOrder(that.info);
+                    that.showReceiptsImg(that.info);
                     that.orderItemList = res.data.data.orderItemList;
                     if (res.data.data.orderStatus === 2) {
                         console.log(typeof (that.$route.query.dialogVisible));
@@ -536,6 +503,13 @@ export default {
                     }
                 }).catch(() => {
                     console.log('出错了');
+                });
+        },
+        // 获取发票明细
+        getInvoiceInfos () {
+            this.$http.get(this.$api.invoice.DocUrl + '/' + this.orderId + '/invoiceInfos')
+                .then((res) => {
+                    this.orderInvoiceList = res.data.data;
                 });
         },
         getOrderInfo () { // 获取订单信息
@@ -578,7 +552,7 @@ export default {
                 });
         },
         openVisible () {
-            this.Visible = true;
+            this.$refs.uploadInvoice.init();
         },
         handleClick (tab, event) {
             console.log(tab, event);
@@ -796,13 +770,52 @@ export default {
             }
 
             this.$refs.myApprHisDlg.getAppHisList(params);
+        },
+        showContractOrder (item) {
+            this.previewerImgOrder.list = [];
+            this.$http.get(this.$api.invoice.DocUrl + item.id + '/contracts/getDocUrl')
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        if (res.data.data.filepath.length > 0) {
+                            res.data.data.filepath.forEach((e) => {
+                                let filepathObj = {
+                                    fileTypeAlias: null,
+                                    filepath: null
+                                };
+                                filepathObj.filepath = e;
+                                filepathObj.fileTypeAlias = this.$tools.getFileTypeAlias(e);
+                                this.previewerImgOrder.list.push(filepathObj);
+                            });
+                        }
+                    }
+                });
+        },
+        showReceiptsImg (item) {
+            // 查看发票
+            let that = this;
+            that.$http.get(that.$api.invoice.sellerInvoiceImg + '/' + item.id)
+                .then((res) => {
+                    that.prebiewImg.list = res.data.data;
+                    if (that.prebiewImg.list.length > 0) {
+                        that.prebiewImg.list.forEach((e) => {
+                            e.fileTypeAlias = this.$tools.getFileTypeAlias(e.invoiceUrl);
+                        });
+                    } else {
+                        that.prebiewImg.preBoolean = true;
+                    }
+                });
         }
     }
 };
 </script>
-
 <style lang="scss">
     .order {
+        .el-upload--picture-card {
+            height: 50px;
+            line-height: 52px;
+            width: 50px;
+        }
+        img{width:100%}
         .unit {
             position: absolute;
             right: 40px;
@@ -890,7 +903,7 @@ export default {
                 width: 140px;
                 padding-right: 5px;
                 color: #333333;
-                font-size: 12px;
+                font-size: 14px;
             }
             .new-span2{
                 text-align: right;
@@ -960,7 +973,10 @@ export default {
                 padding: 0;
             }
             .el-dialog__body {
-                padding-top: 3px;
+                padding: 20px 30px 30px 30px;
+            }
+            .el-dialog__footer{
+                padding: 0 30px 30px;
             }
         }
         .settle-dialog-total {
@@ -1011,11 +1027,12 @@ export default {
                 color: $color-warning;
             }
             span {
-                color: $color-black;
+                color: $color-main;
             }
             .tt {
                 margin-left: 40px;
                 cursor: pointer;
+                font-size: 14px;
             }
         }
         .base-info dl {
@@ -1036,26 +1053,6 @@ export default {
             }
             .el-tabs__header {
                 margin: 0;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                border: 1px solid #e7ecf1;
-                color: $color-main;
-                font-size: $small-font;
-            }
-            table tr:nth-child(odd) td {
-                background-color: #F2F3F7;
-            }
-            table tr:first-child td {
-                height: 35px;
-                background-color: #EEF3F8;
-                font-weight: bold;
-            }
-            table td {
-                height: 40px;
-                line-height: 16px;
-                padding-left: 10px;
             }
         }
         .total-detail {
@@ -1197,11 +1194,28 @@ export default {
                 }
             }
         }
-        td{
-            text-align: center;
-        }
         .new-top{
             margin-top: 10px;
+        }
+    }
+</style>
+<style lang="scss" scoped>
+    .foot {
+        margin-top: 10px;
+        display: flex;
+        .l{
+            width: 70%;
+            line-height: 30px;
+            text-align: left;
+        }
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .r{
+            width: 30%;
+            text-align: right;
         }
     }
 </style>

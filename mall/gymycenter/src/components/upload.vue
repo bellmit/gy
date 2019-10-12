@@ -17,7 +17,6 @@
             :on-remove="handleRemove"
             :on-exceed="handleExceed"
             :file-list="currentValue"
-            :on-change="onUpload"
             :on-success="onSuccess"
             list-type="picture">
             <el-button v-show="!limit || limit > currentValue.length" size="small" type="primary">点击上传</el-button>
@@ -35,7 +34,6 @@
                 :drag="drag"
                 :disabled="disabled"
                 :before-upload="beforeUploadHandler"
-                :on-change="onUpload"
                 :on-success="onSuccess"
                 :on-preview="handlePreview"
                 :on-exceed="handleExceed"
@@ -59,7 +57,6 @@
             :multiple="multiple"
             :limit="limit"
             :before-upload="beforeUploadHandler"
-            :on-change="onUpload"
             :on-success="onSuccess"
             :on-exceed="handleExceed"
             :file-list="currentValue"
@@ -154,7 +151,6 @@ export default {
         },
         'currentValue': {
             handler (newValue, oldValue) {
-                console.log(newValue);
                 this.$emit('input', newValue);
             },
             deep: true
@@ -193,7 +189,6 @@ export default {
             this.setCurrentValue(fileList);
         },
         handlePreview (file) {
-            console.log(file.filePath);
             // 点击文件列表中已上传的文件时的钩子
             if (file.filePath.indexOf('.pdf') === -1) {
                 this.previewer.visible = true;
@@ -218,6 +213,7 @@ export default {
                 .then(res => {
                     if (res.data && res.data.code !== 500) {
                         let path;
+                        res.data = res.data.data ? res.data.data : res.data;
                         path = (res.data.indexOf('.pdf') === -1) ? res.data : this.pdfThumbnail;
                         this.currentValue.push({
                             name: file.file.name,
@@ -225,12 +221,15 @@ export default {
                             filePath: res.data,
                             url: path
                         });
+                    } else {
+                        let message = res.data.message ? res.data.message : '上传文件异常';
+                        this.$message.error(message);
+                        this.currentValue = [];
                     }
                 });
         },
         onSuccess (file, fileList) {
             // 上传成功
-            console.log(file);
             fileList = [];
         },
         handlePictureCardPreview () {

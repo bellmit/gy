@@ -16,7 +16,7 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="别名" class="mr-60">
+                        <el-form-item label="别名" class="mr-60 mleft-10">
                             <el-input v-model="form.alias" placeholder="请输入别名"></el-input>
                         </el-form-item>
                     </el-col>
@@ -29,7 +29,7 @@
 
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="企业类型" class="mr-60">
+                        <el-form-item label="企业类型" class="mr-60 mleft-10">
                             <el-select disabled v-model="form.companyTypeId" placeholder="请选择公司类型">
                                 <el-option
                                   v-for="item in form.companyTypeList"
@@ -55,7 +55,7 @@
                 </el-row>
                 <el-row class="area">
                     <el-col :span="12">
-                        <el-form-item label="选择市" class="mr-60">
+                        <el-form-item label="选择市" class="mr-60 mleft-10">
                             <el-select v-model="form.cityId" placeholder="请选择市" @change="handleCity">
                                 <el-option
                                   v-for="item in form.cityList"
@@ -81,14 +81,47 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="详细地址" class="mr-60">
+                        <el-form-item label="详细地址" class="mr-60 mleft-10">
                             <el-input v-model="form.address" placeholder="请输入详细地址"></el-input>
                         </el-form-item>
                     </el-col>
+                  <el-col :span="12">
+                      <el-form-item label="企业LOGO" class="mr-60">
+                          <div class="upload-box">
+                              <el-upload
+                                      action="api"
+                                      :limit="1"
+                                      list-type="picture-card"
+                                      :file-list="fileLists"
+                                      :http-request="uploadImg"
+                                      :on-remove="handleRemove">
+                                  <i class="el-icon-plus"></i>
+                              </el-upload>
+                          </div>
+                      </el-form-item>
+                    <!--<el-row>-->
+                      <!--<el-col :span="3">-->
+                        <!--<span style="color: #333333">企业LOGO</span>-->
+                      <!--</el-col>-->
+                      <!--<el-col :span="20">-->
+                        <!--<div class="upload-box">-->
+                          <!--<el-upload-->
+                            <!--action="api"-->
+                            <!--:limit="1"-->
+                            <!--list-type="picture-card"-->
+                            <!--:file-list="fileLists"-->
+                            <!--:http-request="uploadImg"-->
+                            <!--:on-remove="handleRemove">-->
+                            <!--<i class="el-icon-plus"></i>-->
+                          <!--</el-upload>-->
+                        <!--</div>-->
+                      <!--</el-col>-->
+                    <!--</el-row>-->
+                  </el-col>
                 </el-row>
                 <el-form-item class="gy-button-group">
                     <button type="button" @click="submitForm('form')" class="gy-button-extra">保存</button>
-                    <button type="button" @click="$router.push({path: 'list'})" class="gy-button-normal">取消</button>
+                    <button type="button" @click="cancel" class="gy-button-normal">取消</button>
                 </el-form-item>
             </el-form>
         </div>
@@ -98,7 +131,10 @@
 export default {
     data () {
         return {
+            fileLists: [],
+            fileLists2: [],
             form: {
+                companyLogo: '',
                 id: null,
                 name: '',
                 phone: '',
@@ -154,6 +190,21 @@ export default {
         };
     },
     methods: {
+        uploadImg (file) {
+            let formData = new FormData();
+            let headers = {
+                'Content-Type': 'multipart/form-data'
+            };
+            formData.append('file', file.file);
+            formData.append('storage', 'platform-mgmt');
+            this.$http.post(this.$api.upload.img, formData, headers)
+                .then((res) => {
+                    this.form.companyLogo = res.data;
+                });
+        },
+        handleRemove (file, fileList) {
+            this.form.companyLogo = '';
+        },
         getCompanyType () {
             this.$http.get(this.$api.memberCompany.companyType)
                 .then(res => {
@@ -171,6 +222,7 @@ export default {
         },
         toSubmit () {
             let method = this.id ? 'put' : 'post';
+            console.log(this.form.companyLogo);
             let dataObj = this.form;
             if (this.id) {
                 dataObj.id = this.id;
@@ -181,11 +233,14 @@ export default {
                 data: dataObj
             }).then(({data}) => {
                 if (data.code === 0) {
-                    this.$router.push({path: 'list'});
+                    this.$router.go(-1);
                     this.$message.success('保存成功!');
                 }
             }).catch((e) => {
             });
+        },
+        cancel () {
+            this.$router.go(-1);
         },
         address (id, type) { // 获取地址
             this.$http.get(this.$api.area.list + id).then((data) => {
@@ -222,6 +277,11 @@ export default {
                         Object.keys(this.form).forEach((e) => {
                             this.form[e] = data.data[e];
                         });
+                        if (data.data.companyLogo) {
+                            this.fileLists.push({'url': data.data.companyLogo});
+                        } else {
+                            this.fileLists = [];
+                        }
                     }
                 })
                 .catch((e) => {
@@ -244,8 +304,15 @@ export default {
 }
 /deep/ .el-form-item__label {
   width: 79px !important;
+  padding:0 !important;
 }
 /deep/  .el-form-item__content {
-  margin-left: 79px!important;
+  margin-left: 90px!important;
 }
+    .mleft-10{
+        /deep/ .el-form-item__label{
+            width: 65px !important;
+            margin-left:10px;
+        }
+    }
 </style>

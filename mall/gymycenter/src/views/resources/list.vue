@@ -8,6 +8,7 @@
                 <li :class="{ active: newIndex==0 }" @click="toggleTabs(0)">全部</li>
                 <li :class="{ active: newIndex==1 }" @click="toggleTabs(1)">已上架({{data.putOnShelves}})</li>
                 <li :class="{ active: newIndex==2 }" @click="toggleTabs(2)">已下架({{data.pullOffShelves}})</li>
+                <li :class="{ active: newIndex==3 }" @click="toggleTabs(3)">已失效({{data.blankOut}})</li>
                 <!--<li :class="{ active: newIndex==3 }" @click="toggleTabs(3)">已作废({{data.blankOut}})</li>-->
             </ul>
             <div class="right">
@@ -17,7 +18,7 @@
                     <!--<button @click="search">搜索</button>-->
                 </div>
                 <span class="search-btn" @click="toggleSelect=!toggleSelect">高级搜索<i
-                    class="iconfont icon-arrow-down"></i></span>
+                        class="iconfont" :class="toggleSelect ? 'icon-arrow-up' : 'icon-arrow-down'"></i></span>
             </div>
         </div>
         <div class="selected-box" v-show="toggleSelect">
@@ -88,34 +89,36 @@
                     <button class="gy-button-extra mtbtn-left">发布资源单</button>
                 </router-link>
                 <button v-if="newIndex!=1&&newIndex!=3" class="gy-button-normal mtbtn-left" @click="batchOperation(0)">批量上架</button>
-                <button v-if="newIndex!=2&&newIndex!=3" class="gy-button-normal mtbtn-left" @click="batchOperation(1)">批量下架</button>
+                <button style="margin-right: 0;" v-if="newIndex!=2&&newIndex!=3" class="gy-button-normal mtbtn-left" @click="batchOperation(1)">批量下架</button>
             </div>
-            <table>
+            <table class="gy-table">
+                <thead>
                 <tr class="title">
                     <td style="width:5%"></td>
-                    <td style="width:25%">商品</td>
-                    <td style="width:11.5%">可供量</td>
-                    <td style="width:11.5%">最小起订量</td>
-                    <td style="width:11.5%">单价</td>
-                    <td style="width:11.5%">交割日期</td>
+                    <td>商品</td>
+                    <td >可供量</td>
+                    <td >最小起订量</td>
+                    <td >单价(元)</td>
+                    <td >交割日期</td>
                     <td style="width:11.5%">促销方式</td>
-                    <td style="width:11.5%">操作</td>
+                    <td style="width:120px">操作</td>
                 </tr>
+                </thead>
                 <tbody v-for="(sub , index) in list" :key=index>
                 <tr class="update-date">
                     <td colspan="8"> <span style="color: #999">单号：</span>{{sub.odrOfferSn}}<span
                         class="right">发布日期：{{sub.createdDate|date}}</span></td>
                 </tr>
                 <tr class="item">
-                    <td style="width:5%"><input type="checkbox" v-model="itemId" :value="sub.id"></td>
+                    <td><input type="checkbox" v-model="itemId" :value="sub.id"></td>
                     <td class="tleft" style="width:25%">
                         <div class="img-box"><img :src=sub.skuPictureUrl alt=""></div>
                         <div class="info-box">{{sub.skuName}}<br>{{sub.offerStatus == 0 ? '已上架':sub.offerStatus ==
-                            1? '已下架' : '已作废' }}<br>{{sub.deliveryWarehouseName}}
+                            1? '已下架' : '已失效' }}<br>{{sub.deliveryWarehouseName}}
                         </div>
                     </td>
-                    <td style="width:11.5%">{{sub.skuQuantity|numToCash(3)}}{{sub.infUnitOfMeasureDisplayName}}</td>
-                    <td style="width:11.5%">
+                    <td  class="align-r">{{sub.skuQuantity|numToCash(3)}}{{sub.infUnitOfMeasureDisplayName}}</td>
+                    <td  class="align-r">
                         <template v-if="sub.skuMinQuantity">
                             {{sub.skuMinQuantity}}{{sub.infUnitOfMeasureDisplayName}}
                         </template>
@@ -123,38 +126,40 @@
                             -
                         </template>
                     </td>
-                    <td class="price" style="width:11.5%">
+                    <td class="price align-r" style="width:11.5%">
                         <template v-if="sub.skuPrice">
-                            {{sub.intCurrencyMark}}{{sub.skuPrice |numToCash}}元
+                             {{sub.skuPrice |numToCash}}<br />{{sub.skuPriceFlag == 1 ? "(可议价)" : ''}}
                         </template>
                         <template v-else>
                             面议
                         </template>
                     </td>
-                    <td class="tleft" v-if="sub.deliveryDateFlag === 3" style="width:11.5%;text-align: center">{{sub.deliveryDateText}}</td>
-                    <td class="tleft" v-else-if="sub.deliveryDateFlag === 2"  style="width:11.5%;text-align: center">{{sub.deliveryBeginDate|date}}以前</td>
-                    <td class="tleft" v-else style="width:11.5%;text-align: center">{{sub.deliveryBeginDate|date}}到{{sub.deliveryEndDate|date}}</td>
-                    <td style="width:11.5%">
+                    <td class="tleft" v-if="sub.deliveryDateFlag === 3">{{sub.deliveryDateText}}</td>
+                    <td class="tleft" v-else-if="sub.deliveryDateFlag === 2">{{sub.deliveryBeginDate|date}}以前</td>
+                    <td class="tleft" v-else style="width:11.5%;text-align: center">{{sub.deliveryBeginDate|date}}至{{sub.deliveryEndDate|date}}</td>
+                    <td>
                         <template v-if="sub.promoType==0">无</template>
                         <template v-else-if="sub.promoType==1">热销</template>
                         <template v-else-if="sub.promoType==2">推荐</template>
                         <template v-else-if="sub.promoType==3">降价</template>
                         <template v-else-if="sub.promoType==4">优惠</template>
                     </td>
-                    <td style="width:11.5%">
+                    <td class="align-c">
                         <!--offerStatus０代表上架，1代表下架，2代表作废-->
                         <template v-if="sub.offerStatus==0">
-                            <a class="gy-button-view" @click="updateState(1,sub.id)">下架</a><br>
+                            <a class="gy-button-view" @click="updateState(1,sub.id)">下架</a>
                         </template>
                         <template v-if="sub.offerStatus==1">
-                            <a class="gy-button-view" @click="updateState(0,sub.id)">上架</a><br>
+                            <a class="gy-button-view" @click="updateState(0,sub.id)">上架</a>
                             <!--<router-link :to="{name:'createResources', query:{offerId: sub.id}}" class="gy-button-view"> </router-link><br>-->
                         </template>
                         <router-link :to="{name:'resourcesDetail', query:{offerId: sub.id}}" class="gy-button-view">
                             详情
                         </router-link>
-                        <br>
-                        <router-link :to="{name:'createOrder', query:{offerId: sub.id}}" v-if="sub.offerStatus==0"
+                        <router-link :to="{path:'add', query:{offerId: sub.id, type: 1}}"  class="gy-button-view">
+                           再次发起
+                        </router-link>
+                        <router-link :to="{name:'reAdd', query:{orderId: sub.id, typeId: 2}}" v-if="sub.offerStatus==0"
                                      class="gy-button-view">发起订单
                         </router-link>
                     </td>
@@ -162,7 +167,7 @@
                 </tbody>
             </table>
             <div class="totaljl">
-                共{{data.total}}条记录
+                共 {{data.total}} 条记录
             </div>
             <div class="totalfy">
                 <el-pagination
@@ -298,8 +303,8 @@
                 this.parameter.data.createdBeginDate = '';
                 this.parameter.data.createdEndDate = '';
             } else {
-                this.parameter.data.createdBeginDate = this.beginDate[0].getTime();
-                this.parameter.data.createdEndDate = this.beginDate[1].getTime();
+                this.parameter.data.createdBeginDate = this.beginDate[0] && this.beginDate[0].getTime();
+                this.parameter.data.createdEndDate = this.beginDate[1] && this.beginDate[1].getTime();
             }
             this.getInfo(this.parameter);
         },
@@ -309,6 +314,7 @@
             this.offerStatus = index >= 1 ? index - 1 : '';
             this.parameter.data.offerStatus = this.offerStatus;
             this.parameter.data.sellerCompanyId = this.sellerCompanyId;
+            this.pageNum = 1; // tab切换初始页数
             this.getInfo(this.parameter);
         },
         handleCurrentChange (val) { // 分页
@@ -323,6 +329,7 @@
             this.parameter.data.offerStatus = this.offerStatus;
             this.parameter.data.flag = 2;
             this.parameter.data.sellerCompanyId = this.sellerCompanyId;
+            this.parameter.data.offerType = 1;
             that.$http.post(this.$api.offers.list, this.parameter).then(function (res) {
                 if (res.data.code === 0) {
                     let result = res.data.data;
@@ -354,6 +361,8 @@
                     });
                     that.parameter.data.offerStatus = that.newIndex === 1 ? 0 : that.newIndex === 2 ? 1 : '';
                     that.getInfo(that.parameter);
+                } else {
+                    that.$message(res.data.message);
                 }
                 that.itemId = [];
                 that.datas.offerIdList = [];
@@ -380,11 +389,11 @@
             }
             li {
                 float: left;
-                padding: 0 6px;
+                padding: 0 5px;
                 color: #666666;
                 &.active {
                     color: $color-a-active;
-                    border-bottom: 1px solid $color-a-active
+                    border-bottom: 2px solid $color-a-active
                 }
             }
             li:hover{
@@ -392,10 +401,14 @@
             }
             ul li:not(:first-child) {
                 position: relative;
-                margin-left: 20px;
+                margin-left: 10px;
             }
             .search-btn {
                 position: relative;
+                i{
+                    margin-left:5px;
+                    vertical-align: top;
+                }
             }
             .search-btn:hover{
                 cursor: pointer;
@@ -442,9 +455,10 @@
             border-collapse: collapse;
             td {
                 color: $color-main;
-                text-align: center;
+                text-align: left;
                 font-size: 12px
             }
+            thead td{text-align: center}
             tr:not(:nth-child(2)) td {
                 padding: 9px;
             }
@@ -498,6 +512,7 @@
             .title{
                 font-weight: bold;
                 border: 1px solid #e7ecf1;
+                text-align: center;
             }
             tbody{
                 border: 1px solid #e7ecf1;

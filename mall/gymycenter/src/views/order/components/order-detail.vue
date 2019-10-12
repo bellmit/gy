@@ -1,24 +1,26 @@
 <template>
     <div>
-        <table>
-            <tr>
-                <td>商品名称</td>
-                <td>单价</td>
-                <td>数量</td>
-                <td>交货期</td>
-                <td>交割地</td>
-                <td>总额</td>
-            </tr>
-            <tr v-for="(item, index) in orderItemData" :key="index">
-                <td>{{item.skuName}}</td>
-                <td>{{item.skuPrice|numToCash}}元/{{item.infUnitOfMeasureDisplayName}}</td>
-                <td>{{item.skuQuantity|numToCash(3)}}{{item.infUnitOfMeasureDisplayName}}</td>
-                <td v-if="item.deliveryDateFlag === 3">{{item.deliveryDateText}}</td>
-                <td v-else-if="item.deliveryDateFlag === 2" >{{item.deliveryBeginDate|date}}以前</td>
-                <td v-else>{{item.deliveryBeginDate|date}}到{{item.deliveryEndDate|date}}</td>
-                <td>{{item.deliveryWarehouseName}}</td>
-                <td>{{item.skuTotalAmount |numToCash}}元</td>
-            </tr>
+        <table class="gy-table">
+            <thead>
+                <th>商品名称</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>交货期</th>
+                <th>交割地</th>
+                <th>总额</th>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in orderItemData" :key="index">
+                    <td>{{item.skuName}}</td>
+                    <td class="align-r">{{item.skuPrice|numToCash}}元/{{item.infUnitOfMeasureDisplayName}}</td>
+                    <td class="align-r">{{item.skuQuantity|numToCash(3)}}{{item.infUnitOfMeasureDisplayName}}</td>
+                    <td v-if="item.deliveryDateFlag === 3">{{item.deliveryDateText}}</td>
+                    <td v-else-if="item.deliveryDateFlag === 2" >{{item.deliveryBeginDate|date}}以前</td>
+                    <td v-else>{{item.deliveryBeginDate|date}}至{{item.deliveryEndDate|date}}</td>
+                    <td>{{item.deliveryWarehouseName}}</td>
+                    <td class="align-r">{{item.skuTotalAmount |numToCash}}元</td>
+                </tr>
+            </tbody>
         </table>
         <div class="total-detail">
             <dl>
@@ -52,7 +54,11 @@ export default {
     table tr.update-title {
         background: red;
     }
-    table tr{
+    table tr:first-child{
         text-align: center;
+    }
+    .align-r{
+        text-align: right;
+        padding-right: 5px;
     }
 </style>

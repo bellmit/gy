@@ -1,16 +1,16 @@
 <template>
-  <div class="flow-list cont">
+  <div class="flow-list cont my-cont-list">
     <header>
       <div class="title">合同执行人员分配</div>
     </header>
     <el-form :inline="true" :model="formInline" class="clearfix demo-form-inline search">
       <div class="gy-form-group">
         <span class="l">产品名称</span>
-        <input type="text" placeholder="请输入" v-model.trim="formInline.prodName">
+        <input type="text" placeholder="请输入产品名称" v-model.trim="formInline.prodName">
       </div>
       <div class="gy-form-group">
         <span class="l">执行人员</span>
-        <input type="text" placeholder="请输入" v-model.trim="formInline.executiveName">
+        <input type="text" placeholder="请输入执行人员" v-model.trim="formInline.executiveName">
       </div>
       <div class="gy-form-group">
         <el-checkbox label="只查询合同创建阶段数据" v-model="formInline.createdFlg"></el-checkbox>
@@ -38,19 +38,11 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-bind:label="'上游\n下游公司'"
+          v-bind:label="'上游公司\n下游公司'"
           width="250">
           <template slot-scope="item">
             <span>{{item.row.sellerCompanyName}}</span><br>
             <span>{{item.row.buyerCompanyName}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="总金额(元)"
-          width="180">
-          <template slot-scope="item">
-            <span>{{item.row.saleTotalAmount | numToCash}}</span><br>
-            <span>{{item.row.purchaseTotalAmount | numToCash}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -76,9 +68,10 @@
         <el-table-column
           label="操作"
           fixed="right"
-          width="80">
-          <template slot-scope="item">
-            <button class="gy-button-view edit" @click="clickItem(item.row.essenceId)">详情</button>
+          class-name="amount-right-el"
+          width="70">
+          <template slot-scope="item" class="caoz1">
+            <button type="button" class="gy-button-view edit" @click="clickItem(item.row.essenceId)">详情</button>
           </template>
         </el-table-column>
       </el-table>
@@ -110,8 +103,23 @@ export default {
             total: 0
         };
     },
+    activated () {
+        // 获取付款单信息
+        if (!this.$route.meta.isBack) {
+            this.formInline = {
+                pageNum: 1,
+                pageSize: 10,
+                prodName: '',
+                createdFlg: true,
+                executiveFlg: false,
+                executiveName: ''
+            };
+            this.search();
+        }
+        this.$route.meta.isBack = false;
+    },
     created () {
-        this.search();
+        // this.search();
     },
     filters: {
         changeDistributeType: (val) => {
@@ -138,10 +146,22 @@ export default {
     }
 };
 </script>
+<style lang="scss" scoped>
+    .caoz1 {
+        text-align: center !important;
+        padding: 0 10px !important;
+    }
+</style>
+
 <style lang="scss">
     .flow-list{
         .el-table .cell{
             white-space:pre-line;
         }
+    }
+    .caoz {
+        color: red!important;
+        text-align: center;
+        padding: 0 20px;
     }
 </style>

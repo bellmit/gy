@@ -61,7 +61,10 @@
                         </ul>
                     </div>
                     <div class="img-main">
-                        <div class="img-box"><a :href="bigImageUrl" target="_blank"><img :src="bigImageUrl" v-if="bigImageUrl" alt=""></a></div>
+                        <div class="img-box"><a :href="bigImageUrl" target="_blank"><div><img :src="bigImageUrl" v-if="bigImageUrl" alt=""></div></a></div>
+                    </div>
+                     <div @click="rotateImg" class="rotate-img">
+                        <i class="iconfont icon-xuanzhuan"></i>
                     </div>
                 </div>
                 <span class="mask" @click="showImg = false"></span>
@@ -133,7 +136,8 @@ export default {
             dispatchCode: null,
             imagesList: {},
             bigImageUrl: null,
-            imgName: ['装货图', '卸货图']
+            imgName: ['装货图', '卸货图'],
+            clickNum: 0
         };
     },
     components: {
@@ -198,6 +202,10 @@ export default {
         },
         showBigImage (url) {
             this.bigImageUrl = url;
+        },
+        rotateImg () {
+            this.clickNum += 1;
+            document.querySelector('.img-box div').style.transform = `rotate(${this.clickNum * 90}deg)`;
         },
         wgs84togcj02 (lng, lat) {
             let dlat = transformlat(lng - 105.0, lat - 35.0);
@@ -388,17 +396,27 @@ export default {
                 width: 570px;
                 padding: 20px;
                 .img-box {
-                    height: 100%;
+                    height: 90%;
+                    width: 100%;
                     position: relative;
                     text-align: center;
                     overflow: hidden;
-                    img {
+                    overflow-y: auto;
+                    div {
                         height: 100%;
-                        width: auto;
+                        width: 100%;
+                        display: inline-block;
+                        position: absolute;
+                        left: 0;
+                        img {
+                        height: 100%;
+                        max-width: 100%;
                         top: 0;
                         position: absolute;
                         left: 50%;
                         transform: translateX(-50%);
+                    }
+
                     }
                 }
             }
@@ -418,4 +436,16 @@ export default {
         height: 100%;
         width: 100%;
     }
+     .rotate-img {
+            color: #000;
+            position: absolute;
+            bottom: -5px;
+            left: 60%;
+            // transform: translateX(-50%);
+            z-index: 9999;
+            cursor: pointer;
+            i {
+              font-size: 30px;
+            }
+        }
 </style>

@@ -1,185 +1,261 @@
 <template>
     <div class="financialConfirmation my-invoice invoic_details">
-        <gy-contract type='1' :query="params"></gy-contract>
-        <div class="title">收票信息  <el-button type="text" @click="buyLinkInvoice" class="linkInvoice" v-if="!noCollectTickets">查看详情</el-button></div>
-        <div class="block-wrap clearfix" v-if="!noCollectTickets">
-            <div class="gy-form-group">
-                <span class="l">上游公司</span>
-                <span>{{ticketInformations.sellerName}}</span>
+        <gy-contract :query="form"></gy-contract>
+        <div v-if="ticketInformations != null">
+            <div class="title">收票信息  <span type="text" style="color:#4a90e2;cursor: pointer;" @click="buyLinkInvoice" class="linkInvoice" v-if="!noCollectTickets">查看详情</span></div>
+            <div class="block-wrap clearfix" v-if="!noCollectTickets">
+                <div class="gy-form-group">
+                    <span class="l">上游公司</span>
+                    <span>{{ticketInformations.sellerName}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">发票月份</span>
+                    <span>{{ticketInformations.provideInvoiceType|invoiceMonthValue(form.upstreamInfo)}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">发票总金额(元)</span>
+                    <span>{{ticketInformations.amount|numToCash}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">数量(吨)</span>
+                    <span>{{ticketInformations.quantity|numToQuantity}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">收票状态</span>
+                    <span>{{receiptInvoiceStatusValue}}</span>
+                </div>
+                <div class="gy-form-group linkInvoice">
+                    <span class="l">单价(元/吨)</span>
+                    <span v-if="form.upstreamInfo.skuPriceType === 21 || form.upstreamInfo.skuPriceType === 22">公式计价</span>
+                    <span v-else>{{ticketInformations.productUnitPrice|numToCash(true)}}</span>
+                </div>
+                <div class="gy-form-group" style="width: 100%">
+                    <span class="l">收票凭证</span>
+                    <span v-if="ticketInformations.receiptInvoiceUrlList && ticketInformations.receiptInvoiceUrlList.length !== 0" @click="showImgs(ticketInformations.receiptInvoiceUrlList)"><i class="iconfont icon-photo"></i></span>
+                    <span v-else><i class="iconfont icon-photo-null"></i></span>
+                </div>
             </div>
-            <div class="gy-form-group">
-                <span class="l">发票月份</span>
-                <span>{{ticketInformations.provideInvoiceType|invoiceMonthValue(ticketInformations)}}</span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">发票总金额(元)</span>
-                <span>{{ticketInformations.amount|numToCash}}</span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">数量(吨)</span>
-                <span>{{ticketInformations.quantity}}</span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">收票状态</span>
-                <span>{{receiptInvoiceStatusValue}}</span>
-            </div>
-            <div class="gy-form-group linkInvoice">
-                <span class="l">单价(含税/元)</span>
-                <span>{{ticketInformations.productUnitPrice|numToCash}}</span>
-            </div>
-            <div class="gy-form-group" style="width: 100%">
-                <span class="l">收票凭证</span>
-                <span v-if="ticketInformations.receiptInvoiceUrlList && ticketInformations.receiptInvoiceUrlList.length !== 0" @click="showImg(1)"><i class="iconfont icon-photo"></i></span>
-                <span v-else><i class="iconfont icon-photo-null"></i></span>
-            </div>
+            <div v-if="noCollectTickets" class="noinvoiceStyle">还未收票，没有可显示的收票信息</div>
         </div>
-        <div v-if="noCollectTickets" class="noinvoiceStyle">没有可显示的收票信息</div>
-        <div class="title">开票信息
-            <el-button type="text" @click="exportExcel" style="margin-left:660px" v-if="!noInvoice">下载开票申请单</el-button>
-            <el-button type="text" @click="sellLinkInvoice" class="linkInvoice" v-if="!noInvoice">查看详情</el-button>
+        <div v-if="ticketInformationsd != null">
+            <div class="title">开票信息</div>
+            <div class="block-wrap clearfix" v-if="!noInvoice">
+                <div class="gy-form-group">
+                    <span class="l">下游公司</span>
+                    <span>{{ticketInformationsd.buyerName}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">发票月份</span>
+                    <span>{{ticketInformationsd.provideInvoiceType|invoiceMonthValue(form.downstreamInfo)}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">数量(吨)</span>
+                    <span>{{ticketInformationsd.contractNumber}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">合同金额(元)</span>
+                    <span v-if="form.downstreamInfo.skuPriceType === 21 || form.downstreamInfo.skuPriceType === 22">公式计价</span>
+                    <span v-else>{{ticketInformationsd.contractAmount | numToCash}}</span>
+                </div>
+                <div class="gy-form-group" style="width:100%">
+                    <span class="l">已开票金额(元)</span>
+                    <span>{{ticketInformationsd.makeOutInvoice | numToCash}}</span>
+                </div>
+                <div class="min-title min-titles">开票记录</div>
+                <div class="min-title">
+                    <el-table
+                        :data="ticketInforInvoices"
+                        style="width: 100%"
+                        class="gy-table">
+                        <el-table-column
+                                label="编号"
+                                fixed
+                                width="80"><template slot-scope="item">{{item.row.id}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="状态"
+                                width="100"><template slot-scope="item">{{item.row.statusDesc}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="本次开票金额(元)"
+                                class-name="amount-right-el"
+                                width="150"><template slot-scope="item">{{item.row.amount | numToCash}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="开票数量(吨)"
+                                class-name="amount-right-el"
+                                width="120"><template slot-scope="item">{{item.row.quantity| numToQuantity}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="企业税号"
+                                width="150"><template slot-scope="item">{{item.row.buyerTaxCode}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="开户银行"
+                                width="130">
+                            <template slot-scope="item">
+                                <span>{{item.row.buyerBankName}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="银行账号"
+                                width="250"><template slot-scope="item">{{item.row.buyerBankAccount}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                class-name="amount-right-el"
+                                label="转让货权总数量(吨)"
+                                width="150"><template slot-scope="item">{{item.row.deliveredProductQuantity|numToQuantity}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="商品税务编码"
+                                width="180"><template slot-scope="item">{{item.row.productTaxCode}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="进项票"
+                                width="160">
+                                <template slot-scope="item">
+                                    <span>{{item.row.receiptInvoiceAmount | entryTicket(item.row.receiptInvoiceAmount)}}</span>
+                                    <span>{{item.row.receiptInvoiceStatus | entryTickets(item.row.receiptInvoiceStatus)}}</span>
+                                    </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="已收进项票(元)"
+                                class-name="amount-right-el"
+                                width="135"><template slot-scope="item">{{item.row.receiptInvoiceAmount | numToCash}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="开票凭证"
+                                class-name="operation-styles-el"
+                                width="90">
+                                <template slot-scope="item">
+                                    <span v-if="item.row.invoiceVoucherList && item.row.invoiceVoucherList.length !== 0" @click="showImg(1, item.row.invoiceVoucherList)" style="padding-bottom:-2px">
+                                    <i class="iconfont icon-photo"></i></span>
+                                    <span v-else><i class="iconfont icon-photo-null"></i></span>
+                                </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="收款凭证"
+                                class-name="operation-styles-el"
+                                width="90">
+                                <template slot-scope="item">
+                                    <span v-if="item.row.collectionFileList && item.row.collectionFileList.length !== 0" @click="showImg(2, item.row.collectionFileList)" style="padding-bottom:-2px">
+                                    <i class="iconfont icon-photo"></i></span>
+                                    <span v-else><i class="iconfont icon-photo-null"></i></span>
+                                </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="销售交割凭证"
+                                class-name="operation-styles-el"
+                                width="135">
+                                <template slot-scope="item">
+                                    <span v-if="item.row.deliveredUrlList && item.row.deliveredUrlList.length !== 0" @click="showImg(3, item.row.deliveredUrlList)" style="padding-bottom:-2px">
+                                    <i class="iconfont icon-photo"></i></span>
+                                    <span v-else><i class="iconfont icon-photo-null"></i></span>
+                                </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="采购交割凭证"
+                                class-name="operation-styles-el"
+                                width="135">
+                                <template slot-scope="item">
+                                    <span v-if="item.row.productSettlementBillList && item.row.productSettlementBillList.length !== 0" @click="showImg(4, item.row.productSettlementBillList)" style="padding-bottom:-2px">
+                                    <i class="iconfont icon-photo"></i></span>
+                                    <span v-else><i class="iconfont icon-photo-null"></i></span>
+                                </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="快递单号"
+                                width="90"><template slot-scope="item">{{item.row.expressCode}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="经办人"
+                                width="80"><template slot-scope="item">{{item.row.operationUserName}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                label="备注"
+                                width="250"><template slot-scope="item"><div class="text-overflow">{{item.row.remark}}</div></template>
+                        </el-table-column>
+                        <el-table-column
+                                label="创建时间"
+                                width="150"><template slot-scope="item">{{item.row.createdDate | date(1)}}</template>
+                        </el-table-column>
+                        <el-table-column
+                                class-name="operation-styles-el"
+                                label="操作"
+                                fixed="right"
+                                width="110">
+                            <template slot-scope="item">
+                                <button class="gy-button-view" style="background-color: white;" @click="InvoiceCheck(item.row)">查看</button>
+                                <button class="gy-button-view" style="background-color: white;"  @click="exportExcel(item.row)">下载</button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+            <div v-if="noInvoice" class="noinvoiceStyle">还未开票，没有可显示的开票信息</div>
         </div>
-        <div class="block-wrap clearfix" v-if="!noInvoice">
-            <div class="gy-form-group">
-                <span class="l">下游公司</span>
-                <span>{{ticketInformationsd.buyerName}}</span>
-            </div>
-          <div class="gy-form-group">
-            <span class="l">申请日期</span>
-            <span>{{ticketInformationsd.date | date}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">开票单位名称</span>
-            <span>{{ticketInformationsd.buyerName}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">开票数量(吨)</span>
-            <span>{{ticketInformationsd.quantity}}{{ticketInformationsd.quantityUnitName}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">税号</span>
-            <span>{{ticketInformationsd.buyerTaxCode}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">开票总金额(元)</span>
-            <span>{{ticketInformationsd.amount | numToCash}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">开户银行</span>
-            <span>{{ticketInformationsd.buyerBankName}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">发票月份</span>
-            <span>{{ticketInformationsd.provideInvoiceType|invoiceMonthValue(ticketInformationsd)}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">银行账号</span>
-            <span>{{ticketInformationsd.buyerBankAccount}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">商品税务编号</span>
-            <span>{{ticketInformationsd.productTaxCode}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">转让货权总数量(吨)</span>
-            <span>{{ticketInformationsd.deliveredProductQuantity}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">进项票</span>
-            <span>{{ticketInformationsd.receiptInvoiceStatus === 0 ? '无进项票': '有进项票'}}</span>
-          </div>
-          <div class="gy-form-group my-group">
-            <span class="l">已收上游发票(元)</span>
-            <span>{{ticketInformationsd.receiptInvoiceAmount|numToCash}}</span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">经办人</span>
-            <span>{{ticketInformationsd.operationUserName}}</span>
-          </div>
-          <div style="clear: both"></div>
-          <div class="gy-form-group">
-            <span class="l">采购交割凭证</span>
-            <span v-if="fileList.purchaseDeliverys && fileList.purchaseDeliverys.length !== 0"
-                  @click="showImg(4)"><i class="iconfont icon-photo"></i></span>
-            <span v-else><i class="iconfont icon-photo-null"></i></span>
-          </div>
-          <div class="gy-form-group"  >
-            <span  class="l">销售交割凭证</span>
-            <span v-if="fileList.salesDeliverys && fileList.salesDeliverys.length !== 0"
-                  @click="showImg(5)"><i class="iconfont icon-photo"></i></span>
-            <span v-else><i class="iconfont icon-photo-null"></i></span>
-          </div>
-          <div class="gy-form-group">
-            <span class="l">收款凭证</span>
-            <span v-if="fileList.collections && fileList.collections.length !== 0" @click="showImg(2)"><i class="iconfont icon-photo"></i></span>
-            <span v-else><i class="iconfont icon-photo-null"></i></span>
-          </div>
-          <div class="gy-form-group">
-            <span  class="l">开票凭证</span>
-            <span v-if="ticketInformationsd.invoiceVoucherList && ticketInformationsd.invoiceVoucherList.length !== 0" @click="showImg(3)"><i class="iconfont icon-photo"></i></span>
-            <span v-else><i class="iconfont icon-photo-null"></i></span>
-          </div>
-            <div class="gy-form-group"  v-if="ticketInformationsd.status === 70">
-                <span class="l">快递单号</span>
-                <span>{{ticketInformationsd.expressCode}}</span>
-            </div>
-          <div class="gy-form-group">
-                <span class="l">开票状态</span>
-                <span>{{salesInvoiceStatusValue}}</span>
-            </div>
-        </div>
-        <div v-if="noInvoice" class="noinvoiceStyle">没有可显示的开票信息</div>
-        <dialog-img v-if="dialogVisible" @closedialogvisible="closedialogvisible" :dialogVisible="dialogVisible" :dialogImg="fileUrl"></dialog-img>
+        <gy-file-view ref="contFileView"></gy-file-view>
     </div>
 </template>
 
 <script>
 import gyContract from '../components/contractBasic.vue';
-import dialogImg from './../components/dialogImg';
+import gyFileView from '../components/gyFileView';
+
 export default {
     name: 'invoiceDetails',
-    components: {gyContract, dialogImg},
+    components: {gyContract, gyFileView},
     data () {
         return {
-            test: '测试',
             id: null,
             purchaseOrderId: null,
             saleOrderId: null,
-            ticketInformations: [],
-            ticketInformationsd: {},
+            ticketInformations: null,
+            ticketInformationsd: null,
+            ticketInforInvoices: [],
             fileList: {}, // 凭证list
-            params: {
-                contEssId: null
-            },
             form: {
-                sellerInfo: { contractCode: null },
-                buyerInfo: { contractCode: null }
+                downstreamInfo: {
+                    skuPriceType: null
+                },
+                upstreamInfo: {
+                    skuPriceType: null
+                }
             },
             noInvoice: false, // 开票
             noCollectTickets: false, // 收票
-            dialogVisible: false,
-            fileUrl: false,
             salesInvoiceStatusValue: '',
             receiptInvoiceStatusValue: ''
         };
     },
     created () {
         this.id = this.$route.query.id;
-        this.params.contEssId = this.$route.query.id;
         this.purchaseOrderId = this.$route.query.purchaseOrderId; // 收票
-        this.salesOrderId = this.$route.query.salesOrderId; // 开票
+        this.salesOrderId = this.$route.query.saleOrderId; // 开票
         this.salesInvoiceStatusValue = this.$route.query.salesInvoiceStatusValue; // 开票
         this.receiptInvoiceStatusValue = this.$route.query.receiptInvoiceStatusValue; // 开票
+        let activeType = Number(this.$route.query.activeType);
+        if (activeType === 2) {
+            // 只查看收票
+            this.ticketInformation();
+        } else if (activeType === 3) {
+            // 只查看开票
+            this.ticketInfor();
+        } else {
+            this.ticketInformation();
+            this.ticketInfor();
+        }
         this.information();
-        this.ticketInfor();
-        this.ticketInformation();
     },
     methods: {
         // 基本信息
         information () {
             let that = this;
-            that.$http.get(that.$api.contract.getdetail + '/' + this.id).then(function (res) {
+            that.$http.get(that.$api.order.orderDetail + '/' + this.id).then(function (res) {
                 if (res.data.code === 0) {
                     that.form = res.data.data;
+                } else {
+                    that.$message(res.data.message);
                 }
             }).catch(function (res) {
                 that.$message(res.data.message);
@@ -188,91 +264,70 @@ export default {
         // 收票信息
         ticketInformation () {
             let that = this;
-            if (that.purchaseOrderId === null) {
+            that.ticketInformation = null;
+            if (that.purchaseOrderId == null || that.purchaseOrderId === undefined || that.purchaseOrderId === '' || that.purchaseOrderId === 'null') {
+                console.log('发票详情 采购订单ID为空 合同要素id=' + that.id);
                 that.noCollectTickets = true;
+                return false;
             }
-            if (that.purchaseOrderId !== null) {
-                that.$http.get(that.$api.invoice.getDetail + '/' + that.purchaseOrderId).then(function (res) {
-                    if (res.data.code === 0) {
-                        if (res.data.data !== undefined) {
-                            that.ticketInformations = res.data.data;
-                        } else {
-                            that.noCollectTickets = true;
-                        }
+            that.$http.get(that.$api.invoice.getDetail + '/' + that.purchaseOrderId).then(function (res) {
+                if (res.data.code === 0) {
+                    that.ticketInformations = res.data.data;
+                    if (that.ticketInformations == null || that.ticketInformations === undefined) {
+                        that.ticketInformations = {};
+                        that.noCollectTickets = true;
                     }
-                }).catch(function (error) {
-                    that.$message(error);
-                });
-            }
+                }
+            }).catch(function (error) {
+                that.$message(error);
+            });
         },
         // 开票信息
         ticketInfor () {
             let that = this;
-            if (that.salesOrderId === null) {
+            that.ticketInformationsd = null;
+            if (that.salesOrderId == null || that.salesOrderId === undefined || that.salesOrderId === '' || that.salesOrderId === 'null') {
+                console.log('发票详情 销售订单ID为空 合同要素id=' + that.id);
                 that.noInvoice = true;
+                return false;
             }
-            if (that.salesOrderId !== null) {
-                that.$http.get(that.$api.invoice.getDetails + '/' + that.salesOrderId).then(function (res) {
-                    if (res.data.code === 0) {
-                        if (res.data.data !== undefined) {
-                            that.ticketInformationsd = res.data.data;
-                            that.getInvoiceDeliveryCollection();
-                        } else {
-                            that.noInvoice = true;
-                        }
+            that.$http.get(that.$api.invoice.getDetails + '/' + that.salesOrderId).then(function (res) {
+                if (res.data.code === 0) {
+                    that.ticketInformationsd = res.data.data;
+                    that.ticketInforInvoices = res.data.data.invoices;
+                    if (that.ticketInformationsd == null || that.ticketInformationsd === undefined) {
+                        that.ticketInformationsd = {};
+                        that.noInvoice = true;
                     }
-                }).catch(function (error) {
-                    that.$message(error);
-                });
-            }
+                    that.getInvoiceDeliveryCollection();
+                }
+            }).catch(function (error) {
+                that.$message(error);
+            });
         },
         // 图片预览
-        showImg (type) {
-            this.dialogVisible = true;
-            let arr = [];
+        showImgs (imgList) {
+            this.$refs.contFileView.open4MultiFile(imgList);
+        },
+        showImg (type, arr) {
             switch (type) {
             case 1:
-                this.ticketInformations.receiptInvoiceUrlList.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.fileUrl = arr;
+                this.fileList = arr;
                 break;
             case 2:
-                // 开票的
-                this.fileList.collections.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.fileUrl = arr;
+                this.fileList = arr;
                 break;
             case 3:
-                // 开票凭证
-                this.ticketInformationsd.invoiceVoucherList.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.fileUrl = arr;
+                this.fileList = arr;
                 break;
             case 4:
-                // 开票的采购交割
-                this.fileList.purchaseDeliverys.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.fileUrl = arr;
-                break;
-            case 5:
-                // 开票的销售交割
-                this.fileList.salesDeliverys.forEach((e) => {
-                    arr.push({fileUrl: e});
-                });
-                this.fileUrl = arr;
+                this.fileList = arr;
                 break;
             default:
-                this.dialogVisible = false;
-                this.fileUrl = [];
+                this.fileList = [];
                 break;
             }
-        },
-        closedialogvisible () {
-            this.dialogVisible = false;
+            this.$refs.contFileView.open4MultiFile(this.fileList);
         },
         buyLinkInvoice () {
             this.$router.push({name: 'financialConfirmation', query: { id: this.form.id, saleOrderId: this.salesOrderId, purchaseOrderId: this.purchaseOrderId, doneFlg: 1 }});
@@ -288,14 +343,18 @@ export default {
                     }
                 });
         },
+        // 开票查看
+        InvoiceCheck (item) {
+            this.$router.push({name: 'auditOperation', query: {purchaseOrderId: this.$route.query.purchaseOrderId, salesOrderId: this.$route.query.salesOrderId, invoiceId: item.id, id: this.$route.query.id}});
+        },
         exportExcel (item) {
             // 下载开票申请单
             let that = this;
             let params = {};
-            params.paymentId = item.id;
-            params.essenceId = that.list.id;
-            params.purchaseOrderId = that.paymentAndCollection.purchaseOrderId;
-            let fileName = '开票申请单-' + that.$tools.parseDate(that.list.createdDate) + '-' + item.id + '.xls';
+            params.contEssId = that.id;
+            params.salesOrderId = that.salesOrderId;
+            params.invoiceApplicationId = item.id;
+            let fileName = '开票申请单-' + that.$tools.parseDate(that.ticketInformationsd.date) + '-' + that.id + '.xls';
             that.$tools.exporttoExcel(that, that.$api.invoice.exportInvoiceApplication, params, fileName);
         }
     }
@@ -306,7 +365,16 @@ export default {
   .title{
       font-size: 14px;
       color: #333333;
-      margin: 20px 30px;
+      margin: 20px 16px;
+      font-weight: bold;
+  }
+  .min-title{
+      margin: 0 16px;
+  }
+  .min-titles{
+      margin-bottom:16px;
+      font-size: 14px;
+      color: #333333;
       font-weight: bold;
   }
   .linkInvoice{
@@ -315,11 +383,9 @@ export default {
   .financialConfirmation{
       padding-bottom: 30px;
     .noinvoiceStyle{
-        width: 100%;
-        height: 70px;
-        text-align: center;
-        line-height: 70px;
-        font-size: 18px;
+        color:#666666;
+        margin:20px 30px;
+        font-size: 12px;
     }
   }
   .conStyle{
@@ -331,10 +397,16 @@ export default {
     .invoic_details{
         /*GYfrom padding修改*/
         .gy-form-group {
-            padding: 8px 30px 8px 162px;
+            padding: 8px 30px 8px 172px;
         }
         .l {
-            width: 122px;
+            width: 155px;
+        }
+        .icon-photo-null:before {
+            line-height: 1.08;
+        }
+        .icon-photo:before {
+            line-height: 1.08;
         }
     }
 </style>

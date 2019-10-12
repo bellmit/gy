@@ -5,7 +5,7 @@
 <template>
     <div>
         <dl class="t">
-            <dt>电子签章（CA交割）</dt>
+            <dt>电子签章</dt>
             <dd>上传的文件需为加盖公章的扫描件，展示风格支持jpg，jpeg，gif，png风格，支持2M以内的图片。</dd>
         </dl>
         <form action="javascript:;" name="cacompany">

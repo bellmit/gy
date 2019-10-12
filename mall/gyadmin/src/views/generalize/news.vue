@@ -1,7 +1,7 @@
 <template>
     <div class="recommend news">
         <div class="container">
-            <h3 class="gy-h3">资讯管理</h3>
+            <div class="gy-h4">资讯管理</div>
             <div class="list">
                 <div class="operation-menu">
                     <router-link :to="{ name: 'generalize-news-add' }" class="gy-button-extra">添加</router-link>
@@ -91,7 +91,7 @@ export default {
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    that.$http.put(that.$api.market.addNews, {id: that.checkedList[0], status: Number(valid) === 1 ? 0 : 1})
+                    that.$http.put(that.$api.market.delNews, {id: that.checkedList[0], status: Number(valid) === 1 ? 0 : 1})
                         .then(function (res) {
                             if (res.data.code === 0) {
                                 that.getNewsList();
@@ -119,9 +119,6 @@ export default {
 </script>
 <style lang="scss" scoped>
     .recommend.news{
-        .container{
-            padding: 25px 35px;
-        }
         .gy-h3{
             font-weight: normal;
             margin: 0;

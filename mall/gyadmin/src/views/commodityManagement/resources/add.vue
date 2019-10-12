@@ -24,6 +24,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="用户"  prop="userId">
+              <el-row>
               <el-select v-model="info.userId" placeholder="请选择">
                 <el-option
                   v-for="item in employees"
@@ -32,17 +33,21 @@
                   :value="item.userId">
                 </el-option>
               </el-select>
+              </el-row>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="60">
           <el-col :span="12">
             <el-form-item label="品名" prop="skuName">
+              <el-row>
               <product-search :selected.sync="selectedProduct"></product-search>
+              </el-row>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="有效时间" prop="effectiveMinutes">
+              <el-row>
               <el-select v-model="info.effectiveMinutes" >
                 <el-option
                   v-for="item in timeOptions"
@@ -51,15 +56,27 @@
                   :value="item.value">
                 </el-option>
               </el-select>
+              </el-row>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="60">
-          <el-col :span="12" class="display-inlinecol">
+          <el-col :span="12" class="display-inlinecol pricecenter">
             <el-form-item label="单价(元)" prop="skuPrice">
               <el-row>
+                <div class="inlineblock">
+                  <el-select v-model="info.skuPriceFlag" @change="changeprice" placeholder="请选择">
+                      <el-option
+                        v-for="item in skuPriceList"
+                        :key="item.id"
+                        :label="item.userName"
+                        :value="item.id">
+                      </el-option>
+                  </el-select>
+                </div>
+                <div class="inlineblock" v-if="info.skuPriceFlag!=2">
                 <el-col :span="10">
-                  <input type="text" placeholder="请输入单价" style="width: 100%" v-model.number="info.skuPrice" v-bind:disabled="disabledInput" @focus="changeInput"/>
+                  <el-input type="text" placeholder="请输入单价" style="width: 100%" v-model.number="info.skuPrice" v-bind:disabled="disabledInput" @focus="changeInput"></el-input>
                 </el-col>
                 <el-col :span="10">
                   <el-select style="width: 100%" v-model="info.intCurrencyCode" placeholder="请选择">
@@ -71,11 +88,12 @@
                     </el-option>
                   </el-select>
                 </el-col>
-                <el-col :span="4">
+                </div>
+                <!-- <el-col :span="4">
                   <el-radio-group style="margin-left: -23%;" v-model="info.ismianmin" @change="change">
                     <el-radio label="面议"></el-radio>
                   </el-radio-group>
-                </el-col>
+                </el-col> -->
               </el-row>
             </el-form-item>
           </el-col>
@@ -121,7 +139,7 @@
                 <el-col :span="23">
                    <el-row>
                      <el-col :span="12">
-                       <input type="text" placeholder="请输入可供量" v-model="info.skuQuantity"/>
+                       <el-input type="text" style="margin-top:-2px;width:320px;" placeholder="请输入可供量" v-model="info.skuQuantity"></el-input>
                      </el-col>
                      <el-col :span="12">
                        <el-select v-model="info.infUnitOfMeasureId" >
@@ -140,7 +158,9 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="起订量" prop="skuMinQuantity">
-              <input type="text" placeholder="请输入起订量" v-model="info.skuMinQuantity"/>
+              <el-row>
+              <el-input type="text" placeholder="请输入起订量" v-model="info.skuMinQuantity"></el-input>
+              </el-row>
             </el-form-item>
           </el-col>
         </el-row>
@@ -169,20 +189,16 @@
       <div style="padding: 0 14px">
         <el-row :gutter="60">
           <el-col :span="12">
-            <el-row >
-              <el-col :span="4">交割库</el-col>
-              <el-col :span="20" style="position: relative">
-                <input type="text" placeholder="请输入交割库" v-model="info.deliveryWarehouseName"  @keyup.enter="getWarehouses">
-                <i class="iconfont icon-search" style="position: absolute;top: 0;right: 0" @click="getWarehouses"></i>
-                <ul class="listul" v-show="showList">
-                  <li v-for="(item, index) in warehousesList" :key="index" @click="handleSelect(item)" v-if="warehousesList.length > 0">{{item.value}}</li>
-                </ul>
-                <ul class="listul" v-show="showList&&warehousesList.length === 0">
-                  <li>没有搜到数据</li>
-                </ul>
-              </el-col>
-              <el-col :span="1"></el-col>
-            </el-row>
+            <el-form-item label="交割库">
+              <input type="text" placeholder="请输入交割库" v-model="info.deliveryWarehouseName"  @keyup.enter="getWarehouses">
+              <i class="iconfont icon-mySearch" style="position: absolute;top: 0;right: 0" @click="getWarehouses"></i>
+              <ul class="listul" v-show="showList">
+                <li v-for="(item, index) in warehousesList" :key="index" @click="handleSelect(item)" v-if="warehousesList.length > 0">{{item.value}}</li>
+              </ul>
+              <ul class="listul" v-show="showList&&warehousesList.length === 0">
+                <li>没有搜到数据</li>
+              </ul>
+            </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="交割仓库地址">
@@ -230,18 +246,16 @@
         </el-row>
         <el-row  :gutter="60">
           <el-col :span="12">
-            <el-row>
-              <el-col :span="4">货源</el-col>
-              <el-col :span="20">
-                <el-select v-model="info.skuOrigin" placeholder="请选择">
+            <el-form-item label="货源">
+              <el-select v-model="info.skuOrigin" placeholder="请选择">
                 <el-option
-                  v-for="item in skuOriginOption"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                        v-for="item in skuOriginOption"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
                 </el-option>
-              </el-select></el-col>
-            </el-row>
+              </el-select>
+            </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="保证金(%)" class="bao">
@@ -309,6 +323,11 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col style="margin-left: 96px;">
+            <el-checkbox v-model="isPublic">公开公司信息</el-checkbox>
+          </el-col>
+        </el-row>
         <el-row style="margin-top: 11px">
           <el-col :span="24">
             <el-form-item style="text-align: right">
@@ -333,8 +352,8 @@ export default {
             callback();
         };
         let validatePrice = (rule, value, callback) => {
-            if (!this.info.ismianmin && !this.info.skuPrice) {
-                callback(new Error('请输入价格或选择面议'));
+            if (!(this.info.skuPriceFlag === '2') && !this.info.skuPrice) {
+                callback(new Error('请输入价格'));
             }
             callback();
         };
@@ -368,9 +387,9 @@ export default {
                 deliveryDate: [{required: true, type: 'array', validator: validate2, trigger: 'change'}],
                 // skuOrigin: [{ required: true, message: '请选择货源类型', trigger: 'blur' }], // 货源
                 deliveryType: [{ required: true, message: '请选择交割方式', trigger: 'blur' }], // 交割方式
-                effectiveMinutes: [{ required: true, message: '请输入有效时间', trigger: 'blur' }],
-                userId: [{ required: true, message: '请选择用户', trigger: 'blur' }],
-                devV: [{ required: true, validator: validate3, trigger: 'blur' }]// 有效时间
+                effectiveMinutes: [{ required: true, message: '请输入有效时间', trigger: 'change' }],
+                userId: [{ required: true, message: '请选择用户', trigger: 'change' }],
+                devV: [{ required: true, validator: validate3, trigger: 'change' }]// 有效时间
             },
             warehousesList: [],
             selectedProduct: {},
@@ -390,6 +409,7 @@ export default {
             imgUrl: '', // 图片
             deliveryWarehouseName: '',
             info: {
+                skuPriceFlag: '0',
                 skuOrigin: '国产', // 货源
                 skuName: '', // 品名
                 skuPrice: '', // 价格
@@ -401,7 +421,7 @@ export default {
                 deliveryType: 0,
                 skuPictureUrl: '',
                 companyName: '',
-                userId: '请选择',
+                userId: null,
                 ismianmin: '',
                 deliveryDateFlag: 3, // 交割时间
                 deliveryBeginDate: '',
@@ -432,6 +452,14 @@ export default {
             {
                 value: 10080,
                 label: '7天'
+            },
+            {
+                value: 43200,
+                label: '一个月'
+            },
+            {
+                value: 5256000,
+                label: '长期'
             }
             ],
             skuOriginOption: [{
@@ -497,6 +525,11 @@ export default {
                 value: 4,
                 label: '优惠'
             }],
+            skuPriceList: [
+                {id: '0', userName: '固定价'},
+                {id: '1', userName: '可议价'},
+                {id: '2', userName: '面议'}
+            ],
             provideInvoiceType: '',
             currencies: [], // 存币种
             skuData: [],
@@ -589,6 +622,13 @@ export default {
         this.imgBaseUrl = process.env.IMG_ROOT;
     },
     methods: {
+        changeprice () {
+            if (this.info.skuPriceFlag === '2') {
+                this.ruleForm.skuPrice[0].trigger = 'change';
+            } else {
+                this.ruleForm.skuPrice[0].trigger = 'blur';
+            }
+        },
         onelist1click () {
             this.onelist1Show = true;
             this.$http.post(this.$api.orders.creatOrderCompanies2, {
@@ -660,6 +700,7 @@ export default {
                     }
                     this.provideInvoiceType = this.info.provideInvoiceType;
                     this.imgUrl = res.data.data.skuPictureUrl;
+                    this.info.skuPriceFlag = this.info.skuPriceFlag.toString();
                     if (!this.info.skuPrice) {
                         this.info.ismianmin = '面议';
                         this.info.skuPrice = '';
@@ -738,6 +779,9 @@ export default {
             }
             if (!this.info.skuPrice) {
                 this.info.skuPrice = 0;
+            }
+            if (this.info.skuPriceFlag === '2') {
+                this.info.skuPrice = '';
             }
             if (this.offerId) {
                 this.info.id = this.offerId;
@@ -849,6 +893,27 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+.resource{
+  .el-form-item.is-required:not(.is-no-asterisk)>.el-form-item__label:before{
+      position: relative;
+      left: -8px;
+      margin-right: -6px;
+  }
+  .el-form-item--mini .el-form-item__error{
+    position: relative;
+    top: -6px;
+  }
+  .pricecenter .el-form-item--mini .el-form-item__error{
+      margin-left: 245px;
+  }
+}
+.display-inlinecol{
+  .el-select .el-input--mini {
+    width: 240px;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
   .commodity-main.resource{
@@ -902,6 +967,46 @@ export default {
     .display-inlinecol  .el-select .el-input input{
       display: inline-block;
     }
+    .display-inlinecol .inlineblock{
+          display: inline-block;
+          vertical-align: middle;
+      }
+  }
+  .gy-form-col{
+      width: 100%;
+      float: left;
+      position: relative;
+      padding: 0px 30px 8px 110px;
+      min-height: 46px;
+      line-height: 30px;
+      .l{
+          position: absolute;
+          left: 0;
+          top: 0px;
+          color: $color-title;
+          width: 98px;
+          // padding-left: 10px;
+          .el-input__inner{
+              color: #333!important;
+          }
+          strong{
+              color: $color-highlight;
+              font-size: 12px;
+              font-weight: normal;
+              width: 8px;
+              position: absolute;
+              left: 0;
+              text-align: left;
+              top: 0;
+          }
+      }
+      .gy-input{
+          width: 49%;
+      }
+      .select-box{
+          display: inline-block;
+          width: 49%;
+      }
   }
   .listul{
     background-color: #fff;

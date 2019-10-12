@@ -4,21 +4,30 @@
             <img src="../../assets/images/shop-more.jpg" alt="">
         </div>
         <div class="main">
-            <h3>推荐店铺</h3>
+            <h3>推荐销售中心</h3>
             <div class="search">
-                <input @keyup.enter="handleSearch" v-model="keyword" type="text" class="gy-input" placeholder="请输入店铺名、品名">
+                <input @keyup.enter="handleSearch" v-model="keyword" type="text" class="gy-input" placeholder="请输入销售中心名、品名">
                 <i class="iconfont icon-search" @click="handleSearch"></i>
             </div>
             <div class="list" v-if="shopList.length > 0">
                 <div class="item" v-for="(item, index) in shopList" :key="index">
                     <div class="cover">
-                        <router-link :to="{ name: 'shopHome', query: {companyId: item.companyId} }">
+                        <router-link :to="{ name: 'shopHome', query: {companyId: item.companyId} }" target="_blank">
                             <img :src="item.homeFirstPicture" alt="">
                         </router-link>
                     </div>
                     <dl>
-                        <dt><router-link :to="{ name: 'shopHome', query: {companyId: item.companyId} }">{{item.companyName}}</router-link></dt>
-                        <dd>{{item.profile}}</dd>
+                        <dt>
+                            <router-link class="clearfix" :to="{ name: 'shopHome', query: {companyId: item.companyId} }" target="_blank">
+                                <span class="l">{{item.companyName}}</span>
+                                <span class="r">
+                                    <i class="iconfont icon-shop-company"></i> {{item.companyTypeName}}
+                                </span>
+                            </router-link>
+                        </dt>
+                        <dd :title="item.profile">
+                            {{item.profile}}
+                        </dd>
                     </dl>
                 </div>
             </div>
@@ -118,6 +127,21 @@ export default {
                     dt{
                         color: $color-title;
                         font-size: 16px;
+                        a {
+                            display: block;
+                        }
+                        .l {
+                            float: left;
+                        }
+                        .r {
+                            float: right;
+                            font-size: 14px;
+                            color: #666666;
+                            .iconfont {
+                                color: #D2D2D2;
+                                font-size: 14px;
+                            }
+                        }
                     }
                     dd{
                         width: 100%;

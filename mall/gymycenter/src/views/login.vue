@@ -60,7 +60,6 @@ export default {
             if (this.ruleForm.rememberMe === true && this.ruleForm.account !== '') {
                 localStorage.setItem('userNames', this.ruleForm.account);
             }
-            console.log(this.ruleForm);
             this.$http.post(this.$api.login.login, this.ruleForm)
                 .then(res => {
                     if (res.data.code === 0 && res.data.data) {
@@ -68,9 +67,8 @@ export default {
                         localStorage.setItem('userInfo', JSON.stringify(res.data.data));
                         this.$socket.init(res.data.data.id, res.data.data.companyId);
                         store.commit('setUserinfo', res.data.data);
-                        if (localStorage.getItem('jump')) {
-                            history.go(-2);
-                            localStorage.removeItem('jump');
+                        if (localStorage.getItem('jump') && document.referrer && window.history.length > 1) {
+                            history.go(-1);
                             return;
                         }
                         // if (document.referrer) {
@@ -92,14 +90,15 @@ export default {
                         firstlist(navData);
                         let firstMenuData = {
                             isToFirst: true,
-                            menudef: null
+                            menudef: null,
+                            isToLogin: true
                         };
                         localStorage.setItem('firstMenu', JSON.stringify(firstMenuData));
                         this.$router.push({name: frontUrl});
                         // }
                         return;
                     }
-                    this.$alert(res.data.message, '出错了');
+                    this.$alert(res.data.message, '出错了', {type: 'error'});
                 }).catch(() => {
                     console.log('出错了');
                 });
@@ -138,6 +137,7 @@ export default {
     .login-main {
         width: 100%;
         min-width: 1200px;
+        margin-bottom: 40px;
     }
 
     .login-header {

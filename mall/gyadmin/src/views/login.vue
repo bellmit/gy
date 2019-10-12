@@ -70,10 +70,10 @@ export default {
                     localStorage.setItem('userInfo', JSON.stringify(data.data.data));
                     localStorage.setItem('menus', JSON.stringify(data.data.data.menuList[0].resourceAccessList || []));
                     localStorage.setItem('permissions', JSON.stringify(data.data.data.permissions || []));
-                    this.$router.push({name: 'sysMenuList'});
+                    this.$router.push({name: 'dataStatistics'});
                 } else {
-                    _this.$message('错了哦，状态码【' + data.data.code + '】 请重新访问该页面');
-                    _this.$message('【' + data.data.message + '】，状态码【' + data.data.code + '】 请重新访问该页面');
+                    // _this.$message(data.data.message);
+                    _this.$message(data.data.message);
                     // _this.loading = false;
                 }
             }).catch((e) => {
