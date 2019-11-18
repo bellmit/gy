@@ -5,12 +5,8 @@
         <!--开票详情页查看页-->
         <div class="block-wrap clearfix"  v-if="params.showPageInfo">
             <div class="gy-form-group">
-                <span class="l">开票单位名称</span>
+                <span class="l">收票单位名称</span>
                 <span>{{ticketAuditInformationsd.buyerName}}</span>
-            </div>
-            <div class="gy-form-group">
-              <span class="l">品名</span>
-              <span>{{ticketAuditInformationsd.productName}}</span>
             </div>
             <div class="gy-form-group">
               <span class="l">申请日期</span>
@@ -112,7 +108,7 @@
         <!--开票详情页修改页重新提交-->
         <div class="block-wrap clearfix"  v-else>
             <div class="gy-form-group">
-                <span class="l spanLeft"><i>*</i>开票单位名称</span>
+                <span class="l spanLeft"><i>*</i>收票单位名称</span>
                 <input type="text" v-model="applyList.buyerName">
             </div>
             <div class="gy-form-group">
@@ -703,7 +699,7 @@ export default {
         applyTicket () {
             if (!this.applyList.buyerName) {
                 this.$message({
-                    message: '请输入开票单位',
+                    message: '请输入收票单位名称',
                     type: 'error'
                 });
                 return;

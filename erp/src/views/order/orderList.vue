@@ -57,9 +57,10 @@
                             <div class="c">至</div>
                             <div class="d">
                                 <el-date-picker
-                                        v-model="orders.endCreatedDates"
+                                        v-model="orders.endCreatedDate"
                                         type="date"
                                         value-format="timestamp"
+                                        @change="orders.endCreatedDate = $tools.convertDateEnd(orders.endCreatedDate)"
                                         placeholder="结束日期">
                                 </el-date-picker>
                             </div>
@@ -495,11 +496,6 @@ export default {
         search () {
             if (this.orders.bizType === 0) {
                 this.orders.bizType = null;
-            }
-            if (this.orders.endCreatedDates !== null && this.orders.endCreatedDates !== undefined) {
-                this.orders.endCreatedDate = this.orders.endCreatedDates + 86399000;
-            } else {
-                this.orders.endCreatedDate = null;
             }
             this.getOrderlist();
         },

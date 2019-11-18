@@ -48,6 +48,7 @@
                                 v-model="params.invoiceEndDate"
                                 type="date"
                                 value-format="timestamp"
+                                @change="params.invoiceEndDate = $tools.convertDateEnd(params.invoiceEndDate)"
                                 placeholder="结束日期">
                                 </el-date-picker>
                             </div>
@@ -70,6 +71,7 @@
                                 v-model="params.receiptEndDate"
                                 type="date"
                                 value-format="timestamp"
+                                @change="params.receiptEndDate = $tools.convertDateEnd(params.receiptEndDate)"
                                 placeholder="结束日期">
                                 </el-date-picker>
                             </div>
@@ -242,6 +244,7 @@
           :total="total"
           layout="prev, pager, next"
           style="margin-top: 20px;"
+          :current-page.sync="params.pageNum"
           @current-change="handleCurrentChange">
         </el-pagination>
     </div>
@@ -304,7 +307,7 @@ export default {
     methods: {
         toggleTabs (idx) {
             let countType = idx === 1 ? 'day' : 'month';
-            this.$http.get(this.$api.invoice.allPageStatusCount + '?countType=' + countType)
+            this.$http.get(this.$api.invoice.allPageStatusCount + '?period=' + countType)
                 .then((res) => {
                     if (res.data.code === 0) {
                         this.statisticsShow = res.data.data;

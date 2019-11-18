@@ -58,17 +58,17 @@
                 <div class="pay-wrapper">
                     <div v-if="buyunilateralTransaction">
                         <div class="title1">采购信息</div>
-                        <cont-sell :list="orderDetailList"></cont-sell>
+                        <cont-sell style="margin: 0 -16px;" :list="orderDetailList"></cont-sell>
                     </div>
                     <div v-if="saleunilateralTransaction">
                         <div class="title1">销售信息</div>
-                        <cont-buy :list="orderDetailList"></cont-buy>
+                        <cont-buy style="margin: 0 -15px;" :list="orderDetailList"></cont-buy>
                     </div>
                 </div>
             </div>
             <div class="orderDetailSalesPurchase" v-if="tabsIndex === 1">
                 <div class="pay-wrapper">
-                    <div v-if="buyunilateralTransaction">
+                    <div v-if="buyunilateralTransaction" style="width:460px;">
                         <div class="title1">采购合同信息</div>
                         <div class="gy-form-group">
                             <span class="l">采购合同编号</span>
@@ -84,7 +84,7 @@
                         </div>
                         <div class="gy-form-group">
                             <span class="l">创建合同备注</span>
-                            <span>{{orderDetailList.buyRemark | showline}}</span>
+                            <span style="overflow: hidden;overflow-wrap: break-word;">{{orderDetailList.buyRemark | showline}}</span>
                         </div>
                         <div class="gy-form-group">
                             <span class="l">盖章合同</span>
@@ -101,7 +101,7 @@
                             <span>{{orderDetailList.upstreamInfo.planNumber|showline}}</span>
                         </div>
                     </div>
-                    <div v-if="saleunilateralTransaction">
+                    <div v-if="saleunilateralTransaction" style="width:460px;">
                         <div class="title1">销售合同信息</div>
                         <div class="gy-form-group">
                             <span class="l">销售合同编号</span>
@@ -117,7 +117,7 @@
                         </div>
                         <div class="gy-form-group">
                             <span class="l">创建合同备注</span>
-                            <span>{{orderDetailList.saleRemark || '--'}}</span>
+                            <span style="overflow: hidden;overflow-wrap: break-word;">{{orderDetailList.saleRemark || '--'}}</span>
                         </div>
                         <div class="gy-form-group">
                             <span class="l">盖章合同</span>
@@ -761,7 +761,7 @@
                             <td>{{item.stampFileDescription}}</td>
                             <td>{{item.statusDesc}}</td>
                             <td>{{item.createdDate | date('h')}}</td>
-                            <td>{{item.usedDate | date('h')}}</td>
+                            <td>{{item.usedDate | date()}}</td>
                             <td class="hover operation-styles">
                                 <i v-if="item.attachments !==null && item.attachments.length >0" class="iconfont icon-photo"
                                 @click="showImgFk(item.attachments)"></i>
@@ -1327,6 +1327,11 @@ export default {
             }
             .gy-form-group {
                 padding: 8px 30px 8px 110px;
+                &:nth-child(2n){
+                    .l{
+                        padding-left: 15px;
+                    }
+                }
             }
         }
         .orderDetailsCenter {

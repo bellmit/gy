@@ -377,9 +377,9 @@ export default {
             return '已驳回';
         }
     },
-    // 数字格式化（数量, 默认3位小数）
+    // 数字格式化（数量, 最大6位小数，小数位后去掉末尾'0'）
     numToQuantity: function (value) {
-        return tools.formatNumber(value, 3, true);
+        return tools.formatNumber(value, 6, true);
     },
     // 数字转金额显示(默认两位小数, 不去掉末尾'0')
     numToCash: function (value, trimZero = false) {

@@ -215,6 +215,13 @@ let getFileTypeAlias = function (resName) {
     return fileTypeAlias;
 };
 
+let convertDateEnd = function (dateVal) {
+    if (dateVal) {
+        dateVal = dateVal + 86399999;
+    }
+    return dateVal;
+};
+
 // 定义外部输出
 export default {
     formatNumber,
@@ -225,5 +232,6 @@ export default {
     verifyIdCard,
     exporttoExcel,
     hasBizAuth,
-    getFileTypeAlias
+    getFileTypeAlias,
+    convertDateEnd
 };

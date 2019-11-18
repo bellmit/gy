@@ -46,7 +46,7 @@
               <div class="d">
                 <el-date-picker
                   v-model="search.saleContractEndDate"
-                  @change="change(search.saleContractEndDate, 1)"
+                  @change="search.saleContractEndDate = $tools.convertDateEnd(search.saleContractEndDate)"
                   type="date"
                   value-format="timestamp"
                   placeholder="结束日期">
@@ -69,7 +69,7 @@
               <div class="d">
                 <el-date-picker
                   v-model="search.purchaseContractEndDate"
-                  @change="change(search.purchaseContractEndDate, 2)"
+                  @change="search.purchaseContractEndDate = $tools.convertDateEnd(search.purchaseContractEndDate)"
                   type="date"
                   value-format="timestamp"
                   placeholder="结束日期">
@@ -261,9 +261,6 @@ export default {
                 this.all.saleSkuQuantityTotal = data.saleSkuQuantityTotal;
                 this.all.saleTotalAmountTotal = data.saleTotalAmountTotal;
             });
-        },
-        change (v, type) {
-            type === 1 ? this.search.saleContractEndDate = v + 86399000 : this.search.purchaseContractEndDate = v + 86399000;
         },
         // 分页
         turnPage (v) {

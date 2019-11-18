@@ -43,10 +43,10 @@
                     <div class="gy-form-group gy-approval" v-if="index !== 0">
                         <span class="l" v-if="items.nodeType!=1">
                           <el-select v-model="items.matchFlg" @change="onChangeMatchType($event, items)">
-                            <el-option label="请选择" value="0"></el-option>
-                            <el-option label="指定人员" value="1"></el-option>
-                            <el-option label="按岗位" value="2"></el-option>
-                            <el-option label="条件匹配" value="3"></el-option>
+                            <el-option label="请选择" :value="0"></el-option>
+                            <el-option label="指定人员" :value="1"></el-option>
+                            <el-option label="按岗位" :value="2"></el-option>
+                            <el-option label="条件匹配" :value="3"></el-option>
                           </el-select>
                         </span>
                         <input class="gy-input r" type="text" v-if="items.matchFlg == 1 " placeholder="请选择人员" :value="items.userNames" @click="openUsrSelDlg(0, index, 1)">
@@ -1001,21 +1001,23 @@ export default {
                     });
                     this.apprData.itemList = itemList;
                     this.nextProcObj = this.apprData.nextNode;
-                    let nextProcObjEntryList = [];
-                    this.nextProcObj.entryList.map((val) => {
-                        nextProcObjEntryList.push({
-                            ...val,
-                            condition: Object.assign({}, condition, val.condition)
+                    if (this.nextProcObj) {
+                        let nextProcObjEntryList = [];
+                        this.nextProcObj.entryList.map((val) => {
+                            nextProcObjEntryList.push({
+                                ...val,
+                                condition: Object.assign({}, condition, val.condition)
+                            });
                         });
-                    });
-                    this.nextProcObj.entryList = nextProcObjEntryList;
-                    if (this.nextProcObj && this.nextProcObj.matchFlg) {
-                        this.hasNextProc = true;
+                        this.nextProcObj.entryList = nextProcObjEntryList;
+                        if (this.nextProcObj && this.nextProcObj.matchFlg) {
+                            this.hasNextProc = true;
+                        }
                     }
                     if (this.apprData.itemList) {
                         this.apprLength = this.apprData.itemList.length;
                         this.apprData.itemList.forEach(item => {
-                            item.matchFlg = String(item.matchFlg); // 注意：提交保存的时候要再把matchFlg转换为数字类型
+                            item.matchFlg = Number(item.matchFlg); // 注意：提交保存的时候要再把matchFlg转换为数字类型
                             item.showOptBtn = 0;
                         });
                     }
@@ -1083,43 +1085,44 @@ export default {
                     });
                 });
                 that.apprData.itemList = itemList;
-                let nextProcObjEntryList = [];
-                that.nextProcObj.entryList.map((val) => {
-                    let condition = {
-                    };
-                    val.haveCondition.map((key) => {
-                        switch (key) {
-                        case 'productId':
-                            condition.productId = val.condition.productId;
-                            condition.productNames = val.condition.productNames;
-                            break;
-                        case 'executorId':
-                            condition.executorId = val.condition.executorId;
-                            condition.executorNames = val.condition.executorNames;
-                            break;
-                        case 'operatorId':
-                            condition.operatorId = val.condition.operatorId;
-                            condition.operatorNames = val.condition.operatorNames;
-                            break;
-                        case 'targetCorpId':
-                            condition.targetCorpId = val.condition.targetCorpId;
-                            condition.targetCorpNames = val.condition.targetCorpNames;
-                            break;
-                        case 'bizTradeType':
-                            condition.bizTradeType = val.condition.bizTradeType;
-                            condition.bizTradeTypeNames = val.condition.bizTradeTypeNames;
-                            break;
-                        default:
-                            break;
-                        }
+                if (that.nextProcObj && that.nextProcObj.entryList) {
+                    let nextProcObjEntryList = [];
+                    that.nextProcObj.entryList.map((val) => {
+                        let condition = {};
+                        val.haveCondition.map((key) => {
+                            switch (key) {
+                            case 'productId':
+                                condition.productId = val.condition.productId;
+                                condition.productNames = val.condition.productNames;
+                                break;
+                            case 'executorId':
+                                condition.executorId = val.condition.executorId;
+                                condition.executorNames = val.condition.executorNames;
+                                break;
+                            case 'operatorId':
+                                condition.operatorId = val.condition.operatorId;
+                                condition.operatorNames = val.condition.operatorNames;
+                                break;
+                            case 'targetCorpId':
+                                condition.targetCorpId = val.condition.targetCorpId;
+                                condition.targetCorpNames = val.condition.targetCorpNames;
+                                break;
+                            case 'bizTradeType':
+                                condition.bizTradeType = val.condition.bizTradeType;
+                                condition.bizTradeTypeNames = val.condition.bizTradeTypeNames;
+                                break;
+                            default:
+                                break;
+                            }
+                        });
+                        nextProcObjEntryList.push({
+                            ...val,
+                            haveCondition: val.haveCondition,
+                            condition
+                        });
                     });
-                    nextProcObjEntryList.push({
-                        ...val,
-                        haveCondition: val.haveCondition,
-                        condition
-                    });
-                });
-                that.nextProcObj.entryList = nextProcObjEntryList;
+                    that.nextProcObj.entryList = nextProcObjEntryList;
+                }
                 that.apprData.nextNode = that.nextProcObj;
                 // 保存审批流程定义数据
                 that.$http.post(that.$api.apprProc.saveApproveInfo, that.apprData).then((res) => {

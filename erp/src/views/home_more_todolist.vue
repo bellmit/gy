@@ -7,7 +7,7 @@
                     <el-date-picker
                             type="date"
                             v-model="hollowMoreObj.staDate"
-                            value-format="yyyy-MM-dd"
+                            value-format="timestamp"
                             placeholder="开始时间">
                     </el-date-picker>
                 </div>
@@ -16,7 +16,8 @@
                     <el-date-picker
                             type="date"
                             v-model="hollowMoreObj.endDate"
-                            value-format="yyyy-MM-dd"
+                            value-format="timestamp"
+                            @change="hollowMoreObj.endDate = $tools.convertDateEnd(hollowMoreObj.endDate)"
                             placeholder="结束时间">
                     </el-date-picker>
                 </div>
@@ -92,18 +93,23 @@ export default {
     activated () {
         if (!this.$route.meta.isBack) {
             this.hollowMoreObj = {};
+            this.activeId = Number(this.$route.query.activeId);
+            this.hollowMoreObj.doneFlg = Number(this.$route.query.activeId);
             this.hollowMoreClick(1);
         }
         this.$route.meta.isBack = false;
     },
     mounted () {
-        this.activeId = Number(this.$route.query.activeId);
-        this.hollowMoreObj.doneFlg = Number(this.$route.query.activeId);
+        // this.activeId = Number(this.$route.query.activeId);
+        // this.hollowMoreObj.doneFlg = Number(this.$route.query.activeId);
         // this.hollowMoreClick(1);
     },
     methods: {
         hollowMoreClick (pageNo) {
             this.hollowMoreObj.pageNo = pageNo;
+            // if (this.hollowMoreObj.endDate) {
+            //     this.hollowMoreObj.endDate = this.hollowMoreObj.endDate + 86399999;
+            // }
             this.$http.post(this.$api.workbench.getWbTodoList, this.hollowMoreObj).then((res) => {
                 if (res.data.code === 0) {
                     this.total = res.data.data.total;

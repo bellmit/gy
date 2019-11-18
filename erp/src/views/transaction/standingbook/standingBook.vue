@@ -19,7 +19,7 @@
               <div class="d">
                 <el-date-picker
                   v-model="search.contractCreateDateS"
-                  value-format="yyyy-MM-dd"
+                  value-format="timestamp"
                   type="date"
                   placeholder="开始日期">
                 </el-date-picker>
@@ -28,8 +28,9 @@
               <div class="d">
                 <el-date-picker
                   v-model="search.contractCreateDateE"
-                  value-format="yyyy-MM-dd"
+                  value-format="timestamp"
                   type="date"
+                  @change="search.contractCreateDateE = $tools.convertDateEnd(search.contractCreateDateE)"
                   placeholder="结束日期">
                 </el-date-picker>
               </div>

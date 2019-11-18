@@ -173,6 +173,7 @@ export default [
                         meta: {
                             title: '合同要素列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     }
@@ -193,6 +194,7 @@ export default [
                         meta: {
                             title: '收付款列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -203,6 +205,7 @@ export default [
                         meta: {
                             title: '收款列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -213,6 +216,7 @@ export default [
                         meta: {
                             title: '付款列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -243,6 +247,7 @@ export default [
                         meta: {
                             title: '采购结算列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -253,6 +258,7 @@ export default [
                         meta: {
                             title: '销售结算列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -311,6 +317,7 @@ export default [
                         meta: {
                             title: '合同列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -341,6 +348,7 @@ export default [
                         meta: {
                             title: '交割列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -350,6 +358,7 @@ export default [
                         component: dlvyBuyList,
                         meta: {
                             title: '采购交割列表',
+                            type: 'list',
                             isBack: false,
                             keepAlive: true
                         }
@@ -361,6 +370,7 @@ export default [
                         meta: {
                             title: '销售交割列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -401,6 +411,7 @@ export default [
                         meta: {
                             title: '收票列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -411,6 +422,7 @@ export default [
                         meta: {
                             title: '开票列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -449,6 +461,7 @@ export default [
                         meta: {
                             title: '用印申请列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -522,6 +535,7 @@ export default [
                         meta: {
                             title: '流程审批列表',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -552,6 +566,7 @@ export default [
                         meta: {
                             title: '合同执行分配',
                             isBack: false,
+                            type: 'list',
                             keepAlive: true
                         }
                     },
@@ -607,6 +622,7 @@ export default [
                 meta: {
                     title: '工作台-更多事项',
                     isBack: false,
+                    type: 'list',
                     keepAlive: true
                 }
             },
@@ -617,6 +633,7 @@ export default [
                 meta: {
                     title: '工作台-更多消息',
                     isBack: false,
+                    type: 'list',
                     keepAlive: true
                 }
             },
@@ -627,6 +644,7 @@ export default [
                 meta: {
                     title: '工作台-预警消息',
                     isBack: false,
+                    type: 'list',
                     keepAlive: true
                 }
             },

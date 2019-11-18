@@ -80,6 +80,7 @@
       background
       layout="prev, pager, next"
       :total="total"
+      :current-page.sync="formInline.pageNum"
       @current-change="currentChange($event)"
       @prev-click="prevClick('essence',$event)"
       @next-click="nextClick('essence',$event)"

@@ -166,8 +166,7 @@ export default {
             };
         },
         // 图片预览
-        showImgs (imgListStr) {
-            let imgList = JSON.parse(imgListStr);
+        showImgs (imgList) {
             this.$refs.contFileView.open4MultiFile(imgList);
         }
     },

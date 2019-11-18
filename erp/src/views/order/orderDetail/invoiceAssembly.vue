@@ -11,7 +11,7 @@
             </div>
             <div class="block clearfix">
                 <div class="gy-form-group">
-                    <span class="l"><i>*</i>开票单位名称</span>
+                    <span class="l"><i>*</i>收票单位名称</span>
                     <input type="text" v-model="downstreamInfo.buyerCompanyName">
                 </div>
                 <div class="gy-form-group">
@@ -64,17 +64,14 @@
                 </div>
                 <div class="gy-form-group">
                     <span class="l"><i>*</i>商品税务编码</span>
-                    <template>
-                         <!-- @change="changeProdTaxCode" -->
-                        <el-select v-model="applyList.productTaxCode" placeholder="请选择" class="input-date">
-                            <el-option
-                                    v-for="item in commodCode"
-                                    :key="item.id"
-                                    :label="item.taxCode"
-                                    :value="item.taxCode">
-                            </el-option>
-                        </el-select>
-                    </template>
+                    <el-select v-model="applyList.productTaxCode" placeholder="请选择" @change="changeProdTaxCode" class="input-date">
+                        <el-option
+                                v-for="item in commodCode"
+                                :key="item.id"
+                                :label="item.taxCode"
+                                :value="item.taxCode">
+                        </el-option>
+                    </el-select>
                 </div>
                 <div style="clear: both"></div>
                 <div class="gy-form-group">
@@ -328,6 +325,8 @@ export default {
         // 创建开票页面时获取初始数据
         initInvoiceView (purchaseOrderId, saleOrderId, productId, prodName, buyerCompanyId) {
             // 先初始化输入项数据
+            this.initUploadFileData();
+            this.remark = '';
             this.isSubmit = true;
             let applyUser = JSON.parse(localStorage.getItem('userInfo'));
             this.applyList.operationUserName = applyUser.username;
@@ -386,13 +385,14 @@ export default {
         },
         // 商品税务编码
         commodityTaxCode (productId) {
-            this.applyList.productTaxCode = null;
-            this.$http.post(this.$api.invoice.commodityCode, {'productId': productId}).then((res) => {
+            let that = this;
+            that.applyList.productTaxCode = null;
+            that.$http.post(that.$api.invoice.commodityCode, {'productId': productId}).then((res) => {
                 if (res.data.code === 0) {
-                    this.commodCode = res.data.data;
-                    if (this.commodCode.length === 1) {
-                        this.applyList.productTaxCode = this.commodCode[0].taxCode;
-                        this.applyList.productName = this.commodCode[0].productName;
+                    that.commodCode = res.data.data;
+                    if (that.commodCode.length === 1) {
+                        that.applyList.productTaxCode = that.commodCode[0].taxCode;
+                        that.applyList.productName = that.commodCode[0].productName;
                     }
                 }
             });
@@ -490,7 +490,7 @@ export default {
             }
             if (this.downstreamInfo.buyerCompanyName === '') {
                 this.$message({
-                    message: '请输入开票单位',
+                    message: '请输入收票单位名称',
                     type: 'error'
                 });
                 return;
@@ -776,16 +776,16 @@ export default {
             if (this.$refs.pFileUpload) {
                 this.$refs.pFileUpload.init();
             }
+        },
+        changeProdTaxCode (val) {
+            if (this.commodCode) {
+                for (var s = 0; s < this.commodCode.length; s++) {
+                    if (val === this.commodCode[s].taxCode) {
+                        this.applyList.productName = this.commodCode[s].productName;
+                    }
+                }
+            }
         }
-        // changeProdTaxCode (val) {
-        //     if (this.commodCode) {
-        //         for (var s = 0; s < this.commodCode.length; s++) {
-        //             if (val === this.commodCode[s].taxCode) {
-        //                 this.applyList.productName = this.commodCode[s].productName;
-        //             }
-        //         }
-        //     }
-        // }
     },
     watch: {
         remark (newValue, oldValue) {

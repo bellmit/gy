@@ -12,6 +12,7 @@
               <el-date-picker
                 v-model="search.contractSignedDateStart"
                 type="date"
+                value-format="timestamp"
                 placeholder="开始日期">
               </el-date-picker>
             </div>
@@ -20,6 +21,8 @@
               <el-date-picker
                 v-model="search.contractSignedDateEnd"
                 type="date"
+                value-format="timestamp"
+                @change="search.contractSignedDateEnd = $tools.convertDateEnd(search.contractSignedDateEnd)"
                 placeholder="结束日期">
               </el-date-picker>
             </div>
@@ -89,6 +92,7 @@
                 <el-date-picker
                   v-model="search.contractDeliveredStartDateStart"
                   type="date"
+                  value-format="timestamp"
                   placeholder="开始日期">
                 </el-date-picker>
               </div>
@@ -97,6 +101,8 @@
                 <el-date-picker
                   v-model="search.contractDeliveredStartDateEnd"
                   type="date"
+                  value-format="timestamp"
+                  @change="search.contractDeliveredStartDateEnd = $tools.convertDateEnd(search.contractDeliveredStartDateEnd)"
                   placeholder="结束日期">
                 </el-date-picker>
               </div>
@@ -109,6 +115,7 @@
                 <el-date-picker
                   v-model="search.contractDeliveredEndDateStart"
                   type="date"
+                  value-format="timestamp"
                   placeholder="开始日期">
                 </el-date-picker>
               </div>
@@ -117,6 +124,8 @@
                 <el-date-picker
                   v-model="search.contractDeliveredEndDateEnd"
                   type="date"
+                  value-format="timestamp"
+                  @change="search.contractDeliveredEndDateEnd = $tools.convertDateEnd(search.contractDeliveredEndDateEnd)"
                   placeholder="结束日期">
                 </el-date-picker>
               </div>

@@ -65,6 +65,7 @@
                   v-model="search.endCreatedDate"
                   type="date"
                   value-format="timestamp"
+                  @change="search.endCreatedDate = $tools.convertDateEnd(search.endCreatedDate)"
                   placeholder="结束日期">
                 </el-date-picker>
               </div>
@@ -190,6 +191,7 @@
     <el-pagination
       background
       :total="total"
+      :current-page.sync="search.pageNo"
       layout="prev, pager, next"
       @current-change="turnPage">
     </el-pagination>
@@ -276,9 +278,6 @@ export default {
             Object.keys(this.search).forEach((k) => {
                 params[k] = this.search[k];
             });
-            if (params.endCreatedDate !== null && params.endCreatedDate !== '') {
-                params.endCreatedDate = params.endCreatedDate + 1000 * 60 * 60 * 24 - 1;
-            }
             this.$http.post(this.$api.contract.getlist, params).then((response) => {
                 if (response.data.code === 0) {
                     // 去结果画面

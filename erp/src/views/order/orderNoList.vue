@@ -24,6 +24,7 @@
                         <el-date-picker
                                 v-model="search.createTimeS"
                                 type="date"
+                                value-format="timestamp"
                                 placeholder="开始日期">
                         </el-date-picker>
                     </div>
@@ -32,6 +33,8 @@
                         <el-date-picker
                                 v-model="search.createTimeE"
                                 type="date"
+                                value-format="timestamp"
+                                @change="search.createTimeE = $tools.convertDateEnd(search.createTimeE)"
                                 placeholder="结束日期">
                         </el-date-picker>
                     </div>

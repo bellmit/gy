@@ -76,7 +76,9 @@ export default {
     },
     activated () {
         if (!this.$route.meta.isBack) {
-            this.hollowMoreObj = {};
+            this.hollowMoreObj = {
+                msgType: 3
+            };
             this.hollowMoreClick(1);
         }
         this.$route.meta.isBack = false;

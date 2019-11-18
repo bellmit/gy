@@ -39,7 +39,8 @@
                             </div>
                         </div>
                     </template>
-                    <div class="essential-row" v-if="buyContTmplId === 'upload'">
+                    <template v-else>
+                        <div class="essential-row" v-if="buyContTmplId === 'upload'">
                           <div class="essential-item ">
                             <div class="essential-title">纸质合同号</div>
                             <div class="essential-text">
@@ -50,35 +51,36 @@
                             </div>
                           </div>
                         </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>选择合同模板
-                            </div>
-                            <div class="essential-text">
+                        <div class="essential-row">
+                            <div class="essential-item">
+                                <div class="essential-title"><span class="isMust">*</span>选择合同模板
+                                </div>
                                 <div class="essential-text">
-                                    <el-select v-model="buyContTmplId" placeholder="请选择">
-                                        <el-option v-for="item in ContractTemplate1" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
+                                    <div class="essential-text">
+                                        <el-select v-model="buyContTmplId" placeholder="请选择">
+                                            <el-option v-for="item in ContractTemplate1" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                        </el-select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="essential-row" v-if="buyContTmplId === 'upload'">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>上传采购合同</div>
-                            <div class="essential-text">
-                                <gy-file-upload ref="pFileUpload" @callbackFileUpload="onCallbackBuyFileUpload"></gy-file-upload>
+                        <div class="essential-row" v-if="buyContTmplId === 'upload'">
+                            <div class="essential-item">
+                                <div class="essential-title"><span class="isMust">*</span>上传采购合同</div>
+                                <div class="essential-text">
+                                    <gy-file-upload ref="pFileUpload" @callbackFileUpload="onCallbackBuyFileUpload"></gy-file-upload>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">创建合同备注</div>
-                            <div class="essential-text">
-                                <textarea cols="4" rows="4" style="width:306px" v-model="buyRemark"></textarea>
+                        <div class="essential-row">
+                            <div class="essential-item">
+                                <div class="essential-title">创建合同备注</div>
+                                <div class="essential-text">
+                                    <textarea cols="4" rows="4" style="width:306px" v-model="buyRemark"></textarea>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </div>
                 <div class="single-essential-wrapper" style="padding:0"
                      v-if="list.contractType === 2 || list.contractType === 3">
@@ -141,48 +143,50 @@
                             </div>
                         </div>
                     </template>
-                    <div class="essential-row" v-if="saleContTmplId === 'upload'">
-                      <div class="essential-item">
-                        <div class="essential-title">纸质合同号</div>
-                        <div class="essential-text">
-                          <div class="essential-text">
-                            <input type="text" @blur="essenceTest(salePlanNumber, 'salePlanNumber')"
-                                   v-model="salePlanNumber" placeholder="请输入纸质合同号"/>
+                    <template v-else>
+                        <div class="essential-row" v-if="saleContTmplId === 'upload'">
+                          <div class="essential-item">
+                            <div class="essential-title">纸质合同号</div>
+                            <div class="essential-text">
+                              <div class="essential-text">
+                                <input type="text" @blur="essenceTest(salePlanNumber, 'salePlanNumber')"
+                                       v-model="salePlanNumber" placeholder="请输入纸质合同号"/>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>选择合同模板
-                            </div>
-                            <div class="essential-text">
+                        <div class="essential-row">
+                            <div class="essential-item">
+                                <div class="essential-title"><span class="isMust">*</span>选择合同模板
+                                </div>
                                 <div class="essential-text">
-                                    <el-select v-model="saleContTmplId" placeholder="请选择">
-                                        <el-option v-for="item in ContractTemplate" :key="item.id" :label="item.name" :value="item.id">
-                                        </el-option>
-                                    </el-select>
+                                    <div class="essential-text">
+                                        <el-select v-model="saleContTmplId" placeholder="请选择">
+                                            <el-option v-for="item in ContractTemplate" :key="item.id" :label="item.name" :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="essential-row" v-if="saleContTmplId === 'upload'">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>上传销售合同
-                            </div>
-                            <div class="essential-text">
-                                <gy-file-upload ref="sFileUpload" @callbackFileUpload="onCallbackSaleFileUpload"></gy-file-upload>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">创建合同备注</div>
-                            <div class="essential-text">
-                                <textarea cols="4" rows="4" style="width:306px" v-model="saleRemark"></textarea>
+                        <div class="essential-row" v-if="saleContTmplId === 'upload'">
+                            <div class="essential-item">
+                                <div class="essential-title"><span class="isMust">*</span>上传销售合同
+                                </div>
+                                <div class="essential-text">
+                                    <gy-file-upload ref="sFileUpload" @callbackFileUpload="onCallbackSaleFileUpload"></gy-file-upload>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="essential-row">
+                            <div class="essential-item">
+                                <div class="essential-title">创建合同备注</div>
+                                <div class="essential-text">
+                                    <textarea cols="4" rows="4" style="width:306px" v-model="saleRemark"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                     <div class="essential-row">
                         <div class="essential-item">
                             <div class="essential-title">下游统计口径</div>
@@ -264,7 +268,8 @@
                     <td>{{item.ourCompanyName || '-'}}</td>
                     <td><span v-if="currContractType === 2">{{item.buyerCompanyName}}</span><span v-else>{{item.sellerCompanyName}}</span></td>
                     <!-- <td>{{item.contractCode}}</td> -->
-                    <td class="align-r" style="width: 130px;">{{item.totalAmount | numToCash}}</td>
+                    <td class="align-r" style="width: 130px;" v-if="item.skuPriceType === 21 || item.skuPriceType === 22">公式计价</td>
+                    <td class="align-r" style="width: 130px;" v-else>{{item.totalAmount | numToCash}}</td>
                     <td><span v-if="item.realDeliveryDate">{{item.realDeliveryDate | date}}</span><span v-else>-</span></td>
                     <td>{{item.deliveryDate}}</td>
                     <td>{{item.deliveryWarehouseName}}</td>

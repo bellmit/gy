@@ -1,4 +1,5 @@
 <!-- 收付款列表 -->
+<script src="../../config/api.js"></script>
 <template>
   <div class="payment-list">
     <div class="search-wrapper">
@@ -39,6 +40,7 @@
                         v-model="search.paymentDateEnd"
                         type="date"
                         value-format="timestamp"
+                        @change="search.paymentDateEnd = $tools.convertDateEnd(search.paymentDateEnd)"
                         placeholder="结束日期">
                         </el-date-picker>
                     </div>
@@ -61,6 +63,7 @@
                         v-model="search.collectionDateEnd"
                         type="date"
                         value-format="timestamp"
+                        @change="search.collectionDateEnd = $tools.convertDateEnd(search.collectionDateEnd)"
                         placeholder="结束日期">
                         </el-date-picker>
                     </div>
@@ -83,6 +86,7 @@
                         v-model="search.paymentCreatedDateEnd"
                         type="date"
                         value-format="timestamp"
+                        @change="search.paymentCreatedDateEnd = $tools.convertDateEnd(search.paymentCreatedDateEnd)"
                         placeholder="结束日期">
                         </el-date-picker>
                     </div>
@@ -105,6 +109,7 @@
                         v-model="search.collectionCreatedDateEnd"
                         type="date"
                         value-format="timestamp"
+                        @change="search.collectionCreatedDateEnd = $tools.convertDateEnd(search.collectionCreatedDateEnd)"
                         placeholder="结束日期">
                         </el-date-picker>
                     </div>
@@ -289,6 +294,7 @@
       :total="total"
       layout="prev, pager, next"
       style="margin-top: 40px;"
+      :current-page.sync="search.pageNo"
       @current-change="turnPage">
     </el-pagination>
   </div>
@@ -370,13 +376,7 @@ export default {
             Object.keys(this.search).forEach((k) => {
                 params[k] = this.search[k];
             });
-            if (params.paymentDateEnd !== null && params.paymentDateEnd !== '') {
-                params.paymentDateEnd = params.paymentDateEnd + 1000 * 60 * 60 * 24 - 1;
-            }
-            if (params.collectionDateEnd !== null && params.collectionDateEnd !== '') {
-                params.collectionDateEnd = params.collectionDateEnd + 1000 * 60 * 60 * 24 - 1;
-            }
-
+            params.paymentQueryType = '1';
             this.$http.post(this.$api.payment.getlist, params)
                 .then((response) => {
                     if (response.data.code === 0) {

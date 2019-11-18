@@ -75,7 +75,24 @@
                     </div>
                     <div class="gy-form-group last">
                         <span class="l">跟进组</span>
-                        <el-select v-model="search.data.usrOrganizationId">
+                        <el-popover
+                            width="400"
+                            ref="menuListPopover"
+                            placement="bottom-start"
+                            trigger="click">
+                            <el-tree
+                                :data="menuList"
+                                show-checkbox
+                                :props="menuListTreeProps"
+                                node-key="id"
+                                ref="menuListTree"
+                                @check-change="menuListTreeCurrentChangeHandle"
+                                :highlight-current="true"
+                                :expand-on-click-node="false"><!--:default-expand-all="true"-->
+                            </el-tree>
+                        </el-popover>
+                        <el-input v-model="search.data.usrOrganizationId" v-popover:menuListPopover :readonly="true" placeholder="请选择" class="menu-list__input"></el-input>
+                        <!-- <el-select v-model="search.data.usrOrganizationId">
                             <el-option label="全部" :value="whole"></el-option>
                             <el-option
                             v-for="(item, index) in followUpGroupList"
@@ -83,7 +100,7 @@
                             :label="item.name"
                             :value="item.id">
                             </el-option>
-                        </el-select>
+                        </el-select> -->
                     </div>
                     <div class="gy-form-group last">
                         <span class="l">现场签约</span>
@@ -505,7 +522,8 @@ export default {
                     oaSystem: null, // OA系统  0 无；1 有
                     spotContract: null, //  现场签约 0 否；1 是
                     enterIntention: null, // 入驻意向 0 否；1 是
-                    trackStatusDictId: null // 跟进状态
+                    trackStatusDictId: null, // 跟进状态
+                    organizationIdList: [] // 跟进组
                 }
             },
             total: null,
@@ -557,6 +575,11 @@ export default {
             tradeModeOptionsList: [],
             customerSourceList: [], // 客户来源
             followUpGroupList: [], // 跟进组
+            menuList: [],
+            menuListTreeProps: {
+                children: 'list',
+                label: 'name'
+            },
             listUp: [],
             showList: false,
             keywords: '',
@@ -594,6 +617,7 @@ export default {
             this.getControllerStatus(); // 获得跟进状态
             this.getcustomerSource(); // 获取客户来源
             this.followUpGroup(); // 获取跟进组
+            this.getOrganizationList();
         },
         // ------------------------新增跟进--------------------------
         // 新增跟进
@@ -626,6 +650,15 @@ export default {
                 .then(res => {
                     if (res.data.code === 0) {
                         this.followUpGroupList = res.data.data;
+                    }
+                });
+        },
+        // 跟进组
+        getOrganizationList () {
+            this.$http.get(this.$api.organizational.organizationalList + '/' + 0)
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.menuList = res.data.data[0].list;
                     }
                 });
         },
@@ -737,6 +770,12 @@ export default {
                 }
             }
             return flag;
+        },
+        // 跟进组树选中
+        menuListTreeCurrentChangeHandle (data, node, ziterr) {
+            console.log(data, node, ziterr);
+            this.search.data.organizationIdList = this.$refs.menuListTree.getCheckedKeys();
+            // this.search.data.usrOrganizationId = data.name;
         },
         notarizefloow () {
             if (!this.checkDialogData()) {

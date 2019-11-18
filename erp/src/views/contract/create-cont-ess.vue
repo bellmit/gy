@@ -1380,16 +1380,4 @@ export default {
           font-size: 14px;
       }
   }
-
-.add-contract {
-    .essential-row {
-        .essential-item {
-        .essential-title {
-            flex: 0 0 110px;
-            line-height: 30px;
-            padding: 0px 10px 0px 10px !important;
-        }
-        }
-    }
-}
 </style>

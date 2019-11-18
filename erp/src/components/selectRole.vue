@@ -38,8 +38,10 @@
         style="text-align: center">
       </el-pagination>
       <el-row :gutter="20" class="elRow">
-        <el-col :span="12" :offset="16"> <el-button  size="mini"  @click="changeXrefUser(0)">取消</el-button>
-          <el-button type="warning" size="mini"  @click="changeXrefUser(1)">确定</el-button></el-col>
+        <el-col :span="12" :offset="19" style="margin-top:20px;">
+            <button type="button" class="gy-button-normal" @click="changeXrefUser(0)">取消</button>
+            <button type="button" style="margin-left: 10px" class="gy-button-extra" @click="changeXrefUser(1)">确定</button>
+        </el-col>
       </el-row>
     </el-dialog>
     </div>

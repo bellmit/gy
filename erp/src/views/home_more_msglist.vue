@@ -7,7 +7,7 @@
                     <el-date-picker
                             type="date"
                             v-model="hollowMoreObj.staDate"
-                            value-format="yyyy-MM-dd"
+                            value-format="timestamp"
                             placeholder="开始时间">
                     </el-date-picker>
                 </div>
@@ -16,7 +16,8 @@
                     <el-date-picker
                             type="date"
                             v-model="hollowMoreObj.endDate"
-                            value-format="yyyy-MM-dd"
+                            value-format="timestamp"
+                            @change="hollowMoreObj.endDate = $tools.convertDateEnd(hollowMoreObj.endDate)"
                             placeholder="结束时间">
                     </el-date-picker>
                 </div>
@@ -86,12 +87,13 @@ export default {
     activated () {
         if (!this.$route.meta.isBack) {
             this.hollowMoreObj = {};
+            this.hollowMoreObj.msgType = this.$route.query.activeId + 1;
             this.hollowMoreClick(1);
         }
         this.$route.meta.isBack = false;
     },
     mounted () {
-        this.hollowMoreObj.msgType = this.$route.query.activeId + 1;
+        // this.hollowMoreObj.msgType = this.$route.query.activeId + 1;
         // this.hollowMoreClick(1);
     },
     methods: {
