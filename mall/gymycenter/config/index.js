@@ -11,7 +11,7 @@ module.exports = {
         assetsPublicPath: '/',
         proxyTable: {
             // '/': {
-            //     target: 'http://192.168.33.238:8086',
+            //     target: 'http://127.0.0.1:8082/',
             //     changeOrigin: true,
             //     secure: false,
             //     pathRewrite: {
@@ -55,10 +55,10 @@ module.exports = {
         prodEnv: require('./prod.env'),
         testEnv: require('./test.env'),
         // Template for index.html
-        index: path.resolve(__dirname, '../../BUILD/point/index.html'),
+        index: path.resolve(__dirname, '../../BUILD/my/index.html'),
 
         // Paths
-        assetsRoot: path.resolve(__dirname, '../../BUILD/point'),
+        assetsRoot: path.resolve(__dirname, '../../BUILD/my'),
         assetsSubDirectory: 'static',
         assetsPublicPath: './',
 

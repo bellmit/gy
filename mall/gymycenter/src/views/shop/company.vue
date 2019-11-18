@@ -145,6 +145,12 @@
                     </el-upload>
                     <p class="tips">请上传荣誉资质图片（最多6张）</p>
                 </div>
+                <div class="gy-form-group single-row">
+                    <span class="l">其他产品描述</span>
+                    <div class="vueditor">
+                        <vue-editor v-model="form.otherProductDescription.description"></vue-editor>
+                    </div>
+                </div>
                 <div class="gy-form-button">
                     <button class="gy-button-extra gy-submit" @click="submit">提交</button>
                 </div>
@@ -155,7 +161,12 @@
 </template>
 
 <script>
+import { VueEditor, Quill } from 'vue2-editor';
 export default {
+    components: {
+        VueEditor,
+        Quill
+    },
     data () {
         return {
             flag: true,
@@ -175,7 +186,11 @@ export default {
                 companyId: '',
                 provinceId: '',
                 cityId: '',
-                districtId: ''
+                districtId: '',
+                otherProductDescription: {
+                    id: null,
+                    description: null
+                }
             },
             imgList1: [],
             imgList2: [],
@@ -237,6 +252,10 @@ export default {
                 .then(function (res) {
                     if (res.data.code === 0) {
                         me.form = res.data.data;
+                        console.log(res.data.data);
+                        if (!res.data.data.otherProductDescription) {
+                            res.data.data.otherProductDescription = {};
+                        }
                         me.companyLinks = me.companyLinks.concat(me.form.companyLinks);
                         if (me.companyLinks.length === 0) {
                             me.companyLinks.push({content: '', linkUrl: ''});
@@ -352,6 +371,7 @@ export default {
             });
         },
         submit () {
+            console.log(this.form.otherProductDescrition);
             if (!this.form.provinceId) {
                 this.$message.error('企业省份不能为空');
                 return;

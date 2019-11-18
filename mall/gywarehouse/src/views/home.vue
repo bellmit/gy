@@ -118,33 +118,35 @@
           </div>
           <div class="clearfix">
             <div class="company-box" v-for="(item, index) in warehouseCompanyList" :key="index">
-              <div class="company-list">
-                <img width="100%" style="display:block;" height="187px;" :src="item.homeImgPath" alt="">
-                <div class="list-details">
-                  <div>
-                    <p class="fl" style="font-weight:bold;">{{item.name}}</p>
-                    <span class="fr" style="color: #999999;">更新日期：{{item.updatedDate | date}}</span>
-                  </div>
-                  <div v-if="item.warehouseType ===2 " class="cl" style="font-size: 14px;color: #333333;">
-                    总罐容: {{item.totalTankCapacity | shownull}}<span v-if="item.totalTankCapacity">万m³</span>
-                  </div>
-                  <div v-if="item.warehouseType ===1 " class="cl" style="height:36px;">
+                <div class="company-list" :class="{'company-cursor':item.homeImgUrl}">
+                  <a class="newlink" :href="item.homeImgUrl" style="display: block" target="_blank">
+                  <img width="100%" style="display:block;" height="187px;" :src="item.homeImgPath" alt="">
+                  <div class="list-details">
+                    <div>
+                      <p class="fl" style="font-weight:bold;">{{item.name}}</p>
+                      <span class="fr" style="color: #999999;">更新日期：{{item.updatedDate | date}}</span>
+                    </div>
+                    <div v-if="item.warehouseType ===2 " class="cl" style="font-size: 14px;color: #333333;">
+                      总罐容: {{item.totalTankCapacity | shownull}}<span v-if="item.totalTankCapacity">万m³</span>
+                    </div>
+                    <div v-if="item.warehouseType ===1 " class="cl" style="height:36px;">
 
+                    </div>
+                    <div class="fields cl">
+                      <div style="height:30px;"><span>仓储区域：{{item.areaCategoryName}}·{{item.harbourName}}</span>
+                        <span>品种类型：{{item.topCatalogueStr | shownull}}</span>
+                        <span class="width180"  v-if="item.registeredCapital">注册资本：{{item.registeredCapital}}万{{item.currencyStr}}</span><span v-else>注册资本：-</span></div>
+                      <div><span>经营品种：{{item.productStr | shownull}}</span>
+                        <span>出库方式：{{item.storageOutTypeStr | shownull}}</span>
+                        <span class="width180">入库方式：{{item.storageInTypeStr | shownull}}</span></div>
+                    </div>
+                    <div class="chitchat" @click="goIm(currentPhone, '13501141389', '11001')">
+                      <i class="iconfont icon-imnew"></i>
+                      <span>和我联系</span>
+                    </div>
                   </div>
-                  <div class="fields cl">
-                    <div style="height:30px;"><span>仓储区域：{{item.areaCategoryName}}·{{item.harbourName}}</span>
-                    <span>品种类型：{{item.topCatalogueStr | shownull}}</span>
-                    <span class="width180"  v-if="item.registeredCapital">注册资本：{{item.registeredCapital}}万{{item.currencyStr}}</span><span v-else>注册资本：-</span></div>
-                    <div><span>经营品种：{{item.productStr | shownull}}</span>
-                    <span>出库方式：{{item.storageOutTypeStr | shownull}}</span>
-                    <span class="width180">入库方式：{{item.storageInTypeStr | shownull}}</span></div>
-                  </div>
-                  <div class="chitchat" @click="goIm(currentPhone, '13501141389', '11001')">
-                    <i class="iconfont icon-imnew"></i>
-                    <span>和我联系</span>
-                  </div>
+                  </a>
                 </div>
-              </div>
             </div>
           </div>
           <div class="more-content" v-if="warehouseCompanyList.length>=4 && hasNextPage" @click="getWarehouseNext">
@@ -673,6 +675,22 @@ export default {
             that.$http.post(that.$api.category.warehousecompany, that.WarehouseCompanySearch)
                 .then(res => {
                     // console.log(res.data.data);
+                    // for (var i = 0; i < res.data.data.list.length; i++) {
+                    //     console.log(res.data.data.list[i].name);
+                    //     if (res.data.data.list[i].name === '江苏海伦石化有限公司') {
+                    //         res.data.data.list[i].newlink = 'https://baike.baidu.com/item/%E6%B1%9F%E8%8B%8F%E6%B5%B7%E4%BC%A6%E7%9F%B3%E5%8C%96%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8/19995015?fr=aladdin';
+                    //     }
+                    //     if (res.data.data.list[i].name === '泉州振戎石化仓储有限公司') {
+                    //         res.data.data.list[i].newlink = 'https://baike.baidu.com/item/%E6%B3%89%E5%B7%9E%E6%8C%AF%E6%88%8E%E7%9F%B3%E5%8C%96%E4%BB%93%E5%82%A8%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8/20527607?fr=aladdin';
+                    //     }
+                    //     if (res.data.data.list[i].name === '欧德油储（南京）责任有限公司') {
+                    //         res.data.data.list[i].newlink = 'https://baike.baidu.com/item/%E6%AC%A7%E5%BE%B7%E6%B2%B9%E5%82%A8%EF%BC%88%E5%8D%97%E4%BA%AC%EF%BC%89%E6%9C%89%E9%99%90%E8%B4%A3%E4%BB%BB%E5%85%AC%E5%8F%B8/15083005';
+                    //     }
+                    //     if (res.data.data.list[i].name === '上海亿升仓储有限公司') {
+                    //         res.data.data.list[i].newlink = ' http://www.lbcsh.cn/web/index.asp';
+                    //     }
+                    // }
+                    console.log(res.data.data.list);
                     that.warehouseCompanyList = res.data.data.list;
                     this.hasNextPage = res.data.data.hasNextPage;
                     that.warehouseCompanyList.filter((item) => {
@@ -868,3 +886,14 @@ export default {
     }
 };
 </script>
+<style scoped>
+  .newlink{
+    display: block!important;
+  }
+  .newlink:hover{
+    color: #333!important;
+  }
+  .company-cursor:hover{
+    cursor: pointer;
+  }
+</style>

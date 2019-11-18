@@ -10,28 +10,7 @@
         <div class="kernel-service">
             <div class="item">
                 <div class="inner">
-                    <div class="fl"><img src="../assets/images/kernel-4.jpg" alt=""></div>
-                    <dl class="copy">
-                        <dt>平安银行税金贷</dt>
-                        <dd>
-                            <ul class="pingan-info">
-                                <li><span>融资类型：</span>信用融资</li>
-                                <li><span>融资期限：</span>额度3年，单笔3个月</li>
-                                <li><span>融资年利率：</span>不低于10%</li>
-                                <li><span>融资额度：</span>0-300万</li>
-                                <li class="single-row"><span>申请条件：</span>开增值税发票的商户，营业执照满两年</li>
-                                <li><span>发布时间：</span>2019-03-07 09:00:00</li>
-                            </ul>
-                        </dd>
-                        <dd class="button-box">
-                            <router-link :to="{name:'pinganBank'}" class="gy-button-extra">更多产品</router-link>
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-            <div class="item">
-                <div class="inner">
-                    <div class="fr"><img src="../assets/images/kernel-1.jpg" alt=""></div>
+                    <div class="fl"><img src="../assets/images/kernel-1.jpg" alt=""></div>
                     <dl class="copy">
                         <dt>代采业务</dt>
                         <dd>为信誉和资质良好的企业提供代采服务，接受采购方委托采购相应的产品，一次或分批次销售给采购方的业务模式。</dd>
@@ -41,7 +20,7 @@
             </div>
             <div class="item">
                 <div class="inner">
-                    <div class="fl"><img src="../assets/images/kernel-5.jpg" alt=""></div>
+                    <div class="fr"><img src="../assets/images/kernel-5.jpg" alt=""></div>
                     <dl class="copy">
                         <dt>赊销业务</dt>
                         <dd>为信誉和资质良好的企业提供先货后款模式，匹配优质供应商为企业提前释放货权，先提货后付款的优质服务。</dd>
@@ -51,13 +30,34 @@
             </div>
             <div class="item">
                 <div class="inner">
-                    <div class="fr"><img src="../assets/images/kernel-2.jpg" alt=""></div>
+                    <div class="fl"><img src="../assets/images/kernel-2.jpg" alt=""></div>
                     <dl class="copy">
                         <dt>货押业务</dt>
-                        <dd>作为上下游企业的中间方，同时签订采购和销售合同，下游企业支付一定金额的保证金后再向上游企业全款采购，最后按指定的的方式销售给下游。</dd>
+                        <dd>作为买卖双方指定的中间方，同时签订采购和销售合同，买方向中间方支付一定金额的保证金后，再由中间方向卖方全款采购，最后按双方指定的的方式销售给买方。</dd>
                         <dd class="button-box"><a href="javascript:;" @click="goApply(2)" class="gy-button-extra">申请货押</a></dd>
                     </dl>
                 </div>
+            </div>
+            <div class="item">
+              <div class="inner">
+                <div class="fr"><img src="../assets/images/kernel-4.jpg" alt=""></div>
+                <dl class="copy">
+                  <dt>平安银行税金贷</dt>
+                  <dd>
+                    <ul class="pingan-info">
+                      <li><span>融资类型：</span>信用融资</li>
+                      <li><span>融资期限：</span>额度3年，单笔3个月</li>
+                      <li><span>融资年利率：</span>不低于10%</li>
+                      <li><span>融资额度：</span>0-300万</li>
+                      <li class="single-row"><span>申请条件：</span>开增值税发票的商户，营业执照满两年</li>
+                      <li style="float: right"><span>发布时间：</span>2019-03-07 09:00:00</li>
+                    </ul>
+                  </dd>
+                  <dd class="button-box">
+                    <router-link :to="{name:'pinganBank'}" class="gy-button-extra">更多产品</router-link>
+                  </dd>
+                </dl>
+              </div>
             </div>
             <div class="item">
                 <div class="inner">

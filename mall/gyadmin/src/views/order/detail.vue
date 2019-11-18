@@ -40,7 +40,7 @@
                     <gy-order-invoice @getInfoList="getInvoiceInfos" :order-data="info" v-if="orderInvoiceList" :order-invoice-data="orderInvoiceList"></gy-order-invoice>
                 </el-tab-pane>
             </el-tabs>
-            <button class="gy-button-extra contrast" @click="contrast">订单与发票对比</button>
+            <button class="gy-button-extra contrast" @click="contrast">订单与发票比对</button>
         </div>
         <gy-contrast @hideContrastTable="showContrastTable = false" :contrast-data="contrastData" :show-contrast-table="showContrastTable"></gy-contrast>
     </div>

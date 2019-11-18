@@ -92,6 +92,7 @@ export default {
             defalult: {}
         },
         defaultProduct: String,
+        defaultCpmpany: String,
         offerId: String
     },
     directives: {
@@ -135,6 +136,7 @@ export default {
         this.currentValue = this.value;
         this.address(0, 'province'); // 获取省市区
         this.defaultProduct && (this.keywords = this.defaultProduct);
+        this.defaultCpmpany && (this.keywords = this.defaultCpmpany);
         this.getCompanyType();
     },
     methods: {
@@ -152,10 +154,10 @@ export default {
             });
         },
         handleGetList (type) {
-            if (this.keywords.length < 2) {
-                this.$message.error('请至少输入两个以上文字进行搜索。');
-                return;
-            }
+            // if (this.keywords.length < 2) {
+            //     this.$message.error('请至少输入两个以上文字进行搜索。');
+            //     return;
+            // }
             this.$http.post(this.$api.orders.creatcompanynew, {
                 'companyName': this.keywords,
                 'category': 1

@@ -277,9 +277,14 @@
         };
     },
     created () {
+        this.menu();
         this.getInfo();
     },
     methods: {
+        // 刷新到顶部
+        menu () {
+            window.scrollTo(0, 0);
+        },
         // 批量上下架
         batchOperation (state) {
             this.datas.offerIdList = this.itemId;

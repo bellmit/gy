@@ -5,6 +5,22 @@
                 <span class="title">{{offerId ? '资源管理': '资源管理'}}</span>
             </div>
             <div>
+                <div class="intellectTips">
+                    <span>温馨提示：</span>通过下方文本框文字识别，智能生成底部“资源单”要素；同时支持手动编辑资源单。
+                    <br>
+                    格式说明：品名  有效时间  单价  可供量  起订量  交割库  交割时间  货源  保证金  交付方式  付款方式  发票月份
+                </div>
+                <div class="top3">
+                    <p class="title"><i class="iconfont icon-dingdanxinxi"></i> <span class="spannew1">识别资源单信息</span></p>
+                </div>
+                <div class="intellectTextarea">
+                    <textarea class="gy-textarea textareaText" :placeholder="placeholder" v-model="distinguishText"></textarea>
+                </div>
+                <div class="intellect-btn">
+                    <div class="gy-button-extra" @click="distinguish">智能识别</div>
+                </div>
+            </div>
+            <div>
                 <el-form :model="info" :rules="ruleForm" ref="formA" size="mini" label-width="106px"
                          class="demo-ruleForm">
                     <el-row class="top2">
@@ -16,7 +32,7 @@
                                 <el-form-item label="品名" prop="skuName">
                                     <span v-if="offerId">{{info.skuName}}</span>
                                     <template v-else>
-                                        <product-search :selected.sync="selectedProduct"></product-search>
+                                        <product-search :selected.sync="selectedProduct" :defaultProduct="skuName"></product-search>
                                     </template>
                                 </el-form-item>
                             </el-col>
@@ -284,6 +300,7 @@
                         </el-row>
                         <el-row class="new-resoursebtn">
                             <div class="gy-button-extra" @click.prevent="submitFormValid"> 提交</div>
+                            <div class="gy-button-normal" @click="backList">返回列表</div>
                         </el-row>
                     </div>
                 </el-form>
@@ -358,7 +375,7 @@ export default {
                 skuOrigin: '国产', // 货源
                 skuName: '', // 品名
                 skuPrice: '', // 价格
-                promoType: 0, // 促销方式
+                promoType: 1, // 促销方式
                 intCurrencyCode: 'RMB',
                 depositRatio: 0,
                 isPublic: 1,
@@ -372,7 +389,10 @@ export default {
                 deliveryDateText: '双方协商为准',
                 provideInvoiceText: '',
                 deliveryBeginDate: '',
-                prdSkuId: 0
+                prdSkuId: 0,
+                effectiveMinutes: '',
+                skuQuantity: '',
+                skuMinQuantity: ''
             },
             deliveryWarehouseName: '',
             isPublic: true,
@@ -381,6 +401,8 @@ export default {
             isReupload: true,
             dialogImageUrl: '',
             dialogVisible: false,
+            distinguishText: '',
+            skuName: '',
             timeOptions: [{
                 value: 30,
                 label: '30分钟'
@@ -504,8 +526,8 @@ export default {
                         picker.$emit('pick', [start, end]);
                     }
                 }]
-            }
-
+            },
+            placeholder: '请输入或复制、粘贴资源单要素，系统将自动识别并转换为资源单。\n文本示例：乙二醇  1小时  7800元  1000吨  30吨起  长江国际  11月下旬  进口  8%  买方自提  先货后款  当月发票'
         };
     },
     components: {
@@ -717,13 +739,17 @@ export default {
             }
             that.$http.post(this.$api.offers.resources, that.info).then(function (res) {
                 if (res.data.code === 0) {
-                    that.$message('创建成功');
-                    that.$router.push({name: 'resourceList'});
-                    return false;
+                    that.$message.success('创建成功');
+                    // that.$router.push({name: 'resourceList'});
+                    // return false;
                 } else {
                     that.$message(res.data.message);
                 }
             });
+        },
+        backList () {
+            this.$router.push({name: 'resourceList'});
+            return false;
         },
         resetForm (formName) {
             this.$refs[formName].resetFields();
@@ -748,6 +774,40 @@ export default {
         handlePictureCardPreview (file) {
             this.dialogImageUrl = file.url;
             this.dialogVisible = true;
+        },
+        distinguish () {
+            var that = this;
+            var str = that.distinguishText.replace(/\s+/g, ' '); // 所用换行换成空格
+            that.$http.post(that.$api.offers.distinguish, {offerParseContent: str})
+                .then(function (res) {
+                    that.info = Object.assign(that.info, res.data.data);
+                    // 品名
+                    that.selectedProduct.goodsCode = res.data.data.skuCode;
+                    that.selectedProduct.id = res.data.data.prdSkuId;
+                    that.selectedProduct.skuName = res.data.data.skuName;
+                    that.skuName = res.data.data.skuName;
+                    that.imgUrl = res.data.data.skuPictureUrl;
+                    // 有效时间
+                    for (let i = 0; i < that.timeOptions.length; i++) {
+                        if (res.data.data.effectiveTimeStr === that.timeOptions[i].label) {
+                            that.info.effectiveMinutes = that.timeOptions[i].value;
+                        }
+                    }
+                    if (!res.data.data.effectiveTimeStr) {
+                        that.info.effectiveMinutes = ''; // 如果没有有效时间，置空
+                    }
+                    // 交割库
+                    that.deliveryWarehouseName = res.data.data.deliveryWarehouseName;
+                    that.deliveryWarehouseId = res.data.data.deliveryWarehouseId;
+                    that.info.provinceName = res.data.data.deliveryProvinceName;
+                    that.info.cityName = res.data.data.deliveryCityName;
+                    that.info.districtName = res.data.data.deliveryDistrictName;
+                    // 发票
+                    that.provideInvoiceType = that.info.provideInvoiceType;
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
         }
     },
     destroyed () {
@@ -776,7 +836,7 @@ export default {
             margin-left: 110px;
         }
         .new-resoursebtn{
-            margin-top: 20px;
+            margin: 20px 0 30px;
             text-align: right;
         }
         .product-list {
@@ -971,7 +1031,7 @@ export default {
             vertical-align: bottom;
         }
         .spannew1{
-            margin-left: 7px;
+            margin-left: 3px;
             font-size: 14px;
             font-weight: bold;
             color: #333;
@@ -981,6 +1041,24 @@ export default {
         }
         .left_my2{
             padding-left: 45px;
+        }
+        .intellectTips{
+            padding:24px 33px;
+            span{
+                color: #EEA443
+            }
+        }
+        .intellectTextarea{
+            padding:0 30px 0 33px;
+        }
+        .textareaText{
+            width:100%;
+            height:100px;
+        }
+        .intellect-btn{
+            margin-top: 20px;
+            margin-right: 30px;
+            text-align: right;
         }
     }
 </style>

@@ -100,10 +100,10 @@
                     <tr v-for="(item,index) in resultList" :key="index">
                         <td>{{item.id}}</td>
                         <td>{{item.skuName}}</td>
-                        <td class="text-r">{{item.skuQuantity || 0 | numToCash(3)}}</td>
+                        <td class="text-r">{{item.skuQuantity || 0 | numToCashs(3)}}</td>
                         <td class="text-r">
                             <template v-if="item.skuMinQuantity">
-                                {{item.skuMinQuantity || 0 | numToCash(3)}}
+                                {{item.skuMinQuantity || 0 | numToCashs(3)}}
                             </template>
                             <template v-else>
                                 -

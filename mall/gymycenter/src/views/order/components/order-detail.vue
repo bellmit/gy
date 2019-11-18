@@ -54,9 +54,6 @@ export default {
     table tr.update-title {
         background: red;
     }
-    table tr:first-child{
-        text-align: center;
-    }
     .align-r{
         text-align: right;
         padding-right: 5px;

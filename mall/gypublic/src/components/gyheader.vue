@@ -14,41 +14,44 @@
                     </li>
                     <li v-if="isLogin"><a href="/my/#/news"><i class="iconfont icon-news"></i>消息<i class="icon-new-news" v-if="newMessage || unread"></i></a></li>
                     <li><a href="javascript:;" @click="goMycenter">我的中心</a></li>
-                    <li><a href="#" @click="setJump('/point')">积分商城</a></li>
+                    <!--<li><a href="#" @click="setJump('/point')">积分商城</a></li>-->
                     <li><a href="/my/#/help">帮助中心</a></li>
                     <li><a href="http://chinayie.cn/about.php">关于我们</a></li>
                 </ul>
             </div>
         </div>
         <div class="b">
+            <div class="bc"></div>
             <div class="inner clearfix">
                 <div class="nav">
                     <a href="/" class="logo"><img src="../assets/images/gy-logo.png" alt=""></a>
-                    <ul v-if="isHeader === false && page !== '积分'">
+                    <div class="search search-placeholder" v-if="isHeader === false">
+                        <div class="base" v-if="page === '积分'">
+                            <i class="iconfont icon-search icon-search1" @click="handlePonintSearch"></i>
+                            <input style="background-color: rgba(255,255,255,.5)!important;border-bottom-width:0" @keyup.enter="handlePonintSearch" v-model="pointKeywords" type="text" class="gy-input"
+                                   placeholder="搜索兑换品">
+                            <span class="ksfb gy-button-extra" @click="goMycenter('ZNFB')"><i class="iconfont icon-search icon-search2"></i>智能发布</span>
+                        </div>
+                        <div class="base" v-else>
+                            <i class="iconfont icon-search icon-search1" @click="handleSearch"></i>
+                            <input  style="background-color: rgba(255,255,255,.3)!important;border-bottom-width:0" @keyup.enter="handleSearch" v-model="keywordStr" type="text" class="gy-input"
+                                    placeholder="请输入品名、类目">
+                            <span class="ksfb gy-button-extra" @click="goMycenter('ZNFB')"><i class="iconfont icon-search icon-search2"></i>智能发布</span>
+                        </div>
+                    </div>
+                    <div class="shopHome" v-else>
+                        <ul style="margin-left: 205px">
+                            <li>
+                                <router-link :to="{ path: '/shop/index', query: {'companyId': this.companyId} }">首页</router-link>
+                            </li>
+                            <li>
+                                <router-link :to="{ path: '/shop/profile', query: {'companyId': this.companyId} }">企业介绍</router-link>
+                            </li>
+                        </ul>
+                    </div>
+                    <ul v-if="isHeader === false && page !== '积分'" style="margin-left: 215px">
                         <li v-for="nav in navList" :key="nav.id">
-                            <a @click="setJump(nav.link)" href="#" :class="{'selected': nav.selected}"><i class="iconfont" :class="'icon-' + nav.icon"></i>{{nav.name}}</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="search" v-if="isHeader === false">
-                    <div class="base" v-if="page === '积分'">
-                        <i class="iconfont icon-search" @click="handlePonintSearch"></i>
-                        <input @keyup.enter="handlePonintSearch" v-model="pointKeywords" type="text" class="gy-input"
-                               placeholder="搜索兑换品">
-                    </div>
-                    <div class="base" v-else>
-                        <i class="iconfont icon-search" @click="handleSearch"></i>
-                        <input @keyup.enter="handleSearch" v-model="keywordStr" type="text" class="gy-input"
-                               placeholder="请输入品名、类目">
-                    </div>
-                </div>
-                <div class="shopHome" v-else>
-                    <ul>
-                        <li>
-                            <router-link :to="{ path: '/shop/index', query: {'companyId': this.companyId} }">首页</router-link>
-                        </li>
-                        <li>
-                            <router-link :to="{ path: '/shop/profile', query: {'companyId': this.companyId} }">企业介绍</router-link>
+                            <a @click="setJump(nav.link)" href="#" :class="{'selected': nav.selected}"><i class="iconfont" v-if="nav.name === '首页'" :class="'icon-' + nav.icon"></i>{{nav.name}}</a>
                         </li>
                     </ul>
                 </div>
@@ -116,6 +119,14 @@ export default {
                     icon: 'datanews',
                     blank: false,
                     selected: false
+                },
+                {
+                    id: 5,
+                    name: '积分商城',
+                    link: '/point',
+                    icon: 'datanews',
+                    blank: false,
+                    selected: false
                 }
             ],
             isHeader: false,
@@ -123,7 +134,8 @@ export default {
             newMessage: false,
             unread: false,
             newMessageNote: false,
-            defaultCompanyLogo: require('../assets/images/mylogo.png')
+            defaultCompanyLogo: require('../assets/images/mylogo.png'),
+            backgroundImage: require('../assets/images/search2.png')
         };
     },
     props: ['page'],
@@ -232,8 +244,8 @@ export default {
             localStorage.setItem('firstMenu', JSON.stringify(firstMenuData));
             location.href = '/my/#/order/list';
         },
-        goMycenter () {
-            location.href = this.isLogin ? '/my/#/order/list' : '/my/#/login';
+        goMycenter (type) {
+            location.href = this.isLogin ? (type === 'ZNFB' ? '/my/#/resources/add' : '/my/#/order/list') : '/my/#/login';
         }
     }
 };
@@ -263,6 +275,7 @@ export default {
         .t {
             height: 30px;
             line-height: 30px;
+            background: #2D2D2D;
             .hot-line {
                 float: left;
                 color: $color-minor;
@@ -279,7 +292,7 @@ export default {
             .menu {
                 float: right;
                 font-size: $small-font;
-                color: $color-black;
+                color: #999;
                 .account{
                     position: relative;
                     .iconfont{
@@ -293,7 +306,8 @@ export default {
                         padding: 0 10px;
                         margin-right: -10px;
                         display: inline-block;
-                        border: 1px solid #f5f5f5;
+                        /*border: 1px solid #f5f5f5;*/
+                        border-width: 0;
                         border-bottom: none;
                     }
                     .pop-account{
@@ -369,7 +383,7 @@ export default {
                     margin-left: 15px;
                 }
                 a {
-                    color: $color-black;
+                    color: #999;
                     &:hover {
                         color: $color-highlight;
                     }
@@ -377,8 +391,23 @@ export default {
             }
         }
         .b {
-            padding: 10px 0;
-            background-color: #fff;
+            padding-top: 16px;
+            padding-bottom: 2px;
+            width: 100%;
+            position: relative;
+            z-index: 999;
+            background-image: url("./../assets/images/home-bg.png");
+            /*border-bottom: 2px solid rgba(255,255,255,.5);*/
+            background-size: 100% 100%;
+            .bc{
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: -1;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to bottom, rgba(0,0,0,0.8),rgba(0,0,0,0.1));
+            }
             img {
                 width: 146px;
                 height: auto;
@@ -386,44 +415,68 @@ export default {
                 margin-right: 60px;
             }
             .nav {
-                float: left;
                 overflow: hidden;
                 .logo {
                     float: left;
+                    background-color: rgba(0,0,0,0);
                 }
                 ul {
-                    float: left;
                 }
                 li {
                     float: left;
                     margin-right: 40px;
                     a {
                         font-size: 16px;
-                        color: $color-black;
+                        color:#fff;
                         i {
                             font-size: $small-font;
                             margin-right: 5px;
                         }
                         &.selected, &:hover {
-                            color: $color-highlight;
+                            color: #FF6A46;
                         }
                     }
                 }
             }
             .search {
-                float: right;
                 overflow: hidden;
                 .base {
-                    float: left;
-                    width: 300px;
+                    width: 600px;
                     position: relative;
-                    i {
+                    input {
+                        border-radius: 3px;
+                        color: #fff!important;
+                    }
+                    ::placeholder{
+                        color: #fff!important;
+                    }
+                    .icon-search1 {
                         position: absolute;
                         right: 0;
-                        top: 5px;
+                        top: 0;
+                        width: 50px;
+                        height: 100%;
+                        background-color: #e0370f;
                         font-weight: bold;
-                        color: $color-black;
-                        line-height: 1;
+                        color: #fff!important;
+                        line-height: 30px;
+                        text-align: center;
+                        border-radius: 3px;
+                        &:before{
+                            color: #fff;
+                        }
+                    }
+                    .icon-search2 {
+                        margin-right: 8px;
+                        &:before{
+                            color: #fff;
+                        }
+                    }
+                    .ksfb {
+                        position: absolute;
+                        top: 0;
+                        right: -160px;
+                        height: 30px;
                     }
                 }
                 .advanced {
@@ -467,6 +520,20 @@ export default {
             top: 0;
             font-size: 14px;
             cursor: pointer;
+        }
+    }
+    .search-placeholder {
+        padding-bottom: 8px;
+        ::placeholder {
+            color: #666!important;
+        }
+        .icon-search1 {
+            background-position: 0 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            background-size: contain;
+            background-repeat: no-repeat;
         }
     }
 </style>

@@ -401,13 +401,9 @@ export default {
                 color: $color-main;
                 font-size: $small-font;
             }
-            table tr:nth-child(odd) td {
-                background-color: #F2F3F7;
-            }
             table tr:first-child td {
                 padding-left: 10px;
                 height: 40px;
-                background-color: #EEF3F8;
             }
             table td {
                 height: 40px;

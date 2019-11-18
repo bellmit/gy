@@ -39,6 +39,10 @@
             </span>
           </div>
           <div class="gy-form-group">
+             <span class="l"><strong>*</strong>公司链接</span>
+             <span>{{para.homeImgUrl}}</span>
+          </div>
+          <div class="gy-form-group">
               <span class="l"><strong>*</strong>联系人(职位)</span>
               <span>{{para.contactPerson}}</span>
           </div>
@@ -472,7 +476,8 @@ export default {
                 remark: '',
                 cityId: null,
                 provinceId: 130300,
-                companyFileList: []
+                companyFileList: [],
+                homeImgUrl: null
             },
             typeId: null,
             dialogVisible: false,

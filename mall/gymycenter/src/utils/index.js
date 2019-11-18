@@ -1,4 +1,31 @@
-
+export const paymentMethod = (transactionType, isBatchDelivery) => {
+    let str = '';
+    if (transactionType === 3) {
+        str = '一次付清';
+    }
+    if (transactionType === 0) {
+        str = '先款后货';
+    } else if (transactionType === 1) {
+        str = '先货后款';
+    } else if (transactionType === 10) {
+        str = '担保交易';
+    }
+    if (str.trim() === '') {
+        if (isBatchDelivery === 0) {
+            str = '全款全货';
+        } else if (isBatchDelivery === 1) {
+            str = '允许分批次发货，分批付款';
+        }
+    } else {
+        if (isBatchDelivery === 0) {
+            str = str + '，全款全货';
+        } else if (isBatchDelivery === 1) {
+            str = str + '，允许分批次发货，分批付款';
+        }
+    }
+    return str;
+};
+// tree 数据转换
 export const treeDataTranslate = (data, id = 'id', pid = 'parentId') => { // 角色查询
     var res = [];
     var temp = {};
@@ -20,29 +47,4 @@ export const treeDataTranslate = (data, id = 'id', pid = 'parentId') => { // 角
         }
     }
     return res;
-};
-export const convertJson = (obj) => { // 角色查询
-    let arr = [];
-    this.getJson = function (obj) {
-        var _this = this;
-        for (var i = 0; i < obj.length; i++) {
-            arr.push(obj[i]);
-            for (let item in obj[i]) {
-                let childArr = obj[i][item];
-                if (Array.isArray(childArr) && childArr.length > 0) {
-                    _this.getJson(childArr);
-                }
-            }
-        }
-        return arr;
-    };
-    this.Result = this.getJson(obj);
-    return this.Result;
-};
-export const fmtDate = (obj) => {
-    const date = new Date(obj);
-    const y = 1900 + date.getYear();
-    const m = '0' + (date.getMonth() + 1);
-    const d = '0' + date.getDate();
-    return y + '-' + m.substring(m.length - 2, m.length) + '-' + d.substring(d.length - 2, d.length);
 };

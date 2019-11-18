@@ -208,9 +208,9 @@
     </div>
     <el-dialog title="日志" :visible.sync="log.visible" :modal="false" width="500px">
       <ul class="log">
-        <li><span>时间</span><span>操作</span><span>操作人</span></li>
+        <li class="liTitle"><span>时间</span><span>操作</span><span class="logName">操作人</span></li>
         <li v-for="(item,index) in logData" :key=index>
-          <span>{{item.createdDate|date}}</span><span>{{item.allowedFunctionsName}}</span><span>{{item.createdByName}}</span>
+          <span>{{item.createdDate|date(1)}}</span><span>{{item.allowedFunctionsName}}</span><span class="logName">{{item.createdByName}}</span>
         </li>
       </ul>
     </el-dialog>
@@ -626,6 +626,21 @@ export default {
     }
     .el-col-4{
       line-height: 27px;
+    }
+    .liTitle{
+      span{
+        font-weight: bold;
+      }
+    }
+  }
+  .order-list .log{
+    span{
+      width:40%;
+      padding-right:10px;
+      vertical-align: middle;
+    }
+    .logName{
+      width:20%;
     }
   }
 </style>

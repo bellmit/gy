@@ -91,7 +91,7 @@
         </el-dialog>
       <!-- 预览图片 -->
       <el-dialog class="previewerImgDiv" title="图片预览" :visible.sync="previewerImg.visible" width="700px">
-        <el-carousel @change="clickNum = 0" ref="previewerImg" trigger="click" :autoplay="false">
+        <el-carousel @change="clickNum = 0" ref="previewerImg" trigger="click" :autoplay="false" arrow="never">
           <el-carousel-item class="previewer-item" v-for="(item, index) in previewerImg.list" :key="index">
              <div><a :href="item.filePath" target="_blank"><img style="width: 100%;height: 100%" class="previewer-img-detail" :src="item.filePath"></a></div>
           </el-carousel-item>
@@ -99,6 +99,13 @@
         <div @click="rotateImg" class="rotate-img">
               <i class="iconfont icon-xuanzhuan"></i>
         </div>
+        <el-pagination
+              background
+              layout="prev, pager, next"
+              @current-change="handleCurrentChange"
+              :page-size="1"
+              :total="previewerImg.list.length">
+        </el-pagination>
       </el-dialog>
     </div>
 </template>
@@ -220,8 +227,10 @@ export default {
             });
             document.querySelector('.previewer-item.is-active div').style.transform = `rotate(${this.clickNum * 90}deg)`;
             console.log(document.querySelector('.el-carousel__item.is-active'));
+        },
+        handleCurrentChange (val) {
+            this.$refs.previewerImg.setActiveItem(val - 1);
         }
-
     }
 };
 </script>
@@ -244,7 +253,7 @@ export default {
  .rotate-img {
         color: #000;
         position: absolute;
-        bottom: -3px;
+        bottom: 60px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 9999;
@@ -253,12 +262,4 @@ export default {
           font-size: 30px;
         }
   }
-</style>
-<style lang="scss">
-.previewerImgDiv {
-  .el-dialog__body {
-  padding-bottom: 50px;
-}
-
-}
 </style>

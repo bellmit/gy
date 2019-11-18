@@ -33,7 +33,7 @@
                 <dt>付款方式</dt>
                 <dd>{{paymentType[orderData.paymentType]}}
                     <template v-if="orderData.paymentType === 1">
-                        (买方收到货后{{orderData.paymentTypeText}}个工作日付款)
+                        ({{orderData.paymentWhenStartStr}}{{orderData.paymentTypeText}}个{{orderData.paymentDayTypeStr}})
                     </template>
                     <template v-if="orderData.paymentType === 0 && orderData.orderItemList[0].topCatalogueId === 3">
                         ({{orderData.orderExpandModel.paymentTypeDate | date}} 以前付款)

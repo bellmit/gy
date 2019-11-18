@@ -109,6 +109,9 @@
             </el-form>
         </div>
         <div class="mytable">
+            <div class="right my_right">
+                <router-link :to="{ name: 'edit', query: {type: 1} }" class="gy-button-extra">发起订单</router-link>
+            </div>
             <table class="gy-table">
                 <thead>
                 <tr class="title">
@@ -407,6 +410,9 @@
             }
             tbody{
                 border: 1px solid #e7ecf1;
+            }
+            .my_right{
+                padding-bottom: 10px;
             }
         }
         .im-talk {

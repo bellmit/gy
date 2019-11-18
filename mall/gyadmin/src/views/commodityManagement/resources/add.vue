@@ -413,7 +413,7 @@ export default {
                 skuOrigin: '国产', // 货源
                 skuName: '', // 品名
                 skuPrice: '', // 价格
-                promoType: 0, // 促销方式
+                promoType: 1, // 促销方式
                 intCurrencyCode: 'RMB',
                 depositRatio: 0,
                 isPublic: '',

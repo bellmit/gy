@@ -153,7 +153,9 @@ const shop = {
     shopRecommend: '/trade/public/v1/home/shopRecommend',
     search: '/trade/public/v1/home/shopRecommendByKeyword',
     hotRecommend: '/trade/public/v1/home/hotRecommend',
-    advertising: '/trade/home/hot/v1/advertising'
+    advertising: '/trade/home/hot/v1/advertising',
+    description: '/trade/v1/company/profile/description/',
+    hotRecommendV2: '/trade/public/v1/home/hotRecommendV2' // 产品分类
 };
 
 export default {

@@ -419,7 +419,13 @@ const supply = {
     distribute: '/platform/supplyChain/v1/applicationPlatform', // 派单
     distributeList: '/platform/supplyChain/v1/ApplicationLog/sendOrdersLogByApplicationId/' // 平台审核派单记录
 };
-
+// 公司发票信息
+const invoice = {
+    invoiceList: prefix + '/v1/companies/tax/search', // 公司发票列表
+    insert: prefix + '/v1/companies/tax/insert', // 新增公司发票信息
+    modify: prefix + '/v1/companies/tax/modify', // 修改公司发票信息
+    getInfo: prefix + '/v1/companies/tax/' // 获取发票信息详情
+};
 export default {
     user,
     charts,
@@ -454,5 +460,6 @@ export default {
     dealMake,
     userLog,
     htlpCenter,
-    supply
+    supply,
+    invoice
 };

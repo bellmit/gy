@@ -59,6 +59,9 @@ export default {
             if (!val) {
                 this.empty();
             }
+        },
+        defaultProduct: function (val) {
+            this.keywords = val;
         }
     },
     methods: {

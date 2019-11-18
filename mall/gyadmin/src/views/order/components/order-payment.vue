@@ -37,8 +37,8 @@
         </tr>
       </tbody>
       <!-- 预览图片 -->
-      <el-dialog class="previewerImgDiv" title="图片预览" :visible.sync="previewerImg.visible" width="700px">
-        <el-carousel @change="clickNum = 0"  ref="previewerImg" trigger="click" :autoplay="false">
+      <el-dialog class="previewerImgDif previewerImgDiv" title="图片预览" :visible.sync="previewerImg.visible" width="700px">
+        <el-carousel @change="clickNum = 0"  ref="previewerImg" trigger="click" :autoplay="false" arrow="never">
           <el-carousel-item class="previewer-item1" v-for="(item, index) in previewerImg.list" :key="index">
              <div style="width: 100%;height: 100%"><a :href="item.url" target="_blank"><img style="width: 100%;height: 100%" class="previewer-img-detail" :src="item.url"></a></div>
           </el-carousel-item>
@@ -46,6 +46,13 @@
         <div @click="rotateImg" class="rotate-img">
               <i class="iconfont icon-xuanzhuan"></i>
         </div>
+        <el-pagination
+              background
+              layout="prev, pager, next"
+              @current-change="handleCurrentChange"
+              :page-size="1"
+              :total="previewerImg.list.length">
+        </el-pagination>
       </el-dialog>
     </table>
 </template>
@@ -138,6 +145,9 @@ export default {
             // 查看发票
             that.previewerImg.visible = true;
             that.previewerImg.list = v;
+        },
+        handleCurrentChange (val) {
+            this.$refs.previewerImg.setActiveItem(val - 1);
         }
     }
 };
@@ -156,11 +166,8 @@ export default {
           font-size: 30px;
         }
   }
-.previewerImgDiv {
-  .el-dialog__body {
-  padding-bottom: 50px;
-}
-
+.previewerImgDif .rotate-img{
+    bottom: 60px;
 }
 .el-carousel__item{
         text-align: center;

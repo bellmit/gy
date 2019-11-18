@@ -15,6 +15,8 @@ import sysMenuManage from '../views/sys/menu/manage.vue';
 // 基础信息管理-》角色管理
 import sysRoleManage from '../views/sys/role/manage.vue';
 import sysRoleList from '../views/sys/role/list.vue';
+import invoiceList from '../views/sys/invoiceInfo/invoiceList.vue';
+import invoiceAdd from '../views/sys/invoiceInfo/add.vue';
 
 // 会员管理-》会员企业
 // import memberCompanyList from '../views/member/company/list.vue';
@@ -539,6 +541,22 @@ export default [
                 component: sysRoleManage,
                 meta: {
                     title: '角色管理'
+                }
+            },
+            {
+                path: 'sys/invoice/list',
+                name: 'invoiceList',
+                component: invoiceList,
+                meta: {
+                    title: '发票公司信息'
+                }
+            },
+            {
+                path: 'sys/invoice/add',
+                name: 'invoiceAdd',
+                component: invoiceAdd,
+                meta: {
+                    title: '发票公司信息'
                 }
             },
             {

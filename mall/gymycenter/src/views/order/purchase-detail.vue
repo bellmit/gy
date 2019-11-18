@@ -340,13 +340,8 @@ export default {
                 color: $color-main;
                 font-size: $small-font;
             }
-            table body:nth-child(odd) tr td {
-                background-color: #F2F3F7;
-            }
             table tr:first-child td {
                 height: 40px;
-                background-color: #EEF3F8;
-                font-weight: bold;
             }
             table td {
                 height: 40px;

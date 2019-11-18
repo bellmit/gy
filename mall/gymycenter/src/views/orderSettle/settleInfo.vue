@@ -43,13 +43,15 @@
                         <span class="state-tips-first">温馨提示：</span>
                         <span>{{SettlementOrderMsg}}</span>
                         <button class="gy-button-views tt" @click="dialogVisible = true">结算明细</button>
+                        <button class="gy-button-views tt" v-if="InvoiceListId" @click="goinvoiceApplication">查看开票信息</button>
                         <button class="gy-button-views" style="cursor:pointer;font-size: 14px;" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
                     </p>
                     <div class="button-group">
                         <button class="gy-button-extra" v-if="infoRefund" @click="refundPayment()">退款</button>
                         <button class="gy-button-extra" v-if="infoRefunds">确认收款</button>
                         <button class="gy-button-extra" v-if="infofinsh" @click="finsh()">完成</button>
-                        <button class="gy-button-extra" v-if="infofinshs && !(showBillIcon ==3) " @click="openVisible()">发票</button>
+                        <button class="gy-button-extra" v-if="infofinshs && !(showBillIcon ==3) && invoiceShow" @click="billing()">申请开票</button>
+                        <button class="gy-button-extra" v-if="infofinshs && !(showBillIcon ==3) " @click="openVisible()">上传发票</button>
                     </div>
                     <el-dialog width="1062px" class="settle-dialog" title="订单结算申请"
                                @open="handleOpen" :visible.sync="dialogVisible" @close="goback()">
@@ -241,6 +243,7 @@ export default {
         return {
             showBillIcon: this.$route.query.showBillIcon,
             imgType: false,
+            invoiceShow: false,
             tradeMetch: ['线下支付', '在线支付'],
             activeName: 'first',
             userId: '',
@@ -324,7 +327,12 @@ export default {
             prebiewImg: {
                 list: [],
                 preBoolean: false
-            }
+            },
+            formData: {
+                pageNum: 1,
+                pagSize: 1
+            },
+            InvoiceListId: null
         };
     },
     created () {
@@ -334,6 +342,7 @@ export default {
         this.postStartSettlementOrderMsg();
         this.getInfo();
         this.getInvoiceInfos();
+        this.getInvoiceInfo();
     },
     computed: {
         settleAmount3: function () {
@@ -388,6 +397,17 @@ export default {
         }
     },
     methods: {
+        // 发票详情
+        getInvoiceInfo () {
+            this.$http.get(this.$api.invoice.getInfo + JSON.parse(localStorage.getItem('userInfo')).companyId)
+                .then(res => {
+                    if (res.data.data) {
+                        if (res.data.data.onlineInvoice === 1) {
+                            this.invoiceShow = true;
+                        }
+                    }
+                });
+        },
         goback () {
             if (this.gobacklList === true) {
                 this.dialogVisible = false;
@@ -469,7 +489,6 @@ export default {
         },
         updateQuantityIssued (data) {
             this.quantityIssued = data;
-            console.log(this.quantityIssued);
         },
         finsh () {
             let that = this;
@@ -489,11 +508,11 @@ export default {
             that.$http.get(that.$api.sale.detail + '/' + that.orderId)
                 .then(function (res) {
                     that.info = res.data.data;
+                    that.getInvoiceList(that.info);
                     that.showContractOrder(that.info);
                     that.showReceiptsImg(that.info);
                     that.orderItemList = res.data.data.orderItemList;
                     if (res.data.data.orderStatus === 2) {
-                        console.log(typeof (that.$route.query.dialogVisible));
                         if (that.$route.query.dialogVisible === 'true' || that.$route.query.dialogVisible === true) {
                             that.dialogVisible = true;
                         } else {
@@ -514,7 +533,6 @@ export default {
         },
         getOrderInfo () { // 获取订单信息
             let that = this;
-            console.log(that.orderId);
             that.$http.post(that.$api.order.sellerSettle, {'orderId': that.orderId, 'userId': that.userId})
                 .then(function (res) {
                     if (res.data.code === 0) {
@@ -553,6 +571,10 @@ export default {
         },
         openVisible () {
             this.$refs.uploadInvoice.init();
+        },
+        // 开票
+        billing () {
+            this.$router.push({name: 'addInvoice', query: {id: this.orderId}});
         },
         handleClick (tab, event) {
             console.log(tab, event);
@@ -789,6 +811,27 @@ export default {
                         }
                     }
                 });
+        },
+        // 开票列表
+        getInvoiceList (item) {
+            console.log(item.odrOrderSn);
+            let data = {
+                orderSn: item.odrOrderSn
+            };
+            this.formData.data = data;
+            this.$http.post(this.$api.invoice.getInvoiceList, this.formData)
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.InvoiceListId = res.data.data.list[0].id;
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+        },
+        // 查看开票信息
+        goinvoiceApplication () {
+            this.$router.push({name: 'invoiceApplicationDetail', query: {id: this.InvoiceListId}});
         },
         showReceiptsImg (item) {
             // 查看发票

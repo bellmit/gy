@@ -134,14 +134,21 @@
         </div>
         <!-- 预览图片 -->
         <el-dialog title="图片预览" :visible.sync="previewerImg.visible" width="700px">
-            <el-carousel @change="clickNum = 0" ref="previewerImg" trigger="click" :autoplay="false">
+            <el-carousel @change="clickNum = 0" ref="previewerImg" trigger="click" :autoplay="false" arrow="never">
                 <el-carousel-item v-for="(item, index) in previewerImg.list" :key="index">
                     <div><a :href="item.invoiceUrl" target="_blank"><img class="previewer-img-detail" :src="item.invoiceUrl"></a></div>
                 </el-carousel-item>
             </el-carousel>
             <div @click="rotateImg" class="rotate-img">
-                  <i class="iconfont icon-xuanzhuan"></i>
+                <i class="iconfont icon-xuanzhuan"></i>
             </div>
+            <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    @current-change="handleCurrentChange"
+                    :page-size="1"
+                    :total="previewerImg.list.length">
+            </el-pagination>
         </el-dialog>
         <!-- 预览合同 -->
         <transition name="fade">
@@ -232,6 +239,9 @@ export default {
             });
             document.querySelector('.el-carousel__item.is-active').style.transform = `rotate(${this.clickNum * 90}deg)`;
             console.log(document.querySelector('.el-carousel__item.is-active'));
+        },
+        handleCurrentChange (val) {
+            this.$refs.previewerImg.setActiveItem(val - 1);
         }
     }
 };
@@ -260,10 +270,10 @@ export default {
 
         }
         .rotate-img {
-            color: #000;
             position: absolute;
-            bottom: -5px;
+            bottom: 60px;
             left: 50%;
+            color: #000;
             transform: translateX(-50%);
             z-index: 9999;
             cursor: pointer;
@@ -278,8 +288,11 @@ export default {
         .el-carousel__container{
             height: 400px;
         }
-        .el-dialog__body {
-          padding-bottom: 50px;
+        .el-carousel__indicators{
+            display: none;
+        }
+        .el-pagination{
+            margin-top:60px;
         }
     }
 </style>

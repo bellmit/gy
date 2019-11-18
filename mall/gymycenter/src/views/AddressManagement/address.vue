@@ -269,7 +269,8 @@ export default {
                                 address: null,
                                 postCode: null,
                                 receiveName: null,
-                                receivePhone: null
+                                receivePhone: null,
+                                email: null
                             };
                             this.getAddressList();
                         });
@@ -326,7 +327,7 @@ export default {
                 });
         },
         deleteAddress (id) {
-            this.$confirm('确定删除该条地址吗？', '提示')
+            this.$confirm('请确认是否删除该条地址？', '提示', {type: 'warning'})
                 .then(() => {
                     this.$http.post(this.$api.point.deleteAddress, {
                         id: id
@@ -442,7 +443,7 @@ export default {
         }
     }
     .dialog-footer {
-        margin-top: 7rem ;
+        margin-top: 8rem ;
     }
 </style>
 <style lang="scss" scoped>
@@ -466,7 +467,7 @@ export default {
         // position: absolute;
         margin-top:25vh ;
         .el-dialog__body {
-            padding: 0;
+            padding: 10px 0;
         }
         .el-dialog__footer {
             padding:30px;

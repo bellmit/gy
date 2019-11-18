@@ -15,15 +15,17 @@
                             <div class="first-items" v-if="categories.first.length>1">
                                 <div @mouseover.capture="showItems" class="first-item mg-top20" v-for="(item,index) in categories.first" :key="index"
                                      :myindex="index">
-                                    <div class="first-item-category mall-nav-tit">{{item.category}}</div>
-                                    <span class="first-item-content" v-for="(categ, secondindex) in item.catalogueNames" :key="secondindex">{{categ.catalogueName}}</span>
+                                    <div class="first-item-category mall-nav-tit"><i class="iconfont first-item-icon"  :class = "{ 'icon-huagongiconx':index==0,'icon-youpinx':index==1, 'icon-suliaoiconx':index==2, 'icon-xiangjiaoiconx':index==3}"></i>{{item.category}}<i class="iconfont icon-arrow-down first-item-right"></i></div>
+                                    <div class="first-item-list" style="-webkit-box-orient:vertical!important;">
+                                        <span class="first-item-content" v-for="(categ, secondindex) in item.catalogueNames" :key="secondindex">{{categ.catalogueName}}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="category-second" v-show="myindex" v-if="categories.second.length>1">
+                        <div :class = "{ 'category-background-0':myindex==0,'category-background-1':myindex==1, 'category-background-2':myindex==2, 'category-background-3':myindex==3}" class="category-second" v-show="myindex" v-if="categories.second.length>1">
                             <div class="category-second-item" v-for="(item,index) in categories.second" :key="index" style="margin-left: 10px;">
-                                <div v-show="index == myindex">
-                                    <div v-for="(categs, thirdindex) in item.items" :key="thirdindex" class="mg-top20 mg-tops">
+                                <div class="category-second-width" v-show="index == myindex">
+                                    <div v-for="(categs, thirdindex) in item.items" :key="thirdindex" class="mg-top20 mg-max mg-tops">
                                         <div class="second-item-category mall-nav-tit">{{categs.catalogueName}}</div>
                                         <p class="second-item-content"
                                            :item-id="categ.productId"
@@ -85,7 +87,7 @@
                                         :item-id="recommend[4*index+ subIndex].offerId"
                                         @click="gotoPage($event,'product-detail')"
                                       v-for="(product,subIndex) in 4" :key="subIndex" v-if="4*index+ subIndex<recommend.length">
-                                      <div class="item-name">{{recommend[4*index+ subIndex].prodName}}</div>
+                                      <div class="item-name" :title="recommend[4*index+ subIndex].prodName">{{recommend[4*index+ subIndex].prodName}}</div>
                                       <div class="item-price"  v-if="recommend[4*index+ subIndex].skuPriceFlag == 2">面议</div>
                                        <div class="item-price"  v-else>
                                        {{recommend[4*index+ subIndex].currencyMark}}{{recommend[4*index+ subIndex].price}}
@@ -748,6 +750,10 @@ export default {
         .mg-top20 {
             margin-top: 20px;
         }
+        .mg-max {
+            max-height:150px;
+            overflow: hidden;
+        }
         .second-item-content:last-child{
             .second-item-content-spans{
                 display: none;
@@ -761,10 +767,18 @@ export default {
         .title-pro-type{
             font-size: 18px;
         }
+        .first-item-list{
+            width:100%;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            display:-webkit-box;
+            -webkit-box-orient:vertical;
+            -webkit-line-clamp:2;
+        }
         .second-item-content,
         .first-item-content {
             display: inline-block;
-            margin-right: 8px;
+            margin-right: 16px;
         }
         .first-item-content{
             color: #a2a2a2;
@@ -795,7 +809,7 @@ export default {
             z-index: 2;
         }
         .first-item {
-            padding: 0 10px 0 22px;
+            padding: 0 22px 0 22px;
             cursor: pointer;
             &:hover {
                 background-color: rgba(255,255,255,200);
@@ -805,6 +819,9 @@ export default {
                 }
                 .first-item-content{
                     color: #333333;
+                }
+                .icon-huagongiconx, .icon-youpinx, .icon-suliaoiconx, .icon-xiangjiaoiconx{
+                    color:#E03912;
                 }
             }
         }
@@ -825,6 +842,34 @@ export default {
         }
         .first-item-category{
             color: #FFFFFF;
+            position: relative;
+            padding-left:23px;
+        }
+        .first-item-icon{
+            font-weight: normal;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .icon-huagongiconx{
+            color:#FA5A00;
+        }
+        .icon-youpinx{
+            color:#E3B272;
+        }
+        .icon-suliaoiconx{
+            color:#4CC3D2;
+        }
+        .icon-xiangjiaoiconx{
+            color:#F38400;
+        }
+        .first-item-right{
+            color:#a2a2a2;
+            font-weight: normal;
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: rotateZ(-90deg);
         }
         .first-item-category:hover{
             color: #E03912;
@@ -834,15 +879,46 @@ export default {
             padding: 20px 10px 0 22px;
         }
         .category-second {
-            width: 658px;
+            width: 816px;
             position: absolute;
             left: 285px;
             margin-top: 1px;
             height: 400px;
             overflow-y: scroll;
-            background: #fff;
             padding: 10px;
             z-index: 2;
+            background-color: #ffffff;
+            background-repeat: no-repeat;
+        }
+        .category-background-0 {
+            background-image: url('../assets/images/baseMap0.png');
+            background-size: 224px 400px;
+            background-position: 592px 0;
+        }
+        .category-background-1 {
+            background-image: url('../assets/images/baseMap1.png');
+            background-size: 199px 400px;
+            background-position: 617px 0;
+        }
+        .category-background-2 {
+            background-image: url('../assets/images/baseMap2.png');
+            background-size: 182px 400px;
+            background-position: 634px 0;
+        }
+        .category-background-3 {
+            background-image: url('../assets/images/baseMap3.png');
+            background-size: 235px 400px;
+            background-position: 581px 0;
+        }
+        .category-second-width {
+            width: 600px;
+            position: relative;
+        }
+        .category-second-img{
+            height:100%;
+            position: absolute;
+            top: 0;
+            right: 0;
         }
         .second-item-content {
             cursor: pointer;
@@ -1324,6 +1400,10 @@ export default {
                             position: relative;
                         .item-name {
                             color: #000000;
+                            width:100%;
+                            overflow: hidden;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
                         }
                         .item-price {
                             color: #E03912;

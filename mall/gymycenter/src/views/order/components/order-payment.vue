@@ -28,7 +28,7 @@
                     {{item.payMethod === 1 ? '货款':item.payMethod === 2 ? '保证金': '结算'}}
                 </td>
                 <td>{{payStatus[item.payStatus]}}</td>
-                <td>
+                <td class="align-c">
                     <template v-if="item.payBillType === 1 && userType !== 'sell'">
                         <router-link :to="{name: 'paymentInfo', query:{paymentId:item.id}}" class="yel gy-button-view">查看</router-link>
                     </template>
@@ -104,7 +104,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    table tr:first-child{
-        text-align: center;
-    }
+
 </style>

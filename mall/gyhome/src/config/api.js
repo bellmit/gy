@@ -8,5 +8,6 @@ export default {
     adInfo: '/trade/public/v1/home/adInfo',
     news: '/trade/recommend/v1/news/search',
     goods: 'trade/catalogue/v1/goods',
-    getKvList: '/trade/public/v1/home/advertising/10' // 首页轮播内容
+    getKvList: '/trade/public/v1/home/advertising/10', // 首页轮播内容
+    getMessageList: '/trade/public/v1/mall/priceindex/indexday' // 首页行业数据
 };

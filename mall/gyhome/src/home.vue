@@ -4,7 +4,7 @@
         <div class="home my-mall-home">
             <!--START Kv-->
             <div class="kv">
-                <el-carousel :interval="5000">
+                <el-carousel style="width: 100%" :interval="5000">
                     <el-carousel-item v-for="item in kvList" :key="item.id">
                         <a :href='item.linkUrl ? item.linkUrl : "javascript:;"' class="carouselImg">
                             <div class="item bg-img home-carousel-img" :style='"background-image: url(" + item.imageUrl + ")"'></div>
@@ -99,24 +99,47 @@
             <!--END Kv-->
             <div class="wrap-body bg-body-img" :style='"background-image: url(" + bgimgHolder.bgBody + ")"'>
                 <div class="wrap-main">
+                    <div class="hysj">
+                        <div class="hysj-logo"><img src="./assets/images/hysj.png" alt=""></div>
+                        <div class="hysj-content">
+                            <div class="hysj-scroll" v-if="messageList.length > 0">
+                                <vue-seamless :data="messageList" :class-option="classOption">
+                                        <div class="hysj-item" v-for="(item, index) in messageList" :key="index">
+                                            <div :style="{'color': item.upOrDown === 1 ? 'green' : '#e0370f'}">{{item.unit === 0 ? '￥' : '$'}} {{item.indexNum}}<i :class="item.upOrDown === 1 ? 'el-icon-caret-bottom':'el-icon-caret-top'"></i></div>
+                                            <div class="hysj-item-content">{{item.indexName}}</div>
+                                        </div>
+                                </vue-seamless>
+                            </div>
+                        </div>
+                    </div>
                     <!--START 热门推荐-->
                     <h2>热门推荐</h2>
                     <span class="more-link"><a href="/mall/#/hotCommodity">更多 &gt;</a></span>
                     <div class="hot clearfix">
-                        <div class="gyhome-box item bg-img" :class="{'second': item.desc === '秒杀'}" v-for="(item, index) in hotProductList" :style='"background-image: url(" + hotProductBg[index] + ")"' :key="index" v-if="index < 5">
-                            <a class="default-a" :href='"mall/#/product?resourcesListId=" + item.offerId'>
+                        <div class="gyhome-box item bg-img hotProductBg-bg" :class="{'second': item.desc === '秒杀','hotProductBg-bg-hot': item.desc === '秒杀'}" v-for="(item, index) in hotProductList" :key="index" v-if="index < 5">
+                            <div class="bg-box"></div>
+                            <a class="default-a" :class="{'default-a-ms': item.desc === '秒杀'}" :href='"mall/#/product?resourcesListId=" + item.offerId'>
                                 <span class="product-img"><img :src="item.productImg" alt=""></span>
                                 <h5>{{item.prodName}}</h5>
-                                <span class="price" v-if='item.price !== "0.00"'><strong>￥{{item.price}}</strong>/{{item.priceUnit}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</span>
-                                <span class="price" v-else><strong>面议</strong></span>
+                                <span class="price" v-if="item.price !== '0.00'&&item.desc !== '秒杀'"><strong>￥{{item.price}}</strong>/{{item.priceUnit}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</span>
+                                <span class="price" v-if="item.price === '0.00'&&item.desc !== '秒杀'"><strong>面议</strong></span>
+                                <img class="img-ms" src="./assets/images/button.png" v-if="item.desc === '秒杀'" alt="">
+                                <div v-else class="text-content">
+                                    <div class="text-item text-item1">
+                                        <div>交割库区</div>
+                                        <div class="text">{{item.place}}</div>
+                                    </div>
+                                    <div class="text-item text-item2">
+                                        <div class="t">交割日期</div>
+                                        <div class="text">{{item.tradeDate}}</div>
+                                    </div>
+                                    <div class="text-item text-item3">
+                                        <div>可供量</div>
+                                        <div class="text">{{item.supplies}}</div>
+                                    </div>
+                                </div>
                             </a>
-                            <span class="company">
-                                <a :href='"mall/#/shop/index?companyId=" + item.supplierId' class="company-a">
-                                    <i class="bg-img" :style='"background-image: url(" + bgimgHolder.vip + ")"'></i>
-                                    {{item.supplier}}
-                                </a>
-                            </span>
-                            <span class="tag">{{item.catalogueName}}</span>
+                            <span class="tag" style="z-index: 2">{{item.catalogueName}}</span>
                             <img :src="bgimgHolder.second" class="icon-second" alt="">
                         </div>
                     </div>
@@ -134,22 +157,19 @@
                     <!--END Advertisement-->
                     <!--START 主打产品-->
                     <h2>主打产品</h2>
-                    <div class="main-product clearfix">
-                        <div class="item" :class="{'row-t': index < 2, 'row-b': index >1}" v-for="(item, index) in mainProductList" :key="index">
-                            <a class="default-a" :href='"mall/#/search?productId=" + item.productId'>
-                                <dl class="name">
-                                    <dt class="hover-a">{{item.productName}}</dt>
-                                    <dd class="img"><img :src="item.formulaImg" alt=""></dd>
-                                    <dd class="more">{{item.remark}}<a :href='"mall/#/search?productId=" + item.productId'>更多</a></dd>
-                                </dl>
-                                <div class="intro bg-img is4n-bg" :style='"background-image: url(" + mainImg[index] + ")"'>
-                                    <ul>
-                                        <li>CAS：{{item.cas}}</li>
-                                        <li>分子式：{{item.formula}}</li>
-                                        <li>中文别名： {{item.aliasNameCn}}</li>
-                                        <li>英文名称：{{item.nameEn}}</li>
-                                    </ul>
-                                </div>
+                    <span class="more-link"><a href="/mall/#/hotCommodity">更多 &gt;</a></span>
+                    <div class="main-product-wrapper">
+                        <div class="main-product-item" v-for="(item, index) in mainProductList" :style='"background-image: url(" + mainImg[index] + ")"' :key="index">
+                            <a :href='"mall/#/search?productId=" + item.productId'>
+                                <span class="item-title">{{item.productName}}</span><br>
+                                <img class="item-img" :src="item.formulaImg" alt=""><br>
+                                <span class="item-content">
+                                    <dl>
+                                        <dt>CAS：{{item.cas}}</dt>
+                                        <dt>分子式：{{item.formula}}</dt>
+                                        <dt>中文别名： {{item.aliasNameCn}}</dt>
+                                    </dl>
+                                </span>
                             </a>
                         </div>
                     </div>
@@ -227,13 +247,14 @@
                     <h2>推荐销售中心</h2>
                     <div class="shop">
                         <span class="more-link"><a href="/mall/#/shop/more">更多 &gt;</a></span>
-                        <div class="gy-box bg-img" v-for="(item, index) in shopList" :style='"background-image: url(" + shopBg[index] + ")"' :key="index">
-                            <span class="company-logo bg-img" :style='"background-image: url(" + item.companyLogo + ")"'></span>
-                            <dl>
-                                <dt><a :href='"mall/#/shop/index?companyId=" + item.companyId'>{{item.companyName}}</a></dt>
-                                <dd class="products">{{item.profile}}</dd>
-                            </dl>
-                        </div>
+                        <carousel :recommendCompany='shopList'></carousel>
+                        <!--<div class="gy-box bg-img" v-for="(item, index) in shopList" :style='"background-image: url(" + shopBg[index] + ")"' :key="index">-->
+                            <!--<span class="company-logo bg-img" :style='"background-image: url(" + item.companyLogo + ")"'></span>-->
+                            <!--<dl>-->
+                                <!--<dt><a :href='"mall/#/shop/index?companyId=" + item.companyId'>{{item.companyName}}</a></dt>-->
+                                <!--<dd style="height: 25px" class="products">{{item.profile}}</dd>-->
+                            <!--</dl>-->
+                        <!--</div>-->
                     </div>
                     <!--END 推荐店铺-->
                     <!--START 特色服务-->
@@ -332,6 +353,8 @@ import socket from '@/config/socket';
 import gyHeader from '../../gypublic/src/components/gyheader.vue';
 import gyFooter from '../../gypublic/src/components/gyfooter.vue';
 import productSearch from '@/components/productSearch';
+import vueSeamless from 'vue-seamless-scroll';
+import carousel from './components/carousel';
 
 export default {
     data () {
@@ -340,10 +363,14 @@ export default {
             showSearch: false,
             kvList: [],
             mainImg: [
-                require('./assets/images/main-product.jpg'),
-                require('./assets/images/2.jpg'),
-                require('./assets/images/3.jpg'),
-                require('./assets/images/4.jpg')
+                require('./assets/images/main-product.png'),
+                require('./assets/images/2.png'),
+                '',
+                require('./assets/images/3.png'),
+                require('./assets/images/4.png'),
+                '',
+                require('./assets/images/4.jpg'),
+                ''
             ],
             bgimgHolder: {
                 kv: require('./assets/images/kv-1.jpg'),
@@ -367,7 +394,7 @@ export default {
                 featureBtm3: require('./assets/images/feature-bottom-3.jpg'),
                 featureBtm4: require('./assets/images/feature-bottom-4.png')
             },
-            hotProductBg: [require('./assets/images/recommend-bgcolor-1.jpg'), require('./assets/images/recommend-bgcolor-2.jpg'), require('./assets/images/recommend-bgcolor-3.jpg'), require('./assets/images/recommend-bgcolor-4.jpg'), require('./assets/images/recommend-bgcolor-5.jpg')],
+            hotProductBg: [require('./assets/images/recommend-bgcolor-1.png'), require('./assets/images/recommend-bgcolor-1.png'), require('./assets/images/recommend-bgcolor-1.png'), require('./assets/images/recommend-bgcolor-4.png'), require('./assets/images/recommend-bgcolor-1.png')],
             shopBg: ['', require('./assets/images/shop-bg-1.jpg'), '', require('./assets/images/shop-bg-2.jpg'), ''],
             hotProductList: [],
             mainProductList: [],
@@ -389,12 +416,20 @@ export default {
             daterange: '',
             isSupply: true,
             adList: [],
-            companyTypeId: null
+            companyTypeId: null,
+            messageList: [],
+            classOption: {
+                step: 0.4,
+                limitMoveNum: 8,
+                direction: 2
+            }
         };
     },
     components: {
         gyHeader,
         gyFooter,
+        vueSeamless,
+        carousel,
         productSearch
     },
     created () {
@@ -409,6 +444,7 @@ export default {
         this.getDealList(1, 10);
         this.getShopList();
         this.getNewsList();
+        this.getMessageList();
     },
     mounted () {
         this.setUmeng();
@@ -428,9 +464,8 @@ export default {
             if (!time) {
                 return '';
             }
-            let y, m, d, date, h, ms, s, data, hours;
+            let m, d, date, h, ms, s, data, hours;
             date = new Date(time);
-            y = date.getFullYear();
             m = date.getMonth() + 1;
             d = date.getDate();
             h = date.getHours();
@@ -464,6 +499,22 @@ export default {
                 .then(res => {
                     if (res.data.code === 0) {
                         this.kvList = res.data.data;
+                    }
+                });
+        },
+        // 行业数据
+        getMessageList () {
+            this.$http.get(this.$api.getMessageList)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.messageList = res.data.data;
+                    }
+                });
+
+            this.$http.get(this.$api.adInfo + '?position=1')
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.adList = res.data.data;
                     }
                 });
         },
@@ -520,7 +571,7 @@ export default {
         getShopList () {
             this.$http.post(this.$api.shopRecommend, {
                 pageNo: 1,
-                pageSize: 5
+                pageSize: 10
             })
                 .then(res => {
                     if (res.data.code === 0) {
@@ -587,4 +638,216 @@ export default {
             line-height: 30px;
          }
      }
+    .hysj {
+        overflow: hidden;
+        width: 100%;
+        height: 50px;
+        margin: 50px 0 25px 0;
+        &:after{
+            display: block;
+            clear: both;
+            content: ' ';
+        }
+        .hysj-logo {
+            width: 100px;
+            height: 50px;
+            margin-right: 20px;
+            /*line-height: 60px;*/
+            float: left;
+            img {
+                text-align: center;
+                width: 100px;
+                height: auto;
+            }
+        }
+        .hysj-content {
+            width: 1080px;
+            height: 50px;
+            overflow: hidden;
+            float: left;
+            .hysj-scroll {
+                width: 2000px;
+            }
+            .hysj-item {
+                width: 100px;
+                margin-right: 20px;
+                height: 32px;
+                line-height: 16px;
+                display: inline-block;
+                .hysj-item-content{
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+    .hotProductBg-bg {
+        /*background-image: url("./assets/images/recommend-bgcolor-1.png");*/
+        background: #fff;
+        overflow: visible;
+        position: relative;
+        .bg-box {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 187px;
+            background: #E6F5F5;
+            z-index: 1;
+        }
+    }
+    .hotProductBg-bg-hot {
+        /*background-image: url("./assets/images/recommend-bgcolor-4.png");*/
+        background-image: url("./assets/images/recommend-bgcolor-1.jpg");
+        .bg-box{
+            background: none;
+        }
+    }
+    .second {
+        border-width: 0!important;
+    }
+    .icon-second {
+        width: 50px!important;
+        left: auto!important;
+        right: 0;
+        top: -30px!important;
+    }
+    .main-product-wrapper {
+        &:after {
+            clear: both;
+            display: block;
+            content: ' ';
+        }
+        .main-product-item {
+            width: 280px;
+            height: 280px;
+            box-sizing: border-box;
+            margin: 0 26px 20px 0;
+            float: left;
+            transition: all 0.5s;
+            background-size: 100% 100%;
+            &:nth-child(4n){
+                margin-right: 0;
+                margin-left: 2px;
+            }
+            &:nth-child(3){
+                background: #fff;
+            }
+            &:nth-child(6){
+                background: #fff;
+                border: 1px solid $color-border;
+            }
+            &:nth-child(8){
+                background: rgba(255,248,229,1);
+            }
+            &:first-child{
+                box-shadow: 0 10px 15px 0 rgba(0, 0, 0, 0.1);
+                z-index: 9;
+            }
+            .item-title {
+                font-size: 18px;
+                font-weight: bold;
+                line-height: 1;
+                display: inline-block;
+                padding: 20px 0 0 20px;
+            }
+            .item-img {
+                width: 160px;
+                height: 160px;
+                margin-left: 60px;
+            }
+            .item-content {
+                color: $color-main!important;
+                dl{
+                    margin-left: 50px;
+                    line-height: 20px;
+                }
+            }
+        }
+        .main-product-item:hover {
+                box-shadow: 0 10px 15px 0 rgba(0, 0, 0, 0.1);
+                z-index: 9;
+                .item-title {
+                    color: #e0370f;
+                }
+        }
+    }
+    .wrap-main {
+        .hot {
+            .item {
+                padding: 0!important;
+                .default-a{
+                    padding-top: 45px;
+                    position: relative;
+                    z-index: 2;
+                    .text-content {
+                        &:after{
+                            clear: both;
+                            content: ' ';
+                            display: block;
+                        }
+                        .text-item {
+                            float: left;
+                            line-height: 1;
+                            .text{
+                                min-height: 24px;
+                                padding-top: 10px;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                        }
+                        .text-item1{
+                            width: 75px;
+                            padding-right: 8px;
+                            text-align: right;
+                            border-right: 1px solid #ccc;
+                            .text {
+                                padding-left: 10px;
+                            }
+                        }
+                        .text-item2{
+                            width: 73px;
+                            border-right: 1px solid #ccc;
+                            .text {
+                                padding-left: 8px;
+                                padding-right: 8px;
+                            }
+                        }
+                        .text-item3{
+                            width: 75px;
+                            padding-left: 10px;
+                            text-align: left;
+                            .text {
+                                padding-right: 8px;
+                            }
+                        }
+                    }
+                    .price {
+                        margin: 12px 0;
+                    }
+                }
+                .default-a-ms{
+                    .product-img {
+                        height: 120px;
+                        img {
+                            width: 120px;
+                            height: 120px;
+                        }
+                    }
+                    h5{
+                        font-size: 20px;
+                        padding-bottom: 20px;
+                        margin-top: -16px;
+                        color: #e0370f;
+                    }
+                    .img-ms {
+                        width: 100%;
+                        height: auto;
+                    }
+                }
+            }
+        }
+    }
 </style>

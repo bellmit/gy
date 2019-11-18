@@ -87,6 +87,10 @@
                   </span>
               </div>
               <div class="gy-form-group">
+                  <span class="l"><strong>*</strong>公司链接</span>
+                  <span><input type="text" class="gy-input" v-model="para.homeImgUrl"></span>
+              </div>
+              <div class="gy-form-group">
                   <span class="l"><strong>*</strong>联系人(职位)</span>
                   <span><input type="text" class="gy-input" v-model="para.contactPerson"></span>
               </div>
@@ -259,7 +263,7 @@
                       </el-radio-group>
                   </span>
               </div>
-              <div class="gy-form-group cl">
+              <div class="gy-form-group">
                   <span class="l">库区主流产品</span>
                   <span>
                     <el-select v-model="para.deliveryProductIdsList" multiple filterable placeholder="请选择或输入文字搜索">
@@ -281,7 +285,7 @@
                       </el-radio-group>
                   </span>
               </div>
-              <div class="gy-form-group cl">
+              <div class="gy-form-group">
                   <span class="l">签约时间</span>
                   <span>
                       <el-date-picker
@@ -826,7 +830,8 @@ export default {
                 provinceId: 130300,
                 companyFileList: [],
                 storageOutTypeList: [],
-                storageInTypeList: []
+                storageInTypeList: [],
+                homeImgUrl: null
             },
             typeId: null,
             storageOutTypeOptions: [],
@@ -1168,6 +1173,10 @@ export default {
             }
             if (this.para.companyNatureIds.length === 0) {
                 this.$message.error('企业性质');
+                return false;
+            }
+            if (!this.para.homeImgUrl) {
+                this.$message.error('请输入公司链接');
                 return false;
             }
             if (!(/^(0|86|17951)?(13[0-9]|15[0-9]|166|17[3678]|18[0-9]|19[0-9]|14[57])[0-9]{8}$/.test(this.para.contactMobile))) {
