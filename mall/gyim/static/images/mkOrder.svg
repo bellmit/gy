@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53 (72520) - https://sketchapp.com -->
+    <title>画板</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-4/19" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="画板">
+            <g id="分组-3" transform="translate(3.000000, 5.000000)">
+                <path d="M13.5,15 C10.4624339,15 8,12.5375661 8,9.5 C8,6.46243388 10.4624339,4 13.5,4 C16.5375661,4 19,6.46243388 19,9.5 C19,12.5375661 16.5375661,15 13.5,15 Z M13.5,14 C15.9852814,14 18,11.9852814 18,9.5 C18,7.01471863 15.9852814,5 13.5,5 C11.0147186,5 9,7.01471863 9,9.5 C9,11.9852814 11.0147186,14 13.5,14 Z" id="椭圆形" fill="#979797" fill-rule="nonzero"></path>
+                <g id="分组-4" transform="translate(11.000000, 7.000000)" fill="#D8D8D8" stroke="#979797">
+                    <rect id="矩形" x="0.5" y="2.5" width="4" height="1"></rect>
+                    <rect id="矩形" x="2.5" y="0.5" width="1" height="4"></rect>
+                </g>
+                <rect id="矩形" stroke="#979797" fill="#D8D8D8" x="2.5" y="4.5" width="7" height="1"></rect>
+                <rect id="矩形-copy" stroke="#979797" fill="#D8D8D8" x="2.5" y="7.5" width="4" height="1"></rect>
+                <rect id="矩形-copy-2" stroke="#979797" fill="#D8D8D8" x="2.5" y="10.5" width="3" height="1"></rect>
+                <rect id="矩形" stroke="#979797" fill="#D8D8D8" x="0.5" y="0.5" width="1" height="13"></rect>
+                <rect id="矩形" stroke="#979797" fill="#D8D8D8" x="1.5" y="13.5" width="4" height="1"></rect>
+                <rect id="矩形" stroke="#979797" fill="#D8D8D8" x="0.5" y="0.5" width="11" height="1"></rect>
+                <rect id="矩形" stroke="#979797" fill="#D8D8D8" x="11.5" y="0.5" width="1" height="3"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

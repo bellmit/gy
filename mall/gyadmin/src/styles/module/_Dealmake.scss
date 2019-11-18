@@ -1,0 +1,213 @@
+.deal-make{
+    background-color: #fff;
+    padding-bottom: 30px;
+    .gy-from-box{
+        overflow: hidden;
+        .gy-form-group{
+            padding: 8px 30px 8px 150px;
+            .tuli{
+                width: 60px;
+                padding-top: 16px;
+                text-align: center;
+            }
+            .uploadbox{
+                position: absolute;
+                left: 248px;
+                top: 2px;
+            }
+            .picstyle{
+                border: 1px solid #e7ecf1;
+                width: 66px;
+                height: 66px;
+                border-radius: 1.2px;
+            }
+            .isrequired::before {
+                content: "*";
+                color: #e0370f;
+                font-size: 12px;
+                font-weight: 400;
+                position: absolute;
+                margin-left: -8px;
+                left: 0px;
+                top: 0;
+            }
+            .zhiinline{
+                display: inline-block;
+                width: 92%;
+            }
+        }
+    }
+    .gy-form-button{
+        margin: 20px 0px 30px 0;
+    }
+    h2, h3{
+        margin: 0;
+        span{
+            font-size: $small-font;
+            color: $color-main;
+            margin-left: 50px;
+            font-weight: normal;
+        }
+    }
+    h2{
+        border-bottom: 1px solid $color-border;
+    }
+    h3{
+        padding: 20px 30px;
+        line-height: 1;
+        font-size: $body-font-size;
+        position: relative;
+        color: $color-title;
+        i{
+            font-size: 14px;
+            font-weight: 100;
+            margin-right: 5px;
+            width: 14px;
+            height: 14px;
+            line-height: 14px;
+            text-align: center;
+            position: absolute;
+            top: 20px;
+            left: 11px;
+            color: #666666;
+        }
+        &.title-detail{
+            margin-top: -28px;
+        }
+    }
+    &.order{
+        font-size: 14px;
+        .t{
+            overflow: hidden;
+            .tabs{
+                float: left;
+                overflow: hidden;
+                padding: 20px 0;
+                line-height: 1;
+                margin-top: 0 !important;
+                li{
+                    float: left;
+                    line-height: 30px;
+                    height: 30px;
+                    padding: 0 8px;
+                    position: relative;
+                    &.all{
+                        padding-right: 8px;
+                    }
+                    &.selected{
+                        a{
+                            color: $color-highlight;
+                        }
+                        &:after{
+                            position: absolute;
+                            width: 100%;
+                            left: 0;
+                            bottom: 0;
+                            content: '';
+                            background-color: $color-highlight;
+                            height: 2px;
+                        }
+                    }
+                }
+                li:hover{
+                    cursor: pointer;
+                }
+            }
+            .search{
+                float: right;
+                overflow: hidden;
+                padding: 20px 30px 0px 0;
+                .se-left1{
+                    float: left;
+                    width: 216px;
+                    border-bottom: 1px solid #b5b5b5;
+                    input{
+                        border: none;
+                        width: 190px;
+                    }
+                }
+                .se-left11{
+                    float: left;
+                    width: 160px;
+                    margin-right: 5px;
+                    border-bottom: 1px solid #b5b5b5;
+                    input{
+                        border: none;
+                        width: 135px;
+                    }
+                }
+                .se-left2{
+                    float: left;
+                    display: inline-block;
+                    margin-left: 2px;
+                    i{
+                        vertical-align: top;
+                    }
+                }
+                .se-left2:hover{
+                    cursor: pointer;
+                }
+            }
+        }
+        .gy-table{
+            tr:hover{
+                background-color: transparent;
+            }
+            .title{
+                font-weight: bold;
+                color: red;
+            }
+        }
+        .item{
+            padding: 0;
+            .item-t{
+                background-color: #f8f9fb;
+                padding: 0 16px;
+                overflow: hidden;
+                line-height: 35px;
+                i{
+                    margin-left: 5px;
+                    font-size: $small-font;
+                    cursor: pointer;
+                }
+                span{
+                    strong{
+                        font-weight: normal;
+                        color: $color-minor;
+                    }
+                }
+            }
+            .pro-info{
+                width: 100%;
+                span{
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+                .img{
+                    height: 60px;
+                    width: 60px;
+                    background-position: center center;
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    border-radius: $border-radius-base;
+                    border: 1px solid $color-border;
+                    display: inline-block;
+                    margin-right: 10px;
+                }
+                .name{
+                    width: 120px;
+                    text-align: left;
+                }
+            }
+            .gy-table{
+                border: none;
+            }
+            .contact{
+                color: $color-extra;
+                i{
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+}
