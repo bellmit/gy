@@ -5,7 +5,9 @@ const config = require('../config');
 const vueLoaderConfig = require('./vue-loader.conf');
 const spritesmithPlugin = require('webpack-spritesmith');
 const spriteTemplater = require('spritesheet-templates');
+const HappyPack = require('happypack');
 const fs = require('fs');
+const webpack = require('webpack');
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir);
@@ -58,10 +60,18 @@ module.exports = {
                 options: vueLoaderConfig
             },
             {
-                test: /\.js$/,
-                loader: 'babel-loader',
-                include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
+                test:/\.js$/,
+                include:[resolve('src')],
+                exclude:/node_modules/,
+                //id后面的内容下面
+                loader:'happypack/loader?id=happybabel'
             },
+            // {
+            //     test: /\.js$/,
+            //     loader: 'babel-loader?cacheDirectory=true',
+            //     exclude: /node_modules/,
+            //     include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
+            // },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
                 loader: 'url-loader',
@@ -82,7 +92,7 @@ module.exports = {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
                 loader: 'url-loader',
                 options: {
-                    limit: 10000,
+                    limit: 100000,
                     name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
                 }
             }
@@ -106,7 +116,14 @@ module.exports = {
                 padding: 20
             },
             retina: '@2x'
-        })
+        }),
+        new HappyPack({
+            id:'happybabel',
+            loaders:['babel-loader?cacheDirectory'],
+            //开启4个线程
+            threads: 4
+        }),
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /zh-cn/)
     ],
     node: {
         // prevent webpack from injecting useless setImmediate polyfill because Vue

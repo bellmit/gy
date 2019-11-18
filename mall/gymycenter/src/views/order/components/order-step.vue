@@ -3,11 +3,9 @@
 -->
 <template>
     <div class="order-step">
-        <div v-if="orderData.orderStatus === 5">
-            {{ orderData.orderType === 'buy' ? '您已驳回订单，请重新创建订单' : '买方已驳回订单，请重新创建订单。' }}
-        </div>
-        <template v-else>
-            <div class="">
+        <template>
+            <div style="margin-left: -5px">
+                <i v-show="stepData.title === '失效'" class="iconfont icon-dingdanxinxi left_i"></i>
                 <i v-show="stepData.title === '签约'" class="iconfont icon-qianyue left_i "></i>
                 <i v-show="stepData.title === '收款与交割'" class="iconfont icon-shoukuanyujiaoge left_i "></i>
                 <span class="right_span">{{ stepData.title }}</span>
@@ -25,36 +23,36 @@
             </div>
             <div class="order-btn-group">
                 <span class="newspan"><strong class="wxts">温馨提示：</strong>{{ stepData.tips }}</span>
-                <div v-if="viewContract" class="contract-view" @click="showContractAll">合同预览<i
+                <div v-if="viewContract" class="contract-view" @click="showContractAlls">合同预览<i
                     class="iconfont icon-ca"></i></div>
-                <button class="gy-button-views" style="cursor:pointer" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
+                <button class="gy-button-views" style="cursor:pointer;font-size: 14px;" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
                 <button v-for="(item, index) in btnList" :key="index" @click="orderOperation(item.function, item)"
                         :class="{'gy-button-normal': true, 'gy-button-extra': index === btnList.length - 1 }">{{
                     item.button }}
                 </button>
             </div>
-            <el-dialog title="发货" :visible.sync="billFormVisible" width="600px" class="dialog">
+            <el-dialog title="发货" :visible.sync="billFormVisible" width="750px" class="dialog">
                 <el-form :model="billForm" size="mini">
                     <div class="base-info">
                         <dl>
-                            <dt>买家:</dt>
+                            <dt>买家</dt>
                             <dd>{{orderData.buyerCompanyName}}</dd>
                         </dl>
                         <dl>
-                            <dt>订单号:</dt>
+                            <dt>订单号</dt>
                             <dd>{{orderData.odrOrderSn}}</dd>
                         </dl>
                         <dl>
-                            <dt>交割库:</dt>
+                            <dt>交割库</dt>
                             <dd>{{orderData.orderItemList && orderData.orderItemList[0].deliveryWarehouseName}}</dd>
                         </dl>
                         <dl>
                             <dt>交割库地址</dt>
-                            <dd>{{ orderData.orderItemList && orderData.orderItemList[0].deliveryDetailedAddress}}</dd>
+                            <dd>{{orderData.orderItemList && orderData.orderItemList[0].deliveryDetailedAddress}}</dd>
                         </dl>
                         <dl>
                             <dt>交付方式</dt>
-                            <dd>{{ orderData.deliveryType === 1 ? '买家自提' : '卖家代运'}}</dd>
+                            <dd>{{orderData.deliveryType === 1 ? '买家自提' : '卖家代运'}}</dd>
                         </dl>
                         <dl>
                             <dt>上传相关凭证</dt>
@@ -63,27 +61,31 @@
                             </dd>
                         </dl>
                     </div>
-                    <table>
+                    <table class="gy-table hqd-table">
+                        <thead>
                         <tr>
-                            <td>品名</td>
-                            <td>订单数量</td>
-                            <td>已出库数量</td>
-                            <td>本次出库数量</td>
-                            <td>操作</td>
+                            <th>品名</th>
+                            <th>订单数量（吨）</th>
+                            <th>已出库数量（吨）</th>
+                            <th>本次出库数量（吨）</th>
+                            <th>操作</th>
                         </tr>
+                        </thead>
                         <tr v-for="(item, index) in orderData.orderItemList" :key="index">
                             <td>{{item.skuName}}</td>
-                            <td>{{item.skuQuantity}} {{item.infUnitOfMeasureDisplayName}}</td>
-                            <td>{{ item.quantityIssued | numToCash(3) }} {{item.infUnitOfMeasureDisplayName}}</td>
-                            <td><input type="number" v-model="billFormData.outNum"> <span>{{item.infUnitOfMeasureDisplayName}}</span></td>
-                            <td>删除</td>
+                            <td class="align-r">{{item.skuQuantity}}</td>
+                            <td class="align-r">{{ item.quantityIssued | numToCash(3) }}</td>
+                            <td class="align-r"><input v-model="billFormData.outNum"></td>
+                            <td class="align-c">-</td>
                         </tr>
                     </table>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
+                    <!--<el-checkbox v-if="orderData.isBatchDelivery === 1" v-model="isDeliveryFinish">如果货已发完，请点击发货完成，直接进入结算环节。</el-checkbox>-->
                     <button class="gy-button-extra" @click="billSubmit">提交</button>
-                    <button v-if="orderData.isBatchDelivery === 1" class="gy-button-normal" @click="billDone">完成
+                    <button v-if="orderData.isBatchDelivery === 1" class="gy-button-normal" @click="billDone">发货已完成
                     </button>
+                    <i v-if="orderData.isBatchDelivery === 1" style="position: absolute;right:22px;margin-top:-14px;" class="iconfont icon-tishi2" title="如果本次发货后已全部发完，点击后将强制结束发货进入结算流程。"></i>
                 </div>
             </el-dialog>
 
@@ -101,10 +103,11 @@
                 </span>
             </el-dialog>
 
+            <!-- 合同预览使用的dialog上传图片 -->
             <el-dialog title="合同" width="600px" class="settle-dialogs"
                        :visible.sync="signUnderLineData.visible">
 
-                <gy-upload v-if="orderData.orderType === 'sell'" :url="imgApi"
+                <gy-upload v-if="orderData.orderType === 'sell'" :url="newimgApi"
                            v-model="signUnderLineData.list"></gy-upload>
 
                 <div v-else class="previewer-img">
@@ -147,6 +150,83 @@
         </template>
         <!-- 审批历史 弹窗组件 -->
         <approveHistory ref="myApprHisDlg"></approveHistory>
+        <!-- 合同预览图片 -->
+        <el-dialog title="图片预览" :visible.sync="previewerImgOrder.visible" width="600px" hight="1000px">
+            <el-carousel ref="previewerImgOrder" trigger="click" :autoplay="false" v-show="previewerImgOrder.list.length!=0">
+                <el-carousel-item v-for="(item, index) in previewerImgOrder.list" :key="index">
+                    <img class="previewer-img-detail" :src="item.filepath" style="width: 100%;height: 100%">
+                </el-carousel-item>
+            </el-carousel>
+            <img v-show="previewerImgOrder.list.length==0" src="@/assets/images/fp.png" alt="" style="width: 100%;height: 100%">
+        </el-dialog>
+        <!-- 确认收货弹出 -->
+        <el-dialog
+            class='hqd-dialog base-info'
+            title="货权交割信息"
+            :visible.sync="hqdialogVisible"
+            :close-on-click-modal="true"
+            :close-on-press-escape="true"
+            width="750px">
+            <div class='clearfix'>
+                <dl>
+                    <dt>买家</dt>
+                    <dd>{{orderData.buyerCompanyName}}</dd>
+                </dl>
+                <dl>
+                    <dt>订单号</dt>
+                    <dd>{{orderData.odrOrderSn}}</dd>
+                </dl>
+                <dl>
+                    <dt>交割库</dt>
+                    <dd>{{orderData.orderItemList && orderData.orderItemList[0].deliveryWarehouseName}}</dd>
+                </dl>
+                <dl>
+                    <dt>交割库地址</dt>
+                    <dd>{{orderData.orderItemList && orderData.orderItemList[0].deliveryDetailedAddress}}</dd>
+                </dl>
+                <dl>
+                    <dt>交付方式</dt>
+                    <dd>{{orderData.deliveryType === 1 ? '买家自提' : '卖家代运'}}</dd>
+                </dl>
+                <dl class="hqdpz">
+                    <dt>货权单凭证</dt>
+                    <dd v-if="img && img.indexOf('.pdf') !== -1">
+                        <a :href="item.filePath" v-for="item in imgList" :key="item.createdDate" target="_blank"><img src="../../../assets/images/pdf.png" alt=""></a>
+                    </dd>
+                    <dd v-else>
+                        <img v-if="img" :src="img" alt="" @click="showImg">
+                    </dd>
+                </dl>
+            </div>
+            <table class="gy-table hqd-table">
+                <thead>
+                <tr>
+                    <th>品名</th>
+                    <th>订单数量（吨）</th>
+                    <th>发货数量（吨）</th>
+                    <th>签收数量（吨）</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(item, index) in hqdData.deliveryOrderItemList" :key="index">
+                    <td>{{item.skuName}}</td>
+                    <td class="align-r">{{item.skuQuantity}}</td>
+                    <td class="align-r">{{item.quantityPlanned}}</td>
+                    <td class="align-r">
+                        <input v-model="item.quantityLoading">
+                    </td>
+                    <td class="align-c">-</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="footer">
+                <span>
+                    <strong class="wxts">温馨提示：</strong>请收到货后，在确认收货！确认收货后款项就会打给对方。
+                </span>
+                <button class="gy-button-extra fr" @click="confirmReceipt">确认收货</button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -195,6 +275,10 @@ export default {
                         {
                             name: '完成',
                             remark: '备注'
+                        },
+                        {
+                            name: '失效',
+                            remark: '备注'
                         }
                     ],
                     btnList: [
@@ -222,13 +306,24 @@ export default {
     },
     data () {
         return {
+            hqdialogVisible: false,
+            confirmDeliveryList: [],
+            mockList: [
+                {
+                    id: 0,
+                    val: 'is'
+                }
+            ],
+            consignment: {},
             pdfThumbnail: require('../../../assets/images/pdf.png'),
             previewerImg: {
                 visible: false,
                 list: []
             },
+            newimgApi: '',
             imgApi: '',
             billFormVisible: false,
+            sellerbillForm: [],
             billForm: {},
             billFormData: {
                 voucher: [],
@@ -250,12 +345,24 @@ export default {
                 visible: false,
                 list: []
             },
+            previewerImgOrder: {
+                list: [],
+                visible: false
+            },
             viewContract: false, // 查看合同
             isUseContractPSW: false,
             dialogVisible: false,
             contractPasswd: '',
             isApproving: false, // 是否正在合同审批中
-            apprTargetType: 0 // 审批对象类型(因为签约和结算都用到这个'order-step'，所以要做区分)
+            apprTargetType: 0, // 审批对象类型(因为签约和结算都用到这个'order-step'，所以要做区分)
+            hqdData: [],
+            img: null,
+            imgList: [],
+            isRefund: {
+                visible: false,
+                list: []
+            },
+            isDeliveryFinish: false
         };
     },
     computed: {
@@ -342,6 +449,17 @@ export default {
             });
         },
         showContractAll () {
+            let orderId = this.orderData.id;
+            this.$http.get(this.$api.invoice.DocUrl + orderId + '/contracts/getDocUrl')
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.previewerImgOrder.list = res.data.data.fileList;
+                        this.previewerImgOrder.visible = true;
+                    }
+                });
+        },
+        // 修改
+        showContractAlls () {
             if (this.orderData.orderType === 'buy') {
                 this.getCountract();
             } else {
@@ -422,7 +540,9 @@ export default {
             this.$http.get(`trade/v1/orders/${this.orderData.id}/deliveryQuantity`).then((res) => {
                 this.billFormData.outNum = res.data.data.orderItemList[0].quantityPlanned || 0;
             });
+            this.billFormData.voucher = [];
             this.billFormVisible = true;
+            this.sellerbillForm = data;
         },
         // 卖方催货款  卖方
         sellerAskForPayment (data) {
@@ -434,17 +554,17 @@ export default {
         },
         // 卖方结算卖方
         sellerStartSettlement (data) {
-            // 找丁行
+            //
             this.$router.push({name: 'sellerSettle', query: {orderId: this.orderData.id, dialogVisible: true}});
         },
         // 卖方结算付款  卖方
         sellerSettlementPayment (data) {
-            // 找丁行
+            //
             this.$router.push({name: 'sellerSettle', query: {orderId: this.orderData.id, dialogVisible: true}});
         },
         // 卖方查看结算  卖方
         sellerViewSettlement (data) {
-            // 找丁行
+            //
         },
         // 卖方结算催款  卖方
         sellerAskForSettlement (data) {
@@ -520,7 +640,28 @@ export default {
         },
         // 卖方结束发货  卖方
         sellerEndDelivery (data) {
-            // 等接口
+            var that = this;
+            that.$confirm('<span><i class="iconfont icon-message-warning"></i>如果您的货已发完，可以强制结束，进入结算环节，是否确认发货完成？</span>', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                dangerouslyUseHTMLString: true
+            }).then(() => {
+                let params = {
+                    odrOrderId: that.orderData.id,
+                    allowedFunctionsId: data.id
+                };
+                that.$http.post(that.$api.order.deliveries, params).then(res => {
+                    if (res.data.code === 0) {
+                        that.$message({
+                            type: 'info',
+                            message: res.data.message
+                        });
+                        location.reload();
+                        return;
+                    }
+                    that.$message(res.data.message);
+                });
+            });
         },
         // 卖方线下签约  卖方
         sellerSignOffline (data) {
@@ -577,48 +718,132 @@ export default {
         },
         // 创建货权单
         billSubmit () {
-            let deliveryOrderItemList = [];
-            this.orderData.orderItemList.map(item => {
-                deliveryOrderItemList.push(Object.assign(item, {
-                    quantityPlanned: this.billFormData.outNum
-                }));
-            });
-            this.$http.post(this.$api.order.delivery, {
-                odrOrderId: this.orderData.id,
-                deliveryMethod: this.orderData.deliveryType,
-                estimatedArrivalEndTimestamp: this.orderData.orderItemList && this.orderData.orderItemList[0].deliveryEndDate,
-                estimatedArrivalStartTimestamp: this.orderData.orderItemList && this.orderData.orderItemList[0].deliveryBeginDate,
-                deliveryOrderFileList: [
-                    {
-                        filePath: this.billFormData.voucher && this.billFormData.voucher[0] && this.billFormData.voucher[0].filePath
-                        // quantityPlanned: this.billFormData.outNum,
-                        // skuCode: this.orderData.orderItemList && this.orderData.orderItemList[0].skuCode,
-                        // skuName: this.orderData.orderItemList && this.orderData.orderItemList[0].skuName
+            // if (Number(this.billFormData.outNum) === 0) {
+            //     this.$message.error('请输入本次出库数量，数量不能为0');
+            //     return;
+            // }
+            this.$alert('请确认已上传发货凭证，并准确填写本次发货数量。提交后无法修改。', '提示', {type: 'warning'}).then(() => {
+                let deliveryOrderItemList = [];
+                this.orderData.orderItemList.map(item => {
+                    deliveryOrderItemList.push(Object.assign(item, {
+                        quantityPlanned: this.billFormData.outNum
+                    }));
+                });
+                if (this.billFormData.voucher && this.billFormData.voucher[0] && this.billFormData.voucher[0].filePath) {
+                    let voucher = [];
+                    for (let val of this.billFormData.voucher.values()) {
+                        voucher.push({
+                            filePath: val && val.filePath
+                        });
                     }
-                ],
-                deliveryOrderItemList: deliveryOrderItemList,
-                loadingWarehouseAddress: deliveryOrderItemList[0].deliveryDetailedAddress
-            }).then((res) => {
-                if (res.data.code === 0) {
-                    this.billFormVisible = false;
-                    this.$emit('updateData');
+                    this.consignment = {
+                        isDeliveryFinish: this.isDeliveryFinish ? 1 : 0,
+                        allowedFunctionsId: this.sellerbillForm.id,
+                        odrOrderId: this.orderData.id,
+                        deliveryMethod: this.orderData.deliveryType,
+                        estimatedArrivalEndTimestamp: this.orderData.orderItemList && this.orderData.orderItemList[0].deliveryEndDate,
+                        estimatedArrivalStartTimestamp: this.orderData.orderItemList && this.orderData.orderItemList[0].deliveryBeginDate,
+                        deliveryOrderFileList: voucher,
+                        deliveryOrderItemList: deliveryOrderItemList,
+                        loadingWarehouseAddress: deliveryOrderItemList[0].deliveryDetailedAddress
+                    };
+                } else {
+                    this.consignment = {
+                        isDeliveryFinish: this.isDeliveryFinish ? 1 : 0,
+                        allowedFunctionsId: this.sellerbillForm.id,
+                        odrOrderId: this.orderData.id,
+                        deliveryMethod: this.orderData.deliveryType,
+                        estimatedArrivalEndTimestamp: this.orderData.orderItemList && this.orderData.orderItemList[0].deliveryEndDate,
+                        estimatedArrivalStartTimestamp: this.orderData.orderItemList && this.orderData.orderItemList[0].deliveryBeginDate,
+                        deliveryOrderFileList: [],
+                        deliveryOrderItemList: deliveryOrderItemList,
+                        loadingWarehouseAddress: deliveryOrderItemList[0].deliveryDetailedAddress
+                    };
                 }
+                this.$http.post(this.$api.order.deliveries, this.consignment).then((res) => {
+                    if (res.data.code === 0) {
+                        this.billFormVisible = false;
+                        this.$emit('updateData');
+                    }
+                });
             });
         },
         // 发货完成
         billDone () {
-            this.$http.post(this.$api.order.sign, {
-                orderId: this.orderData.id,
-                orderStatus: -1,
-                allowedFunctionsId: 27
-            }).then((res) => {
+            this.isDeliveryFinish = true;
+            this.billSubmit();
+        },
+        showImg () {
+            this.previewerImgOrder.visible = true;
+            this.imgList.map(item => {
+                item['filepath'] = item.filePath;
+            });
+            this.previewerImgOrder.list = this.imgList;
+        },
+        // 买方确认收货按钮
+        confirmDelivery (data) {
+            var that = this;
+            if (data.id === 58) {
+                that.$confirm('<span><i class="iconfont icon-message-warning"></i>确认收货后前一笔货款将支付给对方，是否确认？</span>', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    dangerouslyUseHTMLString: true
+                }).then(() => {
+                    let params = {
+                        allowedFunctionsId: data.id,
+                        odrOrderId: that.orderData.id
+                    };
+                    that.$http.post(this.$api.order.deliveries, params).then(res => {
+                        if (res.data.code === 0) {
+                            that.$message({
+                                type: 'info',
+                                message: res.data.message
+                            });
+                            location.reload();
+                            return;
+                        }
+                        that.$message(res.data.message);
+                    });
+                });
+            } else if (data.id === 53) {
+                that.hqdialogVisible = true;
+                that.confirmDeliveryList = data;
+                that.$http.get(that.$api.order.confirm + that.orderData.id).then(res => {
+                    if (res.data.code === 0) {
+                        that.hqdData = res.data.data[0];
+                        that.img = that.hqdData.deliveryOrderFileList.length !== 0 && that.hqdData.deliveryOrderFileList[0].filePath;
+                        that.hqdData.deliveryOrderFileList.length !== 0 && (that.imgList = that.hqdData.deliveryOrderFileList);
+                        return;
+                    }
+                    that.$message(res.data.message);
+                });
+            }
+        },
+        // 确认收货
+        confirmReceipt () {
+            let params = {
+                deliveryOrderId: this.hqdData.deliveryOrderId,
+                allowedFunctionsId: this.confirmDeliveryList.id,
+                odrOrderId: this.orderData.id,
+                deliveryOrderItemList: []
+            };
+            this.hqdData.deliveryOrderItemList.map(item => {
+                params.deliveryOrderItemList.push({
+                    deliveryOrderItemId: item.deliveryOrderItemId,
+                    quantityUnloading: Number(item.quantityLoading)
+                });
+            });
+            this.$http.post(this.$api.order.deliveries, params).then(res => {
                 if (res.data.code === 0) {
-                    this.billFormVisible = false;
-                    this.$message('操作成功');
-                    this.$emit('updateData');
-                } else {
-                    this.$message(res.data.message);
+                    this.hqdialogVisible = false;
+                    this.$message({
+                        type: 'info',
+                        message: res.data.message
+                    });
+                    location.reload();
+                    return;
                 }
+                this.$message(res.data.message);
             });
         },
         // 线下签约
@@ -719,10 +944,48 @@ export default {
             }
 
             this.$refs.myApprHisDlg.getAppHisList(params);
+        },
+        // 申请退款
+        buyerApplyRefund (data) {
+            this.applyRefund('请确认是否申请退款？', data);
+        },
+        // 同意退款
+        sellerAgreeRefund (data) {
+            this.applyRefund('请确认是否同意退款申请？', data);
+        },
+        // 驳回退款
+        sellerRejectRefund (data) {
+            this.applyRefund('请确认是否驳回退款申请', data);
+        },
+        applyRefund (text, data) {
+            var that = this;
+            that.$confirm('<span><i class="iconfont icon-message-warning"></i>' + text + '</span>', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                dangerouslyUseHTMLString: true
+            }).then(() => {
+                let params = {
+                    odrOrderId: that.orderData.id,
+                    allowedFunctionsId: data.id
+                };
+                that.$http.post(that.$api.order.deliveries, params).then(res => {
+                    if (res.data.code === 0) {
+                        that.$message({
+                            type: 'info',
+                            message: res.data.message
+                        });
+                        location.reload();
+                        return;
+                    }
+                    that.$message(res.data.message);
+                });
+            });
         }
     },
     created () {
         this.getContractPwd();
+        // 更改合同上传图片的路径
+        this.newimgApi = this.$api.salesOrde.upload;
     },
     mounted () {
         this.checkApproveStatus();
@@ -735,15 +998,46 @@ export default {
         overflow: auto;
     }
     .order-step .el-carousel__container{height:600px}
+    .order-step .el-checkbox{margin-right:0;}
+    .order-step .el-checkbox__input.is-checked+.el-checkbox__label{color: #606266;}
+    .order-step{
+        .el-dialog__footer{
+            padding: 0 30px 30px;
+       }
+    }
+    .hqd-dialog {
+        .el-dialog__body {
+            padding: 20px 16px 30px;
+        }
+    }
 </style>
-
 <style lang="scss" scoped>
     @import '../../../styles/mixin/_index.scss';
-
-    .base-info {
-        margin: 10px;
+    .hqd-dialog {
+        .gy-form-group {
+            .l {
+                padding-left: 0;
+            }
+        }
+        table {
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            span {
+                color: #666;
+                font-size: 14px;
+                strong {
+                    color: #EEA443;
+                    font-weight: bold;
+                }
+            }
+        }
     }
-
+    .hqdpz img {
+        width: 32px;
+        height: auto;
+    }
     .base-info dl {
         width: 50%;
         float: left;
@@ -752,16 +1046,17 @@ export default {
         min-height: 30px;
         margin: 0;
         dt {
-            width: 80px;
+            width: 85px;
             float: left;
             margin: auto 10px;
             color: $color-title;
-            font-weight: bold;
+            font-size: 14px;
         }
         dd {
             float: left;
             color: $color-main;
             padding-left: 10px;
+            font-size: 14px;
             img {
                 width: 30px;
                 height: 20px;
@@ -781,9 +1076,9 @@ export default {
         padding-top: 4px;
         /*line-height: 3em;*/
         text-align: center;
-        color: blue;
-        font-size: 12px;
-
+        color: #4A90e2;
+        font-size: 14px;
+        cursor: pointer;
         i {
             margin-left: 3px;
             font-size: 12px;
@@ -801,7 +1096,7 @@ export default {
         .left_i{
             font-size: 12px;
             color: #333;
-            margin-right: 2px;
+            margin-right: 4px;
             vertical-align: bottom;
         }
         .right_span{
@@ -844,7 +1139,6 @@ export default {
         .newspan{
             font-size: 14px;
             color: #666;
-            font-weight: bold;
         }
     }
 
@@ -863,5 +1157,10 @@ export default {
     }
     .gy-form-button {
         padding-right: 0;
+    }
+    .title-fh{
+        td{
+            font-weight: bold;
+        }
     }
 </style>

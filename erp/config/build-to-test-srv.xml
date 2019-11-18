@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Api Doc For Win" default="sendto_TestSrv_129" basedir=".">
+
+    <property name="hostip" value="192.168.10.132"/>
+    <property name="username" value="qianduan"/>
+    <property name="password" value="qianduan"/>
+    <property name="remote.path" value="qianduan:qianduan@192.168.10.132:/opt/nginx/html"/>
+    <property name="hostip.129" value="192.168.10.212"/>
+    <property name="username.129" value="qianduan"/>
+    <property name="password.129" value="qianduan"/>
+    <property name="remote.path.129" value="qianduan:qianduan@192.168.10.212:/opt/nginx/html"/>
+
+    <!-- 执行方式：ant -f build-to-test-srv.xml sendto_TestSrv -->
+    <target name="sendto_TestSrv">
+        <exec executable="cmd" dir="../">
+          <arg value="/c"/>
+          <!-- -->
+          <arg value="npm run build:prod"/>
+        </exec>
+        <sshexec host="${hostip}" username="${username}" password="${password}" trust="true" command="rm -rf /opt/nginx/html/erp/static"/>
+        <scp todir="${remote.path}/erp" trust="true">
+            <fileset dir="..\dist"/>
+        </scp>
+        <tstamp>
+            <format property="touch.time" pattern="yyyy-MM-dd hh:mm" />
+        </tstamp>
+        <echo message="${touch.time}" />
+    </target>
+
+    <!-- 执行方式：ant -f build-to-test-srv.xml sendto_TestSrv_129 -->
+    <target name="sendto_TestSrv_129">
+        <exec executable="cmd" dir="../">
+            <arg value="/c"/>
+            <!-- -->
+            <arg value="npm run build:prod"/>
+        </exec>
+        <sshexec host="${hostip.129}" username="${username.129}" password="${password.129}" trust="true" command="rm -rf /opt/nginx/html/erp/static"/>
+        <scp todir="${remote.path.129}/erp" trust="true">
+            <fileset dir="..\dist"/>
+        </scp>
+        <tstamp>
+            <format property="touch.time" pattern="yyyy-MM-dd HH:mm" />
+        </tstamp>
+        <echo message="${touch.time}" />
+    </target>
+
+</project>
+

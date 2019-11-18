@@ -10,7 +10,7 @@
                 <button class="gy-button gy-button-extra" @click="showaddAdress">添加新收货地址</button>
             </div>
             <div class="mytable">
-                <table>
+                <table  class="gy-table">
                     <thead>
                     <tr class="title">
                         <td>收货人</td>
@@ -38,7 +38,7 @@
                             <td>
                                 <div>{{item.receivePhone}}</div>
                             </td>
-                            <td class="button-box">
+                            <td class="button-box align-c">
                                 <span class="gy-button-view" @click="editAddress(item)">编辑</span>
                                 <span class="gy-button-view" @click="deleteAddress(item.id)">删除</span>
                                 <span class="gy-view" v-if="item.defaults === 1">默认地址</span>
@@ -47,13 +47,12 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="totaljl">
-                     共{{addressList.length}}条记录
-                </div>
+                <!-- <div class="totaljl">
+                     共 {{addressList.length}} 条记录
+                </div> -->
             </div>
-        <el-dialog width="40%" class="addDialog AddressManagement" title="编辑收货人信息"
+        <el-dialog width="820px" class="addDialog AddressManagement" :title="isEdit?'编辑收货人信息':'新增收货人信息'"
                    :visible.sync="dialogVisible">
-            <div class="gy-form">
                 <div class="gy-form-group">
                     <span class="l"><strong>*</strong>省份城区:</span>
                     <el-row>
@@ -91,42 +90,33 @@
                         </el-col>
                     </el-row>
                 </div>
-            </div>
-            <div class="gy-form">
                 <div class="gy-form-group">
                     <span class="l"><strong>*</strong>详细地址:</span>
                     <div class="r">
                         <input type="text" v-model="addAdressList.address">
                     </div>
                 </div>
-            </div>
-            <div class="gy-form">
                 <div class="gy-form-group">
                     <span class="l"><strong>*</strong>邮政编码:</span>
                     <div class="r">
                         <input type="text" v-model="addAdressList.postCode">
                     </div>
                 </div>
-            </div>
-            <div class="gy-form">
                 <div class="gy-form-group">
                     <span class="l"><strong>*</strong>收货人姓名:</span>
                     <div class="r">
                         <input type="text" v-model="addAdressList.receiveName">
                     </div>
                 </div>
-            </div>
-            <div class="gy-form">
                 <div class="gy-form-group">
                     <span class="l"><strong>*</strong>手机号码:</span>
                     <div class="r">
                         <input type="text" v-model="addAdressList.receivePhone">
                     </div>
                 </div>
-            </div>
-            <span slot="footer" class="dialog-footer">
+            <div slot="footer" class="dialog-footer">
                 <button class="gy-button-extra confirmations" @click="addAdress()">确定</button>
-            </span>
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -279,7 +269,8 @@ export default {
                                 address: null,
                                 postCode: null,
                                 receiveName: null,
-                                receivePhone: null
+                                receivePhone: null,
+                                email: null
                             };
                             this.getAddressList();
                         });
@@ -336,7 +327,7 @@ export default {
                 });
         },
         deleteAddress (id) {
-            this.$confirm('确定设置该条地址吗？', '提示')
+            this.$confirm('请确认是否删除该条地址？', '提示', {type: 'warning'})
                 .then(() => {
                     this.$http.post(this.$api.point.deleteAddress, {
                         id: id
@@ -366,36 +357,6 @@ export default {
                 margin-right: 24px;
                 font-weight: 600;
             }
-        }
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        td {
-            color: $color-main;
-            font-size: 12px;
-            border: 0;
-            vertical-align: middle;
-            text-align: center;
-        }
-        .list-head {
-            border: 1px solid $color-border;
-            border-top: 0;
-            td {
-                padding: 10px;
-            }
-            &:nth-child(even) {
-                background: #fbfbfc;
-            }
-        }
-        .title {
-            background-color: #EEF3F8;
-            border: 1px solid $color-border;
-            border-bottom: 0;
-        }
-        .title td {
-            padding: 10px;
         }
     }
 
@@ -452,7 +413,7 @@ export default {
             }
         }
         .confirmations {
-            margin-right: 40px;
+            // margin-right: 20px;
         }
     }
 
@@ -481,6 +442,9 @@ export default {
             margin-right: 10px;
         }
     }
+    .dialog-footer {
+        margin-top: 8rem ;
+    }
 </style>
 <style lang="scss" scoped>
     .AddressManagement .el-dialog__header {
@@ -490,5 +454,23 @@ export default {
         margin-top: 20px;
         font-size: 12px;
         color: #666;
+    }
+     .gy-form-group {
+        padding: 8px 30px 8px 115px;
+            .l {
+            width: 105px;
+        }
+    }
+</style>
+<style lang="scss">
+    .addDialog {
+        // position: absolute;
+        margin-top:25vh ;
+        .el-dialog__body {
+            padding: 10px 0;
+        }
+        .el-dialog__footer {
+            padding:30px;
+        }
     }
 </style>

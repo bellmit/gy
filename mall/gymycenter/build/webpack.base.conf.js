@@ -7,9 +7,9 @@ const spritesmithPlugin = require('webpack-spritesmith');
 const spriteTemplater = require('spritesheet-templates');
 const fs = require('fs');
 
-function resolve(dir) {
+function resolve (dir) {
     return path.join(__dirname, '..', dir);
-};
+}
 
 spriteTemplater.addHandlebarsTemplate(
     'scss_retina',
@@ -46,7 +46,7 @@ module.exports = {
         extensions: ['.js', '.vue', '.json'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            '@': resolve('src'),
+            '@': resolve('src')
         }
     },
     module: {
@@ -63,10 +63,10 @@ module.exports = {
                 include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
             },
             {
-                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                test: /\.(png|jpe?g|gif|svg|pdf)(\?.*)?$/,
                 loader: 'url-loader',
                 options: {
-                    limit: 10000,
+                    limit: 1000000,
                     name: utils.assetsPath('images/[name].[hash:7].[ext]')
                 }
             },
@@ -74,7 +74,7 @@ module.exports = {
                 test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
                 loader: 'url-loader',
                 options: {
-                    limit: 10000,
+                    limit: 100000,
                     name: utils.assetsPath('media/[name].[hash:7].[ext]')
                 }
             },
@@ -82,7 +82,7 @@ module.exports = {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
                 loader: 'url-loader',
                 options: {
-                    limit: 10000,
+                    limit: 100000,
                     name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
                 }
             }

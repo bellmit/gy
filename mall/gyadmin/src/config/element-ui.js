@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {Message, Radio, Row, Col, Menu, Submenu, Carousel, CarouselItem, MenuItem, MenuItemGroup, Autocomplete, Container, Header, Aside, Main, Footer, Breadcrumb, BreadcrumbItem, Form, FormItem, Input, InputNumber, Select, Option, OptionGroup, Checkbox, CheckboxButton, CheckboxGroup, DatePicker, TimePicker, RadioGroup, Button, ButtonGroup, Pagination, MessageBox, Tree, Upload, Dialog, Table, TableColumn, Tag, Tabs, TabPane, Popover, Cascader} from 'element-ui';
+import {Message, Radio, Row, Col, Menu, Submenu, Tooltip, Switch, Carousel, CarouselItem, MenuItem, MenuItemGroup, Autocomplete, Container, Header, Aside, Main, Footer, Breadcrumb, BreadcrumbItem, Form, FormItem, Input, InputNumber, Select, Option, OptionGroup, Checkbox, CheckboxButton, CheckboxGroup, DatePicker, TimePicker, RadioGroup, Button, ButtonGroup, Pagination, MessageBox, Tree, Upload, Dialog, Table, TableColumn, Tag, Tabs, TabPane, Popover, Cascader} from 'element-ui';
 
 Vue.component(Message.name, Message);
 Vue.component(Radio.name, Radio);
@@ -47,6 +47,11 @@ Vue.component(Popover.name, Popover);
 Vue.component(Carousel.name, Carousel);
 Vue.component(CarouselItem.name, CarouselItem);
 Vue.component(Cascader.name, Cascader);
+Vue.component(Switch.name, Switch);
+Vue.component(Tooltip.name, Tooltip);
+Vue.prototype.$tooltip = Tooltip;
+Vue.prototype.$switch = Switch;
+Vue.prototype.$switch = Switch;
 Vue.prototype.$message = Message;
 Vue.prototype.$radio = Radio;
 Vue.prototype.$row = Row;

@@ -3,16 +3,16 @@
 -->
 <template>
     <div>
-        <table class="transaction">
-            <tr>
-                <td style="width:280px">商品</td>
-                <td>发货数量</td>
-                <td>签收数量</td>
-                <td style="width:228px">发货仓库</td>
-                <td>操作</td>
-            </tr>
+        <table class="transaction gy-table">
+            <thead>
+                <th style="width:280px">商品</th>
+                <th>发货数量</th>
+                <th>签收数量</th>
+                <th style="width:228px">发货仓库</th>
+                <th>操作</th>
+            </thead>
             <tbody v-for="(item, index) in transactionInfo" :key="index">
-            <tr class="update-title">
+            <tr class="update-title" style="height:35px;">
                 <td colspan="5" class="update-title-dh"><span class="dh-span">单号:</span>{{item.deliveryOrderCode}}</td>
             </tr>
             <tr class="ge" v-for="(order, index) in item.deliveryOrderItemList" :key="index">
@@ -24,9 +24,9 @@
                             {{order.skuName}}<br>{{order.skuPrice|numToCash}}元/{{order.unitOfMeasureDisplayName}}<br>{{order.quantityPlanned}}{{order.unitOfMeasureDisplayName}}
                         </span>
                 </td>
-                <td>{{order.quantityLoading |numToCash(3)}} {{order.unitOfMeasureDisplayName}}<br></td>
-                <td>{{order.quantityUnloading |numToCash(3)}}{{order.unitOfMeasureDisplayName}}</td>
-                <td class="tleft">发货仓库：{{item.loadingWarehouseAddress}}<br>发货时间：{{item.estimatedArrivalStart | date(1)}}<br>
+                <td class="align-r">{{order.quantityLoading |numToCash(3)}} {{order.unitOfMeasureDisplayName}}<br></td>
+                <td class="align-r">{{order.quantityUnloading |numToCash(3)}}{{order.unitOfMeasureDisplayName}}</td>
+                <td class="tleft">发货仓库：{{orderData.orderItemList[0].deliveryWarehouseName}}<br>发货时间：{{item.estimatedArrivalStart | date(1)}}<br>
                     签收时间：{{item.estimatedArrivalEnd && item.estimatedArrivalEnd | date(1)}}
                 </td>
                 <td>
@@ -63,9 +63,11 @@
                     </dl>
                     <dl>
                         <dt>货权单凭证</dt>
-                        <dd>
-                            <img :src="img" alt="" @click="showImg">
-                            <!--<gy-upload :disabled="true" v-model="billFormData.voucher"></gy-upload>-->
+                        <dd v-if="img.indexOf('.pdf') !== -1">
+                            <a :href="item.filePath" v-for="item in imgList" :key="item.createdDate" target="_blank"><img src="../../../assets/images/pdf.png" alt=""></a>
+                        </dd>
+                        <dd v-else>
+                            <img v-if="img" :src="img" alt="" @click="showImg">
                         </dd>
                     </dl>
                 </div>
@@ -81,7 +83,7 @@
                         <td>{{item.skuName}}</td>
                         <td>{{item.skuQuantity}}吨</td>
                         <td>{{ item.quantityIssued | numToCash(3) }}吨</td>
-                        <td>{{ item.quantityLoading | numToCash(3) }}吨</td>
+                        <td>{{quantityLoading}}吨</td>
                         <!--<td></td>-->
                     </tr>
                 </table>
@@ -130,10 +132,13 @@ export default {
             previewerImg: {
                 visible: false
             },
+            quantityLoading: 0,
             imgList: []
         };
     },
     created () {
+    },
+    mounted () {
         this.getData();
     },
     methods: {
@@ -146,13 +151,12 @@ export default {
                 });
         },
         viewDetail (data) {
-            console.log(data);
             this.billFormVisible = true;
-            // this.billFormData = data;
             this.$http.get('/trade/order/v1/deliveryOrders/' + data.id).then(res => {
                 if (res.data.code === 0) {
                     this.img = res.data.data.deliveryOrderFileList && res.data.data.deliveryOrderFileList[0].filePath;
                     this.imgList = res.data.data.deliveryOrderFileList;
+                    this.quantityLoading = res.data.data.deliveryOrderItemList[0].quantityLoading;
                 } else {
                     this.$message('获取不到交割凭证单');
                 }
@@ -257,14 +261,13 @@ export default {
             color: $color-main;
             padding-left: 10px;
             font-size: 14px;
-
             img {
                 width: 30px;
-                height: 20px;
-                margin-left: 10px;
+                height: auto;
                 border: 1px solid $color-border;
                 border-radius: $border-radius-small;
                 cursor: pointer;
+                margin-right: 5px;
             }
         }
     }

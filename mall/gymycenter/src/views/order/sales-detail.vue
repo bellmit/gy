@@ -17,13 +17,13 @@
                 </div>
             </div>
             <gy-order-step ref="orderStep" @updateData="getInfo" :step-data="stepData" :quantity-issued="quantityIssued"
-                           :order-data="orderData"></gy-order-step>
+                           :order-data="orderData" :order-img="prebiewImg"></gy-order-step>
         </el-card>
         <div>
             <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="mewmyfont">订单信息</span></p>
             <el-row>
                 <el-col :span="24">
-                    <gy-order-info @showContract="showContract" :order-data="info" user-type="sell"></gy-order-info>
+                    <gy-order-info @showContract="showContract" :order-data="info" :order-view="previewerImgOrder" :order-img="prebiewImg" user-type="sell"></gy-order-info>
                 </el-col>
             </el-row>
             <div class="tabs mynewtabs">
@@ -81,6 +81,7 @@ export default {
             orderStatusStepModel: {},
             isSign: true, // 只有签约时值为true
             info: {},
+            infoBoolean: false,
             quantityIssued: 0,
             item: [],
             orderItemList: [],
@@ -93,7 +94,14 @@ export default {
                     active: true
                 }
             ],
-            Model: {orderExecuteSubStatusModel: {}}
+            Model: {orderExecuteSubStatusModel: {}},
+            previewerImgOrder: {
+                list: []
+            },
+            prebiewImg: {
+                list: [],
+                preBoolean: false
+            }
         };
     },
     computed: mapGetters([
@@ -102,7 +110,6 @@ export default {
     watch: {
         socket: {
             handler: function (newValue, oldValue) {
-                console.log(newValue);
                 if (newValue.msg) {
                     let data = JSON.parse(newValue.msg);
                     if (data.orderId === this.$route.query.orderId) {
@@ -168,8 +175,9 @@ export default {
                         btnList: (rsData.currentOrderExecuteStageModel && rsData.currentOrderExecuteStageModel.orderExecuteSubStatusModel && rsData.currentOrderExecuteStageModel.orderExecuteSubStatusModel.allowedFunctionsModelList) || []
                     };
                     this.orderData = Object.assign(rsData, {orderType: 'sell'});
-
                     this.info = rsData;
+                    this.showContractOrder(this.info);
+                    this.showReceiptsImg(this.info);
                     that.orderItemList = res.data.data.orderItemList;
                     that.currentOrderExecuteStageModel = res.data.data.currentOrderExecuteStageModel;
                     that.select(that.currentOrderExecuteStageModel.allowedFunctionsModelList);
@@ -215,6 +223,40 @@ export default {
         },
         showContract () {
             this.$refs.orderStep.buyerReviewContract();
+        },
+        showContractOrder (item) {
+            this.previewerImgOrder.list = [];
+            this.$http.get(this.$api.invoice.DocUrl + item.id + '/contracts/getDocUrl')
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        if (res.data.data.filepath.length > 0) {
+                            res.data.data.filepath.forEach((e) => {
+                                let filepathObj = {
+                                    fileTypeAlias: null,
+                                    filepath: null
+                                };
+                                filepathObj.filepath = e;
+                                filepathObj.fileTypeAlias = this.$tools.getFileTypeAlias(e);
+                                this.previewerImgOrder.list.push(filepathObj);
+                            });
+                        }
+                    }
+                });
+        },
+        showReceiptsImg (item) {
+            // 查看发票
+            let that = this;
+            that.$http.get(that.$api.invoice.sellerInvoiceImg + '/' + item.id)
+                .then((res) => {
+                    that.prebiewImg.list = res.data.data;
+                    if (that.prebiewImg.list > 0) {
+                        that.prebiewImg.list.forEach((e) => {
+                            e.fileTypeAlias = this.$tools.getFileTypeAlias(e.invoiceUrl);
+                        });
+                    } else {
+                        that.prebiewImg.preBoolean = true;
+                    }
+                });
         }
     }
 };
@@ -262,6 +304,7 @@ export default {
         }
         .order-state {
             li {
+                font-size: 12px;
                 float: left;
                 width: auto;
                 color: $color-minor;
@@ -358,13 +401,9 @@ export default {
                 color: $color-main;
                 font-size: $small-font;
             }
-            table tr:nth-child(odd) td {
-                background-color: #F2F3F7;
-            }
             table tr:first-child td {
                 padding-left: 10px;
                 height: 40px;
-                background-color: #EEF3F8;
             }
             table td {
                 height: 40px;
@@ -442,19 +481,19 @@ export default {
             width: 80px;
         }
         .dialog .el-upload--picture-card {
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
             i {
                 font-size: 17px
             }
         }
         .dialog dl dd .el-upload-list__item {
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             img {
-                width: 40px;
-                height: 40px;
+                width: 60px;
+                height: 60px;
                 margin-left: 0
             }
         }

@@ -9,3 +9,7 @@
 .icon-loading{
     @include retina-sprite($loading-group);
 }
+.icon-kvsearch{
+  @include retina-sprite($kvsearch-group);
+  cursor: pointer;
+}

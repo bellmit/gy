@@ -1,9 +1,64 @@
+// 评级
+const customer = {
+    myRating: '/trade/v1/rating/myRating/', // 我的评级
+    historyRating: '/trade/v1/rating/historyRating', // 获取公司历史评级信息
+    orderTransactionInfo: '/trade/v1/orderTransactionInfo?userCompanyId=',
+    counterpartyList: '/trade/v1/counterpartyRelation/platform/list', // 申请查看交易对手评级列表
+    preRecord: '/trade/v1/lastRatingTaskRecord/', // 上级评价
+    parent: '/trade/v1/companyCategory/parent', // 获取大类
+    Child: '/trade/v1/companyCategory/child/', // 获取小类
+    ratingType: '/trade/v1/ratingType/list', // 获取评级类型及范围
+    ratingManagement: '/trade/v1/rating/myDeclareCompanyList', // 获取评级列表
+    appList: '/trade/v1/counterpartyApprovals/search', // 申请查看评级审核
+    counterParties: 'trade/v1/counterparties/search', // 交易对手列表
+    partiesDelete: '/trade/v1/counterparties/delete', // 交易对手删除
+    transcationPeriods: '/trade/v1/transcationPeriods', // 交易周期列表查询
+    transcationType: '/trade/v1/transcationTypes', // 交易模式查询
+    getNumber: '/trade/v1/counterpartyApprovals/count', // 获取待审数量
+    approval: '/trade/v1/counterpartyApprovals/approval', // 审核
+    counterparties: '/trade/v1/counterparties', // 申请查看交易对手
+    counterpartiesDetail: '/trade/v1/counterparties/', // 查看交易对手
+    access: '/trade/v1/counterparties/access', // 交易对手准入
+    companiesList: '/trade/v1/counterparties/companies', // 交易对手贸易公司列表
+    addParties: '/trade/v1/counterparties', // 批量添加交易对手
+    accessToGyRating: '/trade/v1/counterpartyRelation/accessToGyRating', // 更改是否允放查看
+    baseInfo: '/trade/v1/companies/', // 基础信息
+    askByRoleCount: '/trade/v1/ratingTaskByRoleCount', // 获取评级审核数量
+    save: '/trade/v1/ratingTask/save', // 保存评级
+    myRatingInfo: '/trade/v1/rating/myRating/', // 保存评级
+    reject: '/trade/v1/ratingTask/reject/' // 驳回
+};
+
+// 申请评级模块
+const ratingApplication = {
+    areasList: '/trade/v1/areas/list/', // 获取全国地理位置列表
+    uploadFile: '/trade/v1/declare/company/uploadFile', // 文件上传
+    declareInfo: '/trade/v1/rating/declareInfo', // 申报公司类型
+    enterpriseTypeList: '/trade/v1/rating/enterpriseTypeList', // 获取申报信息企业类型类目列表
+    fileType: '/trade/v1/declare/company/fileType', // 申报公司文件类型模块接口
+    sendratingFormData: '/trade/v1/declare/company', // 提交申报公司资料
+    getClientRatingFormData: '/trade/v1/declare/company/info/', // 获取申报公司资料--客户端
+    getMgmtRatingFormDataMgmt: '/trade/v1/approval/company/info/', // 获取申报公司资料--服务端
+    searchCompany: '/trade/v1/company/trade/all/', //  搜索功能查询公司资料--客户端
+    updateRatingFormData: '/trade/v1/declare/company', // 更新申报公司资料
+    getRatingFormDataMgmt: '/trade/v1/declare/company/info/', // 获取申报公司资料--服务端
+    fileParam: '/trade/v1/declare/fileParam/', // 获取图片上传后的参数
+    getCompanyInfo: '/trade/v1/company/getCompany',
+    rangResult: '/trade/v1/rangResult' // 检测当前公司是否在处理中
+};
+
 // 支付业务
 const payment = {
     listCollOfSeller: '/trade/pay/v1/collection/listCollOfSeller', // 收款单
     listOfBuyer: '/trade/pay/v1/billPayment/listOfBuyer', // 付款单
     collectionList: '/trade/pay/v1/billCollection/list',
     paymentList: '/trade/pay/v1/billPayment/list', // 获取付款单列表
+    voucherList: '/trade/orders/v1/orderBills/payment/list', // 付款凭证列表
+    propertyList: '/trade/orders/v1/orderBills/deliveryBills/list', // 获取货权凭证列表
+    deliveryBillsupload: '/trade/orders/v1/orderBills/deliveryBills/upload', // 上传货权凭证
+    outlineContactupload: '/trade/orders/v1/orderBills/outlineContact/upload', // 上传线下合同
+    paymentupload: '/trade/orders/v1/orderBills/payment/upload', // 上传付款凭证
+    invoiceupload: '/trade/orders/v1/orderBills/invoice/upload', // 上传线下发票
     exportData: '/trade/pay/v1/billPayment/exportExcel', // 导出数据为excel格式
     orderInfo4Pay: '/trade/pay/v1/billPayment/orderInfo', // 获取付款信息，用于创建付款单
     payInfo4Confirm: '/trade/pay/v1/billPayment/payInfo',
@@ -23,10 +78,18 @@ const payment = {
     withdraw: 'trade/capital/v1/withdraw', // 转出保存
     bindAuthenticateCard: 'trade/capital/v1/bindAuthenticateCard', // fhy新增银行提交按钮
     checkAuthenticateAmount: 'trade/capital/v1/checkAuthenticateAmount', // fhy回填鉴权金额
+    unbindCardInfo: 'trade/capital/v1/unbindCardInfo', // 解绑
     exportTransRecords: 'trade/capital/v1/exportTransRecords', // 导出
     paymentStatusCount: 'trade/pay/v1/pay/listStatusCount',
     collectionStatusCount: 'trade/pay/v1/collection/listStatusCount',
-    findTransRecordByReceiptNo: '/trade/capital/v1/findTransRecordByReceiptNo'
+    innerTransfer: '/trade/capital/v1/innerTransfer',
+    innerTransferInfo: '/trade/capital/v1/innerTransferInfo',
+    retrieveVerifyCode: '/trade/capital/v1/retrieveVerifyCode',
+    findTransRecordByReceiptNo: '/trade/capital/v1/findTransRecordByReceiptNo',
+    topaylist: '/trade/pay/v1/billPayment/undoneList',
+    repay: '/trade/pay/v1/billPayment/createSlaveBillPayment',
+    upload: '/trade/pay/v1/billPayment/application', // 下载付款单下载
+    grdonfirmOnlinePay: '/trade/pay/v1/billPayment/reconfirmOnlinePay' // 担保支付的确认(财务分批时才用)
 };
 
 // 报表
@@ -63,12 +126,30 @@ const offers = {
     photo: 'trade/catalogue/v1/products/getImage?goodsId=',
     update: 'trade/v1/offers/update',
     uploadImg: 'trade/v1/offers/uploadSkuPicture',
-    warehouses: '/trade/v1/warehouses/all?keywords='
+    warehouses: '/trade/v1/warehouses/all?keywords=',
+    refresh: '/trade/v1/offers/refresh/',
+    distinguish: '/trade/v1/offers/parse'
 };
 const invoice = {
     settleInvoice: '/trade/order/v1/invoice/invoiceUpload',
     sellerSavaInvoice: '/trade/order/v1/invoice/saveInvoice',
-    sellerInvoiceImg: '/trade/order/v1/invoice/getInvoiceUrl'
+    sellerInvoiceImg: '/trade/order/v1/invoice/getInvoiceUrl',
+    DocUrl: '/trade/v1/order/',
+    uploadUrl: '/trade/v1/uploadImage', // 保存单张图片
+    getInvoiceDetail: '/trade/v1/order/invoiceInfo/', // 发票详情
+    orderInvoices: '/trade/v1/order/invoices', // 上传发票
+    info: '/trade/v1/companies/tax/insert', // 新增公司发票信息
+    modify: '/trade/v1/companies/tax/modify', // 修改公司发票信息
+    getInfo: '/trade/v1/companies/tax/', // 获取发票信息详情
+    getAddInfo: '/trade/v1/order/', // 新增开票获取初始化信息
+    addInvoice: '/trade/v1/order/invoiceApplications', // 新增开票
+    getInvoiceList: '/trade/v1/order/invoiceApplication/page', // 开票中心列表(分页)
+    getInvoiceListStatus: '/trade/v1/order/invoiceApplication/pageCount', // 开票中心列表(状态)
+    downLoad: '/trade//v1/order/invoiceApplications/excel', // 开票中心列表导出
+    getInfoInvoice: '/trade/v1/order/invoiceApplications/', // 开票详情获取初始化信息(发票)
+    invoiceListDetail: '/trade/v1/order/invoiceApplications/', // 开票详情
+    invoiceInfo: '/trade/v1/order/invoiceApplications/', // 发票开具信息
+    applicationList: 'trade/v1/order/invoiceApplications/' // 发票审批记录
 };
 const sale = {
     detail: 'trade/v1/orders',
@@ -86,6 +167,7 @@ const order = {
     transaction: '/trade/order/v1/deliveryOrders/order/',
     startSettlementOrderMsg: 'trade/order/v1/settlement/startSettlementOrderMsg',
     delivery: '/trade/order/v1/deliveryOrders',
+    deliveries: '/trade/order/v1/deliveryOrders/status',
     // confirmSettlementOrderMsg: '/order/v1/settlement/confirmSettlementOrderMsg'
     deliverUp: '/trade/order/v1/deliveryOrders/fileLoad',
     sign: '/trade/v1/orders/status',
@@ -96,7 +178,12 @@ const order = {
     sendDone: '/trade/order/v1/orders/',
     contractTemplates: '/trade/v1/order/contractTemplates?',
     contractCode: '/trade/v1/order/genContractCode?prdId=',
-    contractPwd: '/trade/v1/companies/valid/contract/password' // 验证合同密码接口
+    contractPwd: '/trade/v1/companies/valid/contract/password', // 验证合同密码接口
+    cancelValid: 'trade/v1/orders/valid', // 订单取消接口
+    orderContact: '/trade/v1/orders/trade/contact', // 获取联系人接口
+    cityAdress: '/trade/v1/companies/', // 获取公司地址
+    confirm: '/trade/order/v1/deliveryOrders/confirm/',
+    resources: '/trade/v1/demands'
 };
 
 const register = {
@@ -111,6 +198,10 @@ const register = {
     password: '/trade/user/v1/password/set/by/phone',
     testPhone: '/trade/user/v1/password/verification/right/phone',
     testGraphic: '/trade/user/v1/password/verification/right/graphic'
+};
+
+const salesOrde = {
+    upload: '/trade/v1/order/contracts/upload'
 };
 
 const account = {
@@ -155,16 +246,30 @@ const account = {
     supplyCount: '/trade/supplyChain/v1/supplyChainApplicationRequestor/count', // 供应链申请单列表检索,
     supplyChain: '/trade/supplyChain/v1/supplyChainApplicationRequestor', // 供应链申请单列表检索,
     supplyChainedit: '/trade/supplyChain/v1/supplyChainApplicationRequestor', // 供应链申请单列表检索,
-    types: '/trade/supplyChain/v1/serviceType/types' // 供应链申请单列表检索,
+    supplydetail: '/trade/supplyChain/v1/supplyChainApplicationRequestor/', // 供应链订单详情,
+    types: '/trade/supplyChain/v1/serviceType/types', // 供应链申请单列表检索,
+    service: '/trade/supplyChain/v1/serviceType/', // 供应链申请单列表检索,
+    newUpload: '/trade/v2/file',
+    supplyStatus: '/trade/supplyChain/v1/application/status', // 申请单状态
+    serviceType: '/trade/supplyChain/v1/serviceType/search', // 供应链服务类型检索
+    goal: '/trade/v2/score/company/goal/' // 评级信息
 };
 
 const transport = {
+    addUploadDocumentsFile: '/trade/logistics/v1/dispatchNotes/addUploadDocumentsFile', // 上传提货卸货单图片接口
+    deleteDocumentsFile: '/trade/logistics/v1/dispatchNotes/deleteDocumentsFile', // 上传提货卸货单图片接口
+    vehicleType: '/trade/logistics/v1/dictionary/vehicleType', // 车型
+    vehicleState: '/trade/logistics/v1/vehicle/valid', // 查看车辆信息
+    addvehicle: '/trade/logistics/v1/vehicle', // 添加车辆信息
+    uploadImage: '/trade/logistics/v1/vehicle/upload', // 上传单个图片
+    additionalFunction: '/trade/logistics/v1/dictionary/additionalFunction', // 附加功能
+    tankMaterial: '/trade/logistics/v1/dictionary/tankMaterial', // 罐体材质
     orderList: '/trade/logistics/v1/consignments/search',
     orderStatus: '/trade/logistics/v1/consignments/count',
     enquiryStatus: '/trade/logistics/v1/enquiryNotes/count',
     enquiryList: '/trade/logistics/v1/enquiryNotes/search',
     priceList: '/trade/logistics/v1/enquiryNotes',
-    carType: '/trade/base/v1/carriers/search',
+    carType: '/trade/logistics/v1/dictionary/vehicleType',
     bid: '/trade/logistics/v1/biddingNotes',
     bidStatus: '/trade/logistics/v1/enquiryNotes/count',
     bidPrice: '/trade/logistics/v1/biddingNotes/singleSearch?enquiryNoteId=',
@@ -207,7 +312,18 @@ const transport = {
     logistics: '/trade/logistics/v1/consignments/carrier/permission',
     consignmentNote: '/trade/logistics/v1/dispatchNotes/shippingDetailsExport/consignmentNote', // 运输明细导出
     transportTotal: '/trade/logistics/v1/dispatchNotes/transportTotal/consignmentNote/', // 运输明细合计
-    pageInfo: '/trade/logistics/v1/dispatchNotes/pageInfo' // 分页
+    pageInfo: '/trade/logistics/v1/dispatchNotes/pageInfo', // 分页
+    documentsManagementList: '/trade/logistics/v1/dispatchNotes/documentsManagementList', // 运输订单单据管理分页
+    consignmentsExport: 'trade/logistics/v1/consignments/export', //  运输订单导出
+    consignmentChargesExport: 'trade/logistics/v1/consignmentCharges/export', //  运输结算单导出
+    harboursList: '/trade/warehouse/v1/harbours/search', // 港口查询
+    enquiryIntentSearch: '/trade/logistics/v1/enquiryIntent/search', // 船运需求单列表
+    enquiryIntentAdd: '/trade/logistics/v1/enquiryIntent', // 船运需求单添加
+    enquiryIntentStatus: '/trade/logistics/v1/enquiryIntent/count', // 船运需求单状态
+    setRange: '/trade/logistics/v1/companies', // 获取物流公司运输范围
+    updateDNAQU: '/trade/logistics/v1/dispatchNotes/updateDispatchNoteActualQuantityUnloading', // 更新运输订单实际运货量
+    modifyDispatchNoteDetail: '/trade/logistics/v1/dispatchNotes/modifyDispatchNoteDetail/', // 调度单编辑详情
+    list: '/trade/logistics/v1/vehicle/list'
 };
 
 const global = {
@@ -246,7 +362,7 @@ const news = {
 // 报表中心
 const deal = {
     summarizing: '/trade/report/v1/translationReport', // 交易汇总展示
-    increasedPurchaseNote: '/trade/report/v1/increasedPurchaseNote/list', // 新增采购单查询
+    increasedPurchaseNote: '/trade/report/v1/increasedPurchaseNote/list', // 成交采购单查询
     increasedPurchaseNoteExport: '/trade/report/v1/increasedPurchaseNote/export', // 新增采购单导出
 
     purchasePayment: '/trade/report/v1/purchasePayment/list', // 采购单付款查询
@@ -255,7 +371,7 @@ const deal = {
     purchaseGoodsReceive: '/trade/report/v1/purchaseGoodsReceive/list', // 采购单收货查询
     purchaseGoodsReceiveExport: '/trade/report/v1/purchaseGoodsReceive/export', // 采购单收货导出
 
-    increasedSellerNote: '/trade/report/v1/increasedSellerNote/list', // 新增销售单查询
+    increasedSellerNote: '/trade/report/v1/increasedSellerNote/list', // 成交销售单查询
     increasedSellerNoteExport: '/trade/report/v1/increasedSellerNote/export', // 新增销售单导出
 
     sellerCollection: '/trade/report/v1/sellerCollection/list', // 销售单收款查询
@@ -286,8 +402,8 @@ const organizational = {
     departmentList: '/trade/v2/employee/list',
     companyPersonAll: '/trade/v1/employees/organization/all/',
     addDepartment: '/trade/v1/company/organization',
-    deleteDepartment: '/trade/v1/company/organization/valid',
-    deletePerson: '/trade/v3/employee/valid',
+    deleteDepartment: '/trade/v2/company/organization/valid',
+    deletePerson: '/trade/v4/employee/valid',
     doAddPerson: '/trade/v2/employees/batch',
     getManagerList: '/trade/v1/company/position/list',
     addManager: '/trade/v1/company/position',
@@ -302,6 +418,63 @@ const organizational = {
     directSuperior: '/trade/v3/employee/manager'
 };
 
+const marriedDeal = {
+    create: '/trade/logistics/v1/dmkOrder',
+    status: '/trade/logistics/v1/dmkOrder/count',
+    list: '/trade/logistics/v1/dmkOrder/page',
+    operate: '/trade/logistics/v1/dmkOrder/status',
+    im: '/trade/im/chatRecords',
+    parse: '/trade/logistics/v1/dmkOrder/parse',
+    set: '/trade/dmk/v1/companies',
+    setList: '/trade/dmk/v1/companies/',
+    recommendAwardInfoList: 'trade/point/v1/ictInvitationInfo/recommendAwardInfoList', // 引荐奖励列表接口
+    searchAward: 'trade/point/point/v1/cashflow/search', // 引荐奖励明细接口
+    recommendAwardInfo: 'trade/point/point/v1/ictInvitationInfo/recommendAwardInfo', // 引荐奖励列表奖励金额
+    invitationInfo: 'trade/point/point/v1/cashflow/invitationInfo' // 引荐奖励明细奖励金额
+};
+
+const warehouse = {
+    offers: '/trade/warehouse/v1/offers', // 添加仓储需求
+    search: '/trade/warehouse/v1/offers/search', // 查看仓储需求
+    commodity: '/trade/catalogue/v1/products/search', // 品名
+    requisitioncount: '/trade/warehouse/v1/offers/count' // 统计意向单
+};
+
+const forensicServices = {
+    getInfo: '/trade/law/v1/lawWorksData/init',
+    sub: '/trade/law/v1/lawWorksData/save'
+};
+const helps = {
+    helpList: '/trade/public/help/v1/helpTopics/list',
+    helpItem: '/trade/public/help/v1/helpTopics/'
+};
+const wind = {
+    searchList: '/trade/v1/counterparties/search', // 列表
+    addCompany: '/trade/v1/counterparties/companies', // 新增公司
+    addParties: '/trade/v1/counterparties', // 批量添加交易对手
+    counterpartiesDetail: '/trade/v1/counterparties/', // 查看交易对手
+    partiesDelete: '/trade/v1/counterparties/delete', // 列表删除
+    transcationTypeApi: '/trade/v1/transcationTypes', // 交易模式查询
+    transcationPeriodsApi: '/trade/v1/transcationPeriods', // 交易周期列表查询
+    access: '/trade/v1/counterparties/access', // 交易对手准入
+    getDetail: '/trade/v1/ratingInfo/', // 评级详情
+    myRating: '/trade/v1/rating/myRating/', // 我的评级
+    alculate: '/trade/v1/counterparties/purpose/score/alculate' // 授信积分参考准入限额
+};
+
+// 供应链金融
+const supply = {
+    enforcement: '/trade/supplyChain/v1/supplyChainApplicationRequestor', // 单证执行接口
+    managementResault: '/trade/supplyChain/v1/disposal/result', // 处置结果
+    management: '/trade/supplyChain/v1/disposal/apply', // 申请处置
+    createBreach: '/trade/supplyChain/v1/disposal/violate', // 创建违约
+    serviceProviderHistory: '/trade/common/v1/approve/history/list', // 服务商审批历史
+    serviceProviderInitiate: '/trade/supplyChain/v1/applicationProvider/initiate', // 服务商立项
+    serviceProviderReject: '/trade/supplyChain/v1/applicationProvider/refused', // 服务商拒绝
+    serviceProviderAccept: '/trade/supplyChain/v1/applicationProvider/accept', // 服务商受理
+    getDetail: '/trade/supplyChain/v1/supplyChainApplicationRequestor/', // 获取供应链申请单详情信息(客户)
+    getMyInfo: '/trade/supplyChain/v1/supplyChainApplicationRequestor/detail/' // 获取供应链申请单详情信息(我的)
+};
 export default {
     list,
     offers,
@@ -321,5 +494,14 @@ export default {
     chat,
     point,
     news,
-    organizational
+    organizational,
+    warehouse,
+    forensicServices,
+    salesOrde,
+    marriedDeal,
+    helps,
+    customer,
+    ratingApplication,
+    wind,
+    supply
 };

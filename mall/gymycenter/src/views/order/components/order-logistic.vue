@@ -3,18 +3,18 @@
 -->
 
 <template>
-    <table>
-        <tr>
-            <td>运输单号</td>
-            <td>订单时间</td>
-            <td>承运商</td>
-            <td>品名</td>
-            <td>数量</td>
-            <td>装货地</td>
-            <td>卸货地</td>
-            <td>状态</td>
-            <td>操作</td>
-        </tr>
+    <table class="gy-table">
+        <thead>
+            <th>运输单号</th>
+            <th>订单时间</th>
+            <th>承运商</th>
+            <th>品名</th>
+            <th>数量</th>
+            <th>装货地</th>
+            <th>卸货地</th>
+            <th>状态</th>
+            <th>操作</th>
+        </thead>
         <tbody v-for="(item,index) in logisticData" :key="index">
         <tr v-for="(tran,index) in item.consignmentNoteItemList" :key="index">
             <td>{{item.consignmentNoteCode }}</td>
@@ -25,7 +25,6 @@
             <td>{{item.loadingWarehouseAddress }}</td>
             <td>{{item.unloadingWarehouseAddress }}</td>
             <td>{{item.consignmentNoteStatus }}</td>
-            <!--id-->
             <td>
                 <button @click="goManage(item)" class="gy-button-view">查看调度</button>
             </td>
@@ -75,7 +74,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    table tr{
-        text-align: center;
-    }
+
 </style>

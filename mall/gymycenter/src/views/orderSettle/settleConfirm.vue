@@ -1,4 +1,4 @@
-<template>
+<template><!-- 买家结算 -->
     <div class="order">
         <el-card class="box-card">
             <div slot="header" class="order-header">
@@ -13,9 +13,9 @@
                     </ul>
                 </div>
             </div>
-            <div class="state-pannel">
+            <div class="state-pannel" style="overflow: inherit;">
                 <template>
-                    <div class="">
+                    <div style="margin-left: -5px;">
                         <i style="font-size: 12px;
     color: #333;
     margin-right: 2px;
@@ -48,7 +48,7 @@
                         <span class="state-tips-first">温馨提示：</span>
                         <span>{{SettlementOrderMsg}}</span>
                         <button class="gy-button-views tt" @click="dialogVisible = true">结算明细</button>
-                        <button class="gy-button-views" style="cursor:pointer" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
+                        <button class="gy-button-views" style="cursor:pointer;font-size: 14px;" v-if="isApproving" @click="openApprListDlg">查看审批流程</button>
                     </p>
                     <div class="button-group">
                         <button class="gy-button-extra" @click="postProcesses(aa=1)" v-if="orderSure">确认</button>
@@ -89,7 +89,7 @@
                             <td>{{item.settlementPrice * item.settlementQuantity |numToCash}}</td>
                         </tr>
                         <tr v-if="tableDataList">
-                            <td colspan="4">汇总</td>
+                            <td colspan="4" style="text-align: left;font-weight: bold">汇总</td>
                             <td>{{sumtotalAmount |numToCash}}</td>
                             <td>{{sumquantityLoading|numToCash(3)}}</td>
                             <td colspan="2"></td>
@@ -119,7 +119,7 @@
                             <td>{{item.payTotal |numToCash}}</td>
                         </tr>
                         <tr v-if="paymentListDate">
-                            <td colspan="5">汇总</td>
+                            <td colspan="5" style="text-align: left;font-weight: bold">汇总</td>
                             <td>{{sumMpayTotal}}</td>
                         </tr>
                         </tbody>
@@ -166,7 +166,7 @@
             <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="mewmyfont">订单信息</span></p>
             <el-row>
                 <el-col :span="24">
-                    <gy-order-settle @showContract="showContract" :order-data="info" user-type="buy"></gy-order-settle>
+                    <gy-order-settle @showContract="showContract" :order-data="info" :order-view="previewerImgOrder" :order-img="prebiewImg" v-if="info" user-type="buy"></gy-order-settle>
                 </el-col>
             </el-row>
             <div class="tabs mynewtabs">
@@ -184,6 +184,9 @@
                     <el-tab-pane label="物流明细" name="four">
                         <gy-order-logistic :order-id="orderId" user-type="sell"></gy-order-logistic>
                     </el-tab-pane>
+                    <el-tab-pane label="发票明细" name="five">
+                        <gy-order-invoice :order-data="info" :order-invoice-data="orderInvoiceList" v-if="orderInvoiceList"></gy-order-invoice>
+                    </el-tab-pane>
                 </el-tabs>
             </div>
         </div>
@@ -199,6 +202,7 @@ import gyOrderPayment from '../order/components/order-payment';
 import gyOrderDetail from '../order/components/order-detail';
 import gyOrderTransaction from '../order/components/order-transaction';
 import gyOrderLogistic from '../order/components/order-logistic';
+import gyOrderInvoice from '../order/components/order-invoice';
 import gyOrderSettle from '../order/components/order-settle.vue';
 import approveHistory from '../../components/approveHistory';
 
@@ -213,7 +217,8 @@ export default {
         gyOrderTransaction,
         gyOrderLogistic,
         gyOrderSettle,
-        approveHistory
+        approveHistory,
+        gyOrderInvoice
     },
     data () {
         return {
@@ -244,8 +249,9 @@ export default {
             payMent: {},
             paymentListDate: false,
             tableDataList: false,
-            info: {},
+            info: null,
             orderItemList: [],
+            orderInvoiceList: null, // 发票明细
             transactionInfo: {},
             logistics: {},
             src1: require('../../assets/images/default1.jpg'),
@@ -272,7 +278,14 @@ export default {
             orderSettle: [],
             infUnitOfMeasureDisplayName: null, // 单位
             isApproving: false, // 是否正在结算审批中
-            odrSettleId: null // 当前的结算ID
+            odrSettleId: null, // 当前的结算ID
+            previewerImgOrder: {
+                list: []
+            },
+            prebiewImg: {
+                list: [],
+                preBoolean: false
+            }
         };
     },
     created () {
@@ -281,6 +294,7 @@ export default {
         this.getOrderInfo();
         this.postStartSettlementOrderMsg();
         this.getInfo();
+        this.getInvoiceInfos();
         if (this.$route.query.dialogVisible === 'true' || this.$route.query.dialogVisible === true) {
             this.dialogVisible = true;
         } else {
@@ -375,8 +389,17 @@ export default {
             let that = this;
             that.$http.get(that.$api.sale.detail + '/' + that.orderId).then(function (res) {
                 that.info = res.data.data;
+                that.showContractOrder(that.info);
+                that.showReceiptsImg(that.info);
                 that.orderItemList = res.data.data.orderItemList;
             });
+        },
+        // 获取发票明细
+        getInvoiceInfos () {
+            this.$http.get(this.$api.invoice.DocUrl + '/' + this.orderId + '/invoiceInfos')
+                .then((res) => {
+                    this.orderInvoiceList = res.data.data;
+                });
         },
         getOrderInfo () { // 获取订单信息
             let that = this;
@@ -433,7 +456,7 @@ export default {
             that.settleConfirm.orderId = that.orderId;
             that.settleConfirm.userId = that.userId;
             that.settleConfirm.processId = that.resData.processId;
-            that.settleConfirm.operaType = that.aa;
+            that.settleConfirm.operaType = aa;
             that.$http.post(that.$api.processes.flowAct, that.settleConfirm)
                 .then(function (res) {
                     if (res.data.code === 0) {
@@ -487,11 +510,34 @@ export default {
                     that.orderNumber = res.data.data.orderNumber;
                     that.settleBalance = res.data.data.settleBalance;
                     that.payClick();
-                    if (res.data.data.approveStatus === 0 || res.data.data.approveStatus === 3) {
+                    if (res.data.data.approveStatus === 0) {
+                        // 卖家审批中
                         that.resour = false;
+                    } else if (res.data.data.approveStatus === 3) {
+                        // 买家审批中
+                        that.resour = false;
+                        // 再次判断是否要强控(这里由于异步调用的原因，不一定能取到从getOrderInfo中的数据)
+                        that.doCheckApproveStatus(res.data.data.settleId, function (data) {
+                            if (data.rsltStatus === 1 && data.controlStatus === 1) {
+                                // 审批中，且强控
+                                that.orderSure = false;
+                            } else {
+                                that.orderSure = true;
+                            }
+                        });
                     } else {
+                        // 审批完成(包括通过和驳回)
                         if (res.data.data.orderSettleStatus === 20) {
-                            that.orderSure = true;
+                            // 买方可以确认结算
+                            // 再次判断是否要强控(这里由于异步调用的原因，不一定能取到从getOrderInfo中的数据)
+                            that.doCheckApproveStatus(res.data.data.settleId, function (data) {
+                                if (data.rsltStatus === 1 && data.controlStatus === 1) {
+                                    // 审批中，且强控
+                                    that.orderSure = false;
+                                } else {
+                                    that.orderSure = true;
+                                }
+                            });
                         }
                         if (res.data.data.orderSettleStatus === 10) {
                             that.orderSure = false;
@@ -569,6 +615,14 @@ export default {
             // this.getOrderInfo();
         },
         checkApproveStatus (settleId) {
+            let that = this;
+            that.doCheckApproveStatus(settleId, function (data) {
+                if (data.rsltStatus === 1) {
+                    that.isApproving = true;
+                }
+            });
+        },
+        doCheckApproveStatus (settleId, func) {
             // 检查审批状态，如果是正在审批中则显示'查看审批流程'的链接
             this.odrSettleId = settleId;
             let params = {targetId: settleId, targetType: 23, subSysType: 1};
@@ -582,9 +636,7 @@ export default {
             }
             this.$http.post(this.$api.processes.bizApproveStatus, params).then((res) => {
                 if (res.data.code === 0) {
-                    if (res.data.data.rsltStatus === 1) {
-                        this.isApproving = true;
-                    }
+                    func(res.data.data);
                 } else {
                     this.$message({
                         type: 'error',
@@ -606,6 +658,41 @@ export default {
             }
 
             this.$refs.myApprHisDlg.getAppHisList(params);
+        },
+        showContractOrder (item) {
+            this.previewerImgOrder.list = [];
+            this.$http.get(this.$api.invoice.DocUrl + item.id + '/contracts/getDocUrl')
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        if (res.data.data.filepath.length > 0) {
+                            res.data.data.filepath.forEach((e) => {
+                                let filepathObj = {
+                                    fileTypeAlias: null,
+                                    filepath: null
+                                };
+                                filepathObj.filepath = e;
+                                filepathObj.fileTypeAlias = this.$tools.getFileTypeAlias(e);
+                                this.previewerImgOrder.list.push(filepathObj);
+                            });
+                        }
+                    }
+                });
+        },
+        showReceiptsImg (item) {
+            // 查看发票
+            let that = this;
+            that.$http.get(that.$api.invoice.sellerInvoiceImg + '/' + item.id)
+                .then((res) => {
+                    that.prebiewImg.list = res.data.data;
+                    if (that.prebiewImg.list.length > 0) {
+                        that.prebiewImg.list.forEach((e) => {
+                            e.fileTypeAlias = this.$tools.getFileTypeAlias(e.filepath);
+                        });
+                        console.log(that.prebiewImg, '222222222');
+                    } else {
+                        that.prebiewImg.preBoolean = true;
+                    }
+                });
         }
     }
 };
@@ -692,7 +779,7 @@ export default {
             }
             span {
                 display: inline-block;
-                width: 115px;
+                width: 120px;
                 padding-right: 5px;
             }
             .settleInfo-pay {
@@ -702,8 +789,8 @@ export default {
                 color: $color-highlight;
             }
             .newspan{
-                text-align: left;
-                margin-left: 20px;
+                text-align: right;
+                margin-left: 10px;
             }
         }
         .settle-dialog {
@@ -808,12 +895,12 @@ export default {
             }
             span {
                 color: #666;
-                font-weight: bold;
                 font-size: 14px;
             }
             .tt {
                 margin-left: 40px;
                 cursor: pointer;
+                font-size: 14px;
             }
         }
         .tabs {
@@ -866,19 +953,6 @@ export default {
                     margin: 10px 10px 10px 0px;
                 }
             }
-            table tr:nth-child(odd) td {
-                background-color: #F2F3F7;
-            }
-            table tr:first-child td {
-                height: 40px;
-                background-color: #EEF3F8;
-                font-weight: bold;
-            }
-            table td {
-                height: 40px;
-                line-height: 16px;
-                padding-left: 10px;
-            }
         }
         .total-detail {
             float: right;
@@ -927,5 +1001,5 @@ export default {
         }
 
     }
-
+    img{width:100%}
 </style>

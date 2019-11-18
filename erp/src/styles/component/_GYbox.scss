@@ -6,3 +6,8 @@
 .mr10{
   margin-right: 10px;
 }
+.wid-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

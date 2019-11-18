@@ -1,8 +1,8 @@
 <template>
     <div class="search">
         <input type="text" placeholder="请输入" class="gy-input" v-model="subKeywords">
-        <span class="span1" @click="search">搜索</span>
-        <!--<i class="iconfont icon-search" @click="search"></i>-->
+        <!--<span class="span1" @click="search">搜索</span>-->
+        <i class="iconfont icon-search span1" @click="search"></i>
     </div>
 </template>
 <script>

@@ -4,8 +4,8 @@
       line-height: 30px;
       padding: 0 13px;
       border: 1px solid #E7ECF1;
-      border-radius: 2px;
-      font-size: 12px;
+      border-radius: 4px;
+      font-size: 14px;
       color: #333333;
       background: rgba(0,0,0,0);
     }
@@ -15,8 +15,9 @@
     height: 30px;
     line-height: 30px;
     padding: 0 13px;
-    font-size: 12px;
+    font-size: 14px;
     color: #FFFFFF;
+    border-radius: 4px;
   }
 }
 // 页面的标题栏
@@ -36,22 +37,6 @@
 }
 .el-range-separator{
     width: 6% !important;
-}
-.container-fluid .el-tabs__item.is-active{
-    color: #e0370f!important;
-}
-.container-fluid .el-tabs__active-bar{
-    background-color: #e0370f!important;
-}
-.el-tabs__nav-wrap::after{
-    background: none!important;
-}
-.el-tabs__item:hover{
-    color: #e0370f!important;
-}
-.el-message-box__wrapper .el-button--primary{
-    background: #e0370f!important;
-    border-color: #e0370f!important;
 }
 .el-card__header{
     padding: 9px 15px;
@@ -95,9 +80,54 @@
     padding: 0px!important;
     font-size: 16px!important;
     color: #333!important;
-    padding-left: 16px!important;
+    padding-left: 15px!important;
 }
 // 按钮的间距 10px 取消默认间距 8px
 .btn-right{
     margin-right: 8px;
+}
+.el-tooltip__popper.is-light {
+    max-width: 420px;
+    line-height: 1.8;
+    border: 1px solid $color-border;
+    word-break: break-all;
+}
+.el-tooltip__popper .popper__arrow {
+    border-top-color: $color-border!important;
+    border-bottom-color: $color-border!important;
+}
+// 列表左边的颜色
+.list-left-span{
+    color: #333333;
+    font-size: 14px;
+}
+// 列表右边边的颜色
+.list-right-span{
+    color: #666666;
+    font-size: 14px;
+}
+.list-right-span2{
+    color: #999999;
+    font-size: 14px;
+}
+// 两者之间的距离
+.list-top{
+    margin-top: 10px;
+}
+.baiwang-download-link-content {
+    a {
+        color: #4a90e2;
+        &:hover {
+            color: #E0370F;
+        }
+    }
+    .baiwang-download-link-item1 {
+    }
+    .baiwang-download-link-item2 {
+        padding-left: 16px;
+    }
+    .baiwang-btn-wrapper {
+        text-align: right;
+        padding-top: 22px;
+    }
 }

@@ -57,17 +57,17 @@
                             <!--{{ ind === 0 ? it.name : ',' + it.name }}-->
                         <!--</template>-->
                     <!--</td>-->
-                    <td width="20%">
+                    <td class="align-c" width="20%">
                         <template v-if="item.isAdmin !== 1">
                             <!--<el-button @click="showAuthenDialog(item)" type="text" size="small">授权</el-button>-->
-                            <el-button @click="removeData(item)" type="text" size="small">移除</el-button>
+                            <el-button @click="removeData(item)" type="text" class="gy-button-view" size="small">移除</el-button>
                         </template>
                     </td>
                 </tr>
                 </tbody>
             </table>
             <div class="totaljl">
-                共{{tableData.data.length}}条记录
+                共 {{page.total}} 条记录
            </div>
         </div>
         <el-pagination
@@ -137,7 +137,7 @@ export default {
                 currentPage: 1,
                 pageSizes: [10, 20, 30, 50],
                 pageSize: 10,
-                total: 110
+                total: 0
             }
         };
     },
@@ -329,7 +329,7 @@ export default {
         .mytable{
             padding: 0 16px;
             td{
-                text-align: center;
+                // text-align: center;
             }
         }
         .fhy_new{
@@ -359,6 +359,7 @@ export default {
                 overflow: auto;
                 border: 1px solid #e6eaea;
                 background: #FFF;
+                z-index: 9999;
                 li{
                     float: left;
                     padding: 5px 10px;

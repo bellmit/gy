@@ -38,7 +38,7 @@
         <!--<button @click="del" class="gy-button-normal">删除</button>-->
         <!--<button @click="attribute" class="gy-button-normal">属性</button>-->
         <!--<button @click="param" class="gy-button-normal">参数</button>-->
-        <button @click="view" class="gy-button-normal">查看</button>
+        <button @click="view" class="gy-button-normal mr0">查看</button>
       </div>
       <table class="gy-table">
         <thead>
@@ -53,12 +53,11 @@
         </thead>
         <tbody>
         <tr v-for="(item,index) in reception.list" :key="index">
-          <th><input type="checkbox" :checked="checkedList.indexOf(item.id) >= 0" @change="handleCheckChange(item.id)">
-          </th>
-          <th>{{item.catalogueName}}</th>
-          <th>{{item.catalogueDescription}}</th>
-          <th>{{item.catalogueLevel}}</th>
-          <th>{{item.valid | valid}}</th>
+          <td><input type="checkbox" :checked="checkedList.indexOf(item.id) >= 0" @change="handleCheckChange(item.id)"></td>
+          <td>{{item.catalogueName}}</td>
+          <td>{{item.catalogueDescription}}</td>
+          <td>{{item.catalogueLevel}}</td>
+          <td>{{item.valid | valid}}</td>
         </tr>
         </tbody>
       </table>
@@ -211,8 +210,15 @@ export default {
 @import './../../../styles/module/CMList';
 .gy-form-group {
   padding-left: 66px;
+  padding-right: 30px;
   .l {
     width: 56px;
+  }
+}
+.gy-form-group:nth-child(even) {
+  .l {
+    width: 86px;
+    padding-left: 30px;
   }
 }
 </style>

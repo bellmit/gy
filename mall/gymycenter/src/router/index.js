@@ -13,9 +13,6 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
     to.meta.title && (document.title = to.meta.title);
-    if (from.name === 'register') {
-        localStorage.setItem('jump', from.name);
-    }
     if (to.name === 'header' || to.name === 'footer') {
         next();
         return;

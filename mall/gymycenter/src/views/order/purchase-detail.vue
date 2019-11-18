@@ -14,13 +14,13 @@
                 </div>
             </div>
             <gy-order-step ref="orderStep" @updateData="getInfo" :step-data="stepData"
-                           :order-data="orderData"></gy-order-step>
+                           :order-data="orderData" :order-img="prebiewImg"></gy-order-step>
         </el-card>
         <div>
-            <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="mewmyfont">订单信息</span></p>
+            <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon" style="font-size: 13px"></i> <span class="mewmyfont">订单信息</span></p>
             <el-row>
                 <el-col :span="24">
-                    <gy-order-info @showContract="showContract" :order-data="info" user-type="buy"></gy-order-info>
+                    <gy-order-info @showContract="showContract" :order-data="info" :order-view="previewerImgOrder" :order-img="prebiewImg" user-type="buy"></gy-order-info>
                 </el-col>
             </el-row>
             <div class="tabs mynewtabs">
@@ -91,6 +91,13 @@ export default {
                 40: '已支付',
                 50: '已完成',
                 60: '已作废'
+            },
+            previewerImgOrder: {
+                list: []
+            },
+            prebiewImg: {
+                list: [],
+                preBoolean: false
             }
         };
     },
@@ -117,6 +124,13 @@ export default {
             let that = this;
             that.$http.get(that.$api.sale.detail + '/' + that.orderId).then((res) => {
                 let rsData = res.data.data;
+                // 判断是否为结算 跳转
+                let name = rsData.orderStatus;
+                if (name !== 1 && name !== 2 && name !== 5) {
+                    name = 'buyerSettle';
+                    const {href} = that.$router.resolve({name: name, query: {orderId: rsData.id}});
+                    window.location.href = href;
+                }
                 let currentStatusName = rsData.currentOrderExecuteStageModel && rsData.currentOrderExecuteStageModel.orderExecuteSubStatusModel && rsData.currentOrderExecuteStageModel.orderExecuteSubStatusModel.buyerWorkFlowStatus;
                 let currentStatus = [
                     {
@@ -150,8 +164,9 @@ export default {
                     btnList: (rsData.currentOrderExecuteStageModel && rsData.currentOrderExecuteStageModel.orderExecuteSubStatusModel && rsData.currentOrderExecuteStageModel.orderExecuteSubStatusModel.allowedFunctionsModelList) || []
                 };
                 this.orderData = Object.assign(rsData, {orderType: 'buy'});
-
                 this.info = rsData;
+                this.showContractOrder(this.info);
+                this.showReceiptsImg(this.info);
                 that.orderItemList = res.data.data && res.data.data.orderItemList;
                 that.orderStatusStepModel = res.data.data && res.data.data.orderStatusStepModelList;
             });
@@ -161,6 +176,40 @@ export default {
         },
         showContract () {
             this.$refs.orderStep.buyerReviewContract();
+        },
+        showContractOrder (item) {
+            this.previewerImgOrder.list = [];
+            this.$http.get(this.$api.invoice.DocUrl + item.id + '/contracts/getDocUrl')
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        if (res.data.data.filepath.length > 0) {
+                            res.data.data.filepath.forEach((e) => {
+                                let filepathObj = {
+                                    fileTypeAlias: null,
+                                    filepath: null
+                                };
+                                filepathObj.filepath = e;
+                                filepathObj.fileTypeAlias = this.$tools.getFileTypeAlias(e);
+                                this.previewerImgOrder.list.push(filepathObj);
+                            });
+                        }
+                    }
+                });
+        },
+        showReceiptsImg (item) {
+            // 查看发票
+            let that = this;
+            that.$http.get(that.$api.invoice.sellerInvoiceImg + '/' + item.id)
+                .then((res) => {
+                    that.prebiewImg.list = res.data.data;
+                    if (that.prebiewImg.list > 0) {
+                        that.prebiewImg.list.forEach((e) => {
+                            e.fileTypeAlias = this.$tools.getFileTypeAlias(e.invoiceUrl);
+                        });
+                    } else {
+                        that.prebiewImg.preBoolean = true;
+                    }
+                });
         }
     }
 };
@@ -291,13 +340,8 @@ export default {
                 color: $color-main;
                 font-size: $small-font;
             }
-            table body:nth-child(odd) tr td {
-                background-color: #F2F3F7;
-            }
             table tr:first-child td {
                 height: 40px;
-                background-color: #EEF3F8;
-                font-weight: bold;
             }
             table td {
                 height: 40px;

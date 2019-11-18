@@ -1,3 +1,4 @@
+import tools from '@/config/tools';
 export default {
     minute2hour (time) {
         let hour;
@@ -11,7 +12,7 @@ export default {
     },
     date: function (time, hour) { // 把时间戳格式:若有参返回年-月-日时:分:秒 若无参返回 年-月-日
         if (!time) {
-            return '';
+            return '-';
         }
         let y, m, d, date, h, ms, s, data, hours;
         date = new Date(time);
@@ -23,6 +24,31 @@ export default {
         s = date.getSeconds();
         data = y + '-' + format(m) + '-' + format(d);
         hours = format(h) + ':' + format(ms) + ':' + format(s);
+        if (hour) {
+            return data + ' ' + hours;
+        } else {
+            return data;
+        }
+        function format (num) {
+            if (parseInt(num) < 10) {
+                num = '0' + num;
+            }
+            return num;
+        }
+    },
+    datems: function (time, hour) { // 把时间戳格式:若有参返回年-月-日时:分 若无参返回 年-月-日
+        if (!time) {
+            return '--';
+        }
+        let y, m, d, date, h, ms, data, hours;
+        date = new Date(time);
+        y = date.getFullYear();
+        m = date.getMonth() + 1;
+        d = date.getDate();
+        h = date.getHours();
+        ms = date.getMinutes();
+        data = y + '-' + format(m) + '-' + format(d);
+        hours = format(h) + ':' + format(ms);
         if (hour) {
             return data + ' ' + hours;
         } else {
@@ -96,6 +122,18 @@ export default {
         if (val === 22) {
             return '银行直付';
         }
+        if (val === 3) {
+            return '积分支付';
+        }
+        if (val === 30) {
+            return '线上担保支付';
+        }
+        if (val === 32) {
+            return '票据担保支付';
+        }
+        if (val === 31) {
+            return '票据支付';
+        }
         return '';
     },
     // 付款类型
@@ -118,7 +156,20 @@ export default {
         }
         return '';
     },
-
+    // 付款方式
+    paymentType: function (strVal) {
+        const val = parseInt(strVal);
+        if (val === 0) {
+            return '先款后货';
+        }
+        if (val === 1) {
+            return '先货后款';
+        }
+        if (val === 10) {
+            return '担保交易';
+        }
+        return '';
+    },
     // 付款单类型
     paymentStatus: function (strVal) {
         if (!strVal) {
@@ -171,28 +222,55 @@ export default {
         // return v.toLocaleString();
     },
     // 数字转金额显示
-    numToCash: function (value, num = 2) {
-        // 返回处理后的值
-        value = parseFloat(value);
-        if (value === null || value === undefined || value === '' || value === 0 || value === !NaN || !value) {
-            value = 0;
-            return value.toFixed(num);
-        } else {
-            value = value.toFixed(num);
-            let end = value.split('.')[1];
-            let start = value.split('.')[0];
-            let arr = [];
+    // numToCash: function (value, num = 2) {
+    //     // 返回处理后的值
+    //     value = parseFloat(value);
+    //     if (value === null || value === undefined || value === '' || value === 0 || value === !NaN || !value) {
+    //         value = 0;
+    //         return value.toFixed(num);
+    //     } else {
+    //         value = value.toFixed(num);
+    //         let end = value.split('.')[1];
+    //         let start = value.split('.')[0];
+    //         let arr = [];
 
-            start = start.split('').reverse();
-            start.map(function (elem, index) {
-                arr.push(elem);
-                if (index % 3 === 2 && index !== value.length - 1 && index !== start.length - 1) {
-                    arr.push(',');
-                }
-            });
+    //         start = start.split('').reverse();
+    //         start.map(function (elem, index) {
+    //             arr.push(elem);
+    //             if (index % 3 === 2 && index !== value.length - 1 && index !== start.length - 1) {
+    //                 arr.push(',');
+    //             }
+    //         });
 
-            start = arr.reverse().join('');
-            return start + '.' + end;
+    //         start = arr.reverse().join('');
+    //         return start + '.' + end;
+    //     }
+    // },
+    // 数字转金额显示(默认两位小数)
+    numToCash: function (value, num = 2, trimZero = false) {
+        return tools.formatNumber(value, num, trimZero);
+    },
+    // 千分位转化
+    toThousand: value => {
+        let reg = /\d{1,3}(?=(\d{3})+$)/g;
+        return (value + '').replace(reg, '$&,');
+    },
+    // 数值转换为大写
+    sumInWords (num) {
+        num = Number(num).toFixed(2);
+        var strOutput = '';
+        var strUnit = '仟佰拾亿仟佰拾万仟佰拾圆角分';
+        num += '00';
+        if (num.charAt(0) === '-')num = num.substring(1);
+        var intPos = num.indexOf('.');
+        if (intPos >= 0) num = num.substring(0, intPos) + num.substr(intPos + 1, 2);
+        strUnit = strUnit.substr(strUnit.length - num.length);
+        for (var i = 0; i < num.length; i++) {
+            strOutput += '零壹贰叁肆伍陆柒捌玖'.substr(num.substr(i, 1), 1) + strUnit.substr(i, 1);
         }
+        return strOutput.replace(/零角零分$/, '整').replace(/零[仟佰拾]/g, '零').replace(
+            /零{2,}/g, '零').replace(/零([亿|万])/g, '$1').replace(/零+圆/, '圆')
+            .replace(/亿零{0,3}万/, '亿').replace(/^圆/, '零圆').replace(/零分$/, '整')
+            .replace(/^零圆/, '').replace(/^整$/, '零圆整');
     }
 };

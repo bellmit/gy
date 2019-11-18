@@ -145,8 +145,11 @@ export default {
     width: 100%;
     .item{
         width: 100%;
-        .gy-form-group .l{
-            width: 102px;
+        .gy-form-group{
+            padding:0 14px 12px 122px;
+            .l{
+                width: 106px;
+            }
         }
     }
 }

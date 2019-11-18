@@ -17,7 +17,7 @@
               </el-row>
               <el-row>
                 <el-col :span="12">
-                <el-form-item label="新密码" prop="newPassword">
+                <el-form-item label="新密码" prop="newPassword" class="mr-60">
                     <el-input v-model="form.newPassword" type="password" placeholder="请输入新密码"></el-input>
                 </el-form-item>
                 </el-col>

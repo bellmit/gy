@@ -1,141 +1,163 @@
 <template>
-    <div class="advanced-search" :class="{'show-advance': showAdvance}" v-show="showAdvance">
-      <div>
-        <el-row :gutter="40">
-          <el-col class="martop" :span="10">
-            <el-row>
-              <el-col :span="3">托运方</el-col>
-              <el-col :span="20">
-                <input @click="blur11" type="text" class="gy-input" v-model="consignorId2" @keyup.enter="onelist1click">
-              </el-col>
-              <el-col :span="1"><i class="iconfont icon-search"  @click="onelist1click"></i></el-col>
-              <ul class="listul"  v-show="onelist1Show">
-                <li v-for="(item,index) in onelist1" :key="index" @click="onelist1select(item)" v-if="onelist1.length>0">
-                  {{item.companyName}}
-                </li>
-                <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
-              </ul>
-            </el-row>
-          </el-col>
-          <el-col class="martop" :span="10"  v-if='searchType==0'>
-            <el-row>
-              <el-col :span="3">承运商</el-col>
-              <el-col :span="20">
-                <input @click="blur22" type="text" class="gy-input" v-model="carrierId2" @keyup.enter="onelist1click2">
-              </el-col>
-              <el-col :span="1"> <i class="iconfont icon-search"  @click="onelist1click2"></i></el-col>
-              <ul class="listul"  v-show="onelist2Show">
-                <li v-for="(item,index) in onelist2" :key="index" @click="onelist1select2(item)" v-if="onelist2.length>0">
-                  {{item.companyName}}
-                </li>
-                <li class="none-tips" v-if="onelist2.length === 0">没有搜到相关公司</li>
-              </ul>
-            </el-row>
-          </el-col>
-          <el-col class="martop" :span="10">
-            <el-row>
-              <el-col :span="3">装货地</el-col>
-              <el-col :span="10">
-                <el-select v-model="searchData.loadProvinceId" placeholder="请选择省份" @change="provinceChange(0)" class="fl province">
-                <el-option
-                  v-for="item in sendProvinceList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-              </el-col>
-              <el-col :span="10">
-                <el-select v-model="searchData.loadAreaId" placeholder="请选择城市" class="fr city">
+    <div class="my-wrap">
+      <div class="advanced-search" :class="{'show-advance': showAdvance}" v-show="showAdvance">
+        <div>
+          <el-row :gutter="40">
+            <el-col class="martop" :span="12">
+              <el-row>
+                <el-col :span="4">托运方</el-col>
+                <el-col :span="19">
+                  <input @click="blur11" type="text" class="gy-input" v-model="consignorId2" @keyup.enter="onelist1click">
+                </el-col>
+                <el-col :span="1"><i class="iconfont icon-mySearch"  @click="onelist1click"></i></el-col>
+                <ul class="listul"  v-show="onelist1Show">
+                  <li v-for="(item,index) in onelist1" :key="index" @click="onelist1select(item)" v-if="onelist1.length>0">
+                    {{item.companyName}}
+                  </li>
+                  <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
+                </ul>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12"  v-if='searchType==0'>
+              <el-row>
+                <el-col :span="4">承运商</el-col>
+                <el-col :span="19">
+                  <input @click="blur22" type="text" class="gy-input" v-model="carrierId2" @keyup.enter="onelist1click2">
+                </el-col>
+                <el-col :span="1"> <i class="iconfont icon-mySearch"  @click="onelist1click2"></i></el-col>
+                <ul class="listul"  v-show="onelist2Show">
+                  <li v-for="(item,index) in onelist2" :key="index" @click="onelist1select2(item)" v-if="onelist2.length>0">
+                    {{item.companyName}}
+                  </li>
+                  <li class="none-tips" v-if="onelist2.length === 0">没有搜到相关公司</li>
+                </ul>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12">
+              <el-row>
+                <el-col :span="4">装货地</el-col>
+                <el-col :span="10">
+                  <el-select v-model="searchData.loadProvinceId" placeholder="请选择省份" @change="provinceChange(0)" class="fl province">
                   <el-option
-                    v-for="item in sendCityList"
+                    v-for="item in sendProvinceList"
                     :key="item.id"
                     :label="item.name"
                     :value="item.id">
                   </el-option>
                 </el-select>
-              </el-col>
-            </el-row>
-          </el-col>
-          <el-col class="martop" :span="10">
-            <el-row>
-              <el-col :span="3">卸货地</el-col>
-              <el-col :span="10">
-                <el-select v-model="searchData.unloadProvinceId" placeholder="请选择省份" @change="provinceChange(1)" class="fl province">
-                <el-option
-                  v-for="item in loadProvinceList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-              </el-col>
-              <el-col :span="10">
-                <el-select v-model="searchData.unloadAreaId" placeholder="请选择城市" class="fr city">
-                <el-option
-                  v-for="item in loadCityList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-              </el-col>
-            </el-row>
-          </el-col>
-          <el-col class="martop" :span="10">
-            <el-row>
-              <el-col :span="3">期望支付方式</el-col>
-              <el-col :span="20">
-                <el-select v-model="searchData.freightPaymentType" placeholder="不限">
+                </el-col>
+                <el-col :span="9">
+                  <el-select v-model="searchData.loadAreaId" placeholder="请选择城市" class="fr city">
+                    <el-option
+                      v-for="item in sendCityList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-col>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12">
+              <el-row>
+                <el-col :span="4">卸货地</el-col>
+                <el-col :span="9">
+                  <el-select v-model="searchData.unloadProvinceId" placeholder="请选择省份" @change="provinceChange(1)" class="fl province">
                   <el-option
-                    v-for="item in paymentType"
+                    v-for="item in loadProvinceList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+                </el-col>
+                <el-col :span="10">
+                  <el-select v-model="searchData.unloadAreaId" placeholder="请选择城市" class="fr city">
+                  <el-option
+                    v-for="item in loadCityList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+                </el-col>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12">
+              <el-row>
+                <el-col :span="4">期望支付方式</el-col>
+                <el-col :span="19">
+                  <el-select v-model="searchData.freightPaymentType" placeholder="不限">
+                    <el-option
+                      v-for="item in paymentType"
+                      :key="item.id"
+                      :label="item.value"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-col>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12">
+              <el-row>
+                <el-col :span="4">期望签约方式</el-col>
+                <el-col :span="19">
+                  <el-select v-model="searchData.consignmentSignType" placeholder="不限">
+                  <el-option
+                    v-for="item in signType"
                     :key="item.id"
                     :label="item.value"
                     :value="item.id">
                   </el-option>
                 </el-select>
-              </el-col>
-            </el-row>
-          </el-col>
-          <el-col class="martop" :span="10">
-            <el-row>
-              <el-col :span="3">期望签约方式</el-col>
-              <el-col :span="20">
-                <el-select v-model="searchData.consignmentSignType" placeholder="不限">
-                <el-option
-                  v-for="item in signType"
-                  :key="item.id"
-                  :label="item.value"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-              </el-col>
-            </el-row>
-          </el-col>
-          <el-col class="martop" :span="10">
-            <el-row>
-              <el-col :span="3">装货日期</el-col>
-              <el-col :span="9">
+                </el-col>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12">
+              <el-row>
+                <el-col :span="4">装货日期</el-col>
+                <el-col :span="8">
+                    <el-date-picker
+                    v-model="searchData.estimatedLoadingDateStart"
+                    class="form-date"
+                    type="date"
+                    placeholder="选择日期">
+                  </el-date-picker>
+                </el-col>
+                <el-col :span="3" style="text-align: center"><span class="form-line">至</span></el-col>
+                <el-col :span="8">
                   <el-date-picker
-                  v-model="searchData.estimatedLoadingDateStart"
+                  v-model="searchData.estimatedLoadingDateEnd"
                   class="form-date"
                   type="date"
                   placeholder="选择日期">
-                 </el-date-picker>
-              </el-col>
-              <el-col :span="2"><span class="form-line">至</span></el-col>
-              <el-col :span="9">
-                <el-date-picker
-                v-model="searchData.estimatedLoadingDateEnd"
-                class="form-date"
-                type="date"
-                placeholder="选择日期">
-              </el-date-picker>
-              </el-col>
-              <el-col :span="1"><i class="iconfont icon-search cl" @click="handleSearch"></i></el-col>
-            </el-row>
-          </el-col>
-        </el-row>
+                </el-date-picker>
+                </el-col>
+                <el-col :span="1" v-if="searchType !== 0"><i class="iconfont icon-search cl" @click="handleSearch"></i></el-col>
+              </el-row>
+            </el-col>
+            <el-col class="martop" :span="12" v-if="searchType === 0">
+              <el-row>
+                <el-col :span="4">四流审核</el-col>
+                <el-col :span="19">
+                  <el-select v-model="searchData.billStatus" placeholder="请选择">
+                    <el-option
+                      v-for="item in $constant.auditStatusListTrans"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-col>
+                <el-col :span="1"><i class="iconfont icon-search cl" @click="handleSearch"></i></el-col>
+              </el-row>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <!-- 导出 -->
+      <div class="button-wrap" v-if="searchType === 0 || searchType === 3">
+          <button class="gy-button-extra" @click="exportDoc">导出</button>
       </div>
     </div>
 </template>
@@ -147,6 +169,7 @@ export default {
             carrierId2: null,
             consignorId2: null,
             searchData: {
+                billStatus: null,
                 carrierId: null,
                 estimatedLoadingDateStart: null,
                 estimatedLoadingDateEnd: null,
@@ -158,6 +181,7 @@ export default {
                 consignmentSignType: null,
                 freightPaymentType: null,
                 consignmentNoteCode: null,
+                consignmentNoteStatus: null,
                 keywords: null
             },
             tradeCompanyList: [],
@@ -202,13 +226,52 @@ export default {
             onelist2: []
         };
     },
-    props: ['keywords', 'showAdvance', 'searchInfo', 'advance', 'searchType', 'countStatus'],
+    props: ['keywords', 'consignmentNoteStatus', 'showAdvance', 'searchInfo', 'advance', 'searchType', 'countStatus'],
     created () {
         this.getTradeCompany();
         this.getProvince();
         this.getCarrierCompany();
     },
     methods: {
+        // 导出
+        exportDoc () {
+            this.searchData.keywords = this.keywords;
+            this.searchData.consignmentNoteStatus = (this.consignmentNoteStatus || this.consignmentNoteStatus === 0) ? this.consignmentNoteStatus : null;
+            this.$http.post(this.$api.transport.consignmentsExport, this.searchData, {responseType: 'blob'}).then(res => {
+                if (res.data.size > 0) {
+                    this.download(res.data);
+                    return;
+                }
+                this.$message.error('没有文件可下载');
+            });
+        },
+        format (num) {
+            if (parseInt(num) < 10) {
+                num = '0' + num;
+            }
+            return num;
+        },
+        download (data) {
+            let blob = new Blob([data]);
+            let y, m, d, date, time;
+            date = new Date();
+            y = date.getFullYear();
+            m = date.getMonth() + 1;
+            d = date.getDate();
+            time = y + '' + this.format(m) + '' + this.format(d);
+            if (window.navigator.msSaveOrOpenBlob) {
+                // 兼容IE10
+                navigator.msSaveBlob(blob, `${time}运输订单列表.xls`);
+            } else {
+                let url = window.URL.createObjectURL(new Blob([data]));
+                let link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = url;
+                link.setAttribute('download', `${time}运输订单列表.xls`);
+                document.body.appendChild(link);
+                link.click();
+            }
+        },
         onelist1click () {
             var that = this;
             that.onelist1Show = true;
@@ -218,7 +281,6 @@ export default {
             })
                 .then(function (res) {
                     that.onelist1 = res.data.data;
-                    console.log(that.onelist1);
                 }).catch(() => {
                     console.log('出错了');
                 });
@@ -299,7 +361,6 @@ export default {
         handleSearch () {
             this.searchData.keywords = this.keywords;
             this.$emit('update:advance', this.searchData);
-            console.log(this.searchApi);
             this.$http.post(this.searchApi[this.searchType].list, {
                 data: this.searchData,
                 pageNum: 1,
@@ -318,8 +379,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .button-wrap {
+        font-size: 0;
+        padding: 15px 0 8px;
+        display: inline-block;
+        width: 100%;
+        text-align: right;
+    }
     .advanced-search{
         clear: both;
+        padding:15px 0 0 14px;
         .gy-form{
             transition: all 0.8s;
             padding: 20px 0 0 20px;
@@ -351,14 +420,14 @@ export default {
         }
       .listul{
         background-color: #fff;
-        width: 84%;
-        max-height: 300px;
+        width: 79.16667%;
+        max-height: 145px;
         position: absolute;
         top: 30px;
         z-index: 9;
         border: 1px solid #e6eaea;
         border-top: none;
-        margin-left: 12.5%;
+        margin-left: 16.66667%;
         overflow: auto;
         li{
           padding: 5px 10px;
@@ -372,5 +441,10 @@ export default {
       .martop{
         margin-top: 15px;
       }
+    }
+    .icon-mySearch{
+      position: absolute;
+      top:0;
+      right:30px;
     }
 </style>

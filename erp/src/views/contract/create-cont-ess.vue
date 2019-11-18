@@ -8,23 +8,16 @@
                     <div class="essential-item">
                         <div class="essential-title"><span class="isMust">*</span>业务类型</div>
                         <div class="essential-text">
-                            <el-select v-model="data.bizType" placeholder="请选择" @change="getCompany">
-                                <el-option v-for="(item, index) in $constant.bizType4CreateEss" :key="index"
-                                           :label="item.name" :value="item.id">
-                                </el-option>
+                            <el-select v-model="data.bizType" placeholder="请选择" @change="onchangeBizType()">
+                                <el-option v-for="(item, index) in $constant.bizType4CreateEss" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </div>
                     </div>
                     <div class="essential-item">
-                        <div class="essential-title">
-                            <el-checkbox v-model="unilateral" @change="onUnilateral"></el-checkbox>
-                            单边交易
-                        </div>
+                        <div class="essential-title">合同交易类型</div>
                         <div class="essential-text">
-                            <el-select v-model="data.contractType" placeholder="请选择" :disabled="!unilateral">
-                                <el-option v-for="(item, index) in $constant.contractTypeList" :key="index"
-                                           :label="item.name" :value="item.id">
-                                </el-option>
+                            <el-select v-model="data.contractType" placeholder="请选择" @change="onUnilateral">
+                                <el-option v-for="(item, index) in $constant.contractTypeList" :key="index" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </div>
                     </div>
@@ -33,11 +26,8 @@
                     <div class="essential-item">
                         <div class="essential-title"><span class="isMust">*</span>业务操作人</div>
                         <div class="essential-text">
-                            <el-select v-model="businessManageridx" placeholder="请选择" @change="businessManagerchk">
-                                <el-option v-for="(item, index) in businessManager" :key="index" :label="item.userName"
-                                           :value="index">
-                                    <span>{{item.userName}}</span>
-                                </el-option>
+                            <el-select v-model="businessManagerIdx" placeholder="请选择" @change="businessManagerchk">
+                                <el-option v-for="(item, index) in businessManager" :key="index" :label="item.userName" :value="index"></el-option>
                             </el-select>
                         </div>
                     </div>
@@ -45,10 +35,7 @@
                         <div class="essential-title"><span class="isMust">*</span>业务组</div>
                         <div class="essential-text">
                             <el-select placeholder="请选择" v-model="srOrganizationIdx" @change="checkGroup">
-                                <el-option v-for="(item, index) in businessManagerGroup" :key="index"
-                                           :label="item.orgName" :value="index">
-                                    <span>{{item.orgName}}</span>
-                                </el-option>
+                                <el-option v-for="(item, index) in businessManagerGroup" :key="index" :label="item.orgName" :value="index"></el-option>
                             </el-select>
                         </div>
                     </div>
@@ -56,18 +43,25 @@
             </div>
         </div>
         <div class="pay-wrapper">
-            <div v-if="!(data.contractType === 3 && unilateral)" class="essential-information">
-                <p class="paydetail-title">上游公司信息</p>
+            <div v-if="!(data.contractType === 3)" class="essential-information">
+                <p class="paydetail-title">上游合同信息</p>
                 <div class="essential-wrapper" style="padding-bottom:10px">
+                    <div class="essential-row">
+                        <div class="essential-item">
+                            <div class="essential-title"><span class="isMust">*</span>产品名称</div>
+                            <div class="essential-text">
+                                <el-select v-model="activeProductId" placeholder="请选择" :disabled="forContEssRecreate" @change="onchangeProduct(2,0)">
+                                    <el-option v-for="(item, index) in goodsList" :key="index" :label="item.goodsName" :value="item.goodsId"></el-option>
+                                </el-select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="essential-row">
                         <div class="essential-item">
                             <div class="essential-title">我方公司</div>
                             <div class="essential-text">
-                                <el-select v-model="targetCorpIdbuy" placeholder="请选择" @change="checktargetCorpbuy">
-                                    <el-option v-for="(item, index) in relatedCompany" :key="index"
-                                               :label="item.targetCorpName" :value="index">
-                                        <span>{{item.targetCorpName}}</span>
-                                    </el-option>
+                                <el-select v-model="targetCorpIdIdx" placeholder="请选择" @change="checktargetCorpbuy">
+                                    <el-option v-for="(item, index) in relatedCompany" :key="index" :label="item.targetCorpName" :value="index"></el-option>
                                 </el-select>
                             </div>
                         </div>
@@ -76,8 +70,7 @@
                         <div class="essential-item">
                             <div class="essential-title"><span class="isMust">*</span>上游公司</div>
                             <div class="essential-text">
-                                <input type="text" placeholder="请输入上游公司名" v-model="data.sellerInfo.companyName"
-                                       @click="checkCompany('卖')">
+                                <input type="text" placeholder="请选择上游公司" v-model="data.upstreamInfo.companyName" @click="checkCompany(2)">
                             </div>
                         </div>
                     </div>
@@ -85,245 +78,33 @@
                         <div class="essential-item">
                             <div class="essential-title"><span class="isMust">*</span>交易对手评级</div>
                             <div class="essential-text">
-                                <input type="text" disabled placeholder="请选择交易对手评级" v-model="sellerTrade">
+                                <input type="text" disabled placeholder="请输入" v-model="data.upstreamInfo.grade">
                             </div>
                         </div>
                     </div>
+                    <component v-for="(item, index) in upstreamCmptList" :key="index" :is="item.propKey"
+                               :biz-type="data.upstreamInfo.bizType" :need-refresh.sync="needRefresh" :comp-data="item" :order-data="data.upstreamInfo"></component>
+                </div>
+            </div>
+            <div v-if="!(data.contractType === 2)" class="essential-information">
+                <p class="paydetail-title">下游合同信息</p>
+                <div class="essential-wrapper" style="padding-bottom:10px">
                     <div class="essential-row">
                         <div class="essential-item">
                             <div class="essential-title"><span class="isMust">*</span>产品名称</div>
                             <div class="essential-text">
-                                <el-select v-model="sellerInfoProd" placeholder="请选择"
-                                           @visible-change="openPro($event, 2)" @change="checkPro('卖')">
-                                    <el-option v-for="(item, index) in proType" :key="index" :label="item.goodsName"
-                                               :value="index">
-                                        <span>{{item.goodsName}}</span>
-                                    </el-option>
+                                <el-select v-model="activeProductId" placeholder="请选择" :disabled="forContEssRecreate" @change="onchangeProduct(3,0)">
+                                    <el-option v-for="(item, index) in goodsList" :key="index" :label="item.goodsName" :value="item.goodsId"></el-option>
                                 </el-select>
                             </div>
                         </div>
                     </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>数量</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.sellerInfo.skuQuantity" placeholder="请输入产品数量">
-                                <span class="unit">吨</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>单价(含税)</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.sellerInfo.skuPrice" placeholder="请输入产品单价">
-                                <span class="unit">元</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">保证金</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.sellerInfo.depositRatio" placeholder="请输入保证金比例">
-                                <span class="unit">%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">追保约定</div>
-                            <div class="essential-text cont-ess-zbyd">
-                                <div class="q">跌</div>
-                                <div class="w"><input type="text" style="text-align: center"
-                                                      v-model="data.sellerInfo.depositRatioSubtract"></div>
-                                <div class="e">%</div>
-                                <div class="r"><span style="padding-left: 20%;text-align: right">补</span></div>
-                                <div class="t"><input type="text" style="text-align: center"
-                                                      v-model="data.sellerInfo.depositRatioAppend"></div>
-                                <div class="y">%</div>
-                                <div class="u">
-                                    <el-tooltip class="tooltip" effect="light" content="价格标准以安迅思华东区的价格为准"
-                                                placement="top">
-                                        <i class="iconfont icon-priceTool"></i>
-                                    </el-tooltip>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>交割库</div>
-                            <div class="essential-text">
-                                <el-select v-model="warehouseidxsell" placeholder="请选择"
-                                           @visible-change="openPro($event, 4)" @change="warehouseidxsells">
-                                    <el-option v-for="(item, index) in sellDeliveryBank" :key="index"
-                                               :label="item.warehouseName" :value="index">
-                                        <span>{{item.warehouseName}}</span>
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>交割日期</div>
-                            <div class="essential-text" style="flex-direction: column">
-                                <div>
-                                    <el-select v-model="data.sellerInfo.deliveryDateFlag" placeholder="请选择">
-                                        <el-option v-for="(item, index) in $constant.deliveryDateFlag" :key="index"
-                                                   :label="item.name" :value="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                                <div class="essential-text" style="margin-right: 0">
-                                    <div class="d">
-                                        <el-date-picker
-                                                v-model="data.sellerInfo.deliveryBeginDate"
-                                                type="date"
-                                                value-format="timestamp"
-                                                @change="pickertime(1)"
-                                                :placeholder="data.sellerInfo.deliveryDateFlag === 2 ? '截止日期':'开始日期'">
-                                        </el-date-picker>
-                                    </div>
-                                    <template v-if="data.sellerInfo.deliveryDateFlag !== 2">
-                                        <div class="c">-</div>
-                                        <div class="d">
-                                            <el-date-picker
-                                                    v-model="data.sellerInfo.deliveryEndDate"
-                                                    type="date"
-                                                    @change="pickertime(2)"
-                                                    value-format="timestamp"
-                                                    placeholder="结束日期">
-                                            </el-date-picker>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>交割方式</div>
-                            <div class="essential-text">
-                                <el-select v-model="data.sellerInfo.deliveryType" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.deliveryList" :key="index"
-                                               :label="item.name" :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">免仓期</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.sellerInfo.warehouseFreeDays" placeholder="请输入天数">
-                                <span class="unit">天</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>付款方式</div>
-                            <div class="essential-text">
-                                <el-select v-model="data.sellerInfo.paymentType" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.paymentType" :key="index"
-                                               :label="item.name" :value="item.id">
-                                    </el-option>
-                                </el-select>
-                                <el-select v-model="data.sellerInfo.payChannel" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.paymentType1" :key="index"
-                                               :label="item.name" :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>发票月份</div>
-                            <div class="essential-text">
-                                <el-radio-group v-model="data.sellerInfo.provideInvoiceType">
-                                    <el-radio :label="1">交割月</el-radio>
-                                    <el-radio :label="2">交割次月</el-radio>
-                                    <el-radio :label="3">交割后</el-radio>
-                                    <div v-if="data.sellerInfo.provideInvoiceType === 3 || data.sellerInfo.provideInvoiceType === '3'"
-                                         style="font-size: 13px"><input type="text" style="width: 50px"
-                                                                        v-model="data.sellerInfo.provideInvoiceDays">工作日
-                                    </div>
-                                </el-radio-group>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>货源</div>
-                            <div class="essential-text">
-                                <el-select v-model="data.sellerInfo.skuOrigin" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.sourceGoods" :key="index"
-                                               :label="item.name" :value="item.name">
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>包装标准</div>
-                            <div class="essential-text">
-                                <el-radio-group v-model="data.sellerInfo.packagingStandard">
-                                    <el-radio :label="0">散水</el-radio>
-                                    <el-radio :label="1">桶装</el-radio>
-                                    <el-radio :label="2">袋装</el-radio>
-                                </el-radio-group>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row" v-if="data.bizType === 5">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust"></span>上游合约</div>
-                            <div class="essential-text" style="flex-direction: column">
-                                <div>
-                                    <el-select v-model="data.sellerInfo.longtermContractFlag" placeholder="请选择">
-                                        <el-option v-for="(item, index) in $constant.downstreamLongTerm" :key="index"
-                                                   :label="item.name" :value="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                                <div class="essential-text" style="margin-right: 0" v-if="data.sellerInfo.longtermContractFlag === 1">
-                                    <div class="d">
-                                        <input type="text" placeholder="请选择上游合约编号" v-model="data.sellerInfo.contractCode">
-                                        <i class="iconfont icon-search" @click="onSeachContract('上游')"
-                                           style="position: absolute;right: 5px;top: 7px;"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">备注</div>
-                            <div class="essential-text">
-                                <textarea name="" class="gy-textarea" v-model="sellerRemarks" cols="30"
-                                          rows="10"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div v-if="!(data.contractType === 2 && unilateral)" class="essential-information">
-                <p class="paydetail-title">下游公司信息</p>
-                <div class="essential-wrapper" style="padding-bottom:10px">
                     <div class="essential-row">
                         <div class="essential-item">
                             <div class="essential-title">我方公司</div>
                             <div class="essential-text">
-                                <el-select v-model="targetCorpIdbuy" placeholder="请选择" @change="checktargetCorpbuy">
-                                    <el-option v-for="(item, index) in relatedCompany" :key="index"
-                                               :label="item.targetCorpName" :value="index">
-                                        <span>{{item.targetCorpName}}</span>
-                                    </el-option>
+                                <el-select v-model="targetCorpIdIdx" placeholder="请选择" @change="checktargetCorpbuy">
+                                    <el-option v-for="(item, index) in relatedCompany" :key="index" :label="item.targetCorpName" :value="index"></el-option>
                                 </el-select>
                             </div>
                         </div>
@@ -332,8 +113,7 @@
                         <div class="essential-item">
                             <div class="essential-title"><span class="isMust">*</span>下游公司</div>
                             <div class="essential-text">
-                                <input type="text" placeholder="请输入下游公司名" v-model="data.buyerInfo.companyName"
-                                       @click="checkCompany('买')">
+                                <input type="text" placeholder="请选择下游公司" v-model="data.downstreamInfo.companyName" @click="checkCompany(3)">
                             </div>
                         </div>
                     </div>
@@ -341,304 +121,58 @@
                         <div class="essential-item">
                             <div class="essential-title"><span class="isMust">*</span>交易对手评级</div>
                             <div class="essential-text">
-                                <input type="text" disabled placeholder="请选择交易对手评级" v-model="buyerTrade">
+                                <input type="text" disabled placeholder="请输入" v-model="data.downstreamInfo.grade">
                             </div>
                         </div>
                     </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>产品名称</div>
-                            <div class="essential-text">
-                                <el-select v-model="buyerInfoProd" placeholder="请选择"
-                                           @visible-change="openPro($event, 1)" @change="checkPro('买')">
-                                    <el-option v-for="(item, index) in proType" :key="index" :label="item.goodsName"
-                                               :value="index">
-                                        <span>{{item.goodsName}}</span>
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>数量</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.buyerInfo.skuQuantity" placeholder="请输入产品数量">
-                                <span class="unit">吨</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>单价(含税)</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.buyerInfo.skuPrice" placeholder="请输入产品单价">
-                                <span class="unit">元</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">保证金</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.buyerInfo.depositRatio" placeholder="请输入保证金比例">
-                                <span class="unit">%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">追保约定</div>
-                            <div class="essential-text cont-ess-zbyd">
-                                <div class="q">跌</div>
-                                <div class="w"><input type="text" style="text-align: center"
-                                                      v-model="data.buyerInfo.depositRatioSubtract"></div>
-                                <div class="e">%</div>
-                                <div class="r">补</div>
-                                <div class="t"><input type="text" style="text-align: center"
-                                                      v-model="data.buyerInfo.depositRatioAppend"></div>
-                                <div class="y">%</div>
-                                <div class="u">
-                                    <el-tooltip class="tooltip" effect="light" content="价格标准以安迅思华东区的价格为准"
-                                                placement="top">
-                                        <i class="iconfont icon-priceTool"></i>
-                                    </el-tooltip>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>交割库</div>
-                            <div class="essential-text">
-                                <el-select v-model="warehouseidxbuy" placeholder="请选择"
-                                           @visible-change="openPro($event, 3)" @change="warehouseidxbuys">
-                                    <el-option v-for="(item, index) in buyDeliveryBank" :key="index"
-                                               :label="item.warehouseName" :value="index">
-                                        <span>{{item.warehouseName}}</span>
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>交割日期</div>
-                            <div class="essential-text" style="flex-direction: column">
-                                <div>
-                                    <el-select v-model="data.buyerInfo.deliveryDateFlag" placeholder="请选择">
-                                        <el-option v-for="(item, index) in $constant.deliveryDateFlag" :key="index"
-                                                   :label="item.name" :value="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                                <div class="essential-text" style="margin-right: 0">
-                                    <div class="d">
-                                        <el-date-picker
-                                                v-model="data.buyerInfo.deliveryBeginDate"
-                                                type="date"
-                                                value-format="timestamp"
-                                                @change="pickertime(3)"
-                                                :placeholder="data.buyerInfo.deliveryDateFlag === 2 ? '截止日期':'开始日期'">
-                                        </el-date-picker>
-                                    </div>
-                                    <template v-if="data.buyerInfo.deliveryDateFlag !== 2">
-                                        <div class="c">-</div>
-                                        <div class="d">
-                                            <el-date-picker
-                                                    v-model="data.buyerInfo.deliveryEndDate"
-                                                    type="date"
-                                                    @change="pickertime(4)"
-                                                    value-format="timestamp"
-                                                    placeholder="结束日期">
-                                            </el-date-picker>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>交割方式</div>
-                            <div class="essential-text">
-                                <el-select v-model="data.buyerInfo.deliveryType" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.deliveryList" :key="index"
-                                               :label="item.name" :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">免仓期</div>
-                            <div class="essential-text">
-                                <input type="text" v-model="data.buyerInfo.warehouseFreeDays" placeholder="请输入天数">
-                                <span class="unit">天</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>付款方式</div>
-                            <div class="essential-text">
-                                <el-select v-model="data.buyerInfo.paymentType" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.paymentType" :key="index"
-                                               :label="item.name" :value="item.id">
-                                    </el-option>
-                                </el-select>
-                                <el-select v-model="data.buyerInfo.payChannel" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.paymentType1" :key="index"
-                                               :label="item.name" :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>发票月份</div>
-                            <div class="essential-text">
-                                <el-radio-group v-model="data.buyerInfo.provideInvoiceType">
-                                    <el-radio :label="1">交割月</el-radio>
-                                    <el-radio :label="2">交割次月</el-radio>
-                                    <el-radio :label="3">交割后</el-radio>
-                                    <div v-if="data.buyerInfo.provideInvoiceType === 3 || data.buyerInfo.provideInvoiceType === '3'"
-                                         style="font-size: 13px"><input type="text" style="width: 50px"
-                                                                        v-model="data.buyerInfo.provideInvoiceDays">工作日
-                                    </div>
-                                </el-radio-group>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>货源</div>
-                            <div class="essential-text">
-                                <el-select v-model="data.buyerInfo.skuOrigin" placeholder="请选择">
-                                    <el-option v-for="(item, index) in $constant.sourceGoods" :key="index"
-                                               :label="item.name" :value="item.name">
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust">*</span>包装标准</div>
-                            <div class="essential-text">
-                                <el-radio-group v-model="data.buyerInfo.packagingStandard">
-                                    <el-radio :label="0">散水</el-radio>
-                                    <el-radio :label="1">桶装</el-radio>
-                                    <el-radio :label="2">袋装</el-radio>
-                                </el-radio-group>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row" v-if="data.bizType === 5">
-                        <div class="essential-item">
-                            <div class="essential-title"><span class="isMust"></span>下游合约</div>
-                            <div class="essential-text" style="flex-direction: column">
-                                <div>
-                                    <el-select v-model="data.buyerInfo.longtermContractFlag" placeholder="请选择">
-                                        <el-option v-for="(item, index) in $constant.downstreamLongTerm" :key="index"
-                                                   :label="item.name" :value="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                                <div class="essential-text" style="margin-right: 0" v-if="data.buyerInfo.longtermContractFlag === 1">
-                                    <div class="d">
-                                        <input type="text" placeholder="请选择下游合约编号" v-model="data.buyerInfo.contractCode">
-                                        <i class="iconfont icon-search" @click="onSeachContract('下游')"
-                                           style="position: absolute;right: 5px;top: 7px;"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="essential-row">
-                        <div class="essential-item">
-                            <div class="essential-title">备注</div>
-                            <div class="essential-text">
-                                <textarea name="" class="gy-textarea" v-model="buyerRemarks" cols="30"
-                                          rows="10"></textarea>
-                            </div>
-                        </div>
-                    </div>
+                    <component v-for="(item, index) in downstreamCmptList" :key="index" :is="item.propKey"
+                               :biz-type.sync="data.downstreamInfo.bizType" :need-refresh.sync="needRefresh" :comp-data="item" :order-data="data.downstreamInfo"></component>
                 </div>
             </div>
         </div>
-        <div class="essential-wrapper isUnilateral" style="padding-top:0px" v-if="unilateral && (data.bizType === 5 || data.bizType === 4)">
-            <div class="gy-form-group">
-                <span class="l" style="margin-left:10px">单边关联</span>
-                <template>
-                    <!-- `checked` 为 true 或 false -->
-                    <el-checkbox v-model="unilateralRelevance.isUnilateralCorrelation" true-label="1"
-                                 false-label="0"></el-checkbox>
-                </template>
-            </div>
-            <div class="gy-form-group cl" v-if="unilateralRelevance.isUnilateralCorrelation === '1'">
-                <span class="l" style="margin-left:0px"><i class="i">* </i>单边合同编号</span>
-                <input type="text" v-model="unilateralRelevance.contractCode">
-                <i class="iconfont icon-search" style="position: absolute;top: 10px;right: 20px;"
+        <div class="essential-wrapper isUnilateral" style="padding-top:0px"
+             v-if="data.contractType === 2 || data.contractType === 3">
+            <div class="gy-form-group cl">
+                <span class="l"><span style="padding-left:6px">单边合同关联</span></span>
+                <input type="text" v-model="unilateralRelevance.contractCode" readonly placeholder="请选择单边合同">
+                <i class="el-icon-close" v-if="unilateralRelevance.contractCode !== null" style="position: absolute;top: 18px;right: 50px;cursor: pointer;" @click="delectSeachContract()"></i>
+                <i class="iconfont icon-search" style="position: absolute;top: 10px;right: 30px;"
                    @click="onSeachContract('单边')"></i>
             </div>
-            <div class="gy-form-group" v-if="unilateralRelevance.isUnilateralCorrelation === '1'">
+            <div class="gy-form-group ll" v-if="deliveryContractList && deliveryContractList.length > 0">
                 <span class="l" v-if="data.contractType === 2">单边销售合同</span>
                 <span class="l" v-if="data.contractType === 3">单边采购合同</span>
-                <div v-if="deliveryContractType !== 'pdf'" v-for="(item, index) in deliveryContractList" :key="index"
-                     style="display: inline-block;height: 50px;width: 50px;margin-left: 5px;">
-                    <img :src="item.fileUrl" @click="deliverContractAssembleVisible = true"
-                         style="width: 50px;height:50px;cursor: pointer">
-                </div>
-                <div v-if="deliveryContractType === 'pdf'"
-                     style="display: inline-block;height: 50px;width: 50px;margin-left: 5px;">
-                    <i class="iconfont icon-photo"></i>
+                <div class="ml" style="display: inline-block;height: 50px;width: 50px;margin-left: 5px;">
+                    <i class="iconfont icon-photo" @click="deliverContractAssembleVisibleClick()"></i>
                 </div>
             </div>
         </div>
         <div class="foot">
-            <!--<button type="button" class="gy-button-normal">取消</button>-->
-            <button type="button" v-gy-auth="'to_create_cont_ess'" class="gy-button-extra confirmations"
-                    @click="onsubmit">提交
-            </button>
+            <button class="gy-button-normal" @click="$router.go(-1)" v-if="contEssId !== undefined && contEssId !== null">返回</button>
+            <button type="button" v-gy-auth="'to_create_cont_ess'" class="gy-button-extra confirmations" @click="onsubmit">提交</button>
         </div>
-        <el-dialog title="图片预览" :visible.sync="deliverContractAssembleVisible" width="1000px"
-                   custom-class="dialog-erp-cont">
-            <div class="block" style="width: 100%" v-for="(item, index) in deliveryContractList" :key="index">
-                <!--<img :src="item.fileUrl" alt="" width="100%" height="100%">-->
-                <img v-if="$constant.imgType.indexOf(item.fileUrl.split('.').pop().toLowerCase()) !== -1"
-                     :src="item.fileUrl" alt="" width="100%" height="auto">
-                <iframe v-if="item.fileUrl.split('.').pop().toLowerCase() === 'pdf'" :src="item.fileUrl" frameborder="0"
-                        id="" width="100%" style="min-height: 490px"></iframe>
-                <iframe v-if="$constant.fileType.indexOf(item.fileUrl.split('.').pop().toLowerCase()) !== -1"
-                        :src="'https://view.officeapps.live.com/op/view.aspx?src='+ item.fileUrl" frameborder='0'
-                        width="100%" style="min-height: 490px"></iframe>
-            </div>
-        </el-dialog>
-        <el-dialog width="1200px" class="order-dialog" :title="currContractType === 2? '选择销售合同' : '选择采购合同'" :visible.sync="isShowUnilateralDialog">
-            <div class="gy-form-group" v-if="currContractType === 2">
-                <span class="l">下游公司</span>
-                <input type="text" v-model="searchForm.sellerCompanyName">
-            </div>
-            <div class="gy-form-group" v-if="currContractType === 3">
-                <span class="l">上游公司</span>
-                <input type="text" v-model="searchForm.buyerCompanyName">
+        <gy-file-view ref="contFileView"></gy-file-view>
+        <el-dialog width="1200px" class="order-dialog" :title="upstreamTerm === 2 || upstreamTerm === 4? '销售合同列表' : '采购合同列表'"
+            :visible.sync="isShowUnilateralDialog" v-if='isShowUnilateralDialog'>
+            <div class="gy-form-group">
+                <span class="l">公司名称</span>
+                <input type="text" placeholder="请输入上游公司名称" v-model="searchForm.buyerCompanyName" v-if="upstreamTerm === 3">
+                <input type="text" placeholder="请输入下游公司名称" v-model="searchForm.sellerCompanyName" v-if="upstreamTerm === 1">
+                <input type="text" placeholder="请输入上游公司名称" v-model="searchForm.sellerCompanyName" v-if="upstreamTerm === 4">
+                <input type="text" placeholder="请输入下游公司名称" v-model="searchForm.buyerCompanyName" v-if="upstreamTerm === 2">
             </div>
             <div class="gy-form-group">
-                <i class="iconfont icon-search" style="position: absolute;top: 10px;left: -50px;"
-                   @click="purchaseContract()"></i>
+                <i class="iconfont icon-search" style="position: absolute;top: 10px;left: -20px;" @click="purchaseContract('单边', true)"></i>
             </div>
             <table class="gy-table">
                 <thead>
                 <tr>
-                    <th></th>
-                    <th><span v-if="currContractType === 2">下游公司</span><span v-if="currContractType === 3">上游公司</span></th>
-                    <th><span v-if="currContractType === 2">销售合同编号</span><span v-if="currContractType === 3">采购合同编号</span></th>
-                    <th>合同金额(元)</th>
+                    <th style="width: 120px;">合同要素ID</th>
+                    <th>我方公司</th>
+                    <th><span v-if="upstreamTerm === 2 || upstreamTerm === 4">下游公司</span><span v-else>上游公司</span></th>
+                    <th style="width: 130px;">合同金额(元)</th>
+                    <th>合同交割日期</th>
                     <th>交割库</th>
-                    <th>交割日期</th>
                     <th v-if="showDvlyQtyCol">可交割数量</th>
                     <th v-if="showDvlyQtyCol">合约数量</th>
                     <th>免仓期(天)</th>
@@ -647,17 +181,24 @@
                 </thead>
                 <tbody v-if="this.purchaseContractList.length > 0">
                 <tr v-for="(item, index) in purchaseContractList" :key="index">
-                    <td>
+                    <td style="width: 120px;">
                         <input type="radio" @change="crossHandleCheckChange(item)" name="11">
+                        <span style="margin-left: 3px;">{{item.contractEssenceId || '-'}}</span>
                     </td>
-                    <td>{{item.sellerCompanyName}}</td>
-                    <td>{{item.contractCode}}</td>
-                    <td>{{item.totalAmount|numToCash}}</td>
-                    <td>{{item.deliveryWarehouseName}}</td>
-                    <td>{{item.deliveryDate}}</td>
-                    <td v-if="showDvlyQtyCol">{{item.canDeliveryQuantity}}</td>
-                    <td v-if="showDvlyQtyCol">{{item.skuQuantity}}</td>
-                    <td>{{item.warehouseFreeDays}}</td>
+                    <td>{{item.ourCompanyName || '-'}}</td>
+                    <td><span v-if="upstreamTerm === 2 || upstreamTerm === 4">{{item.buyerCompanyName}}</span><span v-else>{{item.sellerCompanyName}}</span>
+                    </td>
+                    <td v-if="showDvlyQtyCol">-</td>
+                    <td class="align-r" v-else-if="item.skuPriceType === 21 || item.skuPriceType === 22">公式计价</td>
+                    <td style="width: 130px;" class="align-r" v-else>{{item.totalAmount | numToCash}}</td>
+                    <td v-if="showDvlyQtyCol">-</td>
+                    <td v-else>{{item.deliveryDate}}</td>
+                    <td v-if="showDvlyQtyCol">-</td>
+                    <td v-else>{{item.deliveryWarehouseName}}</td>
+                    <td class="align-r" v-if="showDvlyQtyCol">{{item.canDeliveryQuantity | numToQuantity}}</td>
+                    <td class="align-r" v-if="showDvlyQtyCol">{{item.skuQuantity | numToQuantity}}</td>
+                    <td v-if="showDvlyQtyCol">-</td>
+                    <td v-else>{{item.warehouseFreeDays}}</td>
                     <!-- <td>{{item.approveStatus}}</td> -->
                 </tr>
                 </tbody>
@@ -676,82 +217,173 @@
                     :total="totalDelivery"
                     @current-change="handleCurrentChangeDeliver">
             </el-pagination>
-            <div class="button-wrap">
-                <button class="gy-button-normal" @click="isShowUnilateralDialog = false">取消</button>
+            <div class="button-wrap" style="text-align: right">
+                <button class="gy-button-normal" style="margin-right: 6px;" @click="isShowUnilateralDialog = false">取消
+                </button>
                 <button class="gy-button-extra" @click="crossSubmission()">确定</button>
             </div>
         </el-dialog>
-        <el-dialog width="800px" class="addDialog" :title="activeCompanyType === '卖'? '选择上游公司' : '选择下游公司'"
-                   :visible.sync="dialogVisible">
+        <el-dialog v-if="dialogVisible" width="800px" class="addDialog" title="上游公司列表" :visible.sync="dialogVisible">
             <div class="gy-form-group">
-                <span class="l">{{activeCompanyType === '卖'? '上游公司' : '下游公司'}}</span>
-                <div class="r">
-                    <input type="text" v-model="companyName">
+                <span class="l">公司名称</span>
+                <div>
+                    <input type="text" v-focus v-model="companyName" :placeholder="'请输入上游公司名称'">
                 </div>
-                <span class="search1" @click="getCompany">
-            <i class="iconfont icon-search"></i>
-          </span>
+                <span class="search1" @click="getCompanyByBizType()">
+                    <i class="iconfont icon-search"></i>
+                </span>
             </div>
             <div class="dialog-table">
-                <table class="gy-table" v-if="activeCompanyType === '卖'">
+                <table class="gy-table">
                     <thead>
                     <tr>
-                        <th>#</th>
+                        <th></th>
                         <th>上游公司</th>
-                        <th>地区</th>
+                        <th>地址</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-for="(item, index) in sellCompanyList" :key="index">
-                        <td>
-            <span class="el-checkbox__input" :class="index === activeIndex?'is-checked':''" @click="checked(index)">
-              <span class="el-checkbox__inner"></span>
-            </span>
+                        <td style="width: 50px;max-width: 50px">
+                          <span class="el-radio__input" :class="index === activeIndex ? 'is-checked' : ''" @click="checked(index)">
+                            <span class="el-radio__inner"></span>
+                          </span>
                         </td>
-                        <td>{{item.sellerCorpName}}</td>
-                        <td>{{item.address}}</td>
-                    </tr>
-                    </tbody>
-                </table>
-                <table class="gy-table" v-else>
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>下游公司</th>
-                        <th>地区</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="(item, index) in buyCompanyList" :key="index">
-                        <td>
-            <span class="el-checkbox__input" :class="index === activeIndex?'is-checked':''" @click="checked(index)">
-              <span class="el-checkbox__inner"></span>
-            </span>
-                        </td>
-                        <td>{{item.buyerCorpName}}</td>
-                        <td>{{item.address}}</td>
+                        <td style="width: 320px;max-width: 320px">{{item.sellerCorpName}}</td>
+                        <td style="width: 358px;max-width: 358px">{{item.address}}</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <span slot="footer" class="dialog-footer">
-            <button class="gy-button-normal" @click="dialogVisible = false">取消</button>
-            <button class="gy-button-extra confirmations" @click="checkSales()">选择</button>
-        </span>
+                <button class="gy-button-normal" @click="dialogVisible = false">取消</button>
+                <button class="gy-button-extra confirmations" :class="{sellConfirmation:sellerCheck}" :disabled='sellerCheck' @click="checkSales(2)" style="margin-left: 8px">选择</button>
+            </span>
+        </el-dialog>
+        <el-dialog v-if="dialogVisibles" width="800px" class="addDialog" :title="'下游公司列表'" :visible.sync="dialogVisibles">
+            <div class="gy-form-group">
+                <span class="l">公司名称</span>
+                <div>
+                    <input type="text" v-focus v-model="companyName" :placeholder="'请输入下游公司名称'">
+                </div>
+                <span class="search1" @click="getCompanyByBizType()">
+                    <i class="iconfont icon-search"></i>
+                </span>
+            </div>
+            <div class="dialog-table">
+                <table class="gy-table">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>下游公司</th>
+                        <th>地址</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(item, index) in buyCompanyList" :key="index">
+                        <td style="width: 50px;max-width: 50px">
+                          <span class="el-radio__input" :class="index === activeIndex ? 'is-checked' : ''" @click="checked(index)">
+                            <span class="el-radio__inner"></span>
+                          </span>
+                        </td>
+                        <td style="width: 320px;max-width: 320px">{{item.buyerCorpName}}</td>
+                        <td style="width: 358px;max-width: 358px">{{item.address}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <button class="gy-button-normal" @click="dialogVisibles = false">取消</button>
+                <button class="gy-button-extra confirmations" :class="{buyConfirmation:buyerCheck}" :disabled='buyerCheck' @click="checkSales(3)" style="margin-left: 8px">选择</button>
+            </span>
         </el-dialog>
     </div>
 </template>
 
 <script>
 import Bus from '@/config/bus.js';
+import gyFileView from './../components/gyFileView';
+import brand from './create-cont-ess-components/brand';
+import chattingFee from './create-cont-ess-components/chattingFee';
+import chattingCompany from './create-cont-ess-components/chattingCompany';
+import consignmentTime from './create-cont-ess-components/consignmentTime';
+import deliveryDate from './create-cont-ess-components/deliveryDate';
+import deliverySite from './create-cont-ess-components/deliverySite';
+import deliverySiteDock from './create-cont-ess-components/deliverySiteDock';
+import deliveryType from './create-cont-ess-components/deliveryType';
+import deposit from './create-cont-ess-components/deposit';
+import depositAgreement from './create-cont-ess-components/depositAgreement';
+import depositBenchmark from './create-cont-ess-components/depositBenchmark';
+import longTermContractUp from './create-cont-ess-components/longTermContractUp';
+import longTermContractDown from './create-cont-ess-components/longTermContractDown';
+import manufacturer from './create-cont-ess-components/manufacturer';
+import outgoingQualityBill from './create-cont-ess-components/outgoingQualityBill';
+import packagingStandard from './create-cont-ess-components/packagingStandard';
+import packagingStandardMulti from './create-cont-ess-components/packagingStandardMulti';
+import paymentDate from './create-cont-ess-components/paymentDate';
+import paymentType from './create-cont-ess-components/paymentType';
+import prodInspectionFee from './create-cont-ess-components/prodInspectionFee';
+import prodInspectionType from './create-cont-ess-components/prodInspectionType';
+import provideInvoiceType from './create-cont-ess-components/provideInvoiceType';
+import qualityStandard from './create-cont-ess-components/qualityStandard';
+import remarks from './create-cont-ess-components/remarks';
+import settlementQtyType from './create-cont-ess-components/settlementQtyType';
+import shortOverflowRate from './create-cont-ess-components/shortOverflowRate';
+import skuOrigin from './create-cont-ess-components/skuOrigin';
+import skuPrice from './create-cont-ess-components/skuPrice';
+import skuQuantity from './create-cont-ess-components/skuQuantity';
+import specifications from './create-cont-ess-components/specifications';
+import transportType from './create-cont-ess-components/transportType';
+import warehouseFreeDays from './create-cont-ess-components/warehouseFreeDays';
+import wastage from './create-cont-ess-components/wastage';
+import deliverySiteOtherDock from './create-cont-ess-components/deliverySiteOtherDock';
+
 export default {
+    components: {
+        gyFileView,
+        brand, // 品牌
+        chattingFee, // 撮合费用
+        chattingCompany,
+        consignmentTime, // 提/交货时间
+        deliveryDate, // 交割日期
+        deliverySite, // 交割地点
+        deliverySiteDock, // 交割地点
+        deliveryType, // 交割方式
+        deposit, // 保证金
+        depositAgreement, // 追保约定
+        depositBenchmark, // 追保基准
+        longTermContractUp,
+        longTermContractDown,
+        manufacturer, //  生产商
+        outgoingQualityBill, // 出厂质检单
+        packagingStandard, // 包装标准
+        packagingStandardMulti, // 包装标准
+        paymentDate, // 付款日期
+        paymentType, // 付款方式
+        prodInspectionFee, // 商检费用
+        prodInspectionType, // 商检
+        provideInvoiceType, // 发票月份
+        qualityStandard, // 质量标准
+        remarks, // 合同要素备注
+        settlementQtyType, // 结算数量
+        shortOverflowRate, // 溢短装
+        skuOrigin, // 货源
+        skuPrice, // 单价
+        skuQuantity, // 合同数量
+        specifications, // 规格型号
+        transportType, // 运输方式
+        warehouseFreeDays, // 免仓期
+        wastage, // 损耗
+        deliverySiteOtherDock
+    },
     data () {
         return {
             unilateralRelevance: {
-                isUnilateralCorrelation: null, // 是否关联
                 correlationOrderId: null, // 单边合同ID
                 contractCode: null // 单边合同编号
             },
+            contEssId: null,
+            forContEssRecreate: false,
             searchForm: {
                 pageNo: 1,
                 pageSize: 10,
@@ -765,10 +397,6 @@ export default {
             purchaseContractList: [],
             isShowUnilateralDialog: false,
             deliveryContractList: [], // 销售交割-采购合同List
-            sellerRemarks: null, // 备注
-            buyerRemarks: null, // 备注
-            userid: null, // 用户id
-            organizationId: null, // 业务组id
             businessManager: [ // 业务操作人
                 // {
                 //     username: null,
@@ -781,15 +409,17 @@ export default {
                 //     orgName: null // 组织名称
                 // }
             ],
+            isSellerCh: false,
+            isBuyerCh: false,
             data: {
                 id: null, // 合同要素ID
                 bizType: null, // 业务类型
                 businessManagerId: null, // 业务操作人ID
                 businessManagerName: null, // 业务操作人
                 usrOrganizationName: null, // 业务操作人所在组
-                usrOrganizationId: null, // 业务操作人所在组ID
-                contractType: null, // 单边交易（ 合同类型）
-                buyerInfo: {
+                organizationId: null, // 业务操作人所在组ID
+                contractType: 1, // 单边交易（ 合同类型）（默认为双边交易）
+                downstreamInfo: {
                     companyId: null, // 下游公司id
                     companyName: null, // 下游公司名称
                     skuOrigin: null, // 货源（国产、进口、自定义）
@@ -805,21 +435,29 @@ export default {
                     provideInvoiceType: null, // 发票月份
                     provideInvoiceDays: null, // 发票月份
                     paymentType: null, // 付款方式（0：先款后货，1：先货后款）
+                    skuPriceType: 1, // 固定价
                     skuPrice: null, // 单价
+                    skuPriceExpression: null, // 单价
+                    depositType: null, //  保证金类型
                     packagingStandard: null, // 包装标准
+                    qualityStandard: null, // 质量标准
                     skuQuantity: null, // 数量
                     depositRatio: null, // 保证金比率（%）
+                    depositAmount: null, // 保证金按金额
                     depositRatioSubtract: null, // 保证金比率（跌）
                     depositRatioAppend: null, // 保证金比率（补）
                     warehouseFreeDays: null, // 免仓期（天）
                     deliveryType: null, // 交割方式
-                    payChannel: null, // 交易类型
+                    payChannel: null, // 支付结算方式
                     remarks: null, // 备注
                     targetCorpId: null, // 我方公司ID
                     targetCorpName: null, // 我方公司名称
-                    longtermContractOrderId: null // 下游合约
+                    longtermContractOrderId: null, // 下游合约
+                    chattingAmount: null, // 撮合费用
+                    priceOfWeight: null,
+                    chattingCompanyName: null // 撮合公司
                 },
-                sellerInfo: {
+                upstreamInfo: {
                     companyId: null, // 上游公司id
                     companyName: null, // 上游公司名称
                     skuOrigin: null, // 货源（国产、进口、自定义）
@@ -835,77 +473,42 @@ export default {
                     provideInvoiceType: null, // 发票月份
                     provideInvoiceDays: null, // 发票月份
                     paymentType: null, // 付款方式（0：先款后货，1：先货后款）
+                    skuPriceType: 1, // 固定价
+                    skuPriceExpression: null, // 单价
                     skuPrice: null, // 单价
+                    depositType: null, //  保证金类型
                     packagingStandard: null, // 包装标准
+                    qualityStandard: null, // 质量标准
                     skuQuantity: null, // 数量
                     depositRatio: null, // 保证金比率（%）
+                    depositAmount: null, // 保证金按金额
                     depositRatioSubtract: null, // 保证金比率（跌）
                     depositRatioAppend: null, // 保证金比率（补）
                     warehouseFreeDays: null, // 免仓期（天）
                     deliveryType: null, // 交割方式
-                    payChannel: null, // 交易类型
+                    payChannel: null, // 支付结算方式
                     remarks: null, // 备注
                     targetCorpId: null, // 我方公司ID
                     targetCorpName: null, // 我方公司名称
-                    longtermContractOrderId: null // 上游合约
+                    longtermContractOrderId: null, // 上游合约
+                    chattingAmount: null, // 撮合费用
+                    priceOfWeight: null,
+                    chattingCompanyName: null // 撮合公司
                 }
             },
-            proType: [
-                // {
-                //     goodsName: null, // 商品名称
-                //     goodsCode: null, // 商品code
-                //     goodsId: null // 商品id
-                // }
-            ],
-            unilateral: false,
-            imageUrl: null,
-            dialogVisible: false,
-            sellCompanyList: [
-                // {
-                //     sellerCorpId: null, // 企业ID
-                //     sellerCorpName: null, // 企业名称
-                //     address: null // 地址
-                // }
-            ],
-            buyCompanyList: [
-                // {
-                //     buyerCorpId: null, // 企业ID
-                //     buyerCorpName: null, // 企业名称
-                //     address: null // 地址
-                // }
-            ],
-            relatedCompany: [
-                // {
-                //     targetCorpId: null, // 我方公司ID
-                //     targetCorpName: null // 我方公司名称
-                // }
-            ],
-            contractType: '3',
+            goodsList: [], // 可交易商品列表 goodsName:商品名称 goodsCode:商品code goodsId:商品id
+            dialogVisible: false, // 查询上游公司列表
+            dialogVisibles: false, // 查询下游公司列表
+            sellCompanyList: [], // sellerCorpId:企业ID  sellerCorpName:企业名称 address:地址
+            buyCompanyList: [], //  buyerCorpId:企业ID  buyerCorpName:企业名称  address:地址
+            relatedCompany: [], //  targetCorpId:我方公司ID  targetCorpName:我方公司名称
             companyName: null,
-            activeCompanyType: null,
-            activeIndex: null,
-            buyDeliveryBank: [
-                // {
-                //     warehouseName: null, // 交割库名称
-                //     warehouseId: null // 交割库ID
-                // }
-            ],
-            sellDeliveryBank: [
-                // {
-                //     warehouseName: null, // 交割库名称
-                //     warehouseId: null // 交割库ID
-                // }
-            ],
-            buyerInfoProd: null,
-            sellerInfoProd: null,
-            buyerTrade: null,
-            sellerTrade: null,
-            targetCorpIdbuy: null,
-            targetCorpIdsell: null,
-            warehouseidxbuy: null,
-            warehouseidxsell: null,
-            businessManageridx: null,
-            srOrganizationIdx: null,
+            activeContractType: null, // 表示当前处理的是上游采购:2, 还是下游销售:3
+            activeIndex: null, // 选择交易公司时的索引
+            activeProductId: null, // 当前选择的产品ID
+            targetCorpIdIdx: null, // 我方公司选择时的索引
+            businessManagerIdx: null, // 业务操作人选择时的索引
+            srOrganizationIdx: null, // 业务组选择时的索引
             Verification: [
                 {
                     name: 'bizType',
@@ -916,236 +519,236 @@ export default {
                     msg: '请先选择业务操作人'
                 },
                 {
-                    name: 'usrOrganizationId',
+                    name: 'organizationId',
                     msg: '请先选择业务组'
                 }
             ],
-            Verification1: [
-                // {
-                //     name: 'targetCorpId',
-                //     msg: '请先选择我方公司'
-                // },
-                {
-                    name: 'companyId',
-                    msg: '请先选择上游公司或下游公司'
-                },
-                {
-                    name: 'prdSkuId',
-                    msg: '请先选择产品'
-                },
-                {
-                    name: 'skuQuantity',
-                    msg: '数量不能为空'
-                },
-                {
-                    name: 'skuPrice',
-                    msg: '单价不能为空'
-                },
-                {
-                    name: 'deliveryWarehouseId',
-                    msg: '请先选择交割库'
-                },
-                {
-                    name: 'deliveryDateFlag',
-                    msg: '请先选择交割时间'
-                },
-                {
-                    name: 'deliveryBeginDate',
-                    msg: '请先选择交割时间'
-                },
-                {
-                    name: 'deliveryType',
-                    msg: '请先选择交割方式'
-                },
-                {
-                    name: 'paymentType',
-                    msg: '请先选择付款方式'
-                },
-                {
-                    name: 'provideInvoiceType',
-                    msg: '请先选择发票月份'
-                },
-                {
-                    name: 'skuOrigin',
-                    msg: '请先选择货源'
-                },
-                {
-                    name: 'packagingStandard',
-                    msg: '请先选择包装标准'
-                },
-                {
-                    name: 'payChannel',
-                    msg: '请先选择付款方式'
-                }
-            ],
-            Verification2: [
-                {
-                    name: 'deliveryEndDate',
-                    msg: '请先选择交割时间'
-                }
-            ],
             obj: {},
-            deliveryContractType: null, // 判断pdf和图片的区别
             upstreamTerm: null, // 判断长约处理字段
-            currContractType: null, // 判断销售和采购对应去显示
-            showDvlyQtyCol: false // (选择关联合同时)是否展示交割数量的相关列
+            showDvlyQtyCol: false, // (选择关联合同时)是否展示交割数量的相关列
+            sellerCheck: false, // 限制上游按钮的显示
+            buyerCheck: false, // 限制下游按钮的显示
+            upstreamCmptList: [], // 上游组件定义列表(只用于画面展示)
+            downstreamCmptList: [], // 下游组件定义列表(只用于画面展示)
+            upstreamPropList: [], // 上游组件定义列表(全部)
+            downstreamPropList: [], // 下游组件定义列表(全部)
+            isTargetChange: false,
+            needRefresh: 0
         };
     },
     mounted () {
+        this.data.businessManagerId = JSON.parse(localStorage.getItem('userInfo')).id;
         this.getRelatedCompany();
-        this.getGrade();
-        this.businessManageridx = JSON.parse(localStorage.getItem('userInfo')).username;
-        this.data.businessManagerName = this.businessManageridx;
-        this.userid = JSON.parse(localStorage.getItem('userInfo')).id;
-        this.getUserOrganization();
-    },
-    watch: {
-        sellerRemarks (val) {
-            if (val.length > 100) {
-                this.$message({
-                    message: '备注最多可填写100字',
-                    type: 'warning'
-                });
-                this.sellerRemarks = this.sellerRemarks.substr(0, 100);
-            }
-            this.data.sellerInfo.remarks = this.sellerRemarks;
-        },
-        buyerRemarks (val) {
-            if (val.length > 100) {
-                this.$message({
-                    message: '备注最多可填写100字',
-                    type: 'warning'
-                });
-                this.buyerRemarks = this.buyerRemarks.substr(0, 100);
-            }
-            this.data.buyerInfo.remarks = this.buyerRemarks;
+        this.getBizUserList();
+        this.contEssId = this.$route.query.id;
+        if (this.contEssId !== null && this.contEssId !== undefined) {
+            this.getdetailOrder();
         }
     },
     methods: {
+        // 删除单边已选择的
+        delectSeachContract () {
+            this.unilateralRelevance.contractCode = null;
+            this.deliveryContractList = [];
+        },
+        getdetailOrder () { // 合同要素详情
+            let that = this;
+            that.$http.get(this.$api.order.orderDetail + '/' + that.contEssId).then(function (res) {
+                if (res.data.code === 0) {
+                    // 去结果画面
+                    that.data = res.data.data;
+                    that.targetCorpIdIdx = that.data.targetCorpName; // 我方公司
+                    that.activeProductId = that.data.productId; // 产品ID
+                    // 上游
+                    if (that.data.upstreamInfo) {
+                        that.data.upstreamInfo.companyName = that.data.upstreamInfo.sellerCompanyName; // 上游公司
+                        that.data.upstreamInfo.companyId = that.data.upstreamInfo.sellerCompanyId; // 上游公司
+                        that.data.upstreamInfo.prdSkuId = that.data.productId;
+                    }
+                    // 下游
+                    if (that.data.downstreamInfo) {
+                        that.data.downstreamInfo.companyName = that.data.downstreamInfo.buyerCompanyName; // 上游公司
+                        that.data.downstreamInfo.companyId = that.data.downstreamInfo.buyerCompanyId; // 上游公司
+                        that.data.downstreamInfo.prdSkuId = that.data.productId;
+                    }
+                    that.companyName = null;
+                    that.activeContractType = 0;
+                    // 根据业务类型获取可交易的买卖方公司
+                    that.forContEssRecreate = true;
+                    that.getCompanyByBizType(true);
+
+                    // 如果是从驳回时"重新创建"而来，而本身又是修改合同要素的，删除修改信息
+                    if (that.data.sourceContEssId || that.data.modifyFieldInfo) {
+                        that.data.sourceContEssId = null;
+                        that.data.modifyFieldInfo = null;
+                    }
+
+                    // 查询可交易商品
+                    let params = {
+                        bizType: that.data.bizType, // 业务类型
+                        userId: that.data.businessManagerId
+                    };
+                    that.$http.post(that.$api.contract.getCompany, params).then(res => {
+                        that.goodsList = res.data.data.goodsList;
+                    }).catch((e) => {
+                        console.log(e);
+                    });
+                }
+            }).catch((e) => {
+                console.log(e);
+            });
+        },
+        // 查看单边合同的附件
+        deliverContractAssembleVisibleClick () {
+            this.$refs.contFileView.open(this.deliveryContractList);
+        },
         // 单边交易选择框的状态变化
         onUnilateral (val) {
-            if (!val) {
-                this.data.contractType = null;
-            }
+            // 清空单边合同的数据(已有值的话)
+            this.deliveryContractList = [];
+            this.unilateralRelevance.contractCode = null;
         },
         // 弹出选择单边合同的对话框
-        onSeachContract (val) {
+        onSeachContract (vals) {
+            this.upstreamTerm = 0;
+            // 这里要区分单边还是双边合同
+            if (vals === '单边') {
+                if (this.data.contractType === 2) {
+                    // 采购
+                    this.upstreamTerm = 2; // 匹配查询单边销售合同
+                } else if (this.data.contractType === 3) {
+                    // 销售
+                    this.upstreamTerm = 1; // 匹配查询单边采购合同
+                }
+            } else {
+                // 这里肯定是长约
+                if (vals === '上游') {
+                    // 上游
+                    this.upstreamTerm = 3; // 匹配查询长约采购合同
+                } else if (vals === '下游') {
+                    // 下游
+                    this.upstreamTerm = 4; // 匹配查询长约销售合同
+                }
+            }
             this.isShowUnilateralDialog = true;
-            this.purchaseContract(val);
+            this.purchaseContract(vals);
         },
         // 交叉采购合同
         crossHandleCheckChange (item) {
             this.obj = item;
         },
+        // 分页
+        handleCurrentChangeDeliver (e) {
+            this.searchForm.pageNo = e;
+            let vals = null;
+            if (this.upstreamTerm === 1 || this.upstreamTerm === 2) {
+                vals = '单边';
+            } else if (this.upstreamTerm === 3) {
+                vals = '上游';
+            } else if (this.upstreamTerm === 4) {
+                vals = '下游';
+            }
+            this.purchaseContract(vals, true);
+        },
         // 获取单边合同列表
-        purchaseContract (vals) {
-            console.log(vals);
+        purchaseContract (vals, isPageFlip) {
+            if (vals && (isPageFlip === undefined || isPageFlip == null)) {
+                this.searchForm = {};
+            }
+            // 这里要区分单边还是双边合同
             if (vals === '单边') {
                 if (this.data.contractType == null || this.data.contractType === undefined) {
-                    this.$message('请先单边交易类型后再查询单边合同');
+                    this.$message.error('请先选择单边交易类型后再查询单边合同');
                     this.isShowUnilateralDialog = false;
                     return false;
                 }
                 if (this.data.contractType === 1) {
-                    this.$message('双边交易时不能查询单边合同');
+                    this.$message.error('双边交易时不能查询单边合同');
                     this.isShowUnilateralDialog = false;
                     return false;
                 }
                 this.showDvlyQtyCol = false;
-
-                // 这里要区分单边还是双边合同
                 if (this.data.contractType === 2) {
                     // 采购
-                    if (this.sellerInfoProd == null || this.sellerInfoProd === undefined) {
-                        this.$message('请先选择产品后再查询单边合同');
-                        this.isShowUnilateralDialog = false;
-                        return false;
-                    }
-                    if (this.data.sellerInfo.skuQuantity == null || this.data.sellerInfo.skuQuantity === undefined || this.data.sellerInfo.skuQuantity === 0) {
-                        this.$message('请先输入产品数量后再查询单边合同');
+                    if (this.activeProductId == null || this.activeProductId === undefined) {
+                        this.$message.error('请先选择产品后再查询单边合同');
                         this.isShowUnilateralDialog = false;
                         return false;
                     }
 
                     this.searchForm.bizType = 1;
-                    this.currContractType = 2; // 如果是采购，则关联的销售合同
                     this.searchForm.unilateralCorrelation = 1;
-                    this.searchForm.productId = this.proType[this.sellerInfoProd].goodsId;
-                    this.searchForm.skuQuantity = this.data.sellerInfo.skuQuantity;
+                    this.searchForm.productId = this.activeProductId;
+                    this.searchForm.skuQuantity = Number(this.data.upstreamInfo.skuQuantity);
                 } else if (this.data.contractType === 3) {
                     // 销售
-                    if (this.buyerInfoProd == null || this.buyerInfoProd === undefined) {
-                        this.$message('请先选择产品后再查询单边合同');
-                        this.isShowUnilateralDialog = false;
-                        return false;
-                    }
-                    if (this.data.buyerInfo.skuQuantity == null || this.data.buyerInfo.skuQuantity === undefined || this.data.buyerInfo.skuQuantity === 0) {
-                        this.$message('请先输入产品数量后再查询单边合同');
+                    if (this.activeProductId == null || this.activeProductId === undefined) {
+                        this.$message.error('请先选择产品后再查询单边合同');
                         this.isShowUnilateralDialog = false;
                         return false;
                     }
 
                     this.searchForm.bizType = 2;
-                    this.currContractType = 3; // 如果是销售，则关联的采购合同
                     this.searchForm.unilateralCorrelation = 1;
-                    this.searchForm.productId = this.proType[this.buyerInfoProd].goodsId;
-                    this.searchForm.skuQuantity = this.data.buyerInfo.skuQuantity;
+                    this.searchForm.productId = this.activeProductId;
+                    this.searchForm.skuQuantity = this.data.downstreamInfo.skuQuantity;
+                }
+                if (this.searchForm.productId == null || this.searchForm.productId === undefined) {
+                    this.$message.error('请先选择产品后再查询单边合同');
+                    this.isShowUnilateralDialog = false;
+                    return false;
+                }
+                if (this.searchForm.skuQuantity == null || this.searchForm.skuQuantity === undefined) {
+                    this.$message.error('请先输入产品数量后再查询单边合同');
+                    this.isShowUnilateralDialog = false;
+                    return false;
                 }
             } else {
                 this.showDvlyQtyCol = true;
                 if (this.searchForm.unilateralCorrelation === 1) {
                     delete this.searchForm.unilateralCorrelation;
-                    console.log(this.searchForm);
                 }
-                // 这里要区分单边还是双边合同
+                // 这里肯定是长约
                 if (vals === '上游') {
                     // 上游
-                    this.upstreamTerm = 1;
                     this.searchForm.bizType = 2;
-                    this.currContractType = 3;
-                    if (this.sellerInfoProd == null || this.sellerInfoProd === undefined) {
-                        this.$message('请先选择产品后再查询单边合同');
-                        this.isShowUnilateralDialog = false;
-                        return false;
-                    }
-                    if (this.data.sellerInfo.skuQuantity == null || this.data.sellerInfo.skuQuantity === undefined || this.data.sellerInfo.skuQuantity === 0) {
-                        this.$message('请先输入产品数量后再查询单边合同');
+                    if (this.activeProductId == null || this.activeProductId === undefined) {
+                        this.$message.error('请先选择产品后再查询长约合同');
                         this.isShowUnilateralDialog = false;
                         return false;
                     }
 
-                    this.searchForm.productId = this.proType[this.sellerInfoProd].goodsId;
-                    this.searchForm.skuQuantity = this.data.sellerInfo.skuQuantity;
-                    this.searchForm.sellerCompanyName = this.data.sellerInfo.companyName;
-                    this.searchForm.longtermContractFlag = this.data.sellerInfo.longtermContractFlag;
+                    this.searchForm.productId = this.activeProductId;
+                    this.searchForm.skuQuantity = this.data.upstreamInfo.skuQuantity;
+                    this.searchForm.sellerCompanyName = this.data.upstreamInfo.companyName;
+                    // 再根据业务类型做判断(长约)
+                    if (this.data.bizType === 6) {
+                        this.searchForm.longtermContractFlag = 1;
+                    }
                 } else if (vals === '下游') {
                     // 下游
-                    this.upstreamTerm = 2;
-                    this.currContractType = 2;
                     this.searchForm.bizType = 1;
-                    if (this.buyerInfoProd == null || this.buyerInfoProd === undefined) {
-                        this.$message('请先选择产品后再查询单边合同');
-                        this.isShowUnilateralDialog = false;
-                        return false;
-                    }
-                    if (this.data.buyerInfo.skuQuantity == null || this.data.buyerInfo.skuQuantity === undefined || this.data.buyerInfo.skuQuantity === 0) {
-                        this.$message('请先输入产品数量后再查询单边合同');
+                    if (this.activeProductId == null || this.activeProductId === undefined) {
+                        this.$message.error('请先选择产品后再查询长约合同');
                         this.isShowUnilateralDialog = false;
                         return false;
                     }
 
-                    this.searchForm.productId = this.proType[this.buyerInfoProd].goodsId;
-                    this.searchForm.skuQuantity = this.data.buyerInfo.skuQuantity;
-                    this.searchForm.buyerCompanyName = this.data.buyerInfo.companyName;
-                    this.searchForm.longtermContractFlag = this.data.buyerInfo.longtermContractFlag;
+                    this.searchForm.productId = this.activeProductId;
+                    this.searchForm.skuQuantity = this.data.downstreamInfo.skuQuantity;
+                    this.searchForm.buyerCompanyName = this.data.downstreamInfo.companyName;
+                    // 再根据业务类型做判断(长约)
+                    if (this.data.bizType === 6) {
+                        this.searchForm.longtermContractFlag = 1;
+                    }
                 }
                 if (this.searchForm.productId == null || this.searchForm.productId === undefined) {
-                    this.$message('请先选择产品后再查询单边合同');
+                    this.$message.error('请先选择产品后再查询长约合同');
                     this.isShowUnilateralDialog = false;
                     return false;
                 }
                 if (this.searchForm.skuQuantity == null || this.searchForm.skuQuantity === undefined) {
-                    this.$message('请先输入产品数量后再查询单边合同');
+                    this.$message.error('请先输入产品数量后再查询长约合同');
                     this.isShowUnilateralDialog = false;
                     return false;
                 }
@@ -1157,102 +760,187 @@ export default {
                 }
             });
         },
+        // 确认选择单边关联的合同
         crossSubmission () {
-            // 上游
-            if (this.upstreamTerm === 1) {
-                this.data.sellerInfo.contractCode = this.obj.contractCode;
-                this.data.sellerInfo.longtermContractOrderId = this.obj.orderId;
+            // 这里要区分单边关联还是长约查询
+            if (this.upstreamTerm === 3) { // 上游长约
+                this.data.upstreamInfo.contractCode = this.obj.contractCode;
+                this.data.upstreamInfo.longtermContractOrderId = this.obj.orderId;
                 this.isShowUnilateralDialog = false;
-            } else if (this.upstreamTerm === 2) { // 下游
-                this.data.buyerInfo.contractCode = this.obj.contractCode;
-                this.data.buyerInfo.longtermContractOrderId = this.obj.orderId;
+                this.needRefresh += 1;
+            } else if (this.upstreamTerm === 4) { // 下游长约
+                this.data.downstreamInfo.contractCode = this.obj.contractCode;
+                this.data.downstreamInfo.longtermContractOrderId = this.obj.orderId;
                 this.isShowUnilateralDialog = false;
+                this.needRefresh += 1;
             } else {
                 this.unilateralRelevance.contractCode = this.obj.contractCode;
                 this.unilateralRelevance.correlationOrderId = this.obj.orderId;
                 this.isShowUnilateralDialog = false;
                 this.deliveryContractClick(this.obj.orderId);
             }
+            this.searchForm = {};
         },
-        // 销售交割-上传采购合同
+        // 获取单边关联的合同附件
         deliveryContractClick (val) {
-            this.$http.get(this.$api.delivery.deliveryContract + '/' + val).then((res) => {
+            if (val == null || val === undefined) {
+                return false;
+            }
+            let that = this;
+            that.$http.get(that.$api.delivery.deliveryContract + '/' + val).then((res) => {
                 if (res.data.code === 0) {
-                    // 采购交割凭证
-                    this.deliveryContractList = res.data.data.erpFileContractModelList;
-                    let delveryLength = this.deliveryContractList[0].fileUrl.lastIndexOf('.');
-                    let deliveryContractLast = this.deliveryContractList[0].fileUrl.substring(delveryLength + 1, this.deliveryContractList[0].fileUrl.delveryLength);
-                    this.deliveryContractType = deliveryContractLast;
+                    // 合同附件
+                    that.deliveryContractList = res.data.data.erpFileContractModelList;
+                    if (that.deliveryContractList == null || that.deliveryContractList === undefined || that.deliveryContractList.length === 0) {
+                        that.$message.error('您选择的单边合同无合同附件!');
+                        return false;
+                    }
                 }
             });
         },
-        // 分页
-        handleCurrentChangeDeliver (e) {
-            this.searchForm.pageNo = e;
-            this.purchaseContract();
-        },
-        openPro (event, type) {
-            if (event && type === 1 && (this.data.bizType === null || this.data.buyerInfo.companyName === null)) {
-                this.$message('请先选择业务类型及下游公司后再选择产品');
-            }
-            if (event && type === 2 && (this.data.bizType === null || this.data.sellerInfo.companyName === null)) {
-                this.$message('请先选择业务类型及上游公司后再选择产品');
-            }
-            if (event && type === 3 && (this.data.bizType === null || this.data.buyerInfo.companyName === null || this.data.buyerInfo.prdSkuId === null)) {
-                this.$message('请先选择业务类型、下游公司及产品后再选择交割库');
-            }
-            if (event && type === 4 && (this.data.bizType === null || this.data.sellerInfo.companyName === null || this.data.sellerInfo.prdSkuId === null)) {
-                this.$message('请先选择业务类型、上游公司及产品后再选择交割库');
-            }
-        },
-        warehouseidxbuys () {
-            this.data.buyerInfo.deliveryWarehouseId = this.buyDeliveryBank[this.warehouseidxbuy].warehouseId;
-            this.data.buyerInfo.deliveryWarehouseName = this.buyDeliveryBank[this.warehouseidxbuy].warehouseName;
-        },
         // 业务操作人选中
         businessManagerchk () {
-            this.data.businessManagerName = this.businessManager[this.businessManageridx].userName;
-            this.data.businessManagerId = this.businessManager[this.businessManageridx].usrUserId;
-            this.userid = this.businessManager[this.businessManageridx].usrUserId;
-            console.log(this.businessManageridx);
-            this.getUserOrganization();
+            let that = this;
+            that.data.businessManagerName = that.businessManager[that.businessManagerIdx].userName;
+            that.data.businessManagerId = that.businessManager[that.businessManagerIdx].usrUserId;
+            that.getUserOrganization();
+            // 查询可交易商品
+            if (that.data.bizType) {
+                that.onchangeBizType();
+            }
         },
-        warehouseidxsells () {
-            this.data.sellerInfo.deliveryWarehouseId = this.sellDeliveryBank[this.warehouseidxsell].warehouseId;
-            this.data.sellerInfo.deliveryWarehouseName = this.sellDeliveryBank[this.warehouseidxsell].warehouseName;
-        },
-        // 选中公司
+        // 选中交易公司(上下游)
         checked (idx) {
             this.activeIndex = idx;
+            // 检查交易方是否已准入
+            if (this.activeContractType === 3) {
+                let companyId = this.buyCompanyList[this.activeIndex].buyerCorpId;
+                let errMsg = '您选择的下游公司:' + this.buyCompanyList[this.activeIndex].buyerCorpName + '，未做准入，请先提交准入申请！';
+                this.getCompanyGrade(this.activeContractType, companyId, errMsg);
+            } else {
+                let companyId = this.sellCompanyList[this.activeIndex].sellerCorpId;
+                let errMsg = '您选择的上游公司:' + this.sellCompanyList[this.activeIndex].sellerCorpName + '，未做准入，请先提交准入申请！';
+                this.getCompanyGrade(this.activeContractType, companyId, errMsg);
+            }
         },
         // 业务组选中
         checkGroup () {
-            this.data.usrOrganizationId = this.businessManagerGroup[this.srOrganizationIdx].usrOrganizationId;
+            this.data.organizationId = this.businessManagerGroup[this.srOrganizationIdx].usrOrganizationId;
             this.data.usrOrganizationName = this.businessManagerGroup[this.srOrganizationIdx].orgName;
         },
+        // 选择交易公司
         checkCompany (type) {
-            if (this.data.bizType === null || this.data.bizType === '') {
-                this.$message('请先选择业务类型');
+            if (this.data.bizType === null || this.data.bizType === undefined || this.data.bizType === '') {
+                this.$message.error('请先选择业务类型');
                 return;
             }
+            if (this.activeProductId == null || this.activeProductId === undefined) {
+                this.$message.error('请先选择产品');
+                return;
+            }
+            if (type === 3) {
+                // 下游
+                this.dialogVisibles = true;
+            }
+            if (type === 2) {
+                // 上游
+                this.dialogVisible = true;
+            }
+
             this.companyName = null;
-            this.dialogVisible = true;
-            this.activeCompanyType = type;
+            this.activeContractType = type;
             this.activeIndex = null;
-            this.getCompany();
+            this.getCompanyByBizType();
         },
-        // 获取买卖方公司
-        getCompany () {
+        // 切换/选择业务类型
+        onchangeBizType () {
             let that = this;
+            // 清空商品列表及选择
+            that.activeProductId = null;
+            that.goodsList = [];
+            // 清空交易公司列表及选择
+            that.sellCompanyList = [];
+            that.buyCompanyList = [];
+
+            if (that.data.upstreamInfo) {
+                that.data.upstreamInfo.companyId = null;
+                that.data.upstreamInfo.companyName = null;
+                that.data.upstreamInfo.sellerCompanyName = null;
+                that.data.upstreamInfo.sellerCompanyId = null;
+                that.data.upstreamInfo.prdSkuId = null;
+                that.data.upstreamInfo.skuCode = null;
+                that.data.upstreamInfo.prodName = null;
+                that.data.upstreamInfo.grade = null;
+            }
+            if (that.data.downstreamInfo) {
+                that.data.downstreamInfo.companyId = null;
+                that.data.downstreamInfo.companyName = null;
+                that.data.downstreamInfo.buyerCompanyName = null;
+                that.data.downstreamInfo.buyerCompanyId = null;
+                that.data.downstreamInfo.prdSkuId = null;
+                that.data.downstreamInfo.skuCode = null;
+                that.data.downstreamInfo.prodName = null;
+                that.data.downstreamInfo.grade = null;
+            }
+
+            // 查询可交易商品
             let params = {
                 bizType: that.data.bizType, // 业务类型
-                // companyName: that.companyName, // 公司名称
-                prdProductId: that.activeCompanyType === '卖' ? that.data.sellerInfo.prdSkuId : that.data.buyerInfo.prdSkuId // 商品id
+                userId: that.data.businessManagerId
             };
-            that.activeCompanyType === '卖' ? params.sellerCorpName = that.companyName : params.buyerCorpName = that.companyName; // 商品id
-            this.$http.post(this.$api.contract.getCompany, params).then(res => {
-                that.proType = res.data.data.goodsList;
-                that.activeCompanyType === '卖' ? that.sellCompanyList = res.data.data.sellerCorpList : that.buyCompanyList = res.data.data.buyerCorpList;
+            that.$http.post(that.$api.contract.getCompany, params).then(res => {
+                that.goodsList = res.data.data.goodsList;
+            }).catch((e) => {
+                console.log(e);
+            });
+        },
+        // 根据业务类型获取可交易的买卖方公司
+        getCompanyByBizType (forContEssRecreate) {
+            let that = this;
+            let params = {
+                bizType: that.data.bizType // 业务类型
+            };
+            if (this.activeProductId) {
+                params.productId = this.activeProductId;
+            }
+            if (this.activeContractType === 3) {
+                // 下游
+                params.buyerCorpName = this.companyName;
+            }
+            if (this.activeContractType === 2) {
+                // 上游
+                params.sellerCorpName = this.companyName;
+            }
+            if (that.data.upstreamInfo) {
+                that.data.upstreamInfo.bizType = that.data.bizType;
+            }
+            if (that.data.downstreamInfo) {
+                that.data.downstreamInfo.bizType = that.data.bizType;
+            }
+            that.$http.post(that.$api.contract.getCompany, params).then(res => {
+                that.sellCompanyList = res.data.data.sellerCorpList;
+                that.buyCompanyList = res.data.data.buyerCorpList;
+
+                if (forContEssRecreate) {
+                    let actContType = 0;
+                    if (that.data.contractType === 1 || that.data.contractType === 2) {
+                        actContType = 2;
+                    } else {
+                        actContType = 3;
+                    }
+                    that.onchangeProduct(actContType, 0, forContEssRecreate);
+                } else {
+                    // 正常创建合同要素时，清空产品选择
+                    if (that.data.productId && !that.goodsList.find((e) => (e.goodsId === that.data.productId))) {
+                        that.activeProductId = null;
+                        if (that.data.upstreamInfo) {
+                            that.data.upstreamInfo.prdSkuId = null;
+                        }
+                        if (that.data.downstreamInfo) {
+                            that.data.downstreamInfo.prdSkuId = null;
+                        }
+                    }
+                }
             }).catch((e) => {
                 console.log(e);
             });
@@ -1267,41 +955,123 @@ export default {
         },
         // 我方公司下拉
         checktargetCorpbuy () {
-            this.data.buyerInfo.targetCorpName = this.relatedCompany[this.targetCorpIdbuy].targetCorpName;
-            this.data.buyerInfo.targetCorpId = this.relatedCompany[this.targetCorpIdbuy].targetCorpId;
-            this.data.sellerInfo.targetCorpName = this.relatedCompany[this.targetCorpIdbuy].targetCorpName;
-            this.data.sellerInfo.targetCorpId = this.relatedCompany[this.targetCorpIdbuy].targetCorpId;
-        },
-        checktargetCorpsell () {
-            this.data.sellerInfo.targetCorpName = this.relatedCompany[this.targetCorpIdsell].targetCorpName;
-            this.data.sellerInfo.targetCorpId = this.relatedCompany[this.targetCorpIdsell].targetCorpId;
-        },
-        // 根据所选产品获取交割库
-        checkPro (type) {
-            if (type === '卖') {
-                this.data.sellerInfo.prdSkuId = this.proType[this.sellerInfoProd].goodsId;
-                this.data.sellerInfo.skuCode = this.proType[this.sellerInfoProd].goodsCode;
-                this.data.sellerInfo.prodName = this.proType[this.sellerInfoProd].goodsName;
+            this.isTargetChange = true;
+            if (this.data.upstreamInfo) {
+                // 上游订单
+                this.data.upstreamInfo.targetCorpName = this.relatedCompany[this.targetCorpIdIdx].targetCorpName;
+                this.data.upstreamInfo.targetCorpId = this.relatedCompany[this.targetCorpIdIdx].targetCorpId;
             }
-            if (type === '买') {
-                this.data.buyerInfo.prdSkuId = this.proType[this.buyerInfoProd].goodsId;
-                this.data.buyerInfo.skuCode = this.proType[this.buyerInfoProd].goodsCode;
-                this.data.buyerInfo.prodName = this.proType[this.buyerInfoProd].goodsName;
+            if (this.data.downstreamInfo) {
+                // 下游订单
+                this.data.downstreamInfo.targetCorpName = this.relatedCompany[this.targetCorpIdIdx].targetCorpName;
+                this.data.downstreamInfo.targetCorpId = this.relatedCompany[this.targetCorpIdIdx].targetCorpId;
             }
+        },
+        // 根据所选产品获取交割库(产品切换), 要防止在切换商品时无限循环
+        onchangeProduct (type, isDuplicateCopy, forContEssRecreate) {
+            // 切换商品时必须要验证上下游交易公司是否都已准入可交易该商品
             let that = this;
-            let params = {
-                productId: type === '卖' ? this.proType[this.sellerInfoProd].goodsId : this.proType[this.buyerInfoProd].goodsId
-            };
-            this.$http.post(this.$api.contract.getDeliveryBank, params).then(res => {
-                type === '卖' ? that.sellDeliveryBank = res.data.data.warehouseList : that.buyDeliveryBank = res.data.data.warehouseList;
-            }).catch((e) => {
-                console.log(e);
-            });
+            if (that.data.upstreamInfo) {
+                that.data.upstreamInfo.bizType = that.data.bizType;
+            }
+            if (that.data.downstreamInfo) {
+                that.data.downstreamInfo.bizType = that.data.bizType;
+            }
+            // 保存基本信息(非商品相关)
+            let orderInfo4change = {};
+            if (type === 2) {
+                // 上游
+                let goodsObj = that.goodsList.find((e) => (e.goodsId === that.activeProductId));
+                if (goodsObj) {
+                    that.data.upstreamInfo.prdSkuId = goodsObj.goodsId;
+                    that.data.upstreamInfo.skuCode = goodsObj.goodsCode;
+                    that.data.upstreamInfo.prodName = goodsObj.goodsName;
+                }
+                if (!forContEssRecreate) {
+                    orderInfo4change.targetCorpId = that.data.upstreamInfo.targetCorpId;
+                    orderInfo4change.targetCorpName = that.data.upstreamInfo.targetCorpName;
+                    orderInfo4change.skuPriceType = 1;
+                    orderInfo4change.prdSkuId = that.data.upstreamInfo.prdSkuId;
+                    orderInfo4change.skuCode = that.data.upstreamInfo.skuCode;
+                    orderInfo4change.prodName = that.data.upstreamInfo.prodName;
+                    orderInfo4change.bizType = that.data.upstreamInfo.bizType;
+                }
+                // 查询指定交易商品包含的属性组件定义
+                let param = {
+                    productId: that.data.upstreamInfo.prdSkuId,
+                    contractType: 2
+                };
+                that.$http.post(that.$api.contract.getProdPropCompList, param).then(res => {
+                    if (res.data.code === 0) {
+                        that.upstreamPropList = res.data.data;
+                        that.upstreamCmptList = that.upstreamPropList.filter(item => item.displayOrder > 0);
+                        // 重置所有已输入的值
+                        if (!forContEssRecreate) {
+                            that.data.upstreamInfo = {};
+                            Object.assign(that.data.upstreamInfo, orderInfo4change);
+                        }
+                    } else {
+                        that.$message.error(res.data.message);
+                    }
+                }).catch((e) => {
+                    console.log(e);
+                });
+                if (that.data.contractType === 1 && isDuplicateCopy === 0) {
+                    // 双边合同时同步切换下游销售的商品
+                    that.onchangeProduct(3, 1, forContEssRecreate);
+                }
+            }
+            if (type === 3) {
+                // 下游
+                for (var index in that.goodsList) {
+                    if (that.goodsList[index].goodsId === that.activeProductId) {
+                        that.data.downstreamInfo.prdSkuId = that.goodsList[index].goodsId;
+                        that.data.downstreamInfo.skuCode = that.goodsList[index].goodsCode;
+                        that.data.downstreamInfo.prodName = that.goodsList[index].goodsName;
+                        break;
+                    }
+                }
+
+                if (!forContEssRecreate) {
+                    orderInfo4change.targetCorpId = that.data.downstreamInfo.targetCorpId;
+                    orderInfo4change.targetCorpName = that.data.downstreamInfo.targetCorpName;
+                    orderInfo4change.skuPriceType = 1;
+                    orderInfo4change.prdSkuId = that.data.downstreamInfo.prdSkuId;
+                    orderInfo4change.skuCode = that.data.downstreamInfo.skuCode;
+                    orderInfo4change.prodName = that.data.downstreamInfo.prodName;
+                    orderInfo4change.bizType = that.data.downstreamInfo.bizType;
+                }
+
+                // 查询指定交易商品包含的属性组件定义
+                let param = {
+                    productId: that.data.downstreamInfo.prdSkuId,
+                    contractType: 3
+                };
+                that.$http.post(that.$api.contract.getProdPropCompList, param).then(res => {
+                    if (res.data.code === 0) {
+                        that.downstreamPropList = res.data.data;
+                        that.downstreamCmptList = that.downstreamPropList.filter(item => item.displayOrder > 0);
+                        // 重置所有已输入的值
+                        if (!forContEssRecreate) {
+                            that.data.downstreamInfo = {};
+                            Object.assign(that.data.downstreamInfo, orderInfo4change);
+                        }
+                    } else {
+                        that.$message.error(res.data.message);
+                    }
+                }).catch((e) => {
+                    console.log(e);
+                });
+                if (that.data.contractType === 1 && isDuplicateCopy === 0) {
+                    // 双边合同时同步切换上游采购的商品
+                    that.onchangeProduct(2, 1, forContEssRecreate);
+                }
+            }
         },
         // 获取业务组
         getUserOrganization () {
             let that = this;
-            this.$http.get(this.$api.contract.getUserOrganization + '?userId=' + this.userid).then(res => {
+            this.$http.get(this.$api.contract.getUserOrganization + '?userId=' + this.data.businessManagerId).then(res => {
                 if (res.data.code === 0) {
                     that.businessManagerGroup = res.data.data;
                     that.srOrganizationIdx = 0;
@@ -1312,18 +1082,18 @@ export default {
             });
         },
         // 获取业务操作人
-        getGrade () {
+        getBizUserList () {
             let that = this;
             let params = {
-                organizationId: 2,
+                organizationId: this.data.organizationId,
                 pageNum: 0 // 表示不分页
             };
             this.$http.post(this.$api.contract.getGrade, params).then(res => {
                 if (res.data.code === 0) {
                     that.businessManager = res.data.data.rows;
                     Object.keys(res.data.data.rows).forEach((e) => {
-                        if (res.data.data.rows[e].usrUserId === that.userid) {
-                            that.businessManageridx = e * 1;
+                        if (res.data.data.rows[e].usrUserId === that.data.businessManagerId) {
+                            that.businessManagerIdx = e * 1;
                             that.businessManagerchk();
                         }
                     });
@@ -1333,114 +1103,121 @@ export default {
             });
         },
         // 获取交易对手评级
-        getCompanyGrade () {
+        getCompanyGrade (activeContractType, companyId, errMsg) {
             let that = this;
             let params = {
-                productId: that.activeCompanyType === '卖' ? this.data.sellerInfo.companyId : this.data.buyerInfo.companyId
+                productId: companyId
             };
-            this.$http.post(this.$api.contract.getCompanyGrade, params).then(res => {
-                that.activeCompanyType === '卖' ? this.sellerTrade = res.data.data.grade : this.buyerTrade = res.data.data.grade;
+            that.$http.post(that.$api.contract.getCompanyGrade, params).then(res => {
+                if (activeContractType === 2) {
+                    that.data.upstreamInfo.grade = res.data.data.grade;
+                    that.sellerCheck = false;
+                    if (that.data.upstreamInfo.grade === '未评级') {
+                        that.sellerCheck = true;
+                        that.$message({message: errMsg, type: 'warning'});
+                    }
+                } else if (activeContractType === 3) {
+                    that.data.downstreamInfo.grade = res.data.data.grade;
+                    that.buyerCheck = false;
+                    if (that.data.downstreamInfo.grade === '未评级') {
+                        that.buyerCheck = true;
+                        that.$message({message: errMsg, type: 'warning'});
+                        return false;
+                    }
+                }
             }).catch((e) => {
                 console.log(e);
             });
         },
-        // 公司选中
-        checkSales () {
+        // 交易公司选中（提交后由后台验证选中公司是否可交易指定产品）
+        checkSales (actType) {
             if (this.activeIndex === null) {
                 this.$message({
                     message: '请先选择公司',
-                    type: 'warning'
+                    type: 'error'
                 });
                 return;
             }
-            if (this.activeCompanyType === '买') {
-                this.data.buyerInfo.companyName = this.buyCompanyList[this.activeIndex].buyerCorpName;
-                this.data.buyerInfo.companyId = this.buyCompanyList[this.activeIndex].buyerCorpId;
-            } else {
-                this.data.sellerInfo.companyName = this.sellCompanyList[this.activeIndex].sellerCorpName;
-                this.data.sellerInfo.companyId = this.sellCompanyList[this.activeIndex].sellerCorpId;
+            if (actType === 3) {
+                this.dialogVisibles = false;
+                this.data.downstreamInfo.companyName = this.buyCompanyList[this.activeIndex].buyerCorpName;
+                this.data.downstreamInfo.companyId = this.buyCompanyList[this.activeIndex].buyerCorpId;
+                this.data.downstreamInfo.buyerCompanyName = this.buyCompanyList[this.activeIndex].buyerCorpName;
+                this.data.downstreamInfo.buyerCompanyId = this.buyCompanyList[this.activeIndex].buyerCorpId;
             }
-            this.dialogVisible = false;
-            this.getCompanyGrade();
+            if (actType === 2) {
+                this.dialogVisible = false;
+                this.data.upstreamInfo.companyName = this.sellCompanyList[this.activeIndex].sellerCorpName;
+                this.data.upstreamInfo.companyId = this.sellCompanyList[this.activeIndex].sellerCorpId;
+                this.data.upstreamInfo.sellerCompanyName = this.sellCompanyList[this.activeIndex].sellerCorpName;
+                this.data.upstreamInfo.sellerCompanyId = this.sellCompanyList[this.activeIndex].sellerCorpId;
+            }
         },
         // 提交
         onsubmit () {
-            if (!this.testForm(this.Verification, 1)) return false;
-            if (!this.unilateral) {
-                if (!this.testForm(this.Verification1, 3)) return false;
-                if (!this.testForm(this.Verification1, 2)) return false;
-                if (this.data.buyerInfo.deliveryDateFlag !== 2) {
-                    if (!this.testForm(this.Verification2, 3)) return false;
-                }
-                if (this.data.sellerInfo.deliveryDateFlag !== 2) {
-                    if (!this.testForm(this.Verification2, 2)) return false;
-                }
-                if (this.data.sellerInfo.provideInvoiceType === 3 && (this.data.sellerInfo.provideInvoiceDays === null || this.data.sellerInfo.provideInvoiceDays === '')) {
-                    this.$message({
-                        message: '请填写发票日期',
-                        type: 'warning'
-                    });
+            let that = this;
+            if (!that.testForm(that.Verification, 1)) {
+                return false;
+            }
+            if (this.data.upstreamInfo && this.targetCorpIdIdx != null) {
+                !this.isTargetChange && (this.data.upstreamInfo.targetCorpId = this.data.targetCorpId) && (this.data.upstreamInfo.targetCorpName = this.data.targetCorpName);
+            }
+            if (this.data.downstreamInfo && this.targetCorpIdIdx != null) {
+                !this.isTargetChange && (this.data.downstreamInfo.targetCorpId = this.data.targetCorpId) && (this.data.downstreamInfo.targetCorpName = this.data.targetCorpName);
+            }
+            // 先单体校验
+            if (that.data.contractType === 1 || that.data.contractType === 2) {
+                // 先检查上游订单信息
+                let rst = that.$inputCheckFunc.checkInputItem(that.upstreamPropList, that.data.upstreamInfo, '(上游)');
+                if (rst) {
+                    that.$message.error(rst);
                     return false;
                 }
-                if (this.data.buyerInfo.provideInvoiceType === 3 && (this.data.buyerInfo.provideInvoiceDays === null || this.data.buyerInfo.provideInvoiceDays === '')) {
-                    this.$message({
-                        message: '请填写发票日期',
-                        type: 'warning'
-                    });
+                rst = that.$inputCheckFunc.checkRelatedInputItem(that.data.upstreamInfo, '(上游)');
+                if (rst) {
+                    that.$message.error(rst);
                     return false;
                 }
-                this.data.contractType = 1;
+            }
+            if (that.data.contractType === 1 || that.data.contractType === 3) {
+                // 再检查下游订单信息
+                let rst = that.$inputCheckFunc.checkInputItem(that.downstreamPropList, that.data.downstreamInfo, '(下游)');
+                if (rst) {
+                    that.$message.error(rst);
+                    return false;
+                }
+                rst = that.$inputCheckFunc.checkRelatedInputItem(that.data.downstreamInfo, '(下游)');
+                if (rst) {
+                    that.$message.error(rst);
+                    return false;
+                }
+            }
+
+            if (that.deliveryContractList == null || that.deliveryContractList === undefined || that.deliveryContractList.length === 0) {
+                that.unilateralRelevance.isUnilateralCorrelation = false;
             } else {
-                if (this.data.contractType === null || this.data.contractType === '') {
-                    this.$message({
-                        message: '请先选择合同类型',
-                        type: 'warning'
-                    });
-                    return false;
-                }
-                if (this.data.contractType === 2 && this.data.sellerInfo.provideInvoiceType === 3 && (this.data.sellerInfo.provideInvoiceDays === null || this.data.sellerInfo.provideInvoiceDays === '')) {
-                    this.$message({
-                        message: '请填写发票日期',
-                        type: 'warning'
-                    });
-                    return false;
-                }
-                if (this.data.contractType === 3 && this.data.buyerInfo.provideInvoiceType === 3 && (this.data.buyerInfo.provideInvoiceDays === null || this.data.buyerInfo.provideInvoiceDays === '')) {
-                    this.$message({
-                        message: '请填写发票日期',
-                        type: 'warning'
-                    });
-                    return false;
-                }
-                if (this.data.buyerInfo.deliveryDateFlag !== 2 && this.data.contractType === 3) {
-                    if (!this.testForm(this.Verification2, 3)) return false;
-                }
-                if (this.data.sellerInfo.deliveryDateFlag !== 2 && this.data.contractType === 2) {
-                    if (!this.testForm(this.Verification2, 2)) return false;
-                }
-                if (!this.testForm(this.Verification1, this.data.contractType)) return false;
+                that.unilateralRelevance.isUnilateralCorrelation = true;
             }
-            if (this.unilateralRelevance.isUnilateralCorrelation === '1' && this.unilateral) {
-                if (!this.unilateralRelevance.contractCode) {
-                    this.$message({
-                        message: '请选择单边合同',
-                        type: 'warning'
-                    });
-                    return false;
-                }
+            if (that.unilateralRelevance.contractCode && !that.unilateralRelevance.isUnilateralCorrelation) {
+                that.$message({
+                    message: '已选择的单边合同无合同附件！',
+                    type: 'error'
+                });
+                return false;
             }
-            this.unilateralRelevance.isUnilateralCorrelation === '1' ? this.unilateralRelevance.isUnilateralCorrelation = true : this.unilateralRelevance.isUnilateralCorrelation = false;
-            Object.assign(this.data, this.unilateralRelevance);
-            let query = this.data;
-            this.$http.post(this.$api.contract.addContract, query).then((res) => {
+            if (that.$route.query.todoId !== null && that.$route.query.todoId !== undefined) {
+                that.data.todoId = that.$route.query.todoId;
+            }
+            Object.assign(that.data, that.unilateralRelevance);
+            that.$http.post(that.$api.contract.addContract, that.data).then((res) => {
                 if (res.data.code === 0) {
-                    this.$message({
+                    that.$message({
                         message: '创建成功',
                         type: 'success'
                     });
                     Bus.$emit('setMenu');
                 } else {
-                    this.$message({
+                    that.$message({
                         message: res.data.message,
                         type: 'error'
                     });
@@ -1450,51 +1227,17 @@ export default {
         // 表单验证
         testForm (type, e) {
             let that = this;
-            let list = e === 1 ? that.data : e === 3 ? that.data.buyerInfo : that.data.sellerInfo;
+            let list = e === 1 ? that.data : e === 3 ? that.data.downstreamInfo : that.data.upstreamInfo;
             for (let i = 0; i < type.length; i++) {
                 if (list[type[i].name] === null || list[type[i].name] === '') {
                     that.$message({
                         message: type[i].msg,
-                        type: 'warning'
+                        type: 'error'
                     });
                     return false;
                 }
             }
             return true;
-        },
-        // 时间选择限制
-        pickertime (t) {
-            if (t === 1 && this.data.sellerInfo.deliveryBeginDate > this.data.sellerInfo.deliveryEndDate && this.data.sellerInfo.deliveryEndDate !== null) {
-                this.$message({
-                    message: '开始时间不能大于结束时间',
-                    type: 'warning'
-                });
-                this.data.sellerInfo.deliveryBeginDate = null;
-                return;
-            }
-            if (t === 2 && this.data.sellerInfo.deliveryBeginDate > this.data.sellerInfo.deliveryEndDate && this.data.sellerInfo.deliveryBeginDate !== null) {
-                this.$message({
-                    message: '结束时间应大于开始时间',
-                    type: 'warning'
-                });
-                this.data.sellerInfo.deliveryEndDate = null;
-                return;
-            }
-            if (t === 3 && this.data.buyerInfo.deliveryBeginDate > this.data.buyerInfo.deliveryEndDate && this.data.buyerInfo.deliveryEndDate !== null) {
-                this.$message({
-                    message: '开始时间不能大于结束时间',
-                    type: 'warning'
-                });
-                this.data.buyerInfo.deliveryBeginDate = null;
-                return;
-            }
-            if (t === 4 && this.data.buyerInfo.deliveryBeginDate > this.data.buyerInfo.deliveryEndDate && this.data.buyerInfo.deliveryBeginDate !== null) {
-                this.$message({
-                    message: '结束时间应大于开始时间',
-                    type: 'warning'
-                });
-                this.data.buyerInfo.deliveryEndDate = null;
-            }
         }
     }
 };
@@ -1502,7 +1245,19 @@ export default {
 
 <style lang="scss" scoped>
   .add-contract {
-    padding: 20px 16px;
+    padding: 20px 0 30px 0;
+  }
+  .lc-select {
+      width: 30%;
+      margin-right: 20px;
+  }
+  .buyConfirmation{
+      background-color: #666!important;
+      border: 1px solid #666;
+  }
+  .sellConfirmation{
+      background-color: #666!important;
+      border: 1px solid #666;
   }
   .avatar-uploader-icon {
     font-size: 20px;
@@ -1512,22 +1267,26 @@ export default {
     line-height: 40px;
     text-align: center;
   }
+
   .avatar {
     width: 50px;
     height: 50px;
     display: block;
   }
-  .search1{
+
+  .search1 {
     position: absolute;
     right: 0;
     bottom: 10px;
     line-height: 1;
   }
+
   .dialog-table {
-      max-height: 500px;
-      overflow: auto;
-      clear: both;
+    max-height: 500px;
+    overflow: auto;
+    clear: both;
   }
+
   .cont-ess-zbyd {
     display: flex;
     .q {
@@ -1537,7 +1296,7 @@ export default {
       flex: 1;
     }
     .e {
-      flex: 0 0 60px;
+      flex: 0 0 30px;
     }
     .r {
       flex: 0 0 20px;
@@ -1546,27 +1305,13 @@ export default {
       flex: 1;
     }
     .y {
-      flex: 0 0 40px;
+      flex: 0 0 10px;
     }
     .u {
       flex: 0 0 20px;
     }
   }
-  .essential-row {
-    line-height: 22px;
-    .essential-item {
-      .essential-title {
-        flex: 0 0 110px;
-        line-height: 30px;
-        padding-left: 10px;
-      }
-    }
-  }
-  .isUnilateral {
-    .i {
-      color: red;
-    }
-  }
+
   .sell-company {
     .essential-item:nth-child(1) {
       .essential-text {
@@ -1574,27 +1319,44 @@ export default {
       }
     }
   }
+
+  .ll {
+    padding: 8px 30px 8px 119px;
+  }
+
+  /deep/ .el-radio__input.is-checked + .el-radio__label {
+    color: #666;
+  }
 </style>
 <style lang="scss">
   .add-contract {
-      .el-dialog__header{
-          .el-dialog__headerbtn{
-              top: 10px;
-              right: 16px;
-          }
+    .el-dialog__header {
+      .el-dialog__headerbtn {
+        top: 10px;
+        right: 16px;
       }
-      .order-apply{
-          .title {
-              font-size: 16px;
-              color: #333;
-              font-weight: bold;
-              height: 35px;
-              margin-left: 16px;
-              line-height: 35px;
-          }
+    }
+    .spanBlock {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+    }
+    .input-number {
+        height: 30px;
+        line-height: 30px;
+    }
+    .order-apply {
+      .title {
+        font-size: 14px;
+        color: #333;
+        font-weight: bold;
+        height: 35px;
+        margin-left: 16px;
+        line-height: 35px;
       }
-    .el-radio__label{
-        font-weight: 400;
+    }
+    .el-radio__label {
+      font-weight: 400;
     }
     .el-input-number__decrease {
       border-right: 0;
@@ -1607,9 +1369,15 @@ export default {
     .el-dialog__body {
       padding-top: 0;
     }
-    .el-radio{
+    .el-radio {
       color: $color-minor;
       line-height: 30px;
     }
+      .el-input__inner{
+          font-size: 14px;
+      }
+      .paydetail-title {
+          font-size: 14px;
+      }
   }
 </style>

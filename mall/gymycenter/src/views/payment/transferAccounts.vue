@@ -1,48 +1,49 @@
 <template>
     <div class="payment">
-        <!--<div class="pay">支付确认</div>-->
-        <h4 class="gy-h4">支付确认</h4>
-        <div class="payment-content">
-            <el-row>
-                <el-col :span="24">
-                    <div class="grid-content bg-purple">
-                        <i class="el-icon-tickets"></i>
-                        <span class="l">支付信息</span>
-                    </div>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="4">
-                    <div class="grid-content bg-purple">
-                        <span class="l tt">付款金额</span>
-                        <span></span>
-                    </div>
-                </el-col>
-                <el-col :span="20">{{amount | numToCash(2) }}元</el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="4">
-                    <div class="grid-content bg-purple">
-                        <span class="l tt">付款银行</span>
-                        <span></span>
-                    </div>
-                </el-col>
-                <!--<el-col :span="19">{{sellerAccount}}</el-col>-->
-                <el-col :span="20"><img :src="smallIcon" style="width: 110px;height: 40px;"/></el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="4">
-                    <div class="grid-content bg-purple">
-                        <span class="l tt">账户余额</span>
-                        <span></span>
-                    </div>
-                </el-col>
-                <el-col :span="20" class="font-red">￥{{accountBalance | numToCash(2) }}元</el-col>
-            </el-row>
-            <div class="mm"></div>
-            <!--<button class="gy-button-normal">转入</button>-->
-            <button class="gy-button-extra" @click="judgePayment">支付</button>
-            <div class="clear"></div>
+        <div class="new-title-public">
+            支付确认
+        </div>
+        <div>
+            <div class="center-box1">
+                <i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="mewmyfont">支付信息</span>
+            </div>
+            <div class="center-box2">
+                <el-row :gutter="60">
+                    <el-col :span="12" class="list-top">
+                        <el-row v-if="deductFlag === 0">
+                            <el-col :span="5" class="list-left-span">付款金额</el-col>
+                            <el-col :span="19" class="list-right-span">{{amount | numToCash(2) }}元</el-col>
+                        </el-row>
+                        <el-row v-else>
+                            <el-col :span="5" class="list-left-span">实付金额</el-col>
+                            <el-col :span="19" class="list-right-span">{{customerPayMoney}}元 （已积分抵扣{{pointMoney}}元）</el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="list-top">
+                        <el-row>
+                            <el-col :span="5" class="list-left-span">付款银行</el-col>
+                            <el-col :span="19"><img :src="smallIcon" style="width: 110px;height: 40px;margin-top: -15px;"/></el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="list-top">
+                        <el-row>
+                            <el-col :span="5" class="list-left-span">账户余额</el-col>
+                            <el-col :span="19" class="list-right-span">{{accountBalance | numToCash(2) }}元</el-col>
+                        </el-row>
+                    </el-col>
+                    <!--<el-col :span="12" v-show="bankId==2" class="list-top">-->
+                        <!--<el-row>-->
+                            <!--<el-col :span="5" class="list-left-span">支付密码</el-col>-->
+                            <!--<el-col :span="19" class="list-right-span">-->
+                                <!--<input type="password" placeholder="请输入" class="gy-input" v-model="transmissionPass">-->
+                            <!--</el-col>-->
+                        <!--</el-row>-->
+                    <!--</el-col>-->
+                </el-row>
+                <el-row class="mybtn">
+                    <button class="gy-button-extra" @click="judgePayment">支付</button>
+                </el-row>
+            </div>
         </div>
         <el-dialog
           title="提示"
@@ -78,7 +79,14 @@ export default {
             tradePwd: '',
             bankId: null,
             smallIcon: '',
-            accountBalance: ''
+            accountBalance: '',
+            transmissionPass: '',
+            fromFinance: false,
+            deductFlag: '',
+            customerPayMoney: '',
+            deductAmount: '',
+            pointMoney: '',
+            guaranteed: 0
         };
     },
     methods: {
@@ -104,16 +112,33 @@ export default {
         popPassword () {
             this.dialogVisible = true;
         },
+        paySuccess (data) {
+            if (Number(data.gatherTotal) < Number(data.applyAmount)) {
+                this.$confirm(`您已支付成功！申请总金额${data.applyAmount.toFixed(2)}元，已累计付款${data.gatherTotal.toFixed(2)}元，是否继续付款？`, '提示', {type: 'warning'})
+                    .then(() => {
+                        this.$router.push({path: '/my/payment/confirm', query: {paymentId: this.paymentId, fromFinance: 1}});
+                    }).catch(() => {
+                        this.$router.push({path: '/my/payment/info', query: {paymentId: data.id}});
+                    });
+                return;
+            }
+            this.$alert('您已支付成功！', '操作提示', {
+                confirmButtonText: '确定',
+                callback: action => {
+                    if (action === 'confirm') {
+                        this.$router.push({path: '/my/payment/info', query: {paymentId: data.id}});
+                    }
+                }
+            });
+        },
         // 1.payType为0时接口不需要传tradePwd字段因为不需要支付密码，payType为1时接口需要传tradePwd字段因为需要支付密码
         // 2.enableTradePwd  '启用交易密码(0:停用,1:启用)';1是支持在线支付密码，支持在线支付密码的时候需要弹出支付密码层
-        addBank: function (payType) {
+        addBank (payType) {
             let me = this;
-            if (me.amount && me.accountObj && me.accountBalance) {
-                if (me.amount > me.accountBalance) {
-                    me.$alert('您的账户余额不足，请充值！', '操作提示');
-                    return;
-                }
-            }
+            // if (me.amount > me.accountBalance) {
+            //     me.$alert('您的账户余额不足，请充值！', '操作提示');
+            //     return;
+            // }
             let statusCommand = 'PAY_COMPLETED';
             let parm = {
                 paymentId: me.paymentId,
@@ -121,8 +146,16 @@ export default {
                 remarks: me.remark,
                 operaType: 3,
                 status_command: statusCommand,
-                accountInfo: me.accountObj
+                accountInfo: me.accountObj,
+                transmissionPass: me.transmissionPass,
+                payTotal: this.amount,
+                deductAmount: this.deductAmount,
+                customerPayMoney: this.customerPayMoney,
+                deductFlag: this.deductFlag
             };
+            if (me.guaranteed === 1) {
+                parm.operaType = 5;
+            }
             if (payType === 1) {
                 if (me.tradePwd.length < 1) {
                     me.$alert('请输入密码！', '操作提示');
@@ -130,33 +163,62 @@ export default {
                 }
                 parm.tradePwd = me.tradePwd;
             }
-            me.$http.post(me.$api.processes.flowAct,
-                parm
-            ).then(function (response) {
-                if (response.data.code === 0) {
-                    me.$alert('您已通过国烨网支付成功！', '操作提示', {
-                        confirmButtonText: '确定',
-                        callback: action => {
-                            if (action === 'confirm') {
-                                me.$router.push({path: '/my/payment/info', query: {paymentId: me.paymentId}});
-                            }
-                        }
-                    });
+            if (me.fromFinance) {
+                me.$http.post(me.$api.payment.repay, {
+                    payTotal: this.amount,
+                    masterFlag: 2,
+                    masterPaymentId: me.paymentId,
+                    accountInfo: me.accountObj,
+                    remarks: me.remark,
+                    deductAmount: this.deductAmount,
+                    customerPayMoney: this.customerPayMoney,
+                    deductFlag: this.deductFlag
+                }).then(function (response) {
+                    if (response.data.code === 0) {
+                        me.paySuccess(response.data.data);
+                    } else {
+                        me.$alert('支付失败，' + response.data.message, '操作提示');
+                        console.log(response.data.code + ' ' + response.data.message);
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            } else {
+                let paySrvUrl = null;
+                if (parm.processId) {
+                    paySrvUrl = me.$api.processes.flowAct;
                 } else {
-                    me.$alert('支付失败，' + response.data.message, '操作提示');
-                    console.log(response.data.code + ' ' + response.data.message);
+                    // 担保支付的确认(财务分批时不走流程引擎)
+                    paySrvUrl = me.$api.payment.grdConfirmOnlinePay;
                 }
-            }).catch(function (error) {
-                console.log(error);
-            });
+                me.$http.post(paySrvUrl, parm
+                ).then(function (response) {
+                    if (response.data.code === 0) {
+                        me.paySuccess(response.data.data);
+                        // me.$alert('您已通过国烨网支付成功！', '操作提示', {
+                        //     confirmButtonText: '确定',
+                        //     callback: action => {
+                        //         if (action === 'confirm') {
+                        //             me.$router.push({path: '/my/payment/info', query: {paymentId: me.paymentId}});
+                        //         }
+                        //     }
+                        // });
+                    } else {
+                        me.$alert('支付失败，' + response.data.message, '操作提示');
+                        console.log(response.data.code + ' ' + response.data.message);
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            }
         }
     },
     created () {
         // bankId zx 1   pa 2
         // const me = this;
         // 判断有无缓存;
-        console.log(this.$route.params.accountObj);
-        console.log(this.$route.params.accountObj === undefined);
+        // this.bankId=2 为平安银行
+        console.log(sessionStorage.getItem('amountHC'));
         if (this.$route.params.accountObj === undefined) {
             this.bankId = parseInt(sessionStorage.getItem('bankIdHC'));
             this.amount = sessionStorage.getItem('amountHC');
@@ -173,35 +235,55 @@ export default {
         this.accountObj = this.$route.params.accountObj;
         this.remark = this.$route.params.remark;
         this.opeType = this.$route.params.opeType;
+        this.guaranteed = this.$route.params.guaranteed;
         this.accountNumber = this.$route.params.accountNumber;
+        this.fromFinance = Number(this.$route.params.fromFinance) === 1;
+        this.deductFlag = Number(this.$route.params.deductFlag);
+        this.customerPayMoney = Number(this.$route.params.customerPayMoney);
+        this.deductAmount = Number(this.$route.params.deductAmount);
+        this.pointMoney = Number(this.$route.params.pointMoney);
         this.$http.post(this.$api.payment.companyAccount, {}).then(res => {
             if (res.data.code === 0) {
                 // zx
-                if (this.bankId === 1) {
-                    console.log(res.data.data[0]);
-                    console.log(res.data.data[0].smallIcon);
-                    this.smallIcon = res.data.data[0].smallIcon;
-                    console.log(this.smallIcon);
-                    this.accountBalance = res.data.data[0].accountBalance;
-                    // console.log(res.data.data[0]);
+                console.log(this.bankId);
+                // this.bankId = 2;
+                for (let i = 0; i < res.data.data.length; i++) {
+                    console.log(res.data.data[i]);
+                    if (this.bankId === 1) {
+                        // 中信
+                        for (let j = 0; j < res.data.data.length; j++) {
+                            if (res.data.data[i].bankId === 1) {
+                                this.smallIcon = res.data.data[i].smallIcon;
+                                this.accountBalance = res.data.data[i].actualBalance;
+                            }
+                        }
+                    } else if (this.bankId === 2) {
+                        for (let j = 0; j < res.data.data.length; j++) {
+                            if (res.data.data[i].bankFlag === 1) {
+                                this.smallIcon = res.data.data[i].smallIcon;
+                                this.accountBalance = res.data.data[i].actualBalance;
+                            }
+                        }
+                    }
                 }
-                // pa
-                if (this.bankId === 2) {
-                    this.smallIcon = res.data.data[1].smallIcon;
-                    this.accountBalance = res.data.data[1].accountBalance;
-                }
+                // if (this.bankId === 1) {
+                //     this.smallIcon = res.data.data[0].smallIcon;
+                //     this.accountBalance = res.data.data[0].accountBalance;
+                //     // console.log(res.data.data[0]);
+                // }
+                // if (this.bankId === 2) {
+                //     // bankFlag
+                //     for (let i = 0; i < res.data.data.length; i++) {
+                //         console.log(res.data.data[i].alias);
+                //         if (res.data.data[i].alias) {
+                //
+                //         }
+                //     }
+                //     // this.smallIcon = res.data.data[1].smallIcon;
+                //     // this.accountBalance = res.data.data[1].accountBalance;
+                // }
             }
         });
-        // let params = {subAccount: me.accountNumber};
-        // this.$http.post(me.$api.payment.payInfoBalance, params
-        // ).then(function (response) {
-        //     if (response.data.code === 0) {
-        //         me.accountObj.accountBalance = response.data.data.accountBalance;
-        //         console.log(me.accountObj.accountBalance);
-        //     }
-        // }).catch(function (error) {
-        //     console.log(error);
-        // });
     }
 
 };
@@ -252,9 +334,20 @@ export default {
                 top: 85px;
                 left: 130px;
             }
-            .clear {
-                clear: both;
-            }
+        }
+    }
+</style>
+<style lang="scss" scoped>
+    .payment{
+        .center-box1{
+            padding: 20px 0 0 10px;
+        }
+        .center-box2{
+            padding: 20px 30px;
+        }
+        .mybtn{
+            margin-top: 20px;
+            text-align: right;
         }
     }
 </style>

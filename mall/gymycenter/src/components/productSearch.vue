@@ -1,12 +1,12 @@
 <template>
     <div class="product-list">
         <!--<input type="text" class="gy-input" v-model="keywords" @keyup="getList"  @keyup.13="handleGetList" :disabled="offerId">-->
-        <input style="width: 93%" placeholder="请输入"  type="text" class="gy-input" v-model="keywords" @keyup="getList"  @keyup.13="handleGetList" @click="empty" :disabled="offerId">
+        <input  placeholder="请输入"  type="text" class="gy-input" v-model="keywords" @keyup="getList"  @keyup.13="handleGetList" @click="keywords = ''" :disabled="offerId">
         <ul v-show="showList" v-clickOutside="handleHiddenList">
             <li v-for="(item, index) in list" :key="index" @click="handleList(item)" v-if="list.length > 0">{{item.goodsName}}</li>
             <li class="none-tips" v-if="list.length === 0">没有搜到相关产品</li>
         </ul>
-        <i class="iconfont icon-mySearch" @click="handleGetList"></i>
+        <i v-if="!offerId" class="iconfont icon-mySearch my-icon-jj" @click="handleGetList"></i>
     </div>
 </template>
 
@@ -29,7 +29,6 @@ const clickOutside = {
         delete el.vueClickOutside;
     }
 };
-
 export default {
     name: 'product-search',
     data () {
@@ -49,10 +48,21 @@ export default {
             defalult: {}
         },
         defaultProduct: String,
-        offerId: String
+        offerId: Boolean
     },
     created () {
+        console.log(this.defaultProduct);
         this.defaultProduct && (this.keywords = this.defaultProduct);
+    },
+    watch: {
+        keywords: function (val) {
+            if (!val) {
+                this.empty();
+            }
+        },
+        defaultProduct: function (val) {
+            this.keywords = val;
+        }
     },
     methods: {
         getList (e) {
@@ -75,7 +85,6 @@ export default {
             this.showList = false;
         },
         empty () {
-            this.keywords = '';
             this.$emit('update:selected', {});
             this.showList = false;
         },
@@ -85,7 +94,6 @@ export default {
     }
 };
 </script>
-
 <style lang="scss" scoped>
     .product-list{
         position: relative;
@@ -113,10 +121,10 @@ export default {
                 }
             }
         }
-        .icon-search{
+        .my-icon-jj{
             position: absolute;
-            right: 0;
-            top: 0;
+            right: 7px;
+            top: 0px;
         }
     }
 </style>

@@ -2,6 +2,50 @@
  * 工具类的全局函数定义
  */
 
+// 数字转金额显示(默认两位小数)
+const formatNumber = function (value, num, trimZero) {
+    // 返回处理后的值
+    value = parseFloat(value);
+    let rstVal = '';
+    if (value === null || value === undefined || value === '' || value === 0 || value === !NaN || !value) {
+        value = 0;
+        rstVal = value.toFixed(num);
+    } else {
+        let isMinus = 0;
+        if (value < 0) {
+            isMinus = 1;
+            value = value * -1;
+        }
+        value = value.toFixed(num);
+        let end = value.split('.')[1];
+        let start = value.split('.')[0];
+        let arr = [];
+
+        start = start.split('').reverse();
+        start.map(function (elem, index) {
+            arr.push(elem);
+            if (index % 3 === 2 && index !== value.length - 1 && index !== start.length - 1) {
+                arr.push(',');
+            }
+        });
+
+        start = arr.reverse().join('');
+        if (isMinus) {
+            start = '-' + start;
+        }
+        rstVal = start + '.' + end;
+    }
+    if (trimZero && rstVal.indexOf('.') > 0) {
+        while (rstVal.lastIndexOf('0') === rstVal.length - 1) {
+            rstVal = rstVal.substring(0, rstVal.length - 1);
+        }
+        if (rstVal.lastIndexOf('.') === rstVal.length - 1) {
+            rstVal = rstVal.substring(0, rstVal.length - 1);
+        }
+    }
+    return rstVal;
+};
+
 // 把时间戳数值格式输出为'yyyyMMdd'格式
 const parseDate = (obj) => {
     if (obj === '' || obj == null) {
@@ -59,39 +103,51 @@ const verifyIdCard = function (code) {
 };
 
 // 保留N位小数
-const toFixedFn = function (value, n) {
-    if (value % 1 === 0) {
+const toFixedFn = function (data, val) {
+    let numbers = '';
+    for (let i = 0; i < val; i++) {
+        numbers += '0';
+    }
+    let s = 1 + numbers;
+    let spot = '.' + numbers;
+    let value = Math.round(parseFloat(data) * s) / s;
+    let d = value.toString().split('.');
+    if (d.length === 1) {
+        value = value.toString() + spot;
         return value;
-    } else {
-        return value.toFixed(n).replace(/0+$/g, '');
+    }
+    if (d.length > 1) {
+        if (d[1].length < 2) {
+            value = value.toString() + '0';
+        }
+        return value;
     }
 };
 
-let downloadFile = function (that, url, pa, name) {
-    that.$http({
-        method: 'post',
-        url: url,
-        responseType: 'blob',
-        data: pa
-    }).then(res => {
-        // let blob = new Blob([res.data], {type: 'application/vnd.ms-excel'}, name);
-        // let objectUrl = URL.createObjectURL(blob);
-        // window.location.href = objectUrl;
-        let blob = new Blob([res.data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'});
-        let downloadElement = document.createElement('a');
-        let href = window.URL.createObjectURL(blob); // 创建下载的链接
-        downloadElement.href = href;
-        downloadElement.download = name; // 下载后文件名
-        document.body.appendChild(downloadElement);
-        downloadElement.click(); // 点击下载
-        document.body.removeChild(downloadElement); // 下载完成移除元素
-        window.URL.revokeObjectURL(href); // 释放掉blob对象
-    });
-};
+// 下载附件
+let exporttoExcel = function (that, url, data, fileName, defaultTimeout) {
+    let postParams = {responseType: 'blob'};
+    if (defaultTimeout) {
+        postParams.timeout = defaultTimeout;
+    }
+    that.$http.post(url, data, postParams).then(res => {
+        if (res.data.type.indexOf('application/json') === 0) {
+            // 这种情况下是后台返回了错误信息，不是正常的blob数据
+            let blob = new Blob([res.data]);
+            let reader = new FileReader();
+            reader.readAsText(blob, 'utf-8');
+            reader.onload = function (e) {
+                let jsonObj = JSON.parse(reader.result);
+                that.$message.error('下载文件时出错:  ' + jsonObj.message + '(errCode=' + jsonObj.code + ')');
+            };
+            return;
+        }
 
-let exporttoExcel = function (that, url, data, fileName) {
-    that.$http.post(url, data, {responseType: 'blob'}).then(res => {
         if (res.data.size > 0) {
+            if (fileName == null || fileName === undefined) {
+                // 如果前端页面未指定文件名，则使用后台传回的
+                fileName = decodeURI(res.headers.filename);
+            }
             var blob = new Blob([res.data]);
             if (window.navigator.msSaveOrOpenBlob) {
                 // 兼容IE10
@@ -111,13 +167,71 @@ let exporttoExcel = function (that, url, data, fileName) {
     });
 };
 
+/**
+ * 验证用户是否有指定权限
+ * @param resName 权限编码，多个时逗号分隔
+ */
+let hasBizAuth = function (resName) {
+    let userInfo = localStorage.getItem('userInfo');
+    if (userInfo == null || userInfo === undefined) {
+        console.log('hasBizAuth 用户未登录');
+        return false;
+    }
+    let user = JSON.parse(userInfo);
+    if (user && user.permissions) {
+        if (resName.indexOf(',') > 0) {
+            let roleArr = resName.split(',');
+            for (var i in roleArr) {
+                if (user.permissions.indexOf(roleArr[i]) > -1) {
+                    return true;
+                }
+            }
+        } else {
+            if (user.permissions.indexOf(resName) > -1) {
+                return true;
+            }
+        }
+        console.log('hasBizAuth 用户无权限 account=' + user.account);
+    } else {
+        console.log('hasBizAuth 用户无登录信息 ' + userInfo);
+    }
+    return false;
+};
+
+// 文件上传时专用，根据文件路径或名称获取文件类型，(目前支持图片/pdf/word/excel)
+let getFileTypeAlias = function (resName) {
+    let fileTypeAlias = null;
+    let fileName = resName.toLowerCase();
+    if (fileName.lastIndexOf('.pdf') > 1) {
+        fileTypeAlias = 'pdf';
+    } else if (fileName.lastIndexOf('.doc') > 1 || fileName.lastIndexOf('.docx') > 1) {
+        fileTypeAlias = 'word';
+    } else if (fileName.lastIndexOf('.xls') > 1 || fileName.lastIndexOf('.xlsx') > 1) {
+        fileTypeAlias = 'excel';
+    } else {
+        // 默认为图片，除非以后要支持其他格式
+        fileTypeAlias = 'img';
+    }
+    return fileTypeAlias;
+};
+
+let convertDateEnd = function (dateVal) {
+    if (dateVal) {
+        dateVal = dateVal + 86399999;
+    }
+    return dateVal;
+};
+
 // 定义外部输出
 export default {
+    formatNumber,
     parseDate,
     formatDate,
     verifyMobile,
     toFixedFn,
     verifyIdCard,
-    downloadFile,
-    exporttoExcel
+    exporttoExcel,
+    hasBizAuth,
+    getFileTypeAlias,
+    convertDateEnd
 };

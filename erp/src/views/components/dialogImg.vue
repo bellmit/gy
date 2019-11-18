@@ -38,23 +38,12 @@ export default {
 <style lang="scss">
   .dialogImg{
     .el-dialog{
-      .el-dialog__header {
-        height:35px;
-        line-height: 35px;
-        padding:0 0 0 16px;
-        border-bottom:1px solid #e6eaea;
-      }
-      .el-dialog__title{
-        font-size: 16px;
-        font-weight: bold;
-        color:#333333;
-      }
       .el-dialog__headerbtn{
         top:10px;
         right:16px;
       }
       .el-dialog__body{
-        padding:30px;
+        padding-bottom: 30px;
       }
     }
   }

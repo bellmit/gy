@@ -12,6 +12,7 @@
               <el-date-picker
                 v-model="search.contractSignedDateStart"
                 type="date"
+                value-format="timestamp"
                 placeholder="开始日期">
               </el-date-picker>
             </div>
@@ -20,12 +21,14 @@
               <el-date-picker
                 v-model="search.contractSignedDateEnd"
                 type="date"
+                value-format="timestamp"
+                @change="search.contractSignedDateEnd = $tools.convertDateEnd(search.contractSignedDateEnd)"
                 placeholder="结束日期">
               </el-date-picker>
             </div>
           </div>
         </div>
-        <div class="gy-form-group">
+        <div class="gy-form-group" :class="{'last-active': !isShowSearch}">
             <span class="l">业务组</span>
             <el-select v-model="search.usrOrganizationId">
               <el-option
@@ -41,9 +44,9 @@
             <span class="l">业务类型</span>
               <el-select v-model="search.bizType">
                 <el-option
-                  v-for="(item, index) in bizTypeData"
+                  v-for="(item, index) in $constant.businessType4Erp"
                   :key="index"
-                  :label="item.value"
+                  :label="item.name"
                   :value="item.id">
                 </el-option>
               </el-select>
@@ -89,6 +92,7 @@
                 <el-date-picker
                   v-model="search.contractDeliveredStartDateStart"
                   type="date"
+                  value-format="timestamp"
                   placeholder="开始日期">
                 </el-date-picker>
               </div>
@@ -97,6 +101,8 @@
                 <el-date-picker
                   v-model="search.contractDeliveredStartDateEnd"
                   type="date"
+                  value-format="timestamp"
+                  @change="search.contractDeliveredStartDateEnd = $tools.convertDateEnd(search.contractDeliveredStartDateEnd)"
                   placeholder="结束日期">
                 </el-date-picker>
               </div>
@@ -109,6 +115,7 @@
                 <el-date-picker
                   v-model="search.contractDeliveredEndDateStart"
                   type="date"
+                  value-format="timestamp"
                   placeholder="开始日期">
                 </el-date-picker>
               </div>
@@ -117,12 +124,14 @@
                 <el-date-picker
                   v-model="search.contractDeliveredEndDateEnd"
                   type="date"
+                  value-format="timestamp"
+                  @change="search.contractDeliveredEndDateEnd = $tools.convertDateEnd(search.contractDeliveredEndDateEnd)"
                   placeholder="结束日期">
                 </el-date-picker>
               </div>
             </div>
           </div>
-          <div class="gy-form-group">
+          <div class="gy-form-group" :class="{'last-active': isShowSearch}">
             <span class="l">我方公司</span>
             <input type="text" placeholder="请输入" v-model="search.ourCompanyName">
           </div>
@@ -197,32 +206,6 @@ export default {
                 }
             ],
             activeId: 0,
-            // 业务类型
-            list: [
-                {
-                    id: 1,
-                    value: '高频交易'
-                },
-                {
-                    id: 4,
-                    value: '准现货-流量'
-                }
-            ],
-            // 业务类型
-            bizTypeData: [
-                {
-                    id: null,
-                    value: '全部'
-                },
-                {
-                    id: 1, // bizType
-                    value: '高频交易'
-                },
-                {
-                    id: 4,
-                    value: '准现货-流量'
-                }
-            ],
             deliveryNamesData: [], // 交割库and实际交割库
             organizationDate: [] // 业务组
         };
@@ -262,6 +245,7 @@ export default {
         },
         tabClick (i) {
             this.activeId = i;
+            console.log(this.activeId);
         },
         excel () {
             this.activeId === 0 ? this.$refs.upstream.excel(this.search) : this.$refs.downstream.excel(this.search);
@@ -276,6 +260,9 @@ export default {
   .standingBook .gy-form-group {
     padding: 6px 30px 6px 138px;
   }
+  // .last-active {
+  //   width: 48% !important;
+  // }
 </style>
 <style lang="scss">
 

@@ -1,33 +1,52 @@
 <template>
     <section class="integral-shipments f-container">
-        <h3 class="gy-h3">发货管理</h3>
-        <div class="gy-form gy-search advanced-search">
+        <div class="gy-h4">发货管理</div>
+        <div class="selected gy-search advanced-search">
             <ul class="classify"></ul>
             <div class="advanced-wrapper">
                 <label class="gy-label">
                     <input v-model="searchStr" type="text" class="gy-input" placeholder="请输入品名" maxlength="30" @keyup.13="getShipments">
-                    <span class="input-limit" @click="getShipments">搜索</span>
+                    <span class="input-limit" @click="getShipments">
+                        <i class="iconfont icon-search"></i>
+                    </span>
                 </label>
                 <span class="advanced" @click="advancedShow = !advancedShow">
                     高级搜索 <i class="el-icon-arrow-down"></i>
                 </span>
             </div>
         </div>
-        <div class="advanced-box" v-show="advancedShow">
-            <el-form class="gy-detail-form short" label-width="106px">
-                <el-form-item class="half" label="兑换单号">
-                    <el-input v-model="advancedOption.id"></el-input>
-                </el-form-item>
-                <el-form-item class="half mr" label="收货人手机">
-                    <el-input v-model="advancedOption.phone"></el-input>
-                </el-form-item>
-                <el-form-item class="half" label="用户名">
-                    <el-input v-model="advancedOption.username"></el-input>
-                </el-form-item>
-                <i class="iconfont icon-search search-button" @click="getShipments"></i>
-            </el-form>
+        <div class="selected-box" v-show="advancedShow">
+            <el-row :gutter="40" style="margin-top: 15px;">
+                <el-col :span="12">
+                    <el-row>
+                        <el-col :span="4">兑换单号</el-col>
+                        <el-col :span="19">
+                            <input type="text" placeholder="请输入" v-model="advancedOption.id">
+                        </el-col>
+                    </el-row>
+                </el-col>
+                <el-col :span="12">
+                    <el-row>
+                        <el-col :span="4">收货人手机</el-col>
+                        <el-col :span="19">
+                            <input type="text" placeholder="请输入" v-model="advancedOption.phone">
+                        </el-col>
+                    </el-row>
+                </el-col>
+            </el-row>
+            <el-row :gutter="40" style="margin-top: 15px;">
+                <el-col :span="12">
+                    <el-row>
+                        <el-col :span="4">用户名</el-col>
+                        <el-col :span="19">
+                            <input type="text" placeholder="请输入" v-model="advancedOption.username">
+                        </el-col>
+                        <el-col :span="1"><i class="iconfont icon-search" @click="getShipments" style="margin-left:10px;"></i></el-col>
+                    </el-row>
+                </el-col>
+            </el-row>
         </div>
-        <h3 class="gy-h3" :style="{ marginTop: advancedShow ? '48px' : '10px' }">待发货兑换单</h3>
+        <div class="gy-h4" :style="{ marginTop: advancedShow ? '20px' : '10px' }">待发货兑换单</div>
         <el-table
             class="gy-table"
             :data="orderList"
@@ -48,7 +67,9 @@
             </el-table-column>
             <el-table-column label="操作" width="160">
                 <template slot-scope="{row}">
-                    <span class="gy-button-view" @click="write(row.id)">填写发货单</span>
+                    <div class="align-c">
+                        <span class="gy-button-view" @click="write(row.id)">填写发货单</span>
+                    </div>
                 </template>
             </el-table-column>
         </el-table>

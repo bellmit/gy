@@ -15,8 +15,10 @@
                     <i class="unread" v-if="item.isReceived === 0"></i>
                 </div>
                 <dl>
-                    <dt>{{item.messageType === 1 ? item.fromCompanyName : '系统消息'}}</dt>
-                    <dd>{{item.content}}</dd>
+                    <dt v-if="item.messageType === 1">{{item.fromCompanyName ? (item.fromCompanyName + ' - ' + item.fromUserName) : item.fromUserName}}</dt>
+                    <dt v-else>系统消息</dt>
+                    <dd v-if="item.content.indexOf('data-isimg') !== -1">【图片】消息</dd>
+                    <dd v-else v-html="item.content"></dd>
                 </dl>
                 <span class="date">{{item.createdDate | date('hour')}}</span>
             </a>
@@ -79,7 +81,7 @@ export default {
                 this.$http.get(this.$api.news.read + '/' + d.id)
                     .then(res => {
                         if (res.data.code === 0) {
-                            let url = '/im/#type=2&username=' + window.btoa(d.toMobile) + '&touser=' + window.btoa(d.fromMobile);
+                            let url = '/im/#type=2&username=' + window.btoa(d.toMobile) + '&touser=' + window.btoa(d.fromMobile) + '&touserCompanyId=' + window.btoa(d.fromCompanyId);
                             newWindow.location.href = url;
                             this.newsInfo.list[idx].isReceived = 1;
                         }

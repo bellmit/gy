@@ -61,6 +61,12 @@ const init = (userId = 1, companyId = 1) => {
     socket.on('disconnect', () => {
         disconnect();
     });
+    // 切换公司
+    socket.on('change_company_id', (val) => {
+        console.log(val);
+        let type = 1;
+        receive(type, val);
+    });
 };
 
 export default {

@@ -11,7 +11,7 @@
         <div class="btn-group">
           <button v-if="isAuth('sys:role:add')" @click="$router.push({name: 'sysRoleManage'})" class="gy-button-extra">添加</button>
           <button class="gy-button-normal" @click="editAll" v-if="isAuth('sys:role:edit')">编辑</button>
-          <button class="gy-button-normal" @click="deleteAll" v-if="isAuth('sys:role:batch_delete')">批量删除</button>
+          <button class="gy-button-normal mr0" @click="deleteAll" v-if="isAuth('sys:role:batch_delete')">批量删除</button>
         </div>
         <div class="m-panel">
             <table class="gy-table">
@@ -201,5 +201,8 @@ export default {
     width: 86px;
     padding-left: 30px;
   }
+}
+.search-wrapper .icon-search{
+    right:0;
 }
 </style>

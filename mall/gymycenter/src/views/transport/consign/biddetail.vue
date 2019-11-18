@@ -1,6 +1,6 @@
 <template>
     <div class="transport-wrap">
-        <h3><i class="iconfont icon-info"></i>基础信息</h3>
+        <h3><i class="iconfont icon-info"></i>运输要求</h3>
         <form action="javascript:;">
             <div class="gy-form">
                 <div class="gy-form-group">
@@ -18,6 +18,65 @@
                 <div class="gy-form-group">
                     <span class="l">卸货地</span>
                     {{enquiryInfo.unloadTotalAddress}}
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">车辆要求</span>
+                    {{enquiryInfo.infCarrierTypeName}}
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">货值</span>
+                    <span v-for="pro in enquiryInfo.enquiryNoteItemList" :key="pro.id">{{pro.intCurrencyMark}}{{pro.skuPrice}}元/{{pro.infUnitOfMeasureName}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">货损限制</span>
+                    <span v-for="pro in enquiryInfo.enquiryNoteItemList"
+                          :key="pro.id">{{pro.damageRate}}</span><span>‰</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">期望发货日期</span>
+                    {{enquiryInfo.estimatedLoadingDate | date(1)}}
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">有效期</span>
+                    {{enquiryInfo.effectiveDate | date(1)}}
+                </div>
+            </div>
+            <h3><i class="iconfont icon-xiangxixinxi"></i>推送信息</h3>
+            <div class="gy-form">
+                <div class="gy-form-group">
+                    <span class="l">推送范围</span>
+                    {{ScopeType[enquiryInfo.pushScopeType]}}
+                </div>
+                <div class="gy-form-group cl" v-if="enquiryInfo.pushScopeType == 2">
+                    <span class="l">指定承运商</span>
+                    <span v-for="(item, index) in enquiryInfo.enquiryNotePushList" :key="index">{{item.usrCompanyName}}&nbsp;&nbsp; </span>
+                </div>
+            </div>
+            <h3><i class="iconfont icon-weibiaoti"></i>联系信息</h3>
+            <div class="gy-form">
+                <div class="gy-form-group">
+                    <span class="l">托运方</span>
+                    {{enquiryInfo.consignorName}}
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">联系人</span>
+                    {{enquiryInfo.contact}}
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">联系方式</span>
+                    {{enquiryInfo.contactMobile}}
+                </div>
+                <!-- <div class="gy-form-group">
+                    <span class="l">期望支付方式</span>
+                    {{payWay[enquiryInfo.freightPaymentType]}}
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">期望签约方式</span>
+                    {{signType[enquiryInfo.consignmentSignType]}}
+                </div> -->
+                <div class="gy-form-group">
+                    <span class="l">备注</span>
+                    {{enquiryInfo.remark}}
                 </div>
                 <div class="gy-form-group">
                     <span class="l">发货公司</span>
@@ -43,54 +102,6 @@
                     <span class="l">收货联系方式</span>
                     {{enquiryInfo.unloadContactMobile}}
                 </div>
-                <div class="gy-form-group">
-                    <span class="l">期望发货日期</span>
-                    {{enquiryInfo.estimatedLoadingDate | date(1)}}
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">有效期</span>
-                    {{enquiryInfo.effectiveDate | date(1)}}
-                </div>
-            </div>
-            <h3><i class="iconfont icon-xiangxixinxi"></i>详细信息</h3>
-            <div class="gy-form">
-                <div class="gy-form-group">
-                    <span class="l">托运方</span>
-                    {{enquiryInfo.consignorName}}
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">车辆要求</span>
-                    {{enquiryInfo.infCarrierTypeName}}
-                </div>
-                <div class="gy-form-group cl">
-                    <span class="l">联系人</span>
-                    {{enquiryInfo.contact}}
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">联系方式</span>
-                    {{enquiryInfo.contactMobile}}
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">货值</span>
-                    <span v-for="pro in enquiryInfo.enquiryNoteItemList" :key="pro.id">{{pro.intCurrencyMark}}{{pro.skuPrice}}元/{{pro.infUnitOfMeasureName}}</span>
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">货损限制</span>
-                    <span v-for="pro in enquiryInfo.enquiryNoteItemList"
-                          :key="pro.id">{{pro.damageRate}}</span><span>‰</span>
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">期望支付方式</span>
-                    {{payWay[enquiryInfo.freightPaymentType]}}
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">期望签约方式</span>
-                    {{signType[enquiryInfo.consignmentSignType]}}
-                </div>
-                <div class="gy-form-group single-row">
-                    <span class="l">备注</span>
-                    {{enquiryInfo.remark}}
-                </div>
                 <div class="price-list">
                     <table class="gy-table">
                         <thead>
@@ -107,7 +118,7 @@
                             <td>{{price.carrierName}}</td>
                             <td>{{price.quotePrice}}元/吨</td>
                             <td>{{price.lastBiddingDate | date(1)}}</td>
-                            <td>
+                            <td class="align-c">
                                 <span v-if="price.biddingNoteStatus > 1">
                                     <button class="gy-button-view"
                                             @click="handleShowContract(price.filePath)">查看合同</button><button
@@ -161,6 +172,7 @@ export default {
             },
             payWay: ['在线支付', '线下支付'],
             quoteType: ['承运商报价', '我有意向价', '向指定承运商询价'],
+            ScopeType: ['', '全网推送', '指定承运商', '精准推送'],
             signType: ['在线签约', '线下签约'],
             priceList: [],
             contractUrl: null,
@@ -206,6 +218,8 @@ export default {
                 .then(res => {
                     this.contractUrl = res.data.data;
                     this.showContract = true;
+                    this.showHandlechapter = false;
+                    this.getPriceList(this.bidId);
                 });
         },
         handleShowContract (file, id) {
@@ -289,7 +303,7 @@ export default {
         clear: both;
         padding: 30px;
         button {
-            margin-right: 10px;
+            margin: 0 5px;
         }
         .no-data{
             text-align: center;

@@ -3,21 +3,21 @@
         <div class="search-page-content">
             <div class="search-page-content-query clearfix">
                 <div class="clearfix search-page-content-query-delivery-mode fl">
-                    <div class="fl search-page-querys-left">提货方式</div>
+                    <div class="fl search-page-querys-left">交付方式</div>
                     <div class="fl search-page-querys-right" @click="changeDeliveryType($event)">
-                        <button mode="0" :class="[deliveryType === 0?'selected-mode':'']">全部</button>
-                        <button mode="1" :class="[deliveryType === 1?'selected-mode':'']">买家自提</button>
-                        <button mode="2" :class="[deliveryType === 2?'selected-mode':'']">卖家送货</button>
+                        <button mode="0" :class="[deliveryType === 0?'selected-mode':'']" @click="getOrderList(deliveryType = 0)">全部</button>
+                        <button mode="1" :class="[deliveryType === 1?'selected-mode':'']" @click="getOrderList(deliveryType = 1)">买家自提</button>
+                        <button mode="2" :class="[deliveryType === 2?'selected-mode':'']" @click="getOrderList(deliveryType = 2)">卖家送货</button>
                     </div>
                 </div>
                 <div class="search-page-content-query-more fr" @click="disflag = !disflag">
-                    <span>高级搜索</span>
-                    <i slot="suffix" class="el-icon-arrow-down"></i>
+                    <span>高级搜索</span><i slot="suffix"
+                        class="iconfont" :class="disflag ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
                 </div>
                 <div class="search-page-content-query-iptbox fr">
                     <input class="search-page-content-query-iptbox-ipt" v-model="keywords" type="text"
                            placeholder="请输入品名、单号"/>
-                    <i @click="getOrderList" class="iconfont icon-fangdajing"></i>
+                    <i @click="getOrderList" class="iconfont icon-fangdajing" style="margin-left:14px;"></i>
                 </div>
             </div>
             <div class="clearfixx clearfix" v-if="disflag">
@@ -48,14 +48,12 @@
                     <span class="l">交割库</span>
                     <div class="">
                         <input class="gy-input" v-model="deliveryWarehouse" placeholder="请输入">
-                        <i slot="suffix" class="el-icon-arrow-down"></i>
                     </div>
                 </div>
                 <div class="gy-form-group">
                     <span class="l">发布公司</span>
                     <div>
                         <input class="gy-input" v-model="sellerCompany" placeholder="请输入">
-                        <i slot="suffix" class="el-icon-arrow-down"></i>
                         <i @click="getOrderList" class="iconfont icon-fangdajing"></i>
                     </div>
                 </div>
@@ -66,21 +64,21 @@
                         <th>#</th>
                         <th>品名</th>
                         <th>
-                            <div class="fl three-dot">数量 (吨)</div>
+                            <div class="fl three-dot">数量(吨)</div>
                             <div class="arrows fl">
                                 <i slot="suffix" class="el-icon-arrow-down" @click="QuantityClickl()"></i>
                                 <i slot="suffix" class="el-icon-arrow-up" @click="QuantityClick()"></i>
                             </div>
                         </th>
                         <th>
-                            <div class="fl three-dot">起订量 (吨)</div>
+                            <div class="fl three-dot">起订量(吨)</div>
                             <div class="arrows fl">
                                 <i slot="suffix" class="el-icon-arrow-down" @click="MinQuantityClickl()"></i>
                                 <i slot="suffix" class="el-icon-arrow-up" @click="MinQuantityClick()"></i>
                             </div>
                         </th>
                         <th>
-                            <div class="fl three-dot">价格 (元)</div>
+                            <div class="fl three-dot">价格(元)</div>
                             <div class="arrows fl">
                                 <i slot="suffix" class="el-icon-arrow-down" @click="PriceClickl()"></i>
                                 <i slot="suffix" class="el-icon-arrow-up" @click="PriceClick()"></i>
@@ -95,25 +93,25 @@
                         </th>
                         <th>交割库</th>
                         <th>发布公司</th>
-                        <th>操作</th>
+                        <th class="align-c">操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item,index) in resultList" :key="index">
                         <td>{{item.id}}</td>
                         <td>{{item.skuName}}</td>
-                        <td>{{item.skuQuantity || 0 | numToCash(3)}}</td>
-                        <td>
+                        <td class="text-r">{{item.skuQuantity || 0 | numToCashs(3)}}</td>
+                        <td class="text-r">
                             <template v-if="item.skuMinQuantity">
-                                {{item.skuMinQuantity || 0 | numToCash(3)}}
+                                {{item.skuMinQuantity || 0 | numToCashs(3)}}
                             </template>
                             <template v-else>
                                 -
                             </template>
                         </td>
-                        <td>
+                        <td class="text-r">
                             <template v-if="item.skuPrice">
-                               {{item.skuPrice |numToCash}}元
+                               {{item.skuPrice |numToCash}}{{item.skuPriceFlag == 1 ? "(可议价)" : ''}}
                             </template>
                             <template v-else>
                                 面议
@@ -128,7 +126,7 @@
                         <td>
                             <span v-if="item.isPublic === 1">{{item.sellerCompanyName}}</span>
                         </td>
-                        <td>
+                        <td class="align-c">
                             <router-link :to="{name:'product-detail', query:{resourcesListId: item.id}}"
                                          class="gy-button-view">查看
                             </router-link>
@@ -138,6 +136,7 @@
             </table>
             <div class="departmentName">共 {{itemTotal}} 条记录</div>
             <el-pagination
+              v-if="itemTotal !== 0"
               class="pagination-box"
               background
               @current-change="changeSelect"
@@ -155,7 +154,68 @@
 <script>
 export default {
     name: 'search-page',
+    data: function () {
+        return {
+            disflag: false,
+            keywords: '',
+            fullSearch: '',
+            productId: '',
+            catalogueId: '',
+            startDate: '',
+            endDate: '',
+            itemTotal: 0,
+            pageNo: 1,
+            pageSize: 10,
+            minPrice: '',
+            maxPrice: '',
+            deliveryWarehouse: '',
+            sellerCompany: '',
+            deliveryType: 0,
+            orderByName: 0,
+            orderByAmount: 0,
+            orderBySkuMinQuantity: 0,
+            orderByPrice: 0,
+            orderByDeliveryDate: 0,
+            resultList: [],
+            deliveryPeriod: '',
+            form: {},
+            timeDefaultShow: ''
+        };
+    },
+    created () {
+        this.init();
+    },
+    watch: {
+        $route: 'init'
+    },
     methods: {
+        init () {
+            this.fullSearch = this.$route.query.fullSearch;
+            if (this.fullSearch === undefined || this.fullSearch === null || this.fullSearch === 'null') {
+                this.fullSearch = '';
+            }
+            this.keywords = this.$route.query.keyword;
+            if (this.keyword === undefined || this.keyword === null || this.keyword === 'null') {
+                this.keyword = '';
+            }
+            this.catalogueId = this.$route.query.catalogueId;
+            if (this.catalogueId === undefined || this.catalogueId === null || this.catalogueId === 'null') {
+                this.catalogueId = '';
+            }
+            this.productId = this.$route.query.productId;
+            if (this.productId === undefined || this.productId === null || this.productId === 'null') {
+                this.productId = '';
+            }
+            if (this.$route.query.fromkv) {
+                this.form = this.$route.query;
+                this.deliveryType = Number(this.form.payWay);
+                this.disflag = true;
+                this.deliveryWarehouse = this.form.warehouse;
+                this.keywords = this.form.goodsName;
+                this.deliveryPeriod = [this.form.startDate, this.form.endDate];
+            }
+            this.getOrderList();
+        },
         // 排序 数量
         QuantityClick () {
             this.resultList = this.resultList.sort(this.compare('skuQuantity'));
@@ -229,7 +289,14 @@ export default {
             if (this.minPrice !== '') {
                 if (this.maxPrice !== '') {
                     if (parseInt(this.minPrice) > parseInt(this.maxPrice)) {
-                        this.$alert('最小价格应比最大价格小');
+                        // this.$alert('最小价格应比最大价格小');
+                        this.$confirm('最小价格应比最大价格小', '提示', {
+                            confirmButtonText: '确定',
+                            confirmButtonClass: 'gy-button-extra',
+                            cancelButtonText: '取消',
+                            cancelButtonClass: 'gy-button-normal',
+                            type: 'warning'
+                        });
                         return;
                     } else {
                         console.log('校验成功');
@@ -238,29 +305,28 @@ export default {
             }
             const that = this;
             const url = that.$api.mallHome.offerSearch;
-            that.$http.post(url, {
-                pageNum: that.pageNo,
-                pageSize: that.pageSize,
-                data: {
-                    deliveryType: that.deliveryType,
-                    keyword: that.keywords,
-                    fullSearch: that.fullSearch,
-                    productId: that.productId,
-                    topCatalogueId: that.catalogueId,
-                    deliveryBeginDate: that.deliveryPeriod[0],
-                    deliveryEndDate: that.deliveryPeriod[1],
-                    minPrice: that.minPrice,
-                    maxPrice: that.maxPrice,
-                    deliveryWarehouseName: that.deliveryWarehouse,
-                    sellerCompany: that.sellerCompany,
-                    orderByName: that.orderByName,
-                    orderByAmount: that.orderByAmount,
-                    orderBySkuMinQuantity: that.orderBySkuMinQuantity,
-                    orderByPrice: that.orderByPrice,
-                    orderByDeliveryDate: that.orderByDeliveryDate,
-                    flag: 3
-                }
-            }).then((res) => {
+            var data = {
+                deliveryType: that.deliveryType,
+                keyword: that.keywords,
+                fullSearch: that.fullSearch,
+                productId: that.productId,
+                topCatalogueId: that.catalogueId,
+                minPrice: that.minPrice,
+                maxPrice: that.maxPrice,
+                deliveryWarehouseName: that.deliveryWarehouse,
+                sellerCompany: that.sellerCompany,
+                orderByName: that.orderByName,
+                orderByAmount: that.orderByAmount,
+                orderBySkuMinQuantity: that.orderBySkuMinQuantity,
+                orderByPrice: that.orderByPrice,
+                orderByDeliveryDate: that.orderByDeliveryDate,
+                flag: 3
+            };
+            if (that.deliveryPeriod) {
+                data['deliveryBeginDate'] = that.deliveryPeriod[0];
+                data['deliveryEndDate'] = that.deliveryPeriod[1];
+            }
+            that.$http.post(url, {pageNum: that.pageNo, pageSize: that.pageSize, data}).then((res) => {
                 const resData = res.data;
                 if (resData.code === 0) {
                     that.resultList = resData.data.list;
@@ -270,51 +336,6 @@ export default {
                 throw new Error(resData.message);
             }).catch((err) => console.log(err));
         }
-    },
-    created () {
-        this.fullSearch = this.$route.query.fullSearch;
-        if (this.fullSearch === undefined || this.fullSearch === null || this.fullSearch === 'null') {
-            this.fullSearch = '';
-        }
-        this.keywords = this.$route.query.keyword;
-        if (this.keyword === undefined || this.keyword === null || this.keyword === 'null') {
-            this.keyword = '';
-        }
-        this.catalogueId = this.$route.query.catalogueId;
-        if (this.catalogueId === undefined || this.catalogueId === null || this.catalogueId === 'null') {
-            this.catalogueId = '';
-        }
-        this.productId = this.$route.query.productId;
-        if (this.productId === undefined || this.productId === null || this.productId === 'null') {
-            this.productId = '';
-        }
-        this.getOrderList();
-    },
-    data: function () {
-        return {
-            disflag: false,
-            keywords: '',
-            fullSearch: '',
-            productId: '',
-            catalogueId: '',
-            startDate: '',
-            endDate: '',
-            itemTotal: 0,
-            pageNo: 1,
-            pageSize: 10,
-            minPrice: '',
-            maxPrice: '',
-            deliveryWarehouse: '',
-            sellerCompany: '',
-            deliveryType: 0,
-            orderByName: 0,
-            orderByAmount: 0,
-            orderBySkuMinQuantity: 0,
-            orderByPrice: 0,
-            orderByDeliveryDate: 0,
-            resultList: [],
-            deliveryPeriod: ''
-        };
     }
 };
 </script>
@@ -324,9 +345,13 @@ export default {
         background-color: #fff;
         margin-top: 10px;
         padding: 20px 0;
+        .text-r {
+            text-align: right;
+        }
         .search-page-content {
             width: 1140px;
             margin: 0 auto;
+            min-height: 500px;
         }
         .search-page-content-query{
             padding-right: 30px;
@@ -339,7 +364,7 @@ export default {
             margin-top: 20px;
             .gy-form-group{
                 padding:8px 30px 8px 100px;
-                min-height: 35px;
+                height: 49px;
                 .el-icon-arrow-down{
                     position: absolute;
                     top: 10px;
@@ -358,24 +383,22 @@ export default {
             button {
                 color: #666666;
                 font-size: 14px;
-                font-weight: bold;
                 background-color: rgba(0, 0, 0, 0);
                 cursor: pointer;
-                margin-right: 15px;
+                margin-right: 5px;
             }
             .selected-mode {
                 font-size: 14px;
                 color: #E0370F;
                 height: 26px;
                 padding: 0 5px;
-                border-bottom: 1px solid #E0370F;
+                border-bottom: 2px solid #E0370F;
                 line-height: 26px;
             }
         }
 
         .search-page-content-query-iptbox {
             border-bottom: 1px solid #E7ECF1;
-            padding: 0 0 0 14px;
             width: 270px;
         }
 
@@ -386,25 +409,21 @@ export default {
         }
 
         .search-page-content-query-iptbox-ipt::-webkit-input-placeholder { /* WebKit browsers */
-            opacity: 0.5;
             font-size: 12px;
             color: #666666;
         }
 
         .search-page-content-query-iptbox-ipt:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-            opacity: 0.5;
             font-size: 12px;
             color: #666666;
         }
 
         .search-page-content-query-iptbox-ipt::-moz-placeholder { /* Mozilla Firefox 19+ */
-            opacity: 0.5;
             font-size: 12px;
             color: #666666;
         }
 
         .search-page-content-query-iptbox-ipt:-ms-input-placeholder { /* Internet Explorer 10+ */
-            opacity: 0.5;
             font-size: 12px;
             color: #666666;
         }
@@ -416,8 +435,9 @@ export default {
         }
 
         .search-page-content-query-more {
+            cursor: pointer;
             color: #979797;
-            margin-left: 20px;
+            margin-left: 10px;
         }
 
         .pagination-box {
@@ -439,13 +459,13 @@ export default {
             width: 20px;
             .el-icon-arrow-down {
                 left: 4px;
-                top: 10px;
+                top: 13px;
                 position: absolute;
                 cursor: pointer;
             }
             .el-icon-arrow-up {
                 left: 4px;
-                top: 0px;
+                top: 3px;
                 position: absolute;
                 cursor: pointer;
             }
@@ -455,24 +475,45 @@ export default {
             th{
                 color: #666666;
                 font-weight: bold;
-                padding: 0 0 0 10px;
+                padding: 0 10px;
                 height:40px;
+                div{
+                    float: none;
+                    display: inline-block;
+                    vertical-align: middle;
+                }
             }
             td{
-                padding: 0 0 0 10px;
+                padding: 0 10px;
             }
         }
     }
 
 </style>
 <style lang="scss">
-
-  .el-input__inner{
-        height: 30px;
-  }
-  .search-page {
-    input[type=text], input[type=password], .gy-input, .gy-textarea, .gy-select {
-      border-radius: 0;
+.search-page{
+    .el-input__inner{
+            height: 30px;
     }
-  }
+    .search-page {
+        input[type=text], input[type=password], .gy-input, .gy-textarea, .gy-select {
+        border-radius: 0;
+        }
+    }
+   .el-range-separator, .el-input__icon{
+            line-height: 24px;
+    }
+    .el-input__inner{
+           height: 30px;
+           font-size: 14px;
+    }
+   .search-page-content-query-more i{
+        margin-left: 5px;
+        vertical-align: top;
+    }
+}
+.el-message-box__wrapper .el-button--primary{
+    background:#e0370f;
+    border-color:#e0370f;
+}
 </style>

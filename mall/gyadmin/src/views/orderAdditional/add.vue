@@ -1,35 +1,28 @@
 <template>
     <div class="sellerOrder resource">
         <div class="gy-h4">发起订单</div>
-        <el-form :model="info" ref="form" label-width="118px" size="mini" class="demo-ruleForm order-add">
+        <el-form :model="info" ref="form" label-width="130px" size="mini" class="demo-ruleForm order-add">
             <div class="gy-h5" style="padding: 14px 0"><i class="el-icon-tickets"></i>基础信息</div>
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="品名" class="mr-60" prop="deliveryType">
-                        <el-select v-model="info.deliveryType" @change="selectGet" placeholder="请选择">
-                            <el-option
-                              v-for="item in usersName"
-                              :key="item.id"
-                              :label="item.goodsName"
-                              :value="item.id">
-                            </el-option>
-                        </el-select>
+                    <el-form-item label="品名" class="mr-60" prop="deliveryType" :required="true">
+                        <product-search :selected.sync="selectedProduct" @updateselected="updateselected" :defaultProduct="goodsName" :offerId="findData.enquiryFromId"></product-search>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="交割库" prop="deliveryWarehouseName">
+                    <el-form-item label="交割库" prop="deliveryWarehouseName" :required="true">
                         <input  type="text" v-model="info.orderItemList[0].deliveryWarehouseName" >
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row >
                 <el-col :span="12">
-                    <el-form-item label="单价(元/吨)" class="mr-60" prop="skuPrice">
+                    <el-form-item label="单价(元/吨)" class="mr-60" prop="skuPrice" :required="true">
                         <input  type="text" v-model="info.orderItemList[0].skuPrice" >
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="交割期">
+                    <el-form-item label="交割期" :required="true">
                         <el-date-picker
                           v-model="orderTimes"
                           type="daterange"
@@ -43,70 +36,44 @@
             </el-row>
             <el-row >
                 <el-col :span="12">
-                    <el-form-item label="数量" class="mr-60" prop="skuPrice">
+                    <el-form-item label="数量" class="mr-60" prop="skuPrice" :required="true">
                         <input  type="text" v-model="info.orderItemList[0].skuQuantity" >
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="总金额" prop="skuPrice">
+                    <el-form-item label="总金额" prop="skuPrice" :required="true">
                         {{settleAmount}}
                     </el-form-item>
                 </el-col>
             </el-row>
             <div class="gy-h5" style="padding: 12px 0"><i class="el-icon-tickets"></i>详细信息</div>
             <el-row>
-                <el-col :span="12" v-if="!isCompany">
-                    <el-form-item label="买方公司名" class="mr-60" prop="buyerCompanyName">
-                        <el-autocomplete
-                          class="inline-input"
-                          v-model="info.buyerCompanyName"
-                          :fetch-suggestions="querySearch"
-                          placeholder="请输入内容"
-                          @select="handleSelect"
-                          :trigger-on-focus="false"
-                        ></el-autocomplete>
+                <el-col :span="12">
+                    <el-form-item label="买方公司名" class="mr-60" prop="buyerCompanyName" :required="true">
+                        <gy-company-select @change="buyChange" :selected.sync="selectedProduct" :defaultProduct="companyName" :offerId="findData.enquiryFromId"></gy-company-select>
                     </el-form-item>
                 </el-col>
-                <!-- company-select -->
-                <el-col :span="12" v-else>
-                    <el-form-item label="买方公司名">
-                      <gy-company-select v-model="company" @change="buyChange"></gy-company-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12" v-if="!isCompany1" style="margin-left: 0;">
-                    <el-form-item label="卖方公司名" prop="sellerCompanyName">
-                        <el-autocomplete
-                          class="inline-inputs"
-                          v-model="info.sellerCompanyName"
-                          :fetch-suggestions="querySearch1"
-                          placeholder="请输入内容"
-                          @select="handleSelect1"
-                          :trigger-on-focus="false"
-                        ></el-autocomplete>
-                    </el-form-item>
-                </el-col>
-                <!-- company-select1 -->
-                <el-col :span="12" v-else>
-                    <el-form-item label="卖方公司名">
-                      <gy-company-select v-model="company1" @change="selChange"></gy-company-select>
+                <el-col :span="12" style="margin-left: 0;">
+                    <el-form-item label="卖方公司名" prop="sellerCompanyName" :required="true">
+                        <gy-company-select @change="selChange" :selected.sync="selectedProduct" :defaultProduct="companyName" :offerId="findData.enquiryFromId"></gy-company-select>
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="买方保证金(%)" class="mr-60" prop="deliveryDetailedAddress">
+                    <el-form-item label="买方保证金(%)" class="mr-60" prop="deliveryDetailedAddress" :required="true">
                         <input type="text" v-model="info.depositRatio">
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="卖方保证金额(%)" class="bao" prop="warehouseFreeDays">
+                    <el-form-item label="卖方保证金额(%)" class="bao" prop="warehouseFreeDays" :required="true">
                         <input  type="text" v-model="info.sellerDepositRatio">
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row >
                 <el-col :span="12">
-                    <el-form-item label="货源" class="mr-60" prop="deliveryType">
+                    <el-form-item label="货源" class="mr-60" prop="deliveryType" :required="true">
                         <el-select v-model="info.skuOrigin" placeholder="请选择">
                             <el-option
                               v-for="item in skuOriginOption"
@@ -118,7 +85,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="成交时间">
+                    <el-form-item label="成交时间" :required="true">
                         <el-date-picker
                           v-model="info.transactionDate"
                           type="date"
@@ -130,59 +97,75 @@
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="卖方联系人" class="mr-60" prop="deliveryDetailedAddress">
-                        <input type="text" v-model="info.sellerContact">
+                    <el-form-item label="卖方联系人" class="mr-60" prop="deliveryDetailedAddress" :required="true">
+                        <!-- <input type="text" v-model="info.sellerContact"> -->
+                        <contacts-search :selecteds.sync="selectedProduct" @updateselectedsell="updateselectedsell" :contactData="contacta" :contactSel="contactaSell"></contacts-search>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="卖方联系人方式" class="bao" prop="warehouseFreeDays">
+                    <el-form-item label="卖方联系人方式" class="bao" prop="warehouseFreeDays" :required="true">
                         <input  type="text" v-model="info.sellerContactMobile">
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="买方联系人" class="mr-60" prop="deliveryDetailedAddress">
-                        <input  type="text" v-model="info.buyerContact">
+                    <el-form-item label="买方联系人" class="mr-60" prop="deliveryDetailedAddress" :required="true">
+                        <!-- <input  type="text" v-model="info.buyerContact"> -->
+                        <contacts-search :selecteds.sync="selectedProduct" @updateselectedbuy="updateselectedbuy" :contactData="contacta" :contactSel="contactaBuy"></contacts-search>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="买方联系人方式" class="bao" prop="warehouseFreeDays">
+                    <el-form-item label="买方联系人方式" class="bao" prop="warehouseFreeDays" :required="true">
                         <input  type="text" v-model="info.buyerContactMobile">
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="买方撮合业务员" class="mr-60" prop="deliveryDetailedAddress">
-                        <input  type="text" v-model="info.buyerMatchName">
+                    <el-form-item label="买方撮合业务员" class="mr-60" prop="deliveryDetailedAddress" :required="true">
+                        <!-- <input  type="text" v-model="info.buyerMatchName"> -->
+                        <together-business :selecteds.sync="selectedProduct" @updateselectedMatchBuy="updateselectedbuyMatch" :contactMatch="contactMatchBuy"></together-business>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="卖方撮合业务员" class="bao" prop="warehouseFreeDays">
-                        <input  type="text" v-model="info.sellerMatchName">
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row class="gy-btn-bottom">
-                <el-col>
-                    <el-form-item>
-                        <button class="gy-button-extra" @click.prevent="addMatchOrder()"> 生成订单</button>
+                    <el-form-item label="卖方撮合业务员" class="bao" prop="warehouseFreeDays" :required="true">
+                        <!-- <input  type="text" v-model="info.sellerMatchName"> -->
+                        <together-business :selecteds.sync="selectedProduct" @updateselectedMathcSell="updateselectedsellMatch" :contactMatch="contactMatchSell"></together-business>
                     </el-form-item>
                 </el-col>
             </el-row>
         </el-form>
+        <el-row class="gy-btn-bottom">
+            <el-col>
+                <button class="gy-button-extra" @click.prevent="addMatchOrder()"> 生成订单</button>
+            </el-col>
+        </el-row>
     </div>
 </template>
 <script>
 import gyCompanySelect from '@/components/company-select';
+import productSearch from '@/components/productSearch';
+import contactsSearch from '@/components/contactsSearch';
+import togetherBusiness from '@/components/togetherBusiness';
 
 export default {
     components: {
-        gyCompanySelect
+        gyCompanySelect,
+        productSearch,
+        contactsSearch,
+        togetherBusiness
     },
     data () {
         return {
+            selectedProduct: {},
+            goodsName: null,
+            bidId: null,
+            companyName: null,
+            findData: {
+                enquiryFromId: null
+            },
+            contactData: {},
             orderTime: '',
             orderTimes: '',
             info: {
@@ -255,7 +238,15 @@ export default {
             company: '',
             company1: '',
             isCompany: false,
-            isCompany1: false
+            isCompany1: false,
+            contacta: {
+                sellerCompanyId: null,
+                buyerCompanyId: null
+            },
+            contactaSell: 1,
+            contactaBuy: 2,
+            contactMatchSell: 1,
+            contactMatchBuy: 2
         };
     },
     computed: {
@@ -267,12 +258,15 @@ export default {
     },
     created () {
         this.info.currentUserId = JSON.parse(localStorage.userInfo).id;
-        this.getCompany();
+        // this.getCompany();
         this.getUserName();
     },
     methods: {
         // 生成订单
         addMatchOrder () {
+            if (!this.check()) {
+                return false;
+            }
             this.info.orderItemList[0].deliveryBeginDate = this.orderTimes[0];
             this.info.orderItemList[0].deliveryEndDate = this.orderTimes[1];
             this.info.depositAmount = this.settleAmount;
@@ -283,35 +277,6 @@ export default {
                     }
                 });
         },
-        // 买方公司名
-        querySearch (queryString, cb) {
-            let restaurants = this.restaurants;
-            let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
-            if (results.length === 0) {
-                this.isCompany = true;
-            }
-            // 调用 callback 返回建议列表的数据
-            cb(results);
-        },
-        querySearch1 (queryString, cb) {
-            let restaurants = this.restaurants;
-            let results = queryString ? restaurants.filter(this.createFilter1(queryString)) : restaurants;
-            if (results.length === 0) {
-                this.isCompany1 = true;
-            }
-            // 调用 callback 返回建议列表的数据
-            cb(results);
-        },
-        createFilter (queryString) {
-            return (restaurant) => {
-                return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-            };
-        },
-        createFilter1 (queryString) {
-            return (restaurant) => {
-                return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-            };
-        },
         // 本页面买方
         handleSelect (item) {
             this.info.buyerContact = item.username;
@@ -321,39 +286,47 @@ export default {
         },
         // 组件买方
         buyChange (item) {
+            this.contacta.componyId = item.companyId;
+            console.log(item);
             this.info.buyerContact = item.username;
-            this.info.buyerContactMobile = item.companyPhone;
+            this.info.buyerContactMobile = item.contactPhone;
+            this.info.buyerCompanyName = item.companyName;
             this.info.buyerCompanyId = item.companyId;
+            this.contacta.buyerCompanyId = this.info.buyerCompanyId;
         },
         // 本页面卖方
         handleSelect1 (item) {
             this.info.sellerCompanyName = item.value;
             this.info.sellerContactMobile = item.companyPhone;
             this.info.sellerContact = item.username;
-            this.info.sellerCompanyId = item.id;
+            this.info.sellerCompanyId = item.companyId;
         },
         // 组件卖方
         selChange (item) {
+            this.contacta.componyId = item.companyId;
+            this.info.sellerCompanyName = item.companyName;
+            this.info.sellerContactMobile = item.contactPhone;
             this.info.sellerContact = item.username;
-            this.info.sellerContactMobile = item.companyPhone;
+            this.info.sellerCompanyId = item.companyId;
+            this.contacta.sellerCompanyId = this.info.sellerCompanyId;
         },
-        getCompany () {
-            this.$http.get(this.$api.orders.creatOrderCompanies).then(function (res) {
-                if (res.data.code === 0) {
-                    let param = {};
-                    for (let i = 0; i < res.data.data.length; i++) {
-                        param.value = res.data.data[i].companyName;
-                        param.id = res.data.data[i].companyId;
-                        param.username = res.data.data[i].username;
-                        param.companyPhone = res.data.data[i].companyPhone;
-                        this.restaurants.push(param);
-                        param = {};
-                    }
-                } else {
-                    console.log('服务器繁忙');
-                }
-            });
-        },
+        // getCompany () {
+        //     this.$http.get(this.$api.orders.creatOrderCompanies).then(function (res) {
+        //         if (res.data.code === 0) {
+        //             let param = {};
+        //             for (let i = 0; i < res.data.data.length; i++) {
+        //                 param.value = res.data.data[i].companyName;
+        //                 param.id = res.data.data[i].companyId;
+        //                 param.username = res.data.data[i].username;
+        //                 param.companyPhone = res.data.data[i].companyPhone;
+        //                 param = {};
+        //             }
+        //             console.log('-------');
+        //         } else {
+        //             console.log('服务器繁忙');
+        //         }
+        //     });
+        // },
         // 品名选择
         selectGet (vId) {
             this.obj = this.usersName.find((item) => {
@@ -365,6 +338,54 @@ export default {
                 }
             });
         },
+        updateselected (item) {
+            this.info.orderItemList[0].prdSkuId = item.id;
+            this.info.orderItemList[0].skuName = item.goodsName;
+            this.info.orderItemList[0].skuPictureUrl = item.productUrl;
+            this.info.orderItemList[0].skuCode = item.skuCode;
+            this.info.orderItemList[0].deliveryDateFlag = '1';
+        },
+        // 卖方联系人
+        updateselectedsell (item) {
+            console.log(item, '卖方联系人');
+            if (item instanceof Object) {
+                this.info.sellerContact = item.contactName;
+                this.info.sellerContactMobile = item.contactMobile;
+            } else {
+                this.info.sellerContact = item;
+            }
+            console.log(this.info);
+        },
+        // 买方联系人
+        updateselectedbuy (item) {
+            console.log(item, '买方联系人');
+            if (item instanceof Object) {
+                this.info.buyerContact = item.contactName;
+                this.info.buyerContactMobile = item.contactMobile;
+            } else {
+                this.info.buyerContact = item;
+            }
+            console.log(this.info);
+        },
+        // 买方撮合
+        updateselectedbuyMatch (item) {
+            if (item instanceof Object) {
+                this.info.buyerMatchName = item.matchContactName;
+            } else {
+                this.info.buyerMatchName = item;
+            }
+            console.log(this.info, '买方');
+        },
+        // 卖方撮合
+        updateselectedsellMatch (item) {
+            if (item instanceof Object) {
+                this.info.sellerMatchName = item.matchContactName;
+            } else {
+                this.info.sellerMatchName = item;
+            }
+            console.log(this.info, '卖方');
+        },
+        // 卖方
         // 初始化基础数据
         getUserName () {
             this.$http.get(this.$api.user.userName).then((res) => {
@@ -377,7 +398,7 @@ export default {
         },
         // 验证
         check () {
-            if (!this.info.deliveryType) {
+            if (!this.info.orderItemList[0].skuName) {
                 this.$message.error('品名不能为空');
                 return false;
             }
@@ -386,10 +407,10 @@ export default {
                 return false;
             }
             if (!this.info.orderItemList[0].skuPrice) {
-                this.$message.error('单价能为空');
+                this.$message.error('单价不能为空');
                 return false;
             }
-            if (!this.info.orderItemList[0].deliveryBeginDate || !this.info.orderItemList[0].deliveryEndDate) {
+            if (!this.orderTimes[0] || !this.orderTimes[1]) {
                 this.$message.error('交割期不能为空');
                 return false;
             }

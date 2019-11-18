@@ -2,43 +2,42 @@
     <div class="product-detail-box">
         <div class="product-general commom-part">
             <div class="clearfix product-general-name-box">
-                <span class="product-general-img">
-                    <img :src="productInfo.skuPictureUrl" style="width: 60px;height: 60px;margin-top: -25px;">
+                <span class="product-general-img img-holder">
+                    <img :src="productInfo.skuPictureUrl">
                 </span>
-                <span class="product-general-name">{{productInfo.skuName}}</span>
+                <span class="product-general-name"><span v-if="!isSupply" style="color: #faad14;">求购 </span>{{productInfo.skuName}}</span>
             </div>
-            <div class="product-general-price-time product-general-item-box clearfix" style="margin-top: 20px;">
-                <div class="fl product-general-item">
-                    <span class="product-detail-body-tit">单价</span>
-                    <span
-                      class="product-detail-body-content">
+            <div class="product-general-price-time product-general-item-box clearfix">
+                <div class="gy-form-group">
+                    <span class="l">单价</span>
+                    <span>
                         <template v-if="productInfo.skuPrice">
-                              {{productInfo.intCurrencyMark}}{{productInfo.skuPrice}}
+                              {{productInfo.intCurrencyMark}}{{productInfo.skuPrice}} {{productInfo.skuPriceFlag == 1 ? "(可议价)" : ''}}
                             </template>
                             <template v-else>
                                 面议
                             </template>
                        </span>
                 </div>
-                <div class="fl product-general-item">
-                    <span class="product-detail-body-tit">交割库</span>
-                    <span class="product-detail-body-content">{{productInfo.deliveryWarehouseName}}</span>
+                <div class="gy-form-group">
+                    <span class="l">交割库</span>
+                    <span>{{productInfo.deliveryWarehouseName}}</span>
                 </div>
             </div>
             <div class="product-general-price-time product-general-item-box clearfix">
-                <div class="fl product-general-item">
-                    <span class="product-detail-body-tit">可供量({{productInfo.infUnitOfMeasureDisplayName}})</span>
-                    <span class="product-detail-body-content">{{productInfo.skuQuantity}}</span>
+                <div class="gy-form-group">
+                    <span class="l">{{isSupply ? '可供量':'需求量'}}({{productInfo.infUnitOfMeasureDisplayName}})</span>
+                    <span>{{productInfo.skuQuantity |numToCash(3)}}</span>
                 </div>
-                <div class="fl product-general-item">
-                    <span class="product-detail-body-tit">交割时间</span>
+                <div class="gy-form-group">
+                    <span class="l">交割时间</span>
                     <span class="product-detail-body-content" v-if="productInfo.deliveryDateFlag ===3">{{productInfo.deliveryDateText}}</span>
                     <span class="product-detail-body-content" v-else-if="productInfo.deliveryDateFlag === 2" >{{productInfo.deliveryBeginDate|date}}以前</span>
                     <span class="product-detail-body-content" v-else>{{productInfo.deliveryBeginDate|date}}到{{productInfo.deliveryEndDate|date}}</span>
                     <!--<span class="product-detail-body-content">{{productInfo.deliveryBeginDate | date}}至{{productInfo.deliveryEndDate | date}}</span>-->
                 </div>
-                <div class="fl product-general-item">
-                    <span class="product-detail-body-tit">起订量({{productInfo.infUnitOfMeasureDisplayName}})</span>
+                <div class="gy-form-group" v-if="isSupply">
+                    <span class="l">起订量({{productInfo.infUnitOfMeasureDisplayName}})</span>
                     <div class="product-detail-body-content">
                        <span>
                            <template v-if="productInfo.skuMinQuantity">
@@ -52,9 +51,9 @@
                           <!--class="iconfont icon-msg"></i></span>-->
                     </div>
                 </div>
-                <div class="product-general-right button-box">
+                <div class="product-general-right button-box" v-if="isSupply">
                     <!--<a class="gy-button-normal gy-button-normal-inquiry" :href='"/im/index.html#username=" + userphone + "&touser=" + adminphone + "&offers=" + resourcesListId'>我要询价 <span class="icon-login"><i class="iconfont icon-login-im"></i></span></a>-->
-                    <button class="gy-button-extra" @click="goNext(0)">我要询价<i class="iconfont icon-im"></i></button><button class="gy-button-normal" @click="goNext(1, productInfo.skuCode, productInfo.skuName)" v-if="companyTypeId !== 2">找物流</button>
+                    <button class="gy-button-extra" @click="goNext(0)" v-if="companyModels.companyId !== companyId">我要询价<i class="iconfont icon-im"></i></button><button class="gy-button-normal" :class="{'gy-button-extra': companyModels.companyId === companyId}" @click="goNext(1, productInfo.skuCode, productInfo.skuName)" v-if="companyTypeId !== 2">找物流</button>
                 </div>
             </div>
             <!--<div class="product-general-price-time product-general-item-box clearfix" style="margin-top: 20px;">-->
@@ -79,53 +78,61 @@
             </div>
             <div class="product-detail-body-box">
                 <div class="product-detail-body clearfix">
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">资源编号</span>
-                        <span class="product-detail-body-content">{{productInfo.skuCode}}</span>
+                    <div class="gy-form-group">
+                        <span class="l">单号</span>
+                        <span>{{productInfo.odrOfferSn}}</span>
                     </div>
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">交割库地址</span>
-                        <span class="product-detail-body-content">{{productInfo.deliveryDetailedAddress}}</span>
-                    </div>
-                </div>
-                <div class="product-detail-body clearfix">
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">资源</span>
-                        <span class="product-detail-body-content">{{productInfo.skuOrigin}}</span>
-                    </div>
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">保证金</span>
-                        <span class="product-detail-body-content">{{productInfo.depositRatio}}%</span>
+                    <div class="gy-form-group">
+                        <span class="l">交割库地址</span>
+                        <span>{{productInfo.deliveryDetailedAddress}}</span>
                     </div>
                 </div>
                 <div class="product-detail-body clearfix">
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">交付方式</span>
-                        <span class="product-detail-body-content">{{productInfo.deliveryType|deliveryType}}</span>
+                    <div class="gy-form-group">
+                        <span class="l">货源</span>
+                        <span>{{productInfo.skuOrigin}}</span>
                     </div>
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">发票</span>
-                        <span class="product-detail-body-content" v-if="productInfo.provideInvoiceType !== null">{{productInfo.provideInvoiceType?'交割次月发票':'交割当月发票'}}</span>
-                        <span class="product-detail-body-content" v-if="productInfo.provideInvoiceType === null">{{productInfo.provideInvoiceText}}</span>
+                    <div class="gy-form-group">
+                        <span class="l">付款方式</span>
+                        <span>{{productInfo.paymentType | payMentsType}}</span>
                     </div>
                 </div>
                 <div class="product-detail-body clearfix">
-                    <div class="fl product-detail-body-item">
-                        <span class="product-detail-body-tit">付款方式</span>
-                        <span class="product-detail-body-content">{{productInfo.paymentType | payMentsType}}</span>
+                    <div class="gy-form-group">
+                        <span class="l">交付方式</span>
+                        <span>{{productInfo.deliveryType|deliveryType}}</span>
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">发票</span>
+                        <span v-if="productInfo.provideInvoiceType !== null">{{productInfo.provideInvoiceType?'交割次月发票':'交割当月发票'}}</span>
+                        <span v-if="productInfo.provideInvoiceType === null">{{productInfo.provideInvoiceText}}</span>
+                    </div>
+                </div>
+                <div class="product-detail-body clearfix" v-if="isSupply">
+                    <div class="gy-form-group">
+                        <span class="l">保证金</span>
+                        <span>{{productInfo.depositRatio}}%</span>
                     </div>
                 </div>
             </div>
-            <div class="product-detail-compony clearfix">
+            <div v-if="productInfo.isPublic!= 0" class="product-detail-compony clearfix">
                 <div class="product-detail-compony-img fl">
                     <img :src="companyModels.logoImage" v-if="companyModels.logoImage!=null">
                     <img src="../assets/images/kaiyue.png" v-if="companyModels.logoImage==null">
                 </div>
-                <div class="product-detail-compony-right fl">
+                <div class="product-detail-compony-right fl" style="padding-top: 20px;">
                     <h5 class="product-detail-compony-right-name">
-                        <router-link :to="{name: 'shop-home',query:{id:userModels.id}}">{{companyModels.name}}<span class="is-shop" v-if="prodectShop.shopsetup"><i class="iconfont icon-confirm"></i>已开通店铺</span></router-link>
+                        <router-link :to="{name: 'shopHome',query:{companyId: companyModels.id}}">
+                            {{companyModels.name}}
+                        </router-link>
+                        <span class="type">
+                            <i class="iconfont icon-shop-company"></i> {{companyModels.companyTypeName}}
+                        </span>
+                        <span class="is-shop" v-if="prodectShop.shopsetup">
+                            <i class="iconfont icon-success"></i>已开通店铺
+                        </span>
                     </h5>
-                    <div class="product-detail-body product-detail-compony-right-item clearfix">
+                    <div class="product-detail-body product-detail-compony-right-item clearfix" style="display: none;">
                         <div class="fl product-detail-body-item">
                             <span class="product-detail-body-tits">联系人</span>
                             <span class="product-detail-body-content">{{userModels.username}}</span>
@@ -138,27 +145,26 @@
                     <div class="product-detail-body clearfix product-detail-compony-right-item">
                         <div class="fl product-detail-body-item">
                             <span class="product-detail-body-tits">已有交易</span>
-                            <span class="product-detail-body-content">{{prodectShop.tradeCount}}</span>
+                            <span class="product-detail-body-content"><span class="highlight">{{prodectShop.tradeCount}}</span>单</span>
                         </div>
                         <div class="fl product-detail-body-item">
-                            <span class="product-detail-body-tits">发布数量</span>
-                            <span class="product-detail-body-content">{{prodectShop.publishCount}}</span>
+                            <span class="product-detail-body-tits">{{isSupply ? '供应总量':'需求总量'}}</span>
+                            <span class="product-detail-body-content"><span class="highlight">{{prodectShop.publishCount}}</span>单</span>
                         </div>
                     </div>
                 </div>
-                <dl class="shop-note">
-                    <dt><i class="iconfont icon-note">温馨提示：</i></dt>
-                    <dd>只有与已开通店铺的卖家交易才能获得国烨平台积分</dd>
-                </dl>
+                <!--<dl class="shop-note">-->
+                    <!--<dt><i class="iconfont icon-note">温馨提示：</i></dt>-->
+                    <!--<dd>只有与已开通销售中心的卖家交易才能获得国烨平台积分</dd>-->
+                <!--</dl>-->
             </div>
-            <div class="main-title-shop">
+            <div class="main-title-shop" v-if="isSupply">
                 <h2>本店其他商品</h2>
             </div>
-            <div class="product-shop">
-                <div class="item" v-for="(item, index) in offerModelLists" :key="index">
+            <div class="product-shop" v-if="isSupply">
+                <div class="item" @click="goProductDetail(item.id)" v-for="(item, index) in offerModelLists" :key="index">
                     <div class="name">
-                        <!--<span class="product-skuName">{{item.skuName}}</span>-->
-                        <router-link class="product-skuName" :to="{name : 'product-detail',query:{resourcesListId: item.id}}">{{item.skuName}}</router-link>
+                        <span class="product-skuName">{{item.skuName}}</span>
                         <span>产地&nbsp;&nbsp;{{item.skuOrigin}}</span>
                     </div>
                     <dl>
@@ -177,7 +183,7 @@
                     </dl>
                     <dl class="product-price">
                         <span v-if="item.skuPrice === 0">面议</span>
-                        <span v-if="item.skuPrice !== 0">{{item.intCurrencyMark}}{{item.skuPrice}}</span>
+                        <span v-if="item.skuPrice !== 0">{{item.intCurrencyMark}}{{item.skuPrice}} {{item.skuPriceFlag == 1 ? "(可议价)" : ''}}</span>
                     </dl>
                     <dl>
                         <img class="productD product-general-img fl" :src = 'item.skuPictureUrl'>
@@ -197,6 +203,7 @@ export default {
         return {
             userphone: '',
             adminphone: '',
+            touserCompanyId: '',
             productId: '',
             resourcesListId: '',
             productInfo: '',
@@ -204,7 +211,9 @@ export default {
             companyModels: '',
             userModels: '',
             offerModelLists: '',
-            companyTypeId: ''
+            companyTypeId: '',
+            companyId: '',
+            isSupply: false
         };
     },
     created () {
@@ -218,9 +227,15 @@ export default {
             let that = this;
             that.resourcesListId = that.$route.query.resourcesListId;
             that.productId = that.$route.query.productId;
+            if (that.$route.query.type) {
+                that.isSupply = Number(that.$route.query.type) === 0;
+            } else {
+                that.isSupply = true;
+            }
             if (localStorage.getItem('userInfo')) {
                 this.userphone = JSON.parse(localStorage.getItem('userInfo')).phone;
                 this.companyTypeId = JSON.parse(localStorage.getItem('userInfo')).companyTypeId;
+                this.companyId = JSON.parse(localStorage.getItem('userInfo')).companyId;
             }
             this.getProductDetail();
         },
@@ -232,12 +247,14 @@ export default {
                     if (res.data.code === 0) {
                         that.productInfo = res.data.data.offerInfo;
                         that.adminphone = res.data.data.companyInfo.userModel.phone;
+                        that.touserCompanyId = res.data.data.companyInfo.companyModel.companyId;
                         // 发布者信息
                         that.prodectShop = res.data.data.companyInfo;
                         that.companyModels = that.prodectShop.companyModel;
                         if (that.companyModels.logoImage === undefined || that.companyModels.logoImage === '') {
                             that.companyModels.logoImage = null;
                         }
+                        console.log(that.companyModels);
                         that.userModels = that.prodectShop.userModel;
                         that.offerModelLists = that.prodectShop.offerModelList;
                     }
@@ -247,11 +264,11 @@ export default {
         },
         goNext (type, code, name) {
             if (!localStorage.getItem('userInfo')) {
-                this.$alert('请先登录后再继续', '提示');
+                location.href = '/my/#/login';
                 return;
             }
             if (type === 0) {
-                window.open('/im/index.html#type=1&username=' + window.btoa(this.userphone) + '&touser=' + window.btoa(this.adminphone) + '&offers=' + this.resourcesListId, '_blank');
+                window.open('/im/index.html#type=1&username=' + window.btoa(this.userphone) + '&touser=' + window.btoa(this.adminphone) + '&touserCompanyId=' + window.btoa(this.touserCompanyId) + '&offers=' + this.resourcesListId + '&receipt_type=1', '_blank');
             } else {
                 if (!code && !name) {
                     this.$message.error('查询不到资源信息!');
@@ -259,6 +276,9 @@ export default {
                 }
                 location.href = '/my/#/transport/consign/find?trade=true&skuCode=' + code + '&skuName=' + name;
             }
+        },
+        goProductDetail (resourcesListId) {
+            this.$router.push({name: 'product-detail', query: {resourcesListId}});
         }
     }
 };
@@ -293,8 +313,15 @@ export default {
             display: inline-block;
             width: 60px;
             height: 60px;
-            background-size: cover;
             vertical-align: middle;
+            line-height: 1;
+            img{
+                width: 58px;
+                height: 58px;
+            }
+            &.img-holder{
+                border: 1px solid $color-border;
+            }
         }
         .gy-button-normal-inquiry{
             color: $color-input-focus;
@@ -353,13 +380,25 @@ export default {
             }
         }
         .product-detail-compony-right-name{
-            padding: 10px 18px;
+            padding: 10px 0;
             margin: 0;
             line-height: 1;
             font-size: 16px;
             color: $color-title;
+            .type {
+                font-size: 14px;
+                color: #333333;
+                font-weight: 400;
+                margin-left: 37px;
+                .iconfont {
+                    font-size: 14px;
+                    color: #B6B6B6;
+                }
+            }
         }
-
+        .isRed {
+            color: #E0370F;
+        }
         //detail
         .product-detail-tit {
             padding-bottom: 10px;
@@ -397,7 +436,7 @@ export default {
                 font-weight: normal;
                 font-size: 14px;
                 color: $color-main;
-                margin-left: 10px;
+                margin-left: 33px;
                 display: inline-block;
                 i{
                     color: #2db171;
@@ -458,6 +497,7 @@ export default {
                 float: left;
                 border: 1px solid $color-border;
                 margin-right: 37px;
+                cursor: pointer;
                 .product-price{
                     color: $color-highlight;
                     font-weight: bold;
@@ -504,5 +544,9 @@ export default {
         dd{
             line-height: 30px;
         }
+    }
+    .gy-form-group{
+        line-height: normal;
+        min-height: auto;
     }
 </style>

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 import store from '@/store/index';
-import { MessageBox } from 'element-ui';
+// import { MessageBox } from 'element-ui';
 
 Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
@@ -19,10 +19,10 @@ axios.interceptors.response.use(function (response) {
     store.dispatch('setHideLoading');
     if (response.data.code === 401) {
         localStorage.removeItem('userInfo');
-        MessageBox.alert(response.data.message, '提示')
-            .then(() => {
-                location.href = `/my/#/login`;
-            });
+        // MessageBox.alert(response.data.message, '提示')
+        //     .then(() => {
+        //         location.href = `/my/#/login`;
+        //     });
         return;
     }
     return response;

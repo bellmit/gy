@@ -15,6 +15,8 @@ import sysMenuManage from '../views/sys/menu/manage.vue';
 // 基础信息管理-》角色管理
 import sysRoleManage from '../views/sys/role/manage.vue';
 import sysRoleList from '../views/sys/role/list.vue';
+import invoiceList from '../views/sys/invoiceInfo/invoiceList.vue';
+import invoiceAdd from '../views/sys/invoiceInfo/add.vue';
 
 // 会员管理-》会员企业
 // import memberCompanyList from '../views/member/company/list.vue';
@@ -37,11 +39,17 @@ import memberCompanyManage from '../views/member/company/manage.vue';
 import memberCompanyView from '../views/member/company/view.vue';
 import backStageUserList from '../views/member/backstageuser/list.vue';
 import backStageUserManage from '../views/member/backstageuser/manage.vue';
+
 // 仓储管理
 import warehouseList from '../views/warehouse/list.vue';
 import warehouseView from '../views/warehouse/createList.vue';
 import warehouseAdd from '../views/warehouse/add.vue';
+import warehouseEdit from '../views/warehouse/edit.vue';
 import warehouseDetail from '../views/warehouse/view.vue';
+import warehouseIntentionSheet from '../views/warehouse/intention-sheet.vue';
+import warehouseAddSheet from '../views/warehouse/add-sheet.vue';
+import warehouseDemand from '../views/warehouse/demand.vue';
+import reviseSheet from '../views/warehouse/reviseSheet.vue';
 
 // 后台类目管理
 import categoryList from '../views/commodityManagement/category/list.vue';
@@ -78,10 +86,15 @@ import parameterView from '../views/commodityManagement/parameter/view.vue';
 import skuRuleList from '../views/commodityManagement/skuRule/list.vue';
 import skuRuleAdd from '../views/commodityManagement/skuRule/add.vue';
 import skuRuleView from '../views/commodityManagement/skuRule/view.vue';
+
 // 商品发布管理
 import resourcesList from '../views/commodityManagement/resources/list.vue';
 import resourcesAdd from '../views/commodityManagement/resources/add.vue';
 import resourcesView from '../views/commodityManagement/resources/view.vue';
+import purchaseList from '../views/commodityManagement/resources/purchaselist.vue';
+import purchaseDetail from '../views/commodityManagement/resources/purchasedetail.vue';
+import purchaseAdd from '../views/commodityManagement/resources/purchaseadd.vue';
+
 //  订单管理
 import createOrder from '../views/order/add.vue';
 import orderList from '../views/order/list.vue';
@@ -103,10 +116,13 @@ import driverList from '../views/transport/driver/list';
 import driverAdd from '../views/transport/driver/add';
 import driverDetail from '../views/transport/driver/detail';
 import transportBid from '../views/transport/bid';
+import shipping from '../views/transport/shipping';
 import transportBidDetail from '../views/transport/biddetail';
 import transportOrder from '../views/transport/order';
 import transportOrderDetail from '../views/transport/orderdetail';
 import transportDispatch from '../views/transport/dispatchDetail';
+import companyList from '../views/transport/company/list';
+import companyEdit from '../views/transport/company/edit';
 
 // 订单补录及查看
 import orderAdditionalList from '../views/orderAdditional/list.vue';
@@ -123,6 +139,37 @@ import integralLevel from './integralLevel';
 // 供应链服务管理
 import supplyAdmin from '../views/supplyAdmin/supplyList';
 import supplyDetail from '../views/supplyAdmin/supplyDetail';
+import gradeDetail from '../views/supplyAdmin/gradeDetail';
+
+// 供应链金融
+import supplyFormDetail from '../views/supplyChainFinance/customerApplicationForm';
+
+// 奖励管理
+import rewardList from '../views/reward/list';
+import rewardView from '../views/reward/view';
+
+// 资金流水
+import capitalFlow from '../views/capital/capitalFlow';
+
+// 子账户查询
+import subaccountQuery from '../views/capital/subaccount-query';
+
+// 数据统计
+import dataStatistics from '../views/dataStatistics/echarts';
+
+// 撮合交易
+import dealMakeList from '../views/dealMake/list';
+import dealMakeDetail from '../views/dealMake/detail';
+
+// 日志查询
+import userLog from '../views/userLog';
+import platfromLog from '../views/userLog/platfromLog';
+
+// 帮助中心
+
+import helpCenterList from '../views/helpCenter/list';
+import helpCenterAdd from '../views/helpCenter/add';
+import helpCenterEdit from '../views/helpCenter/edit';
 
 // 配置路由
 export default [
@@ -147,6 +194,15 @@ export default [
             title: '管理'
         },
         children: [
+            //  数据统计
+            {
+                path: '/dataStatistics/echarts',
+                name: 'dataStatistics',
+                component: dataStatistics,
+                meta: {
+                    title: '数据统计'
+                }
+            },
             //  产品管理 -start=========================
             {
                 path: '/product/list',
@@ -358,7 +414,7 @@ export default [
                 name: 'resourcesList',
                 component: resourcesList,
                 meta: {
-                    title: '商品发布列表'
+                    title: '供应列表'
                 }
             },
             {
@@ -366,7 +422,31 @@ export default [
                 name: 'resourcesAdd',
                 component: resourcesAdd,
                 meta: {
-                    title: '商品发布'
+                    title: '供应添加'
+                }
+            },
+            {
+                path: '/resources/purchaseadd',
+                name: 'purchaseAdd',
+                component: purchaseAdd,
+                meta: {
+                    title: '求购添加'
+                }
+            },
+            {
+                path: '/resources/purchaselist',
+                name: 'purchaseList',
+                component: purchaseList,
+                meta: {
+                    title: '求购列表'
+                }
+            },
+            {
+                path: '/resources/purchasedetail',
+                name: 'purchaseDetail',
+                component: purchaseDetail,
+                meta: {
+                    title: '求购列表详情'
                 }
             },
             {
@@ -374,7 +454,7 @@ export default [
                 name: 'resourcesView',
                 component: resourcesView,
                 meta: {
-                    title: '商品发布详情'
+                    title: '供应列表详情'
                 }
             },
             // 商品发布管理 -end============================
@@ -461,6 +541,22 @@ export default [
                 component: sysRoleManage,
                 meta: {
                     title: '角色管理'
+                }
+            },
+            {
+                path: 'sys/invoice/list',
+                name: 'invoiceList',
+                component: invoiceList,
+                meta: {
+                    title: '发票公司信息'
+                }
+            },
+            {
+                path: 'sys/invoice/add',
+                name: 'invoiceAdd',
+                component: invoiceAdd,
+                meta: {
+                    title: '发票公司信息'
                 }
             },
             {
@@ -584,11 +680,51 @@ export default [
                 }
             },
             {
+                path: 'warehouse/edit',
+                name: 'warehouseEdit',
+                component: warehouseEdit,
+                meta: {
+                    title: '编辑仓储公司'
+                }
+            },
+            {
                 path: 'warehouse/Detail',
                 name: 'warehouseDetail',
                 component: warehouseDetail,
                 meta: {
                     title: '仓储公司基本信息'
+                }
+            },
+            {
+                path: 'warehouse/IntentionSheet',
+                name: 'warehouseIntentionSheet',
+                component: warehouseIntentionSheet,
+                meta: {
+                    title: '仓储供应单'
+                }
+            },
+            {
+                path: 'warehouse/AddSheet',
+                name: 'warehouseAddSheet',
+                component: warehouseAddSheet,
+                meta: {
+                    title: '发布仓储供应单'
+                }
+            },
+            {
+                path: 'warehouse/demand',
+                name: 'warehouseDemand',
+                component: warehouseDemand,
+                meta: {
+                    title: '仓储需求单'
+                }
+            },
+            {
+                path: 'warehouse/reviseSheet',
+                name: 'reviseSheet',
+                component: reviseSheet,
+                meta: {
+                    title: '修改仓储供应单'
                 }
             },
             // 推广 -start============================
@@ -661,7 +797,7 @@ export default [
                         name: 'driverList',
                         component: driverList,
                         meta: {
-                            title: '司机管理'
+                            title: '驾驶员/押运员管理'
                         }
                     },
                     {
@@ -669,7 +805,7 @@ export default [
                         name: 'driverAdd',
                         component: driverAdd,
                         meta: {
-                            title: '司机管理'
+                            title: '驾驶员/押运员管理'
                         }
                     },
                     {
@@ -677,7 +813,7 @@ export default [
                         name: 'driverDetail',
                         component: driverDetail,
                         meta: {
-                            title: '司机管理'
+                            title: '驾驶员/押运员详情'
                         }
                     },
                     {
@@ -713,6 +849,14 @@ export default [
                         }
                     },
                     {
+                        path: 'shipping',
+                        name: 'shipping',
+                        component: shipping,
+                        meta: {
+                            title: '船运需求单'
+                        }
+                    },
+                    {
                         path: 'bid/detail',
                         name: 'transportBidDetail',
                         component: transportBidDetail,
@@ -743,6 +887,45 @@ export default [
                         meta: {
                             title: '输运详情'
                         }
+                    },
+                    {
+                        path: 'company/list',
+                        name: 'companyList',
+                        component: companyList,
+                        meta: {
+                            title: '物流公司'
+                        }
+                    },
+                    {
+                        path: 'company/edit',
+                        name: 'companyEdit',
+                        component: companyEdit,
+                        meta: {
+                            title: '编辑物流公司'
+                        }
+                    }
+                ]
+            },
+            {
+                path: '/dealMake',
+                name: 'dealMake',
+                component: Sub,
+                children: [
+                    {
+                        path: 'list',
+                        name: 'dealMakeList',
+                        component: dealMakeList,
+                        meta: {
+                            title: '撮合订单'
+                        }
+                    },
+                    {
+                        path: 'detail',
+                        name: 'dealMakeDetail',
+                        component: dealMakeDetail,
+                        meta: {
+                            title: '撮合订单详情'
+                        }
                     }
                 ]
             },
@@ -751,7 +934,7 @@ export default [
                 name: 'supplyAdmin',
                 component: supplyAdmin,
                 meta: {
-                    title: '供应链服务管理'
+                    title: '供应链申请管理'
                 }
             },
             {
@@ -761,6 +944,109 @@ export default [
                 meta: {
                     title: '供应链申请详情'
                 }
+            },
+            {
+                path: '',
+                name: '',
+                component: Sub,
+                meta: {
+                    title: '供应链申请管理'
+                },
+                children: [
+                    {
+                        path: '/supply/formDetail',
+                        name: 'supplyFormDetail',
+                        component: supplyFormDetail,
+                        meta: {
+                            title: '客户申请单'
+                        }
+                    }
+                ]
+            },
+            {
+                path: '/supply/gradeDetail',
+                name: 'gradeDetail',
+                component: gradeDetail,
+                meta: {
+                    title: '评级详情'
+                }
+            },
+            {
+                path: '/reward/list',
+                name: 'rewardList',
+                component: rewardList,
+                meta: {
+                    title: '奖励管理'
+                }
+            },
+            {
+                path: '/reward/view',
+                name: 'rewardView',
+                component: rewardView,
+                meta: {
+                    title: '奖励明细'
+                }
+            },
+            {
+                path: '/capital/flow',
+                name: 'capitalFlow',
+                component: capitalFlow,
+                meta: {
+                    title: '流水查询'
+                }
+            },
+            {
+                path: '/capital/subaccountQuery',
+                name: 'subaccountQuery',
+                component: subaccountQuery,
+                meta: {
+                    title: '子账户查询'
+                }
+            },
+            {
+                path: '/userLog',
+                name: 'userLog',
+                component: userLog,
+                meta: {
+                    title: '日志查询'
+                },
+                children: [{
+                    path: '/userLog/platfromLog',
+                    name: 'platfromLog',
+                    component: platfromLog,
+                    meta: {
+                        title: '后台日志'
+                    }
+                }]
+            },
+            {
+                path: '/helpCenter',
+                name: 'helpCenter',
+                component: Sub,
+                children: [{
+                    path: '/list',
+                    name: 'helpCenterList',
+                    component: helpCenterList,
+                    meta: {
+                        title: '帮助主题'
+                    }
+                },
+                {
+                    path: '/add',
+                    name: 'helpCenterAdd',
+                    component: helpCenterAdd,
+                    meta: {
+                        title: '目录'
+                    }
+                },
+                {
+                    path: '/edit',
+                    name: 'helpCenterEdit',
+                    component: helpCenterEdit,
+                    meta: {
+                        title: '主题'
+                    }
+                }]
             },
             ...integralRoute,
             ...integralLevel

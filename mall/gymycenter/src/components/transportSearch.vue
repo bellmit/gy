@@ -1,124 +1,140 @@
 <template>
-    <div style="overflow: inherit" class="advanced-search" :class="{'show-advance': showAdvance}" v-show="showAdvance">
-       <div class="trans_new">
-           <el-row :gutter="60">
-              <el-col class="my_top" :span="12" v-if="companyTypeId === 2">
-                        <el-row class="new_dw">
-                            <el-col class="l" :span="5">托运方</el-col>
-                            <el-col :span="19">
-                                <input placeholder="请输入" @click="blur11" type="text" class="gy-input" v-model="carrierIdV1" @keyup.enter="onelist1click1">
+    <div class="my-wrap">
+        <div style="overflow: inherit" class="advanced-search" :class="{'show-advance': showAdvance}" v-if="showAdvance">
+            <div class="trans_new">
+                <el-row :gutter="60">
+                    <el-col class="my_top" :span="12" v-if="companyTypeId === 2">
+                                <el-row class="new_dw">
+                                    <el-col class="l" :span="5">托运方</el-col>
+                                    <el-col :span="19">
+                                        <input placeholder="请输入" @click="blur11" type="text" class="gy-input" v-model="carrierIdV1" @keyup.enter="onelist1click1">
+                                    </el-col>
+                                    <el-col class="new_dw2" :span="1"><i class="iconfont icon-mySearch"  @click="onelist1click1"></i></el-col>
+                                    <ul class="listul"  v-show="onelist1Show">
+                                        <li v-for="(item,index) in onelist1" :key="index" @click="onelist1select1(item)" v-if="onelist1.length>0">
+                                            {{item.companyName}}
+                                        </li>
+                                        <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
+                                    </ul>
+                                </el-row>
                             </el-col>
-                            <el-col class="new_dw2" :span="1"><i class="iconfont icon-mySearch"  @click="onelist1click1"></i></el-col>
-                            <ul class="listul"  v-show="onelist1Show">
-                                <li v-for="(item,index) in onelist1" :key="index" @click="onelist1select1(item)" v-if="onelist1.length>0">
+                    <el-col class="my_top" :span="12" v-if="companyTypeId !== 2">
+                        <el-row class="new_dw">
+                            <el-col class="l" :span="5">承运商</el-col>
+                            <el-col :span="19">
+                                <input placeholder="请输入" @click="blur22" type="text" class="gy-input" v-model="carrierIdV2" @keyup.enter="onelist1click2">
+                            </el-col>
+                            <el-col class="new_dw2" :span="1"> <i class="iconfont icon-mySearch"  @click="onelist1click2"></i></el-col>
+                            <ul class="listul"  v-show="onelist2Show">
+                                <li v-for="(item,index) in onelist2" :key="index" @click="onelist1select2(item)" v-if="onelist2.length>0">
                                     {{item.companyName}}
                                 </li>
-                                <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
+                                <li class="none-tips" v-if="onelist2.length === 0">没有搜到相关公司</li>
                             </ul>
                         </el-row>
                     </el-col>
-              <el-col class="my_top" :span="12" v-if="companyTypeId !== 2">
-                  <el-row class="new_dw">
-                      <el-col class="l" :span="5">承运商</el-col>
-                      <el-col :span="19">
-                          <input placeholder="请输入" @click="blur22" type="text" class="gy-input" v-model="carrierIdV2" @keyup.enter="onelist1click2">
-                      </el-col>
-                      <el-col class="new_dw2" :span="1"> <i class="iconfont icon-mySearch"  @click="onelist1click2"></i></el-col>
-                      <ul class="listul"  v-show="onelist2Show">
-                          <li v-for="(item,index) in onelist2" :key="index" @click="onelist1select2(item)" v-if="onelist2.length>0">
-                              {{item.companyName}}
-                          </li>
-                          <li class="none-tips" v-if="onelist2.length === 0">没有搜到相关公司</li>
-                      </ul>
-                  </el-row>
-              </el-col>
-              <el-col class="my_top" :span="12" v-if="searchType === 3">
-                        <el-row>
-                            <el-col class="l"  :span="5">运输订单号</el-col>
-                            <el-col :span="19"><input type="text" class="gy-input" v-model="searchData.consignmentNoteCode"></el-col>
-                        </el-row>
+                    <el-col class="my_top" :span="12" v-if="searchType === 3">
+                                <el-row>
+                                    <el-col class="l"  :span="5">运输订单号</el-col>
+                                    <el-col :span="19"><input type="text" class="gy-input" v-model="searchData.consignmentNoteCode"></el-col>
+                                </el-row>
+                            </el-col>
+                    <el-col class="my_top" :span="12" v-if="searchType !== 3">
+                                <el-row>
+                                    <el-col class="l" :span="5">装货日期</el-col>
+                                    <el-col :span="9">
+                                        <el-date-picker
+                                        v-model="searchData.estimatedLoadingDateStart"
+                                        class="form-date"
+                                        type="date"
+                                        placeholder="选择日期">
+                                    </el-date-picker>
+                                    </el-col>
+                                    <el-col :span="1" style="margin-top: 3px">至</el-col>
+                                    <el-col :span="9">
+                                        <el-date-picker
+                                            v-model="searchData.estimatedLoadingDateEnd"
+                                            class="form-date"
+                                            type="date"
+                                            placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-col>
+                                </el-row>
+                            </el-col>
+                    <el-col class="my_top" :span="12" v-if="searchType !== 3">
+                                <el-row>
+                                    <el-col class="l" :span="5">装货地</el-col>
+                                    <el-col :span="9">
+                                        <el-select v-model="searchData.loadProvinceId" placeholder="请选择省份" @change="provinceChange(0)"
+                                                class="fl province">
+                                            <el-option
+                                                v-for="item in sendProvinceList"
+                                                :key="item.id"
+                                                :label="item.name"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </el-col>
+                                    <el-col :span="10">
+                                        <el-select v-model="searchData.loadAreaId" placeholder="请选择城市" class="fr city">
+                                            <el-option
+                                                v-for="item in sendCityList"
+                                                :key="item.id"
+                                                :label="item.name"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </el-col>
+                                </el-row>
                     </el-col>
-              <el-col class="my_top" :span="12" v-if="searchType !== 3">
+                    <el-col class="my_top" :span="12" v-if="searchType !== 3">
+                                <el-row>
+                                    <el-col class="l" :span="5">卸货地</el-col>
+                                    <el-col :span="9">
+                                        <el-select v-model="searchData.unloadProvinceId" placeholder="请选择省份" @change="provinceChange(1)"
+                                                class="fl province">
+                                            <el-option
+                                                v-for="item in loadProvinceList"
+                                                :key="item.id"
+                                                :label="item.name"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </el-col>
+                                    <el-col :span="10">
+                                        <el-select v-model="searchData.unloadAreaId" placeholder="请选择城市" class="fr city">
+                                            <el-option
+                                                v-for="item in loadCityList"
+                                                :key="item.id"
+                                                :label="item.name"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </el-col>
+                                </el-row>
+                            </el-col>
+                    <el-col class="my_top" :span="12" v-if="searchType !== 1 && searchType !== 2 && searchType !== 3">
+                                <el-row>
+                                    <el-col class="l" :span="5">期望支付方式</el-col>
+                                    <el-col :span="19">
+                                        <el-select v-model="searchData.freightPaymentType" placeholder="不限">
+                                            <el-option
+                                                v-for="item in paymentType"
+                                                :key="item.id"
+                                                :label="item.value"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </el-col>
+                                </el-row>
+                            </el-col>
+                    <el-col class="my_top" :span="12" v-if="searchType !== 1 && searchType !== 2 && searchType !== 3">
                         <el-row>
-                            <el-col class="l" :span="5">装货日期</el-col>
-                            <el-col :span="9">
-                                <el-date-picker
-                                v-model="searchData.estimatedLoadingDateStart"
-                                class="form-date"
-                                type="date"
-                                placeholder="选择日期">
-                            </el-date-picker>
-                            </el-col>
-                            <el-col :span="1" style="margin-top: 3px">至</el-col>
-                            <el-col :span="9">
-                                <el-date-picker
-                                    v-model="searchData.estimatedLoadingDateEnd"
-                                    class="form-date"
-                                    type="date"
-                                    placeholder="选择日期">
-                                </el-date-picker>
-                            </el-col>
-                        </el-row>
-                    </el-col>
-              <el-col class="my_top" :span="12" v-if="searchType !== 3">
-                        <el-row>
-                            <el-col class="l" :span="5">装货地</el-col>
-                            <el-col :span="9">
-                                <el-select v-model="searchData.loadProvinceId" placeholder="请选择省份" @change="provinceChange(0)"
-                                           class="fl province">
-                                    <el-option
-                                        v-for="item in sendProvinceList"
-                                        :key="item.id"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-col>
-                            <el-col :span="10">
-                                <el-select v-model="searchData.loadAreaId" placeholder="请选择城市" class="fr city">
-                                    <el-option
-                                        v-for="item in sendCityList"
-                                        :key="item.id"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-col>
-                        </el-row>
-              </el-col>
-              <el-col class="my_top" :span="12" v-if="searchType !== 3">
-                        <el-row>
-                            <el-col class="l" :span="5">卸货地</el-col>
-                            <el-col :span="9">
-                                <el-select v-model="searchData.unloadProvinceId" placeholder="请选择省份" @change="provinceChange(1)"
-                                           class="fl province">
-                                    <el-option
-                                        v-for="item in loadProvinceList"
-                                        :key="item.id"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-col>
-                            <el-col :span="10">
-                                <el-select v-model="searchData.unloadAreaId" placeholder="请选择城市" class="fr city">
-                                    <el-option
-                                        v-for="item in loadCityList"
-                                        :key="item.id"
-                                        :label="item.name"
-                                        :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-col>
-                        </el-row>
-                    </el-col>
-              <el-col class="my_top" :span="12" v-if="searchType !== 1 && searchType !== 2 && searchType !== 3">
-                        <el-row>
-                            <el-col class="l" :span="5">期望支付方式</el-col>
+                            <el-col class="l" :span="5">期望签约方式</el-col>
                             <el-col :span="19">
-                                <el-select v-model="searchData.freightPaymentType" placeholder="不限">
+                                <el-select v-model="searchData.consignmentSignType" placeholder="不限">
                                     <el-option
-                                        v-for="item in paymentType"
+                                        v-for="item in signType"
                                         :key="item.id"
                                         :label="item.value"
                                         :value="item.id">
@@ -127,36 +143,26 @@
                             </el-col>
                         </el-row>
                     </el-col>
-              <el-col class="my_top" :span="12" v-if="searchType !== 1 && searchType !== 2 && searchType !== 3">
-                  <el-row>
-                      <el-col class="l" :span="5">期望签约方式</el-col>
-                      <el-col :span="19">
-                          <el-select v-model="searchData.consignmentSignType" placeholder="不限">
-                              <el-option
-                                  v-for="item in signType"
-                                  :key="item.id"
-                                  :label="item.value"
-                                  :value="item.id">
-                              </el-option>
-                          </el-select>
-                      </el-col>
-                  </el-row>
-              </el-col>
-           </el-row>
-           <!--2 物流询价单 托运方 装货地 。。。   0 是运输订单  托运方 装货地 多了个期望方式。。。   3 运输结算单 只有两个   1承运商竞价-->
-           <div class="new_myi" v-if="searchType === 1">
-               <i class="iconfont icon-search cl" @click="handleSearch"></i>
-           </div>
-           <div class="new_myi2" v-if="searchType === 0">
-               <i class="iconfont icon-search cl" @click="handleSearch"></i>
-           </div>
-           <div class="new_myi3" v-if="searchType === 3">
-               <i class="iconfont icon-search cl" @click="handleSearch"></i>
-           </div>
-           <div class="new_myi4" v-if="searchType === 2">
-               <i class="iconfont icon-search cl" @click="handleSearch"></i>
-           </div>
-       </div>
+                </el-row>
+                <!--2 物流询价单 托运方 装货地 。。。   0 是运输订单  托运方 装货地 多了个期望方式。。。   3 运输结算单 只有两个   1承运商竞价-->
+                <div class="new_myi" v-if="searchType === 1">
+                    <i class="iconfont icon-search cl" @click="handleSearch"></i>
+                </div>
+                <div class="new_myi2" v-if="searchType === 0">
+                    <i class="iconfont icon-search cl" @click="handleSearch"></i>
+                </div>
+                <div class="new_myi3" v-if="searchType === 3">
+                    <i class="iconfont icon-search cl" @click="handleSearch"></i>
+                </div>
+                <div class="new_myi4" v-if="searchType === 2">
+                    <i class="iconfont icon-search cl" @click="handleSearch"></i>
+                </div>
+            </div>
+        </div>
+        <!-- 导出 -->
+        <div class="button-wrap" v-if="searchType === 0 || searchType === 3">
+            <button class="gy-button-extra" @click="exportDoc">导出</button>
+        </div>
     </div>
 </template>
 
@@ -239,9 +245,47 @@ export default {
         this.companyTypeId === 2 ? (this.searchData.carrierId = this.companyId) : (this.searchData.consignorId = this.companyId);
         this.getCompany();
         this.getProvince();
-        console.log(this.searchType);
     },
     methods: {
+        // 导出
+        exportDoc () {
+            let url = '';
+            url = this.searchType === 0 ? this.$api.transport.consignmentsExport : this.$api.transport.consignmentChargesExport;
+            this.$http.post(url, this.searchData, {responseType: 'blob'}).then(res => {
+                if (res.data.size > 0) {
+                    this.download(res.data);
+                    return;
+                }
+                this.$message.error('没有文件可下载');
+            });
+        },
+        format (num) {
+            if (parseInt(num) < 10) {
+                num = '0' + num;
+            }
+            return num;
+        },
+        download (data) {
+            let blob = new Blob([data]);
+            let y, m, d, date, time;
+            date = new Date();
+            y = date.getFullYear();
+            m = date.getMonth() + 1;
+            d = date.getDate();
+            time = y + '' + this.format(m) + '' + this.format(d);
+            if (window.navigator.msSaveOrOpenBlob) {
+                // 兼容IE10
+                navigator.msSaveBlob(blob, `${time}${this.searchType === 0 ? '运输订单' : '运输结算单'}列表.xls`);
+            } else {
+                let url = window.URL.createObjectURL(new Blob([data]));
+                let link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = url;
+                link.setAttribute('download', `${time}${this.searchType === 0 ? '运输订单' : '运输结算单'}列表.xls`);
+                document.body.appendChild(link);
+                link.click();
+            }
+        },
         // 修改公司名称
         onelist1click1 () {
             var that = this;
@@ -347,6 +391,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .button-wrap {
+        font-size: 0;
+        padding-right: 16px;
+        padding-bottom: 12px;
+        display: inline-block;
+        width: 100%;
+        text-align: right;
+    }
     .advanced-search {
         clear: both;
         overflow: hidden;

@@ -6,20 +6,16 @@ import stores from '../store/index';
 Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 1000 * 10;
-// axios.defaults.baseURL = process.env.API_ROOT_MAIN;
-axios.defaults.baseURL = 'http://192.168.10.132:8081';
-// axios.defaults.baseURL = 'http://192.168.10.129:8081';
-// axios.defaults.baseURL = 'http://uat1.chinayie.com:8081';
-// axios.defaults.baseURL = 'http://192.168.33.236:8081';
+axios.defaults.baseURL = process.env.API_ROOT_MAIN;
 
-axios.interceptors.request.use(function (config) {
-    stores.dispatch('setShowLoading');
+axios.interceptors.request.use(config => {
+    !config.unLoading && stores.dispatch('setShowLoading');
     return config;
 }, function (err) {
     return Promise.reject(err);
 });
 
-axios.interceptors.response.use(function (response) {
+axios.interceptors.response.use(response => {
     stores.dispatch('setHideLoading');
     if (response.data.code === 401) {
         localStorage.removeItem('userInfo');

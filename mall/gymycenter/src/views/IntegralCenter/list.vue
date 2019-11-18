@@ -13,7 +13,7 @@
                   <th style="width:150px">总积分</th>
                   <th style="width:90px">操作</th>
               </tr>
-              <tr style="height: 15px"><td colspan="5"></td></tr>
+              <!--<tr style="height: 15px"><td colspan="5"></td></tr>-->
               </thead>
               <tbody v-if="orders.length !== 0">
               <template v-for="(item, index) in orders">
@@ -27,7 +27,7 @@
                       <td>
                           <div>
                               <div v-if="item.odrPointNoteItemModelList.length !== 0" class="content">
-                                  <img :src="item.odrPointNoteItemModelList[0].redemptionFilePath" alt="">
+                                  <img style="width: 60px" :src="item.odrPointNoteItemModelList[0].redemptionFilePath" alt="">
                                   <div class="text">{{item.odrPointNoteItemModelList[0].redemptionName}}</div>
                               </div>
                           </div>
@@ -38,7 +38,7 @@
                       <td>
                           <div>
                               <div>{{orderStatus[item.status]}}</div>
-                              <div><a href="#" v-if="item.status !== 1" class="gy-button-view" @click="showItem(index)">跟踪</a></div>
+                              <div><a href="javascript:;" v-if="item.status !== 1" class="gy-button-view" @click="showItem(index)">跟踪</a></div>
                           </div>
                       </td>
                       <td>

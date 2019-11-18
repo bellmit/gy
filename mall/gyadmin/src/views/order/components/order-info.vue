@@ -40,7 +40,7 @@
             </dl>
             <dl>
                 <dt>付款方式</dt>
-                <dd>{{ orderData.paymentType === 0 ? '先款后货' : orderData.paymentType === 1 ? '先货后款': '全部支持'}}</dd>
+                <dd>{{orderData.paymentType | paymentType}}</dd>
             </dl>
             <dl>
                 <dt>保证金</dt>
@@ -54,10 +54,15 @@
           <dl>
             <dt>发票</dt>
             <dd v-if="orderData.provideInvoiceType === null">
-              {{orderData.provideInvoiceText}}<img @click="showReceipt" :src=icon>
+              {{orderData.provideInvoiceText}}
+              <img @click="showReceipt" :src=icon style="width: 25px;height: 25px">
             </dd>
             <!--<dd>{{orderData.provideInvoiceType ? '交割月发票':'交割次月' }}<img @click="showReceipt" v-if="iconsTrue" :src=icons></dd>-->
-            <dd v-else>{{orderData.provideInvoiceType === 0 ? '交割当月发票':'交割次月发票' }}<img @click="showReceipt" :src=icon></dd>
+            <dd v-else>{{orderData.provideInvoiceType === 0 ? '交割当月发票':'交割次月发票' }}
+              <!-- <img @click="showReceipt" :src=icon style="width: 25px;height: 25px"> -->
+              <img style="width: 25px;height: 25px" v-if="previewerImg.list.length !==0" @click="showReceipt" :src=icon>
+            <a style="width: 25px;height: 25px" v-for="(item, index) in previewerImg.pdflist" :key="index" :href="item.invoiceUrl" target="_blank"><img :src=pdfThumbnail></a>
+            </dd>
           </dl>
             <dl>
                 <dt>数量验收标准</dt>
@@ -88,7 +93,7 @@
             </dl>
             <dl v-if="orderData.orderContractCode">
                 <dt>合同编号</dt>
-                <dd>{{orderData.orderContractCode}}<img @click="handleShowContract" :src=icon></dd>
+                <dd>{{orderData.orderContractCode}}<img @click="handleShowContract" :src=icon style="width: 25px;height: 25px"></dd>
             </dl>
             <dl>
                 <dt>免仓期</dt>
@@ -118,16 +123,32 @@
             <!--</dl>-->
             <dl>
                 <dt>订单状态</dt>
-                <dd>{{orderData.currentOrderExecuteStageModel.orderExecuteSubStatusModel.name}}</dd>
+                <dd>
+                    <span v-if="orderData.orderStatus===1">签约</span>
+                    <span v-else-if="orderData.orderStatus===2">收款与交割</span>
+                    <span v-else-if="orderData.orderStatus===3">结算与复核</span>
+                    <span v-else-if="orderData.orderStatus===4">已完成</span>
+                    <span v-else-if="orderData.orderStatus===5">已失效</span>
+                </dd>
             </dl>
         </div>
         <!-- 预览图片 -->
         <el-dialog title="图片预览" :visible.sync="previewerImg.visible" width="700px">
-            <el-carousel ref="previewerImg" trigger="click" :autoplay="false">
+            <el-carousel @change="clickNum = 0" ref="previewerImg" trigger="click" :autoplay="false" arrow="never">
                 <el-carousel-item v-for="(item, index) in previewerImg.list" :key="index">
-                    <img class="previewer-img-detail" :src="item.invoiceUrl">
+                    <div><a :href="item.invoiceUrl" target="_blank"><img class="previewer-img-detail" :src="item.invoiceUrl"></a></div>
                 </el-carousel-item>
             </el-carousel>
+            <div @click="rotateImg" class="rotate-img">
+                <i class="iconfont icon-xuanzhuan"></i>
+            </div>
+            <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    @current-change="handleCurrentChange"
+                    :page-size="1"
+                    :total="previewerImg.list.length">
+            </el-pagination>
         </el-dialog>
         <!-- 预览合同 -->
         <transition name="fade">
@@ -146,14 +167,17 @@ export default {
     },
     data () {
         return {
+            pdfThumbnail: require('@/assets/images/pdf.png'),
             icon: require('@/assets/images/icon-piao.png'),
             previewerImg: {
                 visible: false,
-                list: []
+                list: [],
+                pdflist: []
             },
             contractUrl: null,
             showHandlechapter: false,
-            showContract: false
+            showContract: false,
+            clickNum: 0
         };
     },
     watch: {
@@ -170,17 +194,33 @@ export default {
     },
     created () {
         this.previewerImg.list = this.orderData.orderInvoiceModel || [];
+        this.getInvoice();
     },
     methods: {
+        getInvoice () {
+            let that = this;
+            that.$http.get(that.$api.orders.invoice + '/' + this.orderData.id)
+                .then((res) => {
+                    console.log(res.data.data);
+                    res.data.data.map(function (item) {
+                        if (item.invoiceUrl.indexOf('.pdf') === -1) {
+                            that.previewerImg.list.push(item);
+                        } else {
+                            that.previewerImg.pdflist.push(item);
+                        }
+                    });
+                });
+        },
         showReceipt () {
             // 查看发票
-            this.$http.get(this.$api.orders.invoice + this.orderData.id)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.previewerImg.visible = true;
-                        this.previewerImg.list = res.data.data;
-                    }
-                });
+            this.previewerImg.visible = true;
+            // this.$http.get(this.$api.orders.invoice + this.orderData.id)
+            //     .then(res => {
+            //         if (res.data.code === 0) {
+            //             this.previewerImg.visible = true;
+            //             this.previewerImg.list = res.data.data;
+            //         }
+            //     });
         },
         handleShowContract () {
             // 查看合同
@@ -191,6 +231,17 @@ export default {
                         this.contractUrl = res.data.data.filepath[0];
                     }
                 });
+        },
+        rotateImg () {
+            this.clickNum += 1;
+            document.querySelectorAll('.el-carousel__item img').forEach((item) => {
+                item.style.transform = `rotate(0deg)`;
+            });
+            document.querySelector('.el-carousel__item.is-active').style.transform = `rotate(${this.clickNum * 90}deg)`;
+            console.log(document.querySelector('.el-carousel__item.is-active'));
+        },
+        handleCurrentChange (val) {
+            this.$refs.previewerImg.setActiveItem(val - 1);
         }
     }
 };
@@ -203,9 +254,31 @@ export default {
         }
         .el-carousel__item{
             text-align: center;
-            img{
-                height: 100%;
-                width: auto;
+            transform-origin: 50% 50%;
+            div {
+                // position: absolute;
+                // left: 0;
+                // transform: translateX(-50%)!important;
+                height: 100%!important;
+                width: 100%;
+                overflow: hidden!important;
+                img{
+                   height: 100%!important;
+                   width: 100%;
+                }
+            }
+
+        }
+        .rotate-img {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            color: #000;
+            transform: translateX(-50%);
+            z-index: 9999;
+            cursor: pointer;
+            i {
+              font-size: 30px;
             }
         }
     }
@@ -214,6 +287,12 @@ export default {
     .order-detail{
         .el-carousel__container{
             height: 400px;
+        }
+        .el-carousel__indicators{
+            display: none;
+        }
+        .el-pagination{
+            margin-top:60px;
         }
     }
 </style>

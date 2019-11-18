@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {Message, Radio, Row, Col, Menu, Submenu, MenuItem, MenuItemGroup, Container, Header, Aside, Main, Footer, Breadcrumb, BreadcrumbItem, Form, FormItem, Input, InputNumber, Select, Option, OptionGroup, Checkbox, CheckboxButton, CheckboxGroup, DatePicker, TimePicker, RadioGroup, Button, ButtonGroup, Pagination, MessageBox, Tree, Upload, Dialog, Table, TableColumn, Tag, Cascader} from 'element-ui';
+import {Message, Radio, Row, Col, Menu, Submenu, MenuItem, MenuItemGroup, Container, Header, Aside, Main, Footer, Breadcrumb, BreadcrumbItem, Form, FormItem, Input, InputNumber, Select, Option, OptionGroup, Checkbox, CheckboxButton, CheckboxGroup, DatePicker, TimePicker, RadioGroup, Button, ButtonGroup, Pagination, MessageBox, Tree, Upload, Dialog, Table, TableColumn, Tag, Cascader, Carousel, CarouselItem} from 'element-ui';
 Vue.component(Message.name, Message);
 Vue.component(Radio.name, Radio);
 Vue.component(Row.name, Row);
@@ -40,6 +40,8 @@ Vue.component(Table.name, Table);
 Vue.component(TableColumn.name, TableColumn);
 Vue.component(Tag.name, Tag);
 Vue.component(Cascader.name, Cascader);
+Vue.component(Carousel.name, Carousel);
+Vue.component(CarouselItem.name, CarouselItem);
 Vue.prototype.$message = Message;
 Vue.prototype.$radio = Radio;
 Vue.prototype.$row = Row;
@@ -79,5 +81,7 @@ Vue.prototype.$upload = Upload;
 Vue.prototype.$table = Table;
 Vue.prototype.$tablecolumn = TableColumn;
 Vue.prototype.$tag = Tag;
+Vue.prototype.$carousel = Carousel;
+Vue.prototype.$carouselItem = CarouselItem;
 export default {
 };

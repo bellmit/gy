@@ -16,21 +16,17 @@
             </div>
             <div class="msg-content">
                 <div class="msg-header">
-                    <div class="msg-title">
-                        系统消息
-                    </div>
-                    <div class="msg-time">
-                        {{item.trackDate | date(true)}}
-                    </div>
+                    <div class="msg-title" style="margin-left: -7px">【CRM】</div>
+                    <div class="msg-time">{{item.createdDate}}</div>
                 </div>
-                <div class="msg-text">
-                    {{item.content}}
-                </div>
+                <div class="msg-text">{{item.content}}</div>
+                <span class="gy-button-view" @click.stop="$router.push({name: 'detail',query: {viewType: 1, id: item.bizId}})">{{item.bizName}}</span>
             </div>
         </div>
     </div>
     <!-- 翻页 -->
     <el-pagination
+        v-if="total !== 0"
         background
         :total="total"
         layout="prev, pager, next"
@@ -47,19 +43,21 @@ export default {
         return {
             msgList: [
                 // {
-                //     content: '添加的内容',
-                //     customerId: 0,
-                //     id: 6,
-                //     readStatus: 0,
-                //     trackDate: 1545711528000,
-                //     trackStatusDictId: 0
+                //     Id: null, // 消息Id
+                //     usrCompanyId: null, // 公司Id
+                //     sendUserId: null, // 发送用户Id
+                //     receiveUserId: null, // 接收用户Id
+                //     readStatus: null, // 读取状态0未读取1已读取
+                //     content: null, // 消息内容
+                //     createdDate: null, // 消息发送日期
+                //     bizType: null, // 业务类型
+                //     bizTypeName: null, // 业务类型名称
+                //     bizId: null // 业务对象Id
                 // }
             ],
             search: {
                 data: {
-                    endDate: '',
-                    startDate: '',
-                    trackStatusDictId: ''
+                    receiveUserId: null
                 },
                 keywords: '',
                 pageNum: 1,
@@ -69,6 +67,11 @@ export default {
         };
     },
     created () {
+        let user = localStorage.getItem('userInfo');
+        if (user) {
+            let userInfo = JSON.parse(user);
+            this.search.data.receiveUserId = userInfo.id;
+        }
         this.getList();
     },
     methods: {
@@ -81,7 +84,7 @@ export default {
                 .then((res) => {
                     if (res.data.code === 0) {
                         this.msgList = res.data.data.list;
-                        this.total = res.data.total;
+                        this.total = res.data.data.total;
                     }
                 })
                 .catch((e) => {
@@ -101,10 +104,8 @@ export default {
                     params.push(item.id);
                 }
             }
-            if (params.length === 0) {
-                return;
-            }
-            this.$http.put(this.$api.msg.readMsg, params)
+            if (params.length === 0) return;
+            this.$http.post(this.$api.msg.readMsg, params)
                 .then((res) => {
                     if (res.data.code === 0) {
                         this.getList();
@@ -179,6 +180,7 @@ export default {
             flex: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
             .msg-header {
                 flex: 1;
                 display: flex;
@@ -198,6 +200,11 @@ export default {
                 flex: 1;
                 max-width: 850px;
                 color: $color-minor;
+            }
+            .gy-button-view {
+                position: absolute;
+                right: 5px;
+                bottom: 7px;
             }
         }
     }

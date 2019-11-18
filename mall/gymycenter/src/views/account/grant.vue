@@ -7,26 +7,26 @@
             <table class="gy-table">
                 <thead>
                 <tr class="title">
-                    <td width="15%">姓名</td>
-                    <td width="15%">用户名</td>
-                    <td width="15%">手机号</td>
-                    <td width="35%">角色名称</td>
-                    <td width="20%">操作</td>
+                    <td>姓名</td>
+                    <td>用户名</td>
+                    <td>手机号</td>
+                    <td>角色名称</td>
+                    <td style="width: 100px;">操作 </td>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="(item, index) in tableData.data" :key="index">
-                    <td width="10%">{{ item.username }}</td>
-                    <td width="10%">{{ item.account }}</td>
-                    <td width="10%">{{ item.phone }}</td>
-                    <td width="35%">
-                    <template v-for="(it, ind) in item.roleModelList">
-                    {{ ind === 0 ? it.name : ',' + it.name }}
-                    </template>
+                    <td>{{ item.username }}</td>
+                    <td>{{ item.account }}</td>
+                    <td>{{ item.phone }}</td>
+                    <td>
+                        <template v-for="(it, ind) in item.roleModelList">
+                            {{ ind === 0 ? it.name : ',' + it.name }}
+                        </template>
                     </td>
-                    <td width="20%">
+                    <td style="width: 100px;text-align: center">
                         <template v-if="item.isAdmin !== 1">
-                            <el-button @click="showAuthenDialog(item)" type="text" size="small">授权</el-button>
+                            <a class="gy-button-view" @click="showAuthenDialog(item)">授权</a>
                             <!--<el-button @click="removeData(item)" type="text" size="small">移除</el-button>-->
                         </template>
                     </td>
@@ -34,7 +34,7 @@
                 </tbody>
             </table>
             <div class="totaljl">
-                共{{page.total}}条记录
+                共 {{page.total}} 条记录
             </div>
         </div>
         <el-pagination
@@ -47,21 +47,19 @@
             layout="prev, pager, next"
             :total="page.total">
         </el-pagination>
-        <el-dialog
-            title="角色授权"
-            :visible.sync="authenDialog.visible"
-            width="500">
+        <el-dialog class="grant-dialog" title="角色授权" :visible.sync="authenDialog.visible">
             <el-form>
                 <el-form-item label="选择角色">
                     <el-checkbox :indeterminate="authenDialog.isIndeterminate" v-model="authenDialog.checkAll"
                                  @change="handleCheckAllAuthen">全选
                     </el-checkbox>
-                    <el-checkbox-group v-model="authenDialog.checkedRoles" @change="handleCheckedRoleChange">
-                        <el-checkbox style="margin:0;width: 220px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;text-align: center" v-for="(item, index) in authenDialog.roleList" :label="item.id" :key="index"><el-tooltip :content="item.name" placement="top-start" effect="light">
-                               <span> {{item.name }}</span>
-                        </el-tooltip>
-                        </el-checkbox>
-                    </el-checkbox-group>
+                    <div class="fater-div">
+                        <el-checkbox-group v-model="authenDialog.checkedRoles" @change="handleCheckedRoleChange">
+                            <div class="new-checkbox" v-for="(item, index) in authenDialog.roleList" :key="index"><el-checkbox :label="item.id" >
+                                <span :title="item.name"> {{item.name }}</span>
+                            </el-checkbox></div>
+                        </el-checkbox-group>
+                    </div>
                 </el-form-item>
                 <el-form-item style="text-align: right;">
                     <button class="gy-button-extra" @click="setAuthenRole">保存</button>
@@ -104,7 +102,7 @@ export default {
                 currentPage: 1,
                 pageSizes: [10, 20, 30, 50],
                 pageSize: 10,
-                total: 110
+                total: 0
             }
         };
     },
@@ -250,7 +248,7 @@ export default {
         },
         handleCheckedRoleChange (value) {
             let checkedCount = value.length;
-            this.authenDialog.checkAll = checkedCount === this.authenDialog.checkedRoles.length;
+            this.authenDialog.checkAll = checkedCount === this.authenDialog.roleList.length;
             this.authenDialog.isIndeterminate = checkedCount > 0 && checkedCount < this.authenDialog.roleList.length;
         },
         handlePageSizeChange (val) {
@@ -290,9 +288,6 @@ export default {
         }
         .mytable{
             padding: 20px 16px;
-            td{
-                text-align: center;
-            }
         }
         .fhy_new{
             position: relative;
@@ -333,8 +328,22 @@ export default {
                 }
             }
         }
+        .fater-div{
+            width: 740px;
+            overflow: hidden;
+        }
+        .new-checkbox{
+            margin:0;
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+            text-align: left;
+            width: 185px;
+            height: 40px;
+            line-height: 40px;
+            float: left;
+        }
     }
-
     .user-item {
         width: 33%;
         display: inline-block;
@@ -342,11 +351,19 @@ export default {
 </style>
 <style lang="scss">
     .account-sub{
-        .el-dialog__body{
-            padding: 10px 30px 30px;
-        }
-        .el-form-item{
-            margin-bottom: 0px;
+        .grant-dialog{
+            .el-dialog{
+                width: 800px;
+            }
+            .el-dialog__body{
+                padding: 10px 30px 30px;
+            }
+            .el-form-item{
+                margin-bottom: 0px;
+            }
+            .el-dialog__headerbtn{
+                right:16px;
+            }
         }
     }
 </style>

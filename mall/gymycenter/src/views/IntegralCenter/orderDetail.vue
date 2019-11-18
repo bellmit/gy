@@ -251,6 +251,7 @@ export default {
             img {
                 flex: 0 0 56px;
                 border: 1px solid $color-border;
+                width: 56px;
                 height: 56px;
             }
             .text {

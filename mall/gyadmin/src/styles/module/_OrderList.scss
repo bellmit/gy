@@ -32,11 +32,10 @@
     ul li {
       float: left;
       padding: 0 5px;
-      font-weight: bold;
       cursor: pointer;
       &.active {
         color: $color-a-active;
-        border-bottom: 1px solid $color-a-active
+        border-bottom: 2px solid $color-a-active
       }
     }
     ul li:not(:first-child) {
@@ -44,6 +43,7 @@
       margin-left: 10px;
     }
     .search-btn{
+      cursor: pointer;
       margin-right:14px;
       color: $color-minor;
     }
@@ -96,8 +96,8 @@
       padding:0 16px;
       border:0;
       vertical-align: middle;
-      height:40px;
-      line-height: 40px;
+      height:32px;
+      line-height: 32px;
     }
     tr.update-title i{cursor:pointer}
     td.tleft{text-align: left;padding-left:16px;}

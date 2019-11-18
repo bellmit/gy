@@ -4,19 +4,19 @@
             <span class="mynewleft">商城资源详情</span>
             <span class="title">单号：{{info.odrOfferSn}}</span>
             <span class="right">状态：已{{info.offerStatus == 0 ? '上架':info.offerStatus == 1? '下架' : '作废' }}</span>
+            <span class="right preview-number">预览数：{{info.readCount}}</span>
         </div>
         <el-row>
-                <div class="btn-group top_btn">
-                    <template v-if="info.offerStatus == 0||info.offerStatus == 1">
-                        <button class="gy-button-normal" @click="updateState(info.offerStatus)">{{info.offerStatus === 0
-                            ? '下架':'上架'}}
-                        </button>
-                    </template>
-                    <router-link :to="{path:'add', query:{offerId: offerId}}">
-                        <button class="gy-button-extra">编辑</button>
-                    </router-link>
-                </div>
-                <div>
+            <div class="btn-group top_btn">
+                <button v-if='info.offerStatus === 0' class="gy-button-extra" @click="refresh(offerId)">刷新 </button>
+                <template v-if="info.offerStatus == 0||info.offerStatus == 1">
+                <router-link :to="{path:'add', query:{offerId: offerId}}">
+                    <button class=" gy-button-normal">编辑</button>
+                </router-link>
+                </template>
+            </div>
+
+            <div>
                     <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="mewmyfont">商品信息</span></p>
                 </div>
                 <el-col :span="24">
@@ -37,13 +37,13 @@
                         </dl>
                         <dl>
                             <dt>有效时间：</dt>
-                            <dd>{{info.effectiveMinutes| time}}</dd>
+                            <dd>{{info.effectiveMinutesN}}</dd>
                         </dl>
                         <dl>
                             <dt>单价(元)：</dt>
                             <dd>
                                 <template v-if="info.skuPrice">
-                                    {{info.intCurrencyMark}}{{info.skuPrice |numToCash}}
+                                   {{info.skuPrice |numToCash}}{{info.skuPriceFlag == 1 ? "(可议价)" : ''}}
                                 </template>
                                 <template v-else>
                                     面议
@@ -53,14 +53,14 @@
                         <dl>
                             <dt>可供货量（{{info.infUnitOfMeasureDisplayName}}）：</dt>
                             <dd>
-                                  {{info.skuQuantity|numToCash(3)}}
+                                  {{info.skuQuantity|numToCash(2)}}
                             </dd>
                         </dl>
                         <dl>
                             <dt>最小起订量（{{info.infUnitOfMeasureDisplayName}}）：</dt>
                             <dd>
-                                <template v-if="info.skuMinQuantity">
-                                    {{info.skuMinQuantity}}
+                                <template v-if="info.skuMinQuantityStr">
+                                    {{info.skuMinQuantityStr|numToCash(2)}}
                                 </template>
                                 <template v-else>
                                     -
@@ -94,7 +94,7 @@
                         </dl>
                         <dl>
                             <dt>付款方式：</dt>
-                            <dd>{{ info.paymentType === 1 ? '先货后款' : info.paymentType === 2 ? '先款后货': '全部支持'}}</dd>
+                            <dd>{{ info.paymentType === 1 ? '先货后款' : info.paymentType === 2 ? '先款后货': info.paymentType === 10 ? '担保交易' : '全部支持'}}</dd>
                         </dl>
                         <dl>
                             <dt>货源:</dt>
@@ -152,7 +152,19 @@ export default {
             that.$http.get(that.$api.offers.resources + '/' + that.offerId).then(function (res) {
                 console.log(that.offerId);
                 that.info = res.data.data;
-                console.log(that.info.provideInvoiceType === 0);
+                if (that.info.effectiveMinutes === 30) {
+                    that.info.effectiveMinutesN = '30分钟';
+                } else if (that.info.effectiveMinutes === 60) {
+                    that.info.effectiveMinutesN = '1小时';
+                } else if (that.info.effectiveMinutes === 1440) {
+                    that.info.effectiveMinutesN = '1天';
+                } else if (that.info.effectiveMinutes === 10080) {
+                    that.info.effectiveMinutesN = '7天';
+                } else if (that.info.effectiveMinutes === 43200) {
+                    that.info.effectiveMinutesN = '一个月';
+                } else if (that.info.effectiveMinutes === 5256000) {
+                    that.info.effectiveMinutesN = '长期';
+                }
             });
         },
         updateState (status) {
@@ -166,6 +178,11 @@ export default {
                     that.getInfo();
                     that.data.offerIdList = [];
                 }
+            });
+        },
+        refresh (id) {
+            this.$http.get(this.$api.offers.refresh + id).then((res) => {
+                this.$message('刷新成功');
             });
         }
     }
@@ -195,6 +212,10 @@ export default {
         .right {
             float: right
         }
+        .preview-number{
+            display: inline-block;
+            margin-right: 15px;
+        }
         .base-info {
             font-size: 14px;
             overflow: hidden;
@@ -212,6 +233,13 @@ export default {
             dd {
                 float: left;
                 color: #666;
+                .img-box{
+                    img{
+                        width:60px;
+                        height:60px;
+                        margin-left:0;
+                    }
+                }
                 img {
                     width: 30px;
                     height: 20px;
@@ -223,4 +251,11 @@ export default {
             }
         }
     }
+    .btn-group {
+        text-align: right;
+        min-width: 300px;
+        button {
+        margin-right:8px!important;
+        }
+  }
 </style>

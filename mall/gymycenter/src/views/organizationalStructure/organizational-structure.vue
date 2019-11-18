@@ -4,8 +4,8 @@
         <div class="user-box">
             <div class="new-title-public">组织架构管理</div>
             <div class="btn-group">
-                <span class="gy-button-extra" v-show="!isFirst" @click="addPerson">添加人员</span>
-                <span class="gy-button-normal" v-show="!isFirst" @click="deleteDepartmentPerson">删除人员</span>
+                <button type="button" class="gy-button-extra" v-show="!isFirst" @click="addPerson">添加人员</button>
+                <button type="button" class="gy-button-normal" v-show="!isFirst" @click="deleteDepartmentPerson">删除人员</button>
                 <button type="button" :class="isFirst ? 'gy-button-extra' : 'gy-button-normal'" @click="addDepartmentClick">添加部门</button>
                 <button type="button" v-show="!isFirst" class="gy-button-normal" @click="editDepartmentClick">修改部门</button>
                 <button type="button" v-show="!isFirst" class="gy-button-normal" @click="deleteDepartment">删除部门</button>
@@ -16,43 +16,49 @@
                 <div class="dragLine" id="dragLine"></div>
                 <div class="menuData" v-if="menuData" id="dragMenu">
                     <items :checkedId="[organizationId]" :defaultOpen="true" :type="2" :menuData="menuData[0]" :left="10"></items>
-                    <!--<el-tree :data="menuData" :default-expand-all="true" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
                 </div>
             </div>
             <div class="organization-content user-box" id="dragContent">
-                <div style="padding: 12px 15px">
+                <div style="padding: 10px 9px 10px 4px">
                     <div class="gy-table" v-if="departmentData.list">
                         <el-table
                             :data="departmentData.list"
                             style="width: 100%"
+                            tooltip-effect="light"
                             @selection-change="handleSelectionChange">
                             <el-table-column
                                 type="selection"
-                                width="55">
+                                class-name="align-c"
+                                width="36">
                             </el-table-column>
                             <el-table-column
                                 prop="employeeNo"
                                 label="员工编号"
-                                width="80">
+                                :show-overflow-tooltip="true"
+                                width="75">
                             </el-table-column>
                             <el-table-column
                                 prop="name"
                                 label="姓名"
+                                :show-overflow-tooltip="true"
                                 width="80">
                             </el-table-column>
                             <el-table-column
                                 prop="positionName"
                                 label="岗位"
+                                :show-overflow-tooltip="true"
                                 width="100">
                             </el-table-column>
                             <el-table-column
                                 prop="phone"
                                 label="移动电话"
+                                :show-overflow-tooltip="true"
                                 width="120">
                             </el-table-column>
                             <el-table-column
                                 prop="organizationName"
                                 label="部门"
+                                :show-overflow-tooltip="true"
                                 width="120">
                                 <template slot-scope="scope">
                                     <span>
@@ -63,6 +69,7 @@
                             <el-table-column
                                 prop="status"
                                 label="状态"
+                                :show-overflow-tooltip="true"
                                 width="80">
                                 <template slot-scope="scope">
                                     {{scope.row.status ? staffStatus[scope.row.status - 1].name : '-'}}
@@ -71,6 +78,7 @@
                             <el-table-column
                                 prop="managerName"
                                 label="直接上级"
+                                :show-overflow-tooltip="true"
                                 width="100">
                                 <template slot-scope="scope">
                                     {{scope.row.managerName ? scope.row.managerName : '-'}}
@@ -79,6 +87,7 @@
                             <el-table-column
                                 prop="email"
                                 label="邮箱"
+                                :show-overflow-tooltip="true"
                                 width="160">
                                 <template slot-scope="scope">
                                     {{scope.row.email ? scope.row.email : '-'}}
@@ -87,6 +96,7 @@
                             <el-table-column
                                 prop="officePhone"
                                 label="办公电话"
+                                :show-overflow-tooltip="true"
                                 width="120">
                                 <template slot-scope="scope">
                                     {{scope.row.officePhone ? scope.row.officePhone : '-'}}
@@ -95,6 +105,7 @@
                             <el-table-column
                                 prop="otherPhone"
                                 label="其他电话"
+                                :show-overflow-tooltip="true"
                                 width="120">
                                 <template slot-scope="scope">
                                     {{scope.row.otherPhone ? scope.row.otherPhone : '-'}}
@@ -103,6 +114,7 @@
                             <el-table-column
                                 prop="officeAddress"
                                 label="办公地点"
+                                :show-overflow-tooltip="true"
                                 width="160">
                                 <template slot-scope="scope">
                                     {{scope.row.officeAddress ? scope.row.officeAddress : '-'}}
@@ -111,7 +123,8 @@
                             <el-table-column
                                 prop="gender"
                                 label="性别"
-                                width="60">
+                                :show-overflow-tooltip="true"
+                                width="70">
                                 <template slot-scope="scope">
                                     {{scope.row.gender === 1 ? '男' : scope.row.gender === 2 ? '女' : '-'}}
                                 </template>
@@ -119,6 +132,7 @@
                             <el-table-column
                                 prop="jobDescription"
                                 label="职责描述"
+                                :show-overflow-tooltip="true"
                                 width="160">
                                 <template slot-scope="scope">
                                     {{scope.row.jobDescription ? scope.row.jobDescription : '-'}}
@@ -126,9 +140,10 @@
                             </el-table-column>
                             <el-table-column
                                 label="操作"
-                                fixed="right">
+                                class-name="align-c"
+                                width="71">
                                 <template slot-scope="scope">
-                                    <span class="gy-button-view" @click="editPerson(scope.row)">编辑</span>
+                                    <button type="button" class="gy-button-view" @click="editPerson(scope.row)">编辑</button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -138,7 +153,8 @@
                 <div class="departmentName" v-else>当前部门及子部门共计: 0人</div>
             </div>
         </div>
-        <el-dialog width="800px" :title="departmentClick === 'add' ? '添加部门' : '修改部门'" :visible.sync="dialogAddDepartment">
+        <el-dialog width="800px" :title="departmentClick === 'add' ? '添加部门' : '修改部门'" :visible.sync="dialogAddDepartment"
+                   :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="dialog-add-department">
                 <div class="gy-form-group" style="height: 50px">
                     <span class="l"><strong>*</strong>名称</span>
@@ -151,7 +167,6 @@
                         <i class="el-icon-arrow-down" :class="{'el-rotate' : (chkHigherAuthorities && menuData)}" @click="chkHigherAuthorities = true" style="position: absolute;right: 0;top: 7px;"></i>
                         <div v-if="chkHigherAuthorities && menuData" class="chkOrganization-content">
                             <items :checkedId="[addDepartmentChk]" :defaultOpen="false" :type="3" :menuData="menuData[0]" :left="0"></items>
-                            <!--<el-tree :data="menuData" accordion :props="defaultProps" @node-click="higherAuthoritiesClick"></el-tree>-->
                         </div>
                     </div>
                 </div>
@@ -166,8 +181,9 @@
                 </div>
             </div>
         </el-dialog>
-        <el-dialog width="800px" :title="staffTitle" :visible.sync="dialogAddPerson">
-            <div v-if="dialogAddPerson" @click="onelist1Show = false">
+        <el-dialog width="800px" :title="staffTitle" :visible.sync="dialogAddPerson"
+                   :close-on-click-modal="false" :close-on-press-escape="false">
+            <div v-if="dialogAddPerson">
                 <div class="dialogAddPerson-content">
                     <div>
                         <div class="gy-form-group">
@@ -183,7 +199,7 @@
                             <input type="text" v-model="staff.positionName" placeholder="请输入">
                             <i class="iconfont icon-mySearch" @click.stop="searchManager"></i>
                             <i class="iconfont icon-add-no-border" @click="dialogAddManager = true"></i>
-                            <div class="managerList" v-if="onelist1Show">
+                            <div class="managerList" v-if="onelist1Show" v-clickOutside="handleHiddenList">
                                 <ul>
                                     <li v-for="(item,index) in managerList" :key="index" @click="managerselect(item)" v-if="managerList && managerList.length > 0">
                                         {{item.name}}
@@ -199,10 +215,13 @@
                         <div class="gy-form-group" style="height: 46px">
                             <span class="l"><strong>*</strong>部门</span>
                             <input type="text" v-show="staff.organizationIds && staff.organizationIds.length === 0" @click="dialogAddOrganizationIds" placeholder="请输入">
-                            <div v-show="staff.organizationIds && staff.organizationIds.length > 0" @click="dialogAddOrganizationIds" class="staff-organizationIds">
-                                <span v-for="item in staff.organizationIds" :key="item.id" class="el-tag el-tag--info el-tag--small">
-                                    <span class="el-select__tags-text">{{item.name}}</span>
-                                    <i class="el-tag__close el-icon-close" @click.stop="removeOrganizationIds(item)"></i>
+                            <div v-if="staff.organizationIds && staff.organizationIds.length > 0" @click="dialogAddOrganizationIds" class="staff-organizationIds">
+                                <span class="el-tag el-tag--info el-tag--small">
+                                    <span class="el-select__tags-text">{{staff.organizationIds[0].name}}</span>
+                                    <i class="el-tag__close el-icon-close" @click.stop="removeOrganizationIds(staff.organizationIds[0])"></i>
+                                </span>
+                                <span v-if="staff.organizationIds.length > 1" class="el-tag el-tag--info el-tag--small">
+                                    <span class="el-select__tags-text">+{{staff.organizationIds.length - 1}}</span>
                                 </span>
                             </div>
                         </div>
@@ -270,7 +289,8 @@
                 </div>
             </div>
         </el-dialog>
-        <el-dialog width="800px" title="更改部门" :visible.sync="dialogDepartment" append-to-body>
+        <el-dialog width="800px" title="更改部门" :visible.sync="dialogDepartment" append-to-body
+                   :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="change-department">
                 <div class="l">
                     <div class="change-department-title">选择</div>
@@ -301,6 +321,24 @@
 <script>
 import addManager from './addManager';
 import items from './items';
+const clickOutside = {
+    bind (el, binding) {
+        function documentHandler (e) {
+            if (el.contains(e.target)) {
+                return false;
+            }
+            if (binding.expression) {
+                binding.value(e);
+            }
+        }
+        el.vueClickOutside = documentHandler;
+        document.addEventListener('click', documentHandler);
+    },
+    unbind (el) {
+        document.removeEventListener('click', el.vueClickOutside);
+        delete el.vueClickOutside;
+    }
+};
 export default {
     data () {
         return {
@@ -422,8 +460,12 @@ export default {
     },
     mounted () {
         this.drag();
+        this.getListAll();
     },
     methods: {
+        handleHiddenList () {
+            this.onelist1Show = false;
+        },
         init () {
             this.getOrganizationList();
             this.getStatus();
@@ -488,6 +530,20 @@ export default {
                 })
                 .catch((e) => {});
         },
+        getListAll () {
+            let params = {
+                name: null,
+                pageSize: null,
+                pageNum: null
+            };
+            this.$http.post(this.$api.organizational.getManagerList, params)
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.managerListAll = res.data.data.list;
+                    }
+                })
+                .catch((e) => {});
+        },
         doAddStaff () {
             this.addStaff(1);
         },
@@ -502,6 +558,11 @@ export default {
             }
             if (!this.staff.positionId || !this.staff.positionName) {
                 this.$message.error('请先选择岗位');
+                return;
+            }
+            let manager = this.managerListAll.filter((e) => e.id === this.staff.positionId);
+            if (manager[0].name !== this.staff.positionName) {
+                this.$message.error('所选岗位不存在，请重新选择');
                 return;
             }
             if (!(this.staff.organizationIds.length > 0)) {
@@ -602,10 +663,10 @@ export default {
                 this.mouseOver = true;
                 document.onmousemove = (ev) => {
                     let iEvent = ev || event;
-                    if (dw + (iEvent.clientX - dx) < 300) {
-                        oBox.style.width = '300px';
-                        oLine.style.left = '295px';
-                        oContent.style.paddingLeft = '305px';
+                    if (dw + (iEvent.clientX - dx) < 190) {
+                        oBox.style.width = '190px';
+                        oLine.style.left = '185px';
+                        oContent.style.paddingLeft = '195px';
                     } else if (dw + (iEvent.clientX - dx) > 460) {
                         oBox.style.width = '460px';
                         oLine.style.left = '455px';
@@ -743,6 +804,7 @@ export default {
                 return;
             }
             this.$confirm('确认删除该部门?', '提示', {
+                type: 'warning',
                 confirmButtonText: '确定',
                 confirmButtonClass: 'gy-button-extra',
                 cancelButtonText: '取消',
@@ -802,6 +864,7 @@ export default {
         },
         deleteDepartmentPerson () {
             this.$confirm('确认删除所选人员?', '提示', {
+                type: 'warning',
                 confirmButtonText: '确定',
                 confirmButtonClass: 'gy-button-extra',
                 cancelButtonText: '取消',
@@ -828,6 +891,7 @@ export default {
                     if (res.data.code === 0) {
                         this.$message.success('删除成功！');
                         this.getDepartmentList();
+                        this.getAllCompangPerson();
                     }
                 })
                 .catch((e) => {
@@ -876,6 +940,7 @@ export default {
                         if (e.type === 1) return;
                         this.dialogAddManager = false;
                         this.onelist1Show = false;
+                        this.getListAll();
                         return;
                     }
                     this.$message.error(res.data.message);
@@ -916,6 +981,9 @@ export default {
             });
             return ids.substr(0, ids.length - 1);
         }
+    },
+    directives: {
+        clickOutside
     }
 };
 </script>
@@ -930,6 +998,9 @@ export default {
             right: 0;
             height: 100%;
             padding: 8px 15px;
+            button {
+                margin-left: 8px;
+            }
         }
     }
     .organization-wrapper {
@@ -939,7 +1010,7 @@ export default {
             left: 0;
             top: 0;
             z-index: 9;
-            width: 300px;
+            width: 190px;
             padding-top: 10px;
             padding-bottom: 10000px;
             margin-bottom: -9999px;
@@ -949,7 +1020,7 @@ export default {
                 width: 10px;
                 height: 1000px;
                 position: absolute;
-                left: 295px;
+                left: 185px;
                 top: 0;
                 cursor: ew-resize;
             }
@@ -960,22 +1031,19 @@ export default {
                 width: 100%;
                 height: 100%;
                 padding: 0 10px 50px 0;
-                overflow-x: auto;
-                /deep/ .el-tree-node>.el-tree-node__children {
-                    overflow: visible;
-                }
+                overflow-x: hidden;
             }
         }
         .organization-content {
             width: 953px;
-            padding-left: 305px;
+            padding-left: 195px;
             height: auto;
             .departmentName {
-                line-height: 40px;
+                line-height: 1;
                 margin: 0;
                 color: #333;
                 text-align: right;
-                padding-right: 15px;
+                padding: 10px 9px 30px 0;
                 font-weight: normal;
             }
             .btn-group1 {
@@ -1197,29 +1265,47 @@ export default {
     /deep/ .el-button:hover {
         background-color: #fff;
     }
+    /deep/ .el-table tr td:nth-child(1) .cell,
+    /deep/ .el-table tr th:nth-child(1) .cell,
+    /deep/ .el-table tr td:nth-child(2) .cell,
+    /deep/ .el-table tr th:nth-child(2) .cell{
+        padding: 0!important;
+    }
+    /deep/ .el-table tr td:nth-child(1) .cell,
+    /deep/ .el-table tr th:nth-child(1) .cell{
+        overflow: visible!important;
+    }
+    /deep/ .el-table button {
+        background-color: #fff;
+    }
+    /deep/ .el-table__empty-text {
+        text-align: left;
+        left: 370px;
+    }
 </style>
 <style lang="scss">
-    .el-message-box__btns {
-        .gy-button-normal {
-            float: right;
-        }
-        .gy-button-normal:hover {
-            background: #fff;
-        }
-        .gy-button-extra {
-            background-color: #e0370f!important;
-            color: #fff!important;
-            border-color: #e0370f!important;
-            float: right;
-            margin-right: 10px;
-        }
+.el-message-box__btns {
+    .gy-button-normal {
+        float: right;
+        padding: 0 16px;
     }
-    .organization-structure {
-        .el-dialog__header {
-            border-bottom: 1px solid #e6eaea;
-        }
-        .el-input-number.is-controls-right .el-input__inner {
-            font-size: 16px;
-        }
+    .gy-button-normal:hover {
+        background: #fff;
     }
+    .gy-button-extra {
+        background-color: #e0370f!important;
+        color: #fff!important;
+        border-color: #e0370f!important;
+        float: right;
+        margin-right: 10px;
+    }
+}
+.organization-structure {
+    .el-dialog__header {
+        border-bottom: 1px solid #e6eaea;
+    }
+    .el-input-number.is-controls-right .el-input__inner {
+        font-size: 16px;
+    }
+}
 </style>

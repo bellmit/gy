@@ -4,6 +4,9 @@ export default {
         hour = (time % 60 === 0) ? time / 60 : (time / 60).toFixed(1);
         return hour;
     },
+    formatNumber: function (value, num = 2) {
+        return Number(value).toFixed(num);
+    },
     cutstring: function (str, len) {
         let newstr;
         newstr = str.length > len ? (str.substring(0, len) + ' ...') : str;
@@ -17,6 +20,46 @@ export default {
         }
         if (val === 1) {
             return '有效';
+        }
+        return '';
+    },
+    authStatus: function (v) {
+        const val = parseInt(v);
+        if (val === 0) {
+            return '未认证';
+        }
+        if (val === 1) {
+            return '待审核';
+        }
+        if (val === 2) {
+            return '已通过';
+        }
+        if (val === 3) {
+            return '已驳回';
+        }
+        return '';
+    },
+    // 付款方式
+    paymentType: function (strVal) {
+        const val = parseInt(strVal);
+        if (val === 0) {
+            return '先款后货';
+        }
+        if (val === 1) {
+            return '先货后款';
+        }
+        if (val === 10) {
+            return '担保交易';
+        }
+        return '';
+    },
+    harbourValid: function (v) {
+        const val = parseInt(v);
+        if (val === 0) {
+            return '禁用';
+        }
+        if (val === 1) {
+            return '启用';
         }
         return '';
     },
@@ -87,6 +130,16 @@ export default {
             return '商城首页推荐位广告';
         } else if (val === 3) {
             return '积分商城广告';
+        } else if (val === 4) {
+            return '仓储首页';
+        } else if (val === 5) {
+            return '物流首页';
+        } else if (val === 7) {
+            return '推荐商品更多页面广告';
+        } else if (val === 10) {
+            return '平台首页广告';
+        } else if (val === 11) {
+            return '推荐撮合公司广告';
         }
         return '';
     },
@@ -112,14 +165,17 @@ export default {
             });
 
             start = arr.reverse().join('');
+            if (!num) {
+                return start;
+            }
             return start + '.' + end;
         }
     },
-    date: function (time, hour) { // 把时间戳格式:若有参返回年-月-日时:分:秒 若无参返回 年-月-日
+    date: function (time, hour, hour1 = false) { // 把时间戳格式:若有参返回年-月-日时:分:秒 若无参返回 年-月-日
         if (!time) {
-            return '-';
+            return '--';
         }
-        let y, m, d, date, h, ms, s, data, hours;
+        let y, m, d, date, h, ms, s, data, hours, hours1;
         date = new Date(time);
         y = date.getFullYear();
         m = date.getMonth() + 1;
@@ -129,6 +185,10 @@ export default {
         s = date.getSeconds();
         data = y + '-' + format(m) + '-' + format(d) + ' ';
         hours = format(h) + ':' + format(ms) + ':' + format(s);
+        hours1 = format(h) + ':' + format(ms);
+        if (hour1) {
+            return data + ' ' + hours1;
+        }
         if (hour) {
             return data + ' ' + hours;
         } else {
@@ -216,5 +276,27 @@ export default {
             StatusMinute += parseFloat(min) + '分钟';
         }
         return StatusMinute;
+    },
+    auditStatus (v) { // 订单列表审核状态
+        switch (v) {
+        case 1:
+            return '待审核';
+        case 2:
+            return '未通过';
+        case 3:
+            return '已通过';
+        default:
+            return '未提交';
+        }
+    },
+    auditStatusTrans (v) { // 运输订单列表审核状态
+        switch (v) {
+        case 1:case 99:
+            return '未完成';
+        case 2:
+            return '已完成';
+        default:
+            return '未提交';
+        }
     }
 };

@@ -1,12 +1,14 @@
 <!--
     安全管理
 -->
-
 <template>
+    <div>
+         <div class="new-title-public">
+            安全管理
+        </div>
     <div class="security-manage">
         <el-tabs v-model="tabActive">
             <el-tab-pane label="修改登录密码" name="login">
-                <div class="tips"><i class="el-icon-warning"></i>为了确保交易顺利，请牢记您的密码</div>
                 <el-form :model="loginForm" status-icon ref="loginForm" :label-width="labelWidth">
                     <el-form-item label="当前密码" prop="password">
                         <el-input type="password" v-model="loginForm.password" placeholder="请输入当前密码"
@@ -27,15 +29,15 @@
                         </div>
                     </el-form-item>
                 </el-form>
+                <div class="security-manage-lefttext">
+                    <span>温馨提示：</span>为了确保交易顺利，请牢记您的密码。
+                </div>
             </el-tab-pane>
             <el-tab-pane v-if="permissions" label="修改交易密码" name="second">
-                <div class="tips"><i class="el-icon-warning"></i>为了确保交易顺利，请牢记您的密码</div>
-
                 <el-form :model="tradeForm" status-icon ref="tradeForm" :label-width="labelWidth">
                     <el-form-item label="交易密码">
                         <el-radio v-model="enableTradePwd" label="1">启用</el-radio>
                         <el-radio v-model="enableTradePwd" label="0">停用</el-radio>
-                        <span v-show="enableTradePwd === '1'">&nbsp;&nbsp;&nbsp;&nbsp;如果启用交易密码控制，在支付和资金转出时要求输入交易密码进行验证。</span>
                     </el-form-item>
                     <el-form-item label="修改密码">
                         <el-radio v-model="isModify" label="1">是<span style="visibility: hidden;">是</span></el-radio>
@@ -55,6 +57,10 @@
                                       auto-complete="off"></el-input>
                         </el-form-item>
                     </template>
+                    <div class="security-manage-lefttext2">
+                        <span>温馨提示：</span>如果启用交易密码控制，
+                        在支付和资金转出时要求输入交易密码进行验证。为了确保交易顺利，请牢记您的密码。
+                       </div>
                     <el-form-item class="security-manage-btn-group">
                         <div class="gy-form-button">
                             <button type="button" class="gy-button-extra" @click="submitTrade">提交</button>
@@ -64,13 +70,11 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="修改签约密码" name="third" v-if="permissions1">
-                <div class="tips"><i class="el-icon-warning"></i>为了确保交易顺利，请牢记您的密码</div>
-
                 <el-form :model="ContractForm" status-icon ref="ContractForm" :label-width="labelWidth">
                     <el-form-item label="签约密码">
                         <el-radio v-model="enableContractPwd" label="1">启用</el-radio>
                         <el-radio v-model="enableContractPwd" label="0">停用</el-radio>
-                        <span v-show="enableContractPwd === '1'">&nbsp;&nbsp;&nbsp;&nbsp;如果启用签约密码控制，在合同签约时要求输入签约密码进行验证。</span>
+                        <span v-show="enableContractPwd === '1'"></span>
                     </el-form-item>
                     <el-form-item label="修改密码">
                         <el-radio v-model="isModify1" label="1">是<span style="visibility: hidden;">是</span></el-radio>
@@ -90,6 +94,10 @@
                                       auto-complete="off"></el-input>
                         </el-form-item>
                     </template>
+                    <div class="security-manage-lefttext2">
+                        <span>温馨提示：</span>如果启用签约密码控制，
+                        在合同签约时要求输入签约密码进行验证。为了确保交易顺利，请牢记您的密码。
+                    </div>
                     <el-form-item class="security-manage-btn-group">
                         <div class="gy-form-button">
                             <button type="button" class="gy-button-extra" @click="submitContract">提交</button>
@@ -99,6 +107,7 @@
                 </el-form>
             </el-tab-pane>
         </el-tabs>
+        </div>
     </div>
 </template>
 
@@ -392,7 +401,6 @@ export default {
     }
 };
 </script>
-
 <style lang="scss">
     .security-manage {
         color: #999;
@@ -423,7 +431,6 @@ export default {
         }
     }
 </style>
-
 <style lang="scss" scoped>
     .security-manage {
         padding: 16px 3px 16px 16px;
@@ -434,6 +441,20 @@ export default {
                 margin-right:30px ;
             }
         }
+        .security-manage-lefttext{
+            position: absolute;
+            top: 85px;
+            left: 16px;
+            span{
+                color: #EEA443
+            }
+        }
+        .security-manage-lefttext2{
+            margin-top: 5px;
+            span{
+                color: #EEA443
+            }
+        }
     }
 
     .security-manage-btn-group {
@@ -441,9 +462,7 @@ export default {
         align-content:flex-end;
         text-align: right;
         height: 110px;
-        .gy-form-button {
-            // margin-top:20px ;
-        }
+        margin-top: 30px;
     }
 
     .tips {

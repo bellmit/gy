@@ -1,10 +1,14 @@
 const state = {
     showLoading: false,
+    lastListUrl: null,
     breadcrumb: String,
     userInfo: {}
 };
 
 const mutations = {
+    lastListUrl (state, name) {
+        state.lastListUrl = name;
+    },
     setShowLoading (state) {
         state.showLoading = true;
     },
@@ -20,6 +24,9 @@ const mutations = {
 };
 
 const getters = {
+    lastListUrl (state, name) {
+        state.lastListUrl = name;
+    },
     showLoading (state) {
         return state.showLoading;
     },

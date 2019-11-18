@@ -8,31 +8,31 @@
                         <span class="l">
                             <span class="btred">*</span>用户注册
                         </span>
-                        <input @blur="accountFun(account)" v-model="account" type="text" placeholder="请输入用户名">
-                        <p class="gy-form-group-explain" v-bind:class="{active:isActiveUser}">{{ verificationAccount }}</p>
+                        <input @keyup="accountFun(account)" v-model="account" type="text" placeholder="请输入用户名">
+                        <p class="gy-form-group-explain" :class="{active:isActiveUser}">{{ verificationAccount }}</p>
                     </div>
                 </div>
                 <div class="gy-form">
                     <div class="gy-form-group">
                         <span class="l"><span class="btred">*</span>设置密码 </span>
-                        <input @blur="passwordFun(password)" v-model="password" type="password" placeholder="请设置登录密码">
-                        <p class="gy-form-group-explain" v-bind:class="{active:isActivePassword}">{{ verificationPassword }}</p>
+                        <input @keyup="passwordFun(password)" v-model="password" type="password" placeholder="请设置登录密码">
+                        <p class="gy-form-group-explain" :class="{active:isActivePassword}">{{ verificationPassword }}</p>
                     </div>
                 </div>
                 <div class="gy-form">
                     <div class="gy-form-group">
                         <span class="l"></span>
                         <span class="gy-form-group-security">安全程度</span>
-                        <span class="gy-form-group-security-highlight gy-form-group-security-highlight-first" v-bind:class="{activeWeak:isActiveWeak}"></span>
-                        <span class="gy-form-group-security-highlight" v-bind:class="{activeMiddle:isActiveMiddle}"></span>
-                        <span class="gy-form-group-security-highlight" v-bind:class="{activeStrong:isActiveStrong}"></span>
+                        <span class="gy-form-group-security-highlight gy-form-group-security-highlight-first" :class="{activeWeak:isActiveWeak}"></span>
+                        <span class="gy-form-group-security-highlight" :class="{activeMiddle:isActiveMiddle}"></span>
+                        <span class="gy-form-group-security-highlight" :class="{activeStrong:isActiveStrong}"></span>
                     </div>
                 </div>
                 <div class="gy-form">
                     <div class="gy-form-group">
                         <span class="l"><span class="btred">*</span>手机号码</span>
-                        <input @blur="phoneNumberFun(phoneNumber)" v-model="phoneNumber" type="text" placeholder="请输入11位数的手机号">
-                        <p class="gy-form-group-explain" v-bind:class="{active:isActivePhone}">{{ verificationPhone }}</p>
+                        <input @keyup="phoneNumberFun(phoneNumber)" v-model="phoneNumber" type="text" placeholder="请输入11位数的手机号">
+                        <p class="gy-form-group-explain" :class="{active:isActivePhone}">{{ verificationPhone }}</p>
                     </div>
                 </div>
                 <div class="gy-form">
@@ -41,7 +41,7 @@
                         <input @blur="txNumberFun2(register.graphicVerificationCode)" v-model="register.graphicVerificationCode" id="gy-form-group-img" type="text" placeholder="请输入图形验证码">
                         <img @click="refreshGraphic" v-if="graphicVerificationCodee" :src='"data:image/jpeg;base64," + graphicVerificationCodee' class="gy-form-group-imgs">
                         <p class="gy-form-group-explain">看不清? <span class="changone" @click="refreshGraphic">点击换一张</span></p>
-                        <p class="gy-form-group-explain" v-bind:class="{active:isActivetzm}">{{ YZMAccount }}</p>
+                        <p class="gy-form-group-explain" :class="{active:isActivetzm}">{{ YZMAccount }}</p>
                     </div>
                 </div>
                 <div class="gy-form">
@@ -49,7 +49,7 @@
                         <span class="l"><span class="btred">*</span>短信验证码</span>
                         <input @blur="txNumberFun(register.phoneVerificationCode)" v-model="register.phoneVerificationCode" id="gy-form-group-phone"  type="text" placeholder="请输入您收到的验证码">
                         <span @click="getPhoneClick()" :disabled="codeDisabled" class="gy-form-group-phone-code">{{ verificationNumber }}</span>
-                        <p class="gy-form-group-explain gy-form-group-explain-code"  v-bind:class="{active:isActivetsjyzm}">{{overVerification}}</p>
+                        <p class="gy-form-group-explain gy-form-group-explain-code"  :class="{active:isActivetsjyzm}">{{overVerification}}</p>
                     </div>
                 </div>
                 <div class="gy-form">
@@ -62,14 +62,15 @@
                 <div class="gy-form">
                     <div class="gy-form-group">
                         <span class="l">电子邮箱</span>
-                        <input @blur="emailFun(email)" v-model="email" type="text" placeholder="请输入电子邮箱">
-                        <p class="gy-form-group-explain" v-bind:class="{active:isActiveEmail}">{{ verificationEmail }}</p>
+                        <input @keyup="emailFun(email)" v-model="email" type="text" placeholder="请输入电子邮箱">
+                        <p class="gy-form-group-explain" :class="{active:isActiveEmail}">{{ verificationEmail }}</p>
                     </div>
                 </div>
                 <div class="gy-form">
                     <div class="gy-form-group">
                         <p class="gy-form-upgrade">如需企业注册请登录后到"我的中心" > "企业用户升级", 完善企业注册信息</p>
-                    </div>
+                        <p ><a :href="pdfSrc" target="_blank" class="gy-form-upgrade">&lt;&lt;国烨网&法大大电子合同系统合规性说明 &gt;&gt;</a></p>
+                </div>
                 </div>
                 <div class="gy-form">
                     <div class="gy-form-group gy-form-agrees">
@@ -86,6 +87,8 @@
                 </div>
             </form>
         </div>
+        <!--<el-dialog class="register-fish" width="1000px" title="法大大说明"  :close-on-click-modal="showPdf" :visible.sync="showPdf">-->
+        <!--</el-dialog>-->
         <el-dialog class="register-fish" width="1000px" title="国烨网平台协议"  :close-on-click-modal="registerModal" :visible.sync="dialogVisible">
             <div class="register-agre">
                 <div class="register-ageesd">
@@ -104,7 +107,7 @@
                     <h4>第一条 定义</h4>
                     <span><i>1.1 国烨网平台/国烨网：</i>系指国烨能源集团有限公司所有并经营的，网址为http://www.chinayie.com/的跨境大宗电商互联网平台，还包括子平台“资讯中心”。</span><br>
                     <span><i>1.2 国烨网平台服务/国烨网服务：</i>系指国烨能源集团有限公司通过互联网，以包含国烨网、客户端等在内的各种方式（包括未来技术发展出现的新的服务方式）向您提供的各项服务。</span><br>
-                    <span><i>1.3 您/用户：</i>指符合国烨网平台注册要求且注册为会员的法人或其他组织。</span><br>
+                    <span><i>1.3 您/用户：</i>指符合国烨网平台注册要求且注册为会员的法人或其他组织以及受该等法人或其他组织授权办理注册、开户等相关事宜的自然人。</span><br>
                 </div>
                 <div class="register-agee">
                     <h4>第二条 协议</h4>
@@ -140,6 +143,12 @@
                     4.3.3 根据交易规则，当您支付或接受保证金/货款时，为了保证交易的安全和便利，保证金和货款会在一定时间内被国烨网冻结，直到交易完成或其它解冻事由出现。您对此完全知晓并同意。<br>
                     4.3.4 保证金、货款等款项留存于您的资金账户期间，国烨网及国烨网合作银行将不向您支付任何利息。您对此完全知晓并同意。<br>
                     4.3.5 当您与交易对手发生纠纷时，您同意国烨网冻结相关保证金货款，直到您与交易对手双方达成一致意见或国烨网收到相关司法裁判文书。<br>
+                    4.3.6 担保交易：为保障买卖双方合法权益并确保资金安全，当交易双方在国烨网选择担保交易，包括：<br>
+                    4.3.6.1 资金锁定：如买方在当次交易中的支付环节选择“担保交易”，则付款将被锁定于平安银行担保专管账户中。<br>
+                    4.3.6.2 资金解锁及支付：买方支付完成后，若确认收货并无异议，则应在担保时效内做出“确认收货”的操作，款项将从担保账户支付给卖方；如买方未在国烨网对当次交易进行“确认收货”的操作，则国烨网不会将平安银行电子担保账户的资金予以解锁。买卖双方一旦选择“担保支付”，即表明其不可撤销地授权国烨网根据该选择进行处理并接受该处理结果。<br>
+                    4.3.6.3 退款申请：如有交易异议，买方应在担保时效内按国烨网的相关交易规则向卖方提出退款申请，并应自行与其进行协商联络。<br>
+                    4.3.6.4 资金解锁及退款：资金锁定状态下，如交易双方根据国烨网的交易规则，经协商一致取消相关交易后，国烨网根据用户指令将平安银行担保专管账户的资金解锁并退款至相应买方账户。<br>
+                    4.3.6.5 争议交易资金处置：因买卖双方发生交易争议而导致无法对平安银行电子担保账户中锁定的当次交易资金归属做出明确的认定，国烨则以买卖双方加盖公章的争议处理结果文书或对相关争议交易资金做出裁判的生效的司法文书（如诉讼判决书、仲裁裁决书）为准执行相关操作。<br>
                     <span>4.4 账户安全：</span><br>
                     4.4.1 您的账户系由您自行设置（包括但不限于账户名、昵称、绑定人手机号码、密码等）并由您保管，您应对账户项下的所有行为及结果（包括但不限于信息披露、发布信息、网上点击同意或提交各类规则协议、签署交易合同、金钱支付及向国烨网发出各项指令）负责。<br>
                     4.4.2 国烨网任何时候均不会主动要求您提供您的账户密码，因此建议您务必保管好您的账户密码，并确保您在每个上网时段结束时退出登录并以正确步骤离开国烨网。若账户密码因您泄露或因您遭受他人攻击、诈骗等行为而产生损失及后果，国烨网并不承担责任，您应通过司法、行政等救济途径向侵权行为人追偿。<br>
@@ -238,6 +247,7 @@ export default {
     data () {
         return {
             logo: require('@/assets/images/logo.png'),
+            pdfSrc: require('@/assets/images/aaa.pdf'),
             register: {
                 phoneVerificationCode: '',
                 graphicVerificationCode: '',
@@ -274,12 +284,14 @@ export default {
             dialogVisible: false,
             registerModal: false,
             newDate: '',
-            newdatas: ''
+            newdatas: '',
+            showPdf: false
         };
     },
     created () {
         this.getGraphic();
         this.newdata();
+        localStorage.removeItem('jump', true);
     },
     methods: {
         newdata () {
@@ -397,9 +409,13 @@ export default {
                 } else if (/^[0-9]+$/.test(rule)) {
                     that.verificationPassword = '不能全是数字';
                 } else {
-                    let reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,20}$/;
-                    if (!reg.test(rule)) {
+                    let reg = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>《》/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]");
+                    if (reg.test(rule)) {
                         that.verificationPassword = '包含大小写字母和数字，不能使用特殊字符，8-20个字符';
+                        that.isActiveWeak = false;
+                        that.isActiveMiddle = false;
+                        that.isActiveStrong = false;
+                        that.isActivePassword = true;
                     } else {
                         that.isActivePassword = false;
                         that.verificationPassword = '';
@@ -509,6 +525,10 @@ export default {
             if (that.register.phoneVerificationCode === '') {
                 that.overVerification = '验证码必填';
                 that.isActivetsjyzm = true;
+                return false;
+            }
+            if (that.isActiveEmail === true) {
+                that.verificationEmail = '邮箱不正确，请重新填写';
                 return false;
             }
             that.register.account = that.account;
@@ -742,6 +762,7 @@ export default {
                         text-align: center;
                         line-height: 40px;
                         cursor:pointer;
+                        margin-left: 5px ;
                     }
                     .gy-form-group-explain-code{
                         margin-left: 165px!important;

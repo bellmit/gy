@@ -90,23 +90,77 @@
           </el-col>
         </el-row>
         <el-row class="mytop" :gutter="60">
-          <!--<el-col :span="10">-->
-            <!--&lt;!&ndash;<el-row>&ndash;&gt;-->
-              <!--&lt;!&ndash;<el-col :span="4">&ndash;&gt;-->
-                <!--&lt;!&ndash;<span>SKU规则</span>&ndash;&gt;-->
-              <!--&lt;!&ndash;</el-col>&ndash;&gt;-->
-              <!--&lt;!&ndash;<el-col :span="20">&ndash;&gt;-->
-                <!--&lt;!&ndash;<el-select v-model="productData.skuNoRuleId" placeholder="请选择">&ndash;&gt;-->
-                  <!--&lt;!&ndash;<el-option&ndash;&gt;-->
-                    <!--&lt;!&ndash;v-for="item in skuList"&ndash;&gt;-->
-                    <!--&lt;!&ndash;:key="item.id"&ndash;&gt;-->
-                    <!--&lt;!&ndash;:label="item.skuNoRuleName"&ndash;&gt;-->
-                    <!--&lt;!&ndash;:value="item.id">&ndash;&gt;-->
-                  <!--&lt;!&ndash;</el-option>&ndash;&gt;-->
-                <!--&lt;!&ndash;</el-select>&ndash;&gt;-->
-              <!--&lt;!&ndash;</el-col>&ndash;&gt;-->
-            <!--&lt;!&ndash;</el-row>&ndash;&gt;-->
-          <!--</el-col>-->
+          <el-col :span="12">
+            <el-row>
+              <el-col  :span="3">
+                <span>排序</span>
+              </el-col>
+              <el-col :span="20">
+                <div>
+                  <input type="text" v-model="productData.displayOrder">
+                </div>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="12">
+            <el-row>
+              <el-col  :span="3">
+                <span>物理状态</span>
+              </el-col>
+              <el-col :span="20">
+                <div>
+                  <input type="radio" v-model="productData.physicalState" value="1" checked><span>固态</span>
+                  <input type="radio" v-model="productData.physicalState" value="2"><span>液态</span>
+                  <input type="radio" v-model="productData.physicalState" value="3"><span>气态</span>
+                </div>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+        <el-row class="mytop" :gutter="60">
+          <el-col :span="12">
+            <el-row>
+              <el-col  :span="3">
+                <span>危险品属性</span>
+              </el-col>
+              <el-col :span="20">
+                <div>
+                  <input type="radio" v-model="productData.dangerState" value="0" checked><span>危货</span>
+                  <input type="radio" v-model="productData.dangerState" value="1"><span>普货</span>
+                  <!-- <input type="radio" v-model="productData.valid" value="0"><span>气态</span> -->
+                </div>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="12">
+            <el-row>
+              <el-col  :span="3">
+                <span>易制毒属性</span>
+              </el-col>
+              <el-col :span="20">
+                <div>
+                  <input type="radio" v-model="productData.toxicState" value="0" checked><span>是</span>
+                  <input type="radio" v-model="productData.toxicState" value="1"><span>否</span>
+                  <!-- <input type="radio" v-model="productData.valid" value="3"><span>气态</span> -->
+                </div>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+        <el-row class="mytop" :gutter="60">
+          <el-col :span="12">
+            <el-row>
+              <el-col  :span="3">
+                <span>产品状态</span>
+              </el-col>
+              <el-col :span="20">
+                <div>
+                  <input type="radio" v-model="productData.valid" value="1" name="status" checked><span>可用</span>
+                  <input type="radio" v-model="productData.valid" value="0" name="status"><span>不可用</span>
+                </div>
+              </el-col>
+            </el-row>
+          </el-col>
           <el-col :span="12">
             <el-row>
               <el-col :span="3">
@@ -127,19 +181,23 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :span="12">
-          <el-row>
-          <el-col  :span="3">
-          <span>产品状态</span>
-          </el-col>
-          <el-col :span="20">
-          <div>
-          <input type="radio" v-model="productData.valid" value="1" name="status" checked><span>可用</span>
-          <input type="radio" v-model="productData.valid" value="0" name="status"><span>不可用</span>
-          </div>
-          </el-col>
-          </el-row>
-          </el-col>
+          <!--<el-col :span="10">-->
+            <!--&lt;!&ndash;<el-row>&ndash;&gt;-->
+              <!--&lt;!&ndash;<el-col :span="4">&ndash;&gt;-->
+                <!--&lt;!&ndash;<span>SKU规则</span>&ndash;&gt;-->
+              <!--&lt;!&ndash;</el-col>&ndash;&gt;-->
+              <!--&lt;!&ndash;<el-col :span="20">&ndash;&gt;-->
+                <!--&lt;!&ndash;<el-select v-model="productData.skuNoRuleId" placeholder="请选择">&ndash;&gt;-->
+                  <!--&lt;!&ndash;<el-option&ndash;&gt;-->
+                    <!--&lt;!&ndash;v-for="item in skuList"&ndash;&gt;-->
+                    <!--&lt;!&ndash;:key="item.id"&ndash;&gt;-->
+                    <!--&lt;!&ndash;:label="item.skuNoRuleName"&ndash;&gt;-->
+                    <!--&lt;!&ndash;:value="item.id">&ndash;&gt;-->
+                  <!--&lt;!&ndash;</el-option>&ndash;&gt;-->
+                <!--&lt;!&ndash;</el-select>&ndash;&gt;-->
+              <!--&lt;!&ndash;</el-col>&ndash;&gt;-->
+            <!--&lt;!&ndash;</el-row>&ndash;&gt;-->
+          <!--</el-col>-->
         </el-row>
         <el-row class="mytop" :gutter="60">
           <!--<el-col :span="10">-->
@@ -157,7 +215,7 @@
           <!--</el-col>-->
           <el-col>
             <el-row>
-              <el-col  :span="1" style="width: 73.33px"> <span>产品描述</span></el-col>
+              <el-col  :span="1" style="width: 6%"> <span>产品描述</span></el-col>
               <el-col  :span="17"><textarea placeholder="请输入产品描述" class="gy-textarea" v-model="productData.productDescription"></textarea></el-col>
             </el-row>
           </el-col>
@@ -185,7 +243,11 @@ export default {
                 enFullName: '',
                 enAbbreviation: '',
                 molecularFormula: '',
-                casNo: ''
+                casNo: '',
+                physicalState: '',
+                dangerState: '',
+                toxicState: '',
+                displayOrder: '' // 排序
             },
             categoryIds: [],
             catalogueId: [],

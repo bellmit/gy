@@ -45,7 +45,10 @@
             </tr>
             <tr class="tab-row1">
                 <td rowspan="2"><div>交易公司</div></td>
-                <td><div class="text"><span>*</span>管理员账号授权书</div></td>
+                <td><div class="text">
+                    <!--<span>*</span>-->
+                    管理员账号授权书
+                </div></td>
                 <td><div><a :href="loadUrl1">下载《管理员账号授权书》模板</a></div></td>
                 <td><div>否</div></td>
                 <td><div>是</div></td>
@@ -60,7 +63,10 @@
             </tr>
             <tr class="tab-row1">
                 <td rowspan="2"><div>承运商</div></td>
-                <td><div class="text"><span>*</span>管理员账号授权书</div></td>
+                <td><div class="text">
+                    <!--<span>*</span>-->
+                    管理员账号授权书
+                </div></td>
                 <td><div><a :href="loadUrl2">下载《管理员账号授权书》模板</a></div></td>
                 <td><div>否</div></td>
                 <td><div>是</div></td>
@@ -75,7 +81,10 @@
             </tr>
             <tr class="tab-row1">
                 <td rowspan="2"><div>仓储服务商</div></td>
-                <td><div class="text"><span>*</span>管理员账号授权书</div></td>
+                <td><div class="text">
+                    <!--<span>*</span>-->
+                    管理员账号授权书
+                </div></td>
                 <td><div><a :href="loadUrl3">下载《管理员账号授权书》模板</a></div></td>
                 <td><div>否</div></td>
                 <td><div>是</div></td>

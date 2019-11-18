@@ -14,7 +14,6 @@
 <script>
 import gyLoading from './components/gyloading.vue';
 import {mapGetters} from 'vuex';
-
 export default {
     data () {
         return {};
@@ -34,5 +33,6 @@ export default {
 .container-fluid {
   width: 100%;
   height: 100%;
+  min-width: 1300px;
 }
 </style>

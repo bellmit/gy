@@ -1,14 +1,8 @@
 <template>
-<div style="padding-bottom: 30px">
-    <!--<div class="page-title">-->
-        <!--<span>工作台</span>-->
-    <!--</div>-->
+<div style="padding-bottom: 30px" class="workbench-personal">
     <div class="workbench-row">
         <div class="workbench-item digital-statistics">
-            <gy-item :title="gyItem1.title" :titleType="gyItem1.titleType" :active="gyItem1.active"
-                     :isBig="gyItem1.isBig" :resetData="gyItem1.resetData" :routerData="gyItem1.routerData">
-                <div id="myChart9" :style="{width: '100%', height: '100%'}"></div>
-            </gy-item>
+            <customer-data :gyItem="gyItem"></customer-data>
         </div>
         <div class="workbench-item digital-statistics">
             <div class="item-title">
@@ -17,22 +11,12 @@
             <div class="item-content">
                 <div class="shortcut">
                     <div>
-                        <span class="gy-button-normal" @click="$router.push( 'add')">
-                            <i class="iconfont icon-new-customers"></i>
-                            新增客户
-                        </span>
-                        <!--<span class="gy-button-normal">-->
-                            <!--<i class="iconfont icon-new-clues"></i>-->
-                            <!--新增线索-->
-                        <!--</span>-->
-                        <!--<span class="gy-button-normal">-->
-                            <!--<i class="iconfont icon-new-contacts"></i>-->
-                            <!--新增联系人-->
-                        <!--</span>-->
-                        <!--<span class="gy-button-normal">-->
-                            <!--<i class="iconfont icon-new-follow-up"></i>-->
-                            <!--新增跟进-->
-                        <!--</span>-->
+                        <span class="gy-button-normal" @click="$router.push( 'add')"><i class="iconfont icon-add-customers"></i>
+                            新增客户</span>
+                        <!-- <span class="gy-button-normal" @click="$router.push( 'addLurking')"><i class="iconfont icon-new-customers"></i>
+                            新增潜在客户</span> -->
+                        <span class="gy-button-normal" @click="$router.push( 'customertrack')"><i class="iconfont icon-new-contacts"></i>
+                            客户跟进</span>
                     </div>
                 </div>
             </div>
@@ -45,10 +29,10 @@
                 <span class="isMore" @click="$router.push({name: 'list'})">更多</span>
             </div>
             <div class="item-content">
-                <div class="customer-wrapper" v-if="customerList.length === 0">
+                <div class="customer-wrapper" v-if="customerList && customerList.length === 0">
                     <div style="text-align: center;line-height: 115px;">暂无数据</div>
                 </div>
-                <div class="customer-wrapper">
+                <div class="customer-wrapper" v-else>
                     <div class="customer-item customer-item1" @click="goDetail(index)" v-for="(item, index) in customerList" :key="index">
                         <div class="customer-item-text">{{item.customerName}}</div>
                         <div class="customer-item-date">{{item.createdDate | date}}</div>
@@ -58,36 +42,84 @@
         </div>
         <div class="workbench-item digital-statistics">
             <div class="item-title">
-                <span class="title">跟进提醒</span>
+                <span class="title">跟进列表</span>
                 <span class="isMore" @click="$router.push({name: 'customertrack'})">更多</span>
             </div>
             <div class="item-content">
-                <div class="customer-wrapper">
-                    <div class="customer-wrapper" v-if="followUpReminder.length === 0">
-                        <div style="text-align: center;line-height: 115px;">暂无数据</div>
-                    </div>
-                    <div class="customer-item" v-for="(item, index) in followUpReminder" :key="index">
+                <div class="customer-wrapper" v-if="followUpReminder && followUpReminder.length === 0">
+                    <div style="text-align: center;line-height: 115px;">暂无数据</div>
+                </div>
+                <div class="customer-wrapper" v-else>
+                    <div class="customer-item customer-follow" v-for="(item, index) in followUpReminder" :key="index" @click="CustomerFollowUp(item)">
                         <div class="customer-item-text1">{{item.customerName}}</div>
                         <div class="customer-item-type">{{item.trackStatusDictName}}</div>
-                        <div class="customer-item-date">{{item.trackDate | date}}</div>
+                        <div class="customer-item-date">{{item.createdDate | date}}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="workbench-row">
+        <div class="workbench-item digital-statistics">
+            <div class="item-title">
+                <span class="title">消息盒子</span>
+                <span class="isMore" @click="$router.push({name: 'msgbox'})">更多</span>
+            </div>
+            <div class="item-content">
+                <div class="customer-wrapper" v-if="msgList && msgList.length === 0">
+                    <div style="text-align: center;line-height: 115px;">暂无数据</div>
+                </div>
+                <div class="customer-wrapper" v-else>
+                    <div class="customer-item" v-for="(item, index) in msgList" :key="index">
+                        <div class="customer-item-text">{{item.content}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="workbench-item digital-statistics" style="visibility: hidden">
+        </div>
+    </div>
+     <el-dialog width="50%" title="详情" class="gy-dialog-title"
+            :visible.sync="dialogVisible">
+            <div>
+                <div class="gy-form-group">
+                    <span class="l">客户名称</span>
+                    <span>{{addForm.customerName ||'-'}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">跟进状态</span>
+                    <span>{{addForm.trackStatusDictName ||'-'}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">联系人</span>
+                    <span>{{addForm.contactUserName ||'-'}}</span>
+                </div>
+                <!-- <div class="gy-form-group">
+                    <span class="l">提醒时间</span>
+                    <span v-if="addForm.trackDate !== null">{{addForm.trackDate | date()}}</span>
+                    <span v-else>-</span>
+                </div> -->
+                <div class="gy-form-group record">
+                    <span class="l">跟进记录</span>
+                    <textarea class="gy-textarea" :disabled="true" cols="30" rows="10" placeholder="请填写" v-model="addForm.content"></textarea>
+                </div>
+                <div style="clear:both"></div>
+                <div class="operation">
+                    <button class="gy-button-normal" @click="dialogVisible = false">关闭</button>
+                </div>
+            </div>
+    </el-dialog>
 </div>
 </template>
 
 <script>
-import gyItem from './../data-management/chartsItem.vue';
+import customerData from './../data-management/customer-data.vue';
 export default {
     data () {
         return {
-            role: 1,
-            gyItem1: {
+            gyItem: {
                 title: '客户数据',
                 active: '本月',
-                // titleType: 'date2',
                 titleType: 'router',
                 isBig: '',
                 resetData: 1,
@@ -124,25 +156,52 @@ export default {
                 pageNum: 1,
                 pageSize: 5
             },
-            statistics: []
+            statistics: {
+                // total: null, // 公司总客户数
+                // newAdded: null, // 公司月新增客户数
+                // myTotal: null, // 我的客户数
+                // myNewAdded: null // 我的月新增客户数
+            },
+            msgList: [
+                // {
+                //     Id: null, // 消息Id
+                //     usrCompanyId: null, // 公司Id
+                //     sendUserId: null, // 发送用户Id
+                //     receiveUserId: null, // 接收用户Id
+                //     readStatus: null, // 读取状态0未读取1已读取
+                //     content: null, // 消息内容
+                //     createdDate: null, // 消息发送日期
+                //     bizType: null, // 业务类型
+                //     bizTypeName: null, // 业务类型名称
+                //     bizId: null // 业务对象Id
+                // }
+            ],
+            dialogVisible: false,
+            startDateOptions: {},
+            addForm: {
+                contactUserId: '',
+                content: '',
+                customerId: '',
+                trackDate: '',
+                trackStatusDictId: '',
+                customerName: '',
+                contactUserName: '',
+                contactUserMobile: ''
+            },
+            tradeModeOptionStatus: []
         };
     },
     created () {
-        let user = localStorage.getItem('userInfo');
-        if (user) {
-            let userInfo = JSON.parse(user);
-            // 1 中烨 2 国烨 3 业务员
-            userInfo.userType === 1 ? (this.role = 2) : (userInfo.isAdmin === 1 ? (this.role = 1) : (this.role = 3));
-        }
     },
     mounted () {
         this.init();
     },
     methods: {
         init () {
-            this.getStatistics(3);
             this.getCustomerList();
             this.getCollectionList();
+            this.getMsgList();
+            this.getControllerStatus();
         },
         goDetail (idx) {
             this.$router.push({
@@ -153,80 +212,44 @@ export default {
                 }
             });
         },
-        getStatistics (e) {
-            this.$http.get(this.$api.charts.statistics + '?statisticsId=1&countType=' + e)
-                .then((res) => {
-                    if (res.data.code === 0) {
-                        this.statistics = res.data.data;
-                        this.drawBrokenLine(e);
-                    }
-                })
-                .catch((e) => {
-                    console.log(e);
-                });
+        // 跟进列表
+        // 显示弹框
+        CustomerFollowUp (item) {
+            // console.log(item, '111');
+            this.dialogVisible = true;
+            this.addForm = item;
+            console.log(this.addForm);
         },
-        drawBrokenLine (type) {
-            let data = type === 3 ? {
-                seriesData: [
-                    {value: this.statistics.newAdded, name: '本月新增客户数'},
-                    // {value: this.statistics.total, name: '客户数'}
-                    {value: this.statistics.total, name: '总客户数'}
-                ]
-            } : {
-                seriesData: [
-                    {value: this.statistics.total, name: '总客户数'}
-                ]
-            };
-            let myChart = this.$echarts.init(document.getElementById('myChart9'));
-            myChart.setOption({
-                title: {
-                    text: this.statistics.total,
-                    left: 33 - ([...this.statistics.total.toString()].length - 1) + '%',
-                    top: 'middle'
-                },
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b} : {c}人 ({d}%)'
-                },
-                legend: {
-                    orient: 'vertical',
-                    selectedMode: false,
-                    left: 340,
-                    top: 30,
-                    data: data.seriesData,
-                    formatter: (name) => {
-                        let title;
-                        data.seriesData.forEach((e) => {
-                            if (e.name === name) {
-                                title = e.name + ' ' + e.value + '人';
-                            }
-                        });
-                        return title;
+        // 验证
+        checkDialogData () {
+            let flag = true;
+            let data = [
+                {value: this.addForm.customerId, msg: '客户名称不能为空'},
+                {value: this.addForm.trackStatusDictId, msg: '跟进状态不能为空'},
+                {value: this.addForm.contactUserId, msg: '联系人不能为空'},
+                // {value: this.addForm.trackDate, msg: '时间不能为空'},
+                {value: this.addForm.content, msg: '跟进记录不能为空'}
+            ];
+            for (let i = 0; i < data.length; i++) {
+                if (!data[i].value && data[i].value !== 0) {
+                    this.$message({message: data[i].msg, type: 'error'});
+                    flag = false;
+                    break;
+                }
+            }
+            return flag;
+        },
+        // 获得跟进状态
+        getControllerStatus () {
+            const me = this;
+            me.$http.get(me.$api.customer.dictionaryController + 'track_status')
+                .then(function (response) {
+                    if (response.data.code === 0) {
+                        me.tradeModeOptionStatus = response.data.data;
                     }
-                },
-                series: [
-                    {
-                        name: '',
-                        type: 'pie',
-                        label: {
-                            formatter: '{b}: {c}'
-                        },
-                        silent: true,
-                        legendHoverLink: false,
-                        hoverAnimation: false,
-                        radius: ['50%', '70%'],
-                        center: ['35%', '50%'],
-                        data: data.seriesData,
-                        itemStyle: {
-                            emphasis: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                            }
-                        }
-                    }
-                ]
-            }, true);
+                }).catch(function (error) {
+                    console.log(error);
+                });
         },
         getCustomerList () {
             this.$http.post(this.$api.workbench.recommendlist, this.search)
@@ -263,26 +286,53 @@ export default {
                     console.log(error);
                 });
         },
-        resetList (e, t) {
-            switch (e) {
-            case 1 :
-                this.gyItem1.active = t === 3 ? '本月' : '总体';
-                this.getStatistics(t);
-                break;
-            default :
-                break;
-            }
+        getMsgList () {
+            this.$http.post(this.$api.msg.getListWorkbench)
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.msgList = res.data.data;
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
         }
     },
-    provide () {
-        return {
-            resetList: this.resetList
-        };
-    },
-    components: {gyItem}
+    components: {customerData}
 };
 </script>
 
+<style lang="scss">
+    .workbench-personal{
+        .gy-dialog-title .el-dialog__header {
+            border-bottom: 1px solid #DCE0E4!important;
+            padding: 15px!important;
+        }
+        .el-dialog__body {
+            // padding: 0;
+            padding: 10px 0px 0px 15px;
+        }
+        .record{
+            width: 100%;
+        }
+        .operation{
+            text-align: right;
+            margin-top: 22px;
+            padding-bottom: 32px;
+            padding-right: 32px;
+        }
+        .is-required::before {
+            content: "*";
+            color: #e0370f;
+            font-size: 12px;
+            font-weight: 400;
+            position: absolute;
+            margin-left: 6px;
+            left: 0px;
+            top: 0;
+        }
+    }
+</style>
 <style lang="scss" scoped>
 .page-title {
     height: 35px;
@@ -420,6 +470,15 @@ export default {
                         }
                     }
                 }
+                .customer-follow{
+                    cursor:pointer;
+                    &:hover {
+                        background: $color-body-bg;
+                        .customer-item-text1 {
+                            color: $color-a-active;
+                        }
+                    }
+                }
             }
             .shortcut {
                 height: 145px;
@@ -436,8 +495,17 @@ export default {
                 }
                 .gy-button-normal {
                     padding: 4px 16px;
-                    .icon-new-customers {
+                    .icon-font-size {
                         font-size: 24px;
+                    }
+                    .icon-add-customers {
+                        @extend .icon-font-size
+                    }
+                    .icon-new-customers {
+                        @extend .icon-font-size
+                    }
+                    .icon-new-contacts {
+                        @extend .icon-font-size
                     }
                 }
             }

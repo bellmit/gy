@@ -1,205 +1,219 @@
 .transport-wrap{
-    background-color: #fff;
-    .gy-form{
-        padding-left: 40px;
-    }
-    h2, h3{
-        margin: 0;
-        color: $color-title;
-        font-size: 16px;
-        font-weight: normal;
-        line-height: 1;
-        padding: 15px 0 15px 20px;
-        span{
-            font-size: $small-font;
-            color: $color-minor;
-            margin-left: 50px;
-        }
-    }
-    h3{
-        padding-left: 30px;
-        font-size: $body-font-size;
-        border: none;
-        padding-bottom: 0;
-        i{
-            font-size: $small-font;
-            margin-right: 5px;
-        }
-    }
-    &.order{
-        .t{
-            padding: 10px 20px;
-            .tabs{
-                float: left;
-                overflow: hidden;
-                margin-top: 0;
-                li{
-                    float: left;
-                    line-height: 30px;
-                    height: 30px;
-                    margin-right: 5px;
-                    padding: 0 8px;
-                    position: relative;
-                    &.all{
-                        padding-right: 8px;
-                    }
-                    &.selected{
-                        a{
-                            color: $color-highlight;
-                        }
-                        &:after{
-                            position: absolute;
-                            width: 100%;
-                            left: 0;
-                            bottom: 0;
-                            content: '';
-                            background-color: $color-highlight;
-                            height: 1px;
-                        }
-                    }
-                }
-            }
-            .search{
-                float: right;
-                position: relative;
-                width: 220px;
-                padding-right: 20px;
-                .icon-search, .icon-arrow-down, .icon-arrow-up{
-                    position: absolute;
-                    right: 0;
-                    top: 50%;
-                    margin-top: -14px;
-                }
-                .icon-search{
-                    right: 20px;
-                }
-            }
-        }
-        .gy-table{
-            tr:hover{
-                background-color: transparent;
-            }
-        }
-        .item{
-            padding: 0;
-            .item-t{
-                background-color: #f8f9fb;
-                padding: 0 20px;
-                overflow: hidden;
-                line-height: 35px;
-                color: $color-minor;
-                i{
-                    margin-left: 5px;
-                    font-size: $small-font;
-                    cursor: pointer;
-                }
-            }
-            .pro-info{
-                width: 199px;
-                span{
-                    display: inline-block;
-                    vertical-align: middle;
-                }
-                .img{
-                    height: 60px;
-                    width: 60px;
-                    background-position: center center;
-                    background-size: cover;
-                    background-repeat: no-repeat;
-                    border-radius: $border-radius-base;
-                    border: 1px solid $color-border;
-                    display: inline-block;
-                    margin-right: 10px;
-                }
-                .name{
-                    width: 120px;
-                }
-            }
-            .gy-table{
-                border: none;
-            }
-            .contact{
-                color: $color-extra;
-                i{
-                    margin-right: 5px;
-                }
-            }
-        }
-        .detail{
-            .order-step{
-                overflow: hidden;
-                padding: 20px 40px;
-                border-bottom: 7px solid $color-body-bg;
-                .step-active{
-                    float: left;
-                }
-                .tips{
-                    padding-top: 20px;
-                    position: relative;
-                    strong{
-                        font-weight: normal;
-                        color: #eea443;
-                    }
-                    .buttons{
-                        right: 0;
-                        bottom: 0;
-                        position: absolute;
-                        button{
-                            margin-left: 10px;
-                        }
-                    }
-                }
-            }
-            .order-info{
-                overflow: hidden;
-                padding: 0 45px 20px;
-                dl{
-                    float: left;
-                    width: 50%;
-                    overflow: hidden;
-                    padding: 15px 0;
-                    line-height: 1;
-                    dt, dd{
-                        float: left;
-                    }
-                    dt{
-                        width: 100px;
-                        font-size: 14px;
-                    }
-                    dd{
-                        color: $color-minor;
-                    }
-                }
-            }
-            .detail-list{
-                padding: 0 40px 20px;
-                .tabs{
-                    overflow: hidden;
-                    li{
-                        float: left;
-                        padding: 0 17px;
-                        cursor: pointer;
-                        line-height: 31px;
-                        &.selected{
-                            border: 1px solid $color-border;
-                            border-bottom: none;
-                            border-top-right-radius: $border-radius-small;
-                            border-top-left-radius: $border-radius-small;
-                        }
-                    }
-                }
+  background-color: #fff;
+  .gy-form{
+      padding-left: 40px;
+  }
+  h2, h3{
+      margin: 0;
+      color: $color-title;
+      font-size: 16px;
+      font-weight: normal;
+      line-height: 1;
+      padding: 15px 0 15px 20px;
+      span{
+          font-size: $small-font;
+          color: $color-minor;
+          margin-left: 50px;
+      }
+  }
+  h3{
+      padding-left: 30px;
+      font-size: $body-font-size;
+      border: none;
+      padding-bottom: 0;
+      i{
+          font-size: $small-font;
+          margin-right: 5px;
+      }
+  }
+  &.order{
+      .t{
+          padding: 10px 20px;
+          .tabs{
+              float: left;
+              margin-top: 0;
+              overflow: hidden;
+              li{
+                  float: left;
+                  line-height: 30px;
+                  height: 30px;
+                  margin-right: 5px;
+                  padding: 0 8px;
+                  position: relative;
+                  &.all{
+                      padding-right: 8px;
+                  }
+                  &.selected{
+                      a{
+                          color: $color-highlight;
+                      }
+                      &:after{
+                          position: absolute;
+                          width: 100%;
+                          left: 0;
+                          bottom: 0;
+                          content: '';
+                          background-color: $color-highlight;
+                          height: 1px;
+                      }
+                  }
+              }
+          }
+          .search{
+              float: right;
+              position: relative;
+              width: 220px;
+              padding-right: 20px;
+              .icon-search, .icon-arrow-down, .icon-arrow-up{
+                  position: absolute;
+                  right: 0;
+                  top: 50%;
+                  margin-top: -14px;
+              }
+              .icon-search{
+                  right: 20px;
+              }
+          }
+      }
+      .gy-table{
+          tr:hover{
+              background-color: transparent;
+          }
+      }
+      .item{
+          padding: 0;
+          .item-t{
+              background-color: #f8f9fb;
+              padding: 0 20px;
+              overflow: hidden;
+              line-height: 32px;
+              color: $color-minor;
+              i{
+                  margin-left: 5px;
+                  font-size: $small-font;
+                  cursor: pointer;
+              }
+          }
+          .pro-info{
+              // width: 199px;
+              padding: 10px 0;
+              span{
+                  display: inline-block;
+                  vertical-align: middle;
+              }
+              .img{
+                  height: 60px;
+                  width: 60px;
+                  background-position: center center;
+                  background-size: cover;
+                  background-repeat: no-repeat;
+                  border-radius: $border-radius-base;
+                  border: 1px solid $color-border;
+                  display: inline-block;
+                  margin-right: 10px;
+              }
+              .name{
+                  width: 140px;
+              }
+          }
+          .gy-table{
+              border: none;
+          }
+          .contact{
+              color: $color-extra;
+              i{
+                  margin-right: 5px;
+              }
+          }
+      }
+      .detail{
+          .order-step{
+              overflow: hidden;
+              padding: 20px 40px;
+              border-bottom: 7px solid $color-body-bg;
+              .step-active{
+                  float: left;
+              }
+              .tips{
+                  padding-top: 20px;
+                  position: relative;
+                  strong{
+                      font-weight: normal;
+                      color: #eea443;
+                  }
+                  .buttons{
+                      right: 0;
+                      bottom: 0;
+                      position: absolute;
+                      button{
+                          margin-left: 10px;
+                      }
+                  }
+              }
+          }
+          .order-info{
+              overflow: hidden;
+              padding: 0 45px 20px;
+              dl{
+                  float: left;
+                  width: 50%;
+                  overflow: hidden;
+                  padding: 15px 0;
+                  line-height: 1;
+                  dt, dd{
+                      float: left;
+                  }
+                  dt{
+                      width: 100px;
+                      font-size: 14px;
+                  }
+                  dd{
+                      color: $color-minor;
+                  }
+              }
+          }
+          .detail-list{
+              padding: 0 40px 20px;
+              .tabs{
+                  font-size: 0;
+                  ul {
+                      overflow: hidden;
+                      display: inline-block;
+                      font-size: 14px;
+                  }
+                  li{
+                      float: left;
+                      padding: 0 14px;
+                      cursor: pointer;
+                      line-height: 31px;
+                      &.selected{
+                          color: $color-highlight;
+                          border-bottom: 2px solid $color-highlight;
+                      }
+                  }
+              }
 
-            }
-        }
-    }
-    .pagination-box{
-        padding-bottom: 20px;
-    }
-    .reject-step{
-        padding: 20px 30px;
-        dt{
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-    }
+          }
+      }
+  }
+  .pagination-box{
+      padding-bottom: 20px;
+  }
+  .reject-step{
+      padding: 20px 30px;
+      dt{
+          font-size: 16px;
+          margin-bottom: 5px;
+      }
+  }
+}
+
+.my-transport-wrap.order .t .tabs li.selected:after {
+position: absolute;
+width: 100%;
+left: 0;
+bottom: 0;
+content: '';
+background-color: $color-highlight;
+height: 2px;
 }

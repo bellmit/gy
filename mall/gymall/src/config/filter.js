@@ -129,5 +129,34 @@ export default {
             start = arr.reverse().join('');
             return start + '.' + end;
         }
+    },
+    // 数字转金额显示 如果为000 直接返回
+    numToCashs: function (value, num = 2) {
+        // 返回处理后的值
+        value = parseFloat(value);
+        if (value === null || value === undefined || value === '' || value === 0 || value === !NaN || value === !NaN || !value) {
+            value = 0;
+            return value;
+        } else {
+            value = value.toFixed(num);
+            let end = value.split('.')[1];
+            let start = value.split('.')[0];
+            let arr = [];
+
+            start = start.split('').reverse();
+            start.map(function (elem, index) {
+                arr.push(elem);
+                if (index % 3 === 2 && index !== value.length - 1 && index !== start.length - 1) {
+                    arr.push(',');
+                }
+            });
+
+            start = arr.reverse().join('');
+            if (end === '000') {
+                return start;
+            } else {
+                return start + '.' + end;
+            }
+        }
     }
 };

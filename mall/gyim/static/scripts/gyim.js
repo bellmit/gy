@@ -1,5 +1,6 @@
 URLOBJ = returnToObj(location);
-LOGUSER = URLOBJ.username; // 用户
+LOGUSER = URLOBJ.username || '测试'; // 用户
+touserCompanyId = window.atob(URLOBJ.touserCompanyId || '')
 LOGUSER = window.atob(LOGUSER);
 URL_TOSER = URLOBJ.touser; // 公司
 URL_TOSER = window.atob(URL_TOSER);
@@ -8,22 +9,41 @@ USER_TYPE = URLOBJ.type; // 用户类别
 LOGUSER_HEAD = null; // 用户头像
 touser_companyid = null;
 user_companyid = null;
+receipt_id =  URLOBJ.offers || '';
+receipt_type = URLOBJ.receipt_type || '';
 
-API = "http://192.168.10.129:8081";
-// API = "http://192.168.10.173:8080";
+// API = "http://192.168.33.243:8081"; // 爱雷
+// API = "http://192.168.10.129:8081"; //
 
+
+
+API = "http://192.168.10.132:8081"; // test
+SCOKET = 'http://192.168.10.132' + ':9092?'; // test
 
 HEAD_API = API + "/trade/v1/companies/images?filePath=";
 COMP_API = API + "/trade/v1/user/company/";
 OFFERS_API = API + "/trade/public/v1/mall/offerInfo?offerId=";
-SPONSOR_ODR = "/my/#/order/add?offerId=";
+// OFFERS_API =API +"/trade/v1/offers/?offerId=";
+
+SPONSOR_ODR = "/my/#/order/reAdd?typeId=2&orderId=";
 CHECK_ODR = "/my/#/order/detail?orderId=";
 ORDER_CENTER = "/my/#/order/list";
-SCOKET = 'http://192.168.10.129' + ':9092?';
-SAVE_HIS = API + '/trade/logistics/v1/consignments/imInfos';
+// SCOKET = 'http://192.168.10.132' + ':9092?';
+// SAVE_HIS = API + '/trade/logistics/v1/consignments/imInfos';  // 正式
 
-historyOrder = API + '/trade/v1/orders/tradeHistory';
+historyOrder =API+'/trade/public/v1/orders/tradeHistory';
+newHistoryOrder =API+'/public/v1/orders/im/history'; // 4.25
 
+
+SAVE_HIS = API+'/trade/im/chatRecords';  //  王鹏飞 单聊
+SEARCH_COMP = API +'/trade/im/groups/companies',// 搜索公司
+SEARCH_CONCANTACTS = API + '/trade/im/v1/contacts', // 搜索主页用户
+CREATE_GRP = API + '/trade/im/groups/', // 创建组
+SEARCH_CHATLIST = API+'/trade/im/chatRecords' //  查询IM左侧列表
+CHATLIST_DETAILS = API+ '/trade/im/chatRecords/' //  查询用户详细信息
+SAVE_OFFER_ID = API+'/trade/im/v1/latestLookOffer' //  保存订单ID
+CHANGE_GROUP_MEMBER = API+'/trade/im/groupMembers/' //  修改群组
+MKORDER =  API+'/trade/logistics/v1/dmkOrder/' //  查询撮合订单
 function returnToObj(href) {
     var params = href.hash;
     params = params.slice(1);
@@ -53,6 +73,7 @@ function returnToObj(href) {
 
     //进行环信注册登录
     owner.reg = function (account) {
+        console.log('account', account);
         var options = {
             username: account,
             password: account,
@@ -177,13 +198,13 @@ function returnToObj(href) {
 }(window.gyim = {}, jQuery));
 Date.prototype.Format = function (fmt) {
     var o = {
-        "M+": this.getMonth() + 1, //月份  
-        "d+": this.getDate(), //日  
-        "h+": this.getHours(), //小时  
-        "m+": this.getMinutes(), //分  
-        "s+": this.getSeconds(), //秒  
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度  
-        "S": this.getMilliseconds() //毫秒  
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
     };
     if (/(y+)/.test(fmt))
         fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));

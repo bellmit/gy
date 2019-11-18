@@ -1,102 +1,103 @@
 <template>
-    <div class="page">
-        <div class="detail-info" id="detail-info">
-            <el-form ref="form" :model="form" label-width="80px" :rules="rules">
-              <el-row>
-                <el-col :span="12">
-                <el-form-item label="角色名称" prop="name" class="mr-60">
-                    <el-input v-model="form.name" :disabled="disable" placeholder="请输入角色名称"></el-input>
-                </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                <el-form-item label="角色编码" prop="roleCode">
-                    <el-input v-model="form.roleCode" :disabled="disable" placeholder="请输入角色编码"></el-input>
-                </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="12">
-                <el-form-item label="企业类型" class="mr-60">
-                    <el-select v-model="form.companyType" placeholder="请选择公司类型" :disabled="disable">
-                        <el-option
-                          v-for="item in form.companyTypeList"
-                          :key="item.id"
-                          :label="item.name"
-                          :value="item.id">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                <el-form-item label="是否系统" style="text-align:left;">
-                    <el-radio-group v-model="form.isSys">
-                        <el-radio :label="0" :disabled="disable">非系统</el-radio>
-                        <el-radio :label="1" :disabled="disable">是系统</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="角色类型" class="mr-60" style="text-align:left;">
-                      <el-radio-group v-model="form.roleType">
-                          <el-radio :label="0" @change="switchOption(0)">前台</el-radio>
-                          <el-radio :label="1" @change="switchOption(1)">后台</el-radio>
-                      </el-radio-group>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="备注" class="mr-60">
-                      <el-input type="textarea" v-model="form.remark"></el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-                <div style="display: none;">
-                    <el-form-item label="角色类型">
-                        <el-input v-model="form.roleType"></el-input>
-                    </el-form-item>
-                    <el-form-item label="创建人">
-                        <el-input v-model="form.createdBy"></el-input>
-                    </el-form-item>
-                    <el-form-item label="修改人id">
-                        <el-input v-model="form.updatedBy"></el-input>
-                    </el-form-item>
-                    <el-form-item label="创建时间">
-                        <el-input v-model="form.createDate"></el-input>
-                    </el-form-item>
-                    <el-form-item label="修改时间">
-                        <el-input v-model="form.updateDate"></el-input>
-                    </el-form-item>
-                    <el-form-item label="菜单列表">
-                        <el-input v-model="form.menuList"></el-input>
-                    </el-form-item>
-                </div>
-                <el-form-item size="mini" label="授权">
-                  <div v-bind:key="index" style="float: left" v-for="(item,index) in menuList">
-                    <el-tree class="newTree"
-                      :data="item"
-                      :props="menuListTreeProps"
-                       ref="menuListTree"
-                      node-key="id"
-                      :default-expand-all="true"
-                      :default-checked-keys="defaultData[index]"
-                      show-checkbox>
-                    </el-tree>
-                  </div>
-                </el-form-item>
-                <el-form-item class="gy-button-group">
-                    <button type="button" @click.stop="submitForm('form')" class="gy-button-extra">保存</button>
-                    <button type="button" @click="$router.push({path: 'list'})" class="gy-button-normal">取消</button>
-                </el-form-item>
-            </el-form>
+  <div class="page">
+    <div class="detail-info" id="detail-info">
+      <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="角色名称" prop="name" class="mr-60 mleft-none">
+              <el-input v-model="form.name" :disabled="disable" placeholder="请输入角色名称"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="角色编码" prop="roleCode" class="mleft-none">
+              <el-input v-model="form.roleCode" :disabled="disable" placeholder="请输入角色编码"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="企业类型" class="mr-60">
+              <el-select  v-model="form.companyType" @change="companyTypeListChange" placeholder="请选择公司类型" :disabled="disable">
+                <el-option
+                  v-for="item in companyTypeList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="是否系统" style="text-align:left;">
+              <el-radio-group v-model="form.isSys">
+                <el-radio :label="0" :disabled="disable">非系统</el-radio>
+                <el-radio :label="1" :disabled="disable">是系统</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="角色类型" class="mr-60" style="text-align:left;">
+              <el-radio-group v-model="form.roleType">
+                <el-radio :label="0" @change="switchOption(0)">前台</el-radio>
+                <el-radio :label="1" @change="switchOption(1)">后台</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="备注">
+              <el-input type="textarea" v-model="form.remark"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <div style="display: none;">
+          <el-form-item label="角色类型">
+            <el-input v-model="form.roleType"></el-input>
+          </el-form-item>
+          <el-form-item label="创建人">
+            <el-input v-model="form.createdBy"></el-input>
+          </el-form-item>
+          <el-form-item label="修改人id">
+            <el-input v-model="form.updatedBy"></el-input>
+          </el-form-item>
+          <el-form-item label="创建时间">
+            <el-input v-model="form.createDate"></el-input>
+          </el-form-item>
+          <el-form-item label="修改时间">
+            <el-input v-model="form.updateDate"></el-input>
+          </el-form-item>
+          <el-form-item label="菜单列表">
+            <el-input v-model="form.menuList"></el-input>
+          </el-form-item>
         </div>
+        <el-form-item size="mini" label="授权">
+          <div v-bind:key="index" style="float: left" v-for="(item,index) in menuList">
+            <el-tree class="newTree"
+                     :data="item"
+                     :props="menuListTreeProps"
+                     ref="menuListTree"
+                     node-key="id"
+                     :default-expand-all="true"
+                     :default-checked-keys="defaultData[index]"
+                     show-checkbox>
+            </el-tree>
+          </div>
+        </el-form-item>
+        <el-form-item class="gy-button-group">
+          <button type="button" @click.stop="submitForm('form')" class="gy-button-extra">保存</button>
+          <button type="button" @click="$router.push({path: 'list'})" class="gy-button-normal">取消</button>
+        </el-form-item>
+      </el-form>
     </div>
+  </div>
 </template>
 <script>
 import { treeDataTranslate } from '@/utils';
 export default {
     data () {
         return {
+            companyTypeList: [],
             defaultData: [],
             form: {
                 name: '', // 测试人
@@ -108,8 +109,7 @@ export default {
                 createDate: '', // 创建时间
                 updateDate: '', // 修改时间
                 roleCode: '', // 角色编码
-                companyTypeList: [],
-                companyType: ''
+                companyType: -1
             },
             id: 0, // 主键id
             menuList: [], // 菜单列表
@@ -134,23 +134,19 @@ export default {
             selectValue: ''
         };
     },
-
-    watch: {
-        // 'form.isSys' (newValue, oldValue) {
-        //     console.log(newValue);
-        //     console.log(oldValue);
-        //     this.disable = (newValue === 1) ? true : false;
-        // }
-    },
     methods: {
         getCompanyType () {
             this.$http.get(this.$api.memberCompany.companyType)
                 .then((res) => {
-                    this.form.companyTypeList = res.data.data;
-                    this.form.companyTypeList.push({'id': 0, 'name': '所有公司'});
-                    this.form.companyTypeList.push({'id': -1, 'name': '无'});
-                    this.form.companyTypeList.reverse();
+                    this.companyTypeList = res.data.data;
+                    this.companyTypeList.push({'id': 0, 'name': '所有公司'});
+                    this.companyTypeList.push({'id': -1, 'name': '无'});
+                    this.companyTypeList.reverse();
                 });
+        },
+        companyTypeListChange (v) {
+            console.log(v);
+            this.$forceUpdate();
         },
         submitForm (form) {
             this.$refs[form].validate((valid) => {
@@ -166,9 +162,14 @@ export default {
             this.menuList = this.menuArr[typeId].menuItems; // 设置数据
             let menuId = this.menuArr.menuIds;
             // 循环遍历
+            console.log(menuId);
+            if (menuId === undefined) {
+                return;
+            }
             for (let k = 0; k < menuId.length; k++) {
                 menuId[k].resourceAccessIdList.splice(menuId[k].resourceAccessIdList.indexOf(this.tempKey), menuId[k].resourceAccessIdList.length - menuId[k].resourceAccessIdList.indexOf(this.tempKey));
             }
+            console.log(menuId);
             if (menuId === undefined || menuId === null || menuId === '') {
             } else {
                 for (let i = 0; i < this.menuList.length; i++) {
@@ -179,7 +180,7 @@ export default {
                     }
                 }
             }
-            // 设置勾选
+        // 设置勾选
         },
         toSubmit () {
             this.resourceAccessCategoryModelList = [];
@@ -210,6 +211,11 @@ export default {
                 if (data.code === 0) {
                     this.$router.push({path: 'list'});
                     this.$message.success('保存成功!');
+                } else {
+                    this.$message({
+                        message: data.message,
+                        type: 'error'
+                    });
                 }
             }).catch(() => {
             });
@@ -255,6 +261,7 @@ export default {
                 let data = results[2];
                 if (data) { // 修改
                     this.form = data.data;
+                    this.form.companyType = data.data.companyTypeId;
                     this.menuArr.menuIds = data.data.resourceAccessCategoryModelList;
                     this.switchOption(data.data.roleType);
                     this.disable = (this.form.isSys === 1); // 是系统的时候不允许修改前四项
@@ -272,13 +279,26 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.page {
+  .page {
     padding-bottom: 25px;
-}
-.detail-info {
+  }
+  .detail-info {
     padding: 20px 0 0 0;
-}
-.el-textarea{
+  }
+  .el-textarea{
     width: 100%;
-}
+  }
+  /deep/ .el-form-item__label {
+    margin-left:10px;
+    padding:0;
+    width: 70px !important;
+  }
+  .mleft-none{
+    /deep/ .el-form-item__label{
+      margin-left:0;
+    }
+  }
+  .el-radio + .el-radio{
+    margin-left: 25px;
+  }
 </style>

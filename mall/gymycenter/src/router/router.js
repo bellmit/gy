@@ -26,12 +26,26 @@ import shopCompany from '../views/shop/company.vue';
 
 // 销售列表
 import salesList from '../views/order/sales-list.vue';
+import reAdd from '../views/order/re-add.vue';
+import edit from '../views/order/edit.vue';
 // 销售详情
 import salesDetail from '../views/order/sales-detail.vue';
 // 采购详情
 import purchaseDetail from '../views/order/purchase-detail.vue';
+// 采购单据管理
+import purchaseBills from '../views/order/purchaseBills.vue';
+import saleschaseBills from '../views/order/saleschaseBills.vue';
+// 开票中心
+import billingCenterList from '../views/billingCenter/list.vue';
+import billingCenterDetail from '../views/billingCenter/detail.vue';
 // 采购列表
 import purchaseList from '../views/order/purchase-list.vue';
+import addResource from '../views/order/addResource.vue';
+import addInvoice from '../views/order/addInvoice.vue';
+import invoiceApplicationDetail from '../views/order/invoice-application-detail.vue';
+// 采购需求列表、详情、发布
+import demandList from '../views/order/demand-list.vue';
+import demandDetail from '../views/order/demand-detail.vue';
 // 注册 登录
 import register from '../views/register.vue';
 import registerPassword from '../views/retrievePassword.vue';
@@ -79,28 +93,36 @@ import accountCompanyView from '../views/account/company/view';
 import accountSub from '../views/account/sub-list';
 import accountSecurityManage from '../views/account/security-manage';
 import rollOut from '../views/account/rollOut';
+import ecitic from '../views/account/ecitic';
+import internalTransfer from '../views/account/internalTransfer';
 import organizationalStructure from '../views/organizationalStructure/organizational-structure';
 import postManagement from '../views/organizationalStructure/postManagement';
+import invoiceInfo from '../views/account/invoice-info'; // 发票公司信息
 
 // 智运
 import consignBid from '../views/transport/consign/bid';
 import transportFind from '../views/transport/consign/find';
 import transportDispatch from '../views/transport/accept/dispatch';
+import transportDispatchEdit from '../views/transport/accept/dispatchEdit';
 import transportDispatchDetail from '../views/transport/accept/dispatchDetail';
 import consignBidDeatail from '../views/transport/consign/biddetail';
 import acceptBid from '../views/transport/accept/bid';
 import acceptBidDetail from '../views/transport/accept/biddetail';
 import transparentOrder from '../views/transport/order';
 import transparentOrderDetail from '../views/transport/orderdetail';
+import transBillsManagement from '../views/transport/billsManagement';
 import transparentSettlement from '../views/transport/settlement';
 import transparentSettlementDetail from '../views/transport/settlementDetail';
 import transportUser from '../views/transport/transportUser/list';
-import transportUserAdd from '../views/transport/transportUser/add';
-import transportUserDetail from '../views/transport/transportUser/detail';
+import transportUserInfo from '../views/transport/transportUser/transportInfo';
+import transportUserDetail from '../views/transport/transportUser/transportDetail';
 import vehicleList from '../views/transport/vehicle/list';
 import vehicleAdd from '../views/transport/vehicle/add';
 import vehicleDetail from '../views/transport/vehicle/detail';
 import deliverNotice from '../views/transport/deliverNotice';
+import boatList from '../views/transport/boat/list';
+import boatAdd from '../views/transport/boat/add';
+import transmissionRange from '../views/transport/transmissionRange';
 
 // 报表中心1
 import statementView from '../views/statement/index';
@@ -116,10 +138,46 @@ import IntegraIExplanation from '../views/IntegralCenter/IntegralExplanation';
 
 // 地址管理
 import address from '../views/AddressManagement/address';
+
 // 供应链服务
 import supplyList from '../views/supplyList/list';
 import addList from '../views/supplyList/add';
 import viewList from '../views/supplyList/view';
+import customerApplicationForm from '../views/supplyList/customerApplicationForm';
+import customerList from '../views/supplyList/customerList';
+
+// 仓储
+import warehousing from '../views/warehousing';
+import requisition from '../views/warehousing/requisition';
+import requisitionAdd from '../views/warehousing/add';
+
+// 法务服务
+import forensicServices from '../views/forensicServices/forensicServices';
+
+// 撮合交易
+import marriedDealOrder from '../views/marriedDeal/order/list';
+import marriedDealOrderDetail from '../views/marriedDeal/order/detail';
+import marriedDealOrderCreate from '../views/marriedDeal/order/create';
+import marriedDealOrderParseCreate from '../views/marriedDeal/order/parse-create';
+import marriedDealMain from '../views/marriedDeal/main';
+import marriedDataChart from '../views/marriedDeal/data-chart';
+import marriedMatchStatement from '../views/marriedDeal/match-statement';
+import marriedDealSet from '../views/marriedDeal/set';
+import recommendation from '../views/marriedDeal/recommendation';
+import recommendationDetails from '../views/marriedDeal/recommendationDetails';
+
+// 帮助
+import help from '../views/help.vue';
+
+// 风控中心
+import businessAccess from '../views/windControlCenter/businessAccess';
+import accessReplication from '../views/windControlCenter/accessReplication';
+
+// 评级
+import RatingManagement from '../views/ratingManagement/RatingManagement';
+import RatingForm from '../views/ratingManagement/ratingForm';
+import ratingView from '../views/ratingManagement/ratingView';
+
 // 配置路由
 export default [
     {
@@ -142,6 +200,169 @@ export default [
             title: '我的'
         },
         children: [
+            // 开票中心
+            {
+                path: '',
+                name: '',
+                component: Sub,
+                meta: {
+                    title: '开票中心'
+                },
+                children: [
+                    {
+                        path: '/billingCenter/list',
+                        name: 'billingCenterList',
+                        component: billingCenterList,
+                        meta: {
+                            title: '开票申请单'
+                        }
+                    },
+                    {
+                        path: '/billingCenter/detail',
+                        name: 'billingCenterDetail',
+                        component: billingCenterDetail,
+                        meta: {
+                            title: '开票申请'
+                        }
+                    }
+                ]
+            },
+            // 评级
+            {
+                path: '',
+                name: '',
+                component: Sub,
+                meta: {
+                    title: '评级管理'
+                },
+                children: [
+                    {
+                        path: '/RatingManagement/list',
+                        name: 'RatingManagement',
+                        component: RatingManagement,
+                        meta: {
+                            title: '我的评级'
+                        }
+                    },
+                    {
+                        path: '/RatingManagement/add',
+                        name: 'ratingForm',
+                        component: RatingForm,
+                        meta: {
+                            title: '我的评级'
+                        }
+                    },
+                    {
+                        path: '/ratingApplication/ratingView',
+                        name: 'ratingView',
+                        component: ratingView,
+                        meta: {
+                            title: '评级管理'
+                        }
+                    }
+                ]
+            },
+            {
+                path: '/forensicServices',
+                name: 'forensicServices',
+                component: forensicServices,
+                meta: {
+                    title: '法务服务'
+                }
+            },
+            {
+                path: '',
+                name: '',
+                component: Sub,
+                meta: {
+                    title: '撮合交易'
+                },
+                children: [
+                    {
+                        path: '/marriedDeal/main',
+                        name: 'marriedDealMain',
+                        component: marriedDealMain,
+                        meta: {
+                            title: '撮合主界面'
+                            // itemId: '5-0'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/set',
+                        name: 'marriedDealSet',
+                        component: marriedDealSet,
+                        meta: {
+                            title: '撮合设置'
+                            // itemId: '5-0'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/order/list',
+                        name: 'marriedDealOrder',
+                        component: marriedDealOrder,
+                        meta: {
+                            title: '撮合订单'
+                            // itemId: '5-0'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/order/detail',
+                        name: 'marriedDealOrderDetail',
+                        component: marriedDealOrderDetail,
+                        meta: {
+                            title: '撮合订单详情'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/order/create',
+                        name: 'marriedDealOrderCreate',
+                        component: marriedDealOrderCreate,
+                        meta: {
+                            title: '生成撮合订单'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/order/parse-create',
+                        name: 'marriedDealOrderParseCreate',
+                        component: marriedDealOrderParseCreate,
+                        meta: {
+                            title: '生成撮合订单'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/dataChart',
+                        name: 'marriedDataChart',
+                        component: marriedDataChart,
+                        meta: {
+                            title: '客户统计'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/matchStatement',
+                        name: 'marriedMatchStatement',
+                        component: marriedMatchStatement,
+                        meta: {
+                            title: '撮合报表'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/recommendation',
+                        name: 'recommendation',
+                        component: recommendation,
+                        meta: {
+                            title: '引荐奖励'
+                        }
+                    },
+                    {
+                        path: '/marriedDeal/recommendationDetails',
+                        name: 'recommendationDetails',
+                        component: recommendationDetails,
+                        meta: {
+                            title: '引荐奖励明细'
+                        }
+                    }
+                ]
+            },
             // 商城资源-start=========================
             {
                 path: '',
@@ -161,11 +382,28 @@ export default [
                         }
                     },
                     {
+                        path: '/order/addResource',
+                        name: 'addResource',
+                        component: addResource,
+                        meta: {
+                            title: '发布需求单'
+                        }
+                    },
+                    {
                         path: '/order/detail',
                         name: 'purchaseDetail',
                         component: purchaseDetail,
                         meta: {
                             title: '采购详情',
+                            itemId: '0-0'
+                        }
+                    },
+                    {
+                        path: '/order/purchaseBills',
+                        name: 'purchaseBills',
+                        component: purchaseBills,
+                        meta: {
+                            title: '单据管理',
                             itemId: '0-0'
                         }
                     },
@@ -176,6 +414,24 @@ export default [
                         meta: {
                             itemId: '0-0',
                             title: '付款单'
+                        }
+                    },
+                    {
+                        path: '/order/demandList',
+                        name: 'demandList',
+                        component: demandList,
+                        meta: {
+                            itemId: '0-0',
+                            title: '采购需求'
+                        }
+                    },
+                    {
+                        path: '/order/demandDetail',
+                        name: 'demandDetail',
+                        component: demandDetail,
+                        meta: {
+                            itemId: '0-0',
+                            title: '需求单详情'
                         }
                     }
                 ]
@@ -188,6 +444,22 @@ export default [
                     title: '卖家中心'
                 },
                 children: [
+                    {
+                        path: 'order/addInvoice',
+                        name: 'addInvoice',
+                        component: addInvoice,
+                        meta: {
+                            title: '开票申请'
+                        }
+                    },
+                    {
+                        path: 'order/invoiceApplicationDetail',
+                        name: 'invoiceApplicationDetail',
+                        component: invoiceApplicationDetail,
+                        meta: {
+                            title: '开票申请详情'
+                        }
+                    },
                     {
                         path: 'seller/settle',
                         name: 'sellerSettle',
@@ -238,6 +510,31 @@ export default [
                         component: createOrder,
                         meta: {
                             title: '发起订单'
+                        }
+                    },
+                    {
+                        path: '/order/reAdd',
+                        name: 'reAdd',
+                        component: reAdd,
+                        meta: {
+                            title: '发起订单'
+                        }
+                    },
+                    {
+                        path: '/order/edit',
+                        name: 'edit',
+                        component: edit,
+                        meta: {
+                            title: '发起订单'
+                        }
+                    },
+                    {
+                        path: '/order/saleschaseBills',
+                        name: 'saleschaseBills',
+                        component: saleschaseBills,
+                        meta: {
+                            title: '单据管理',
+                            itemId: '0-0'
                         }
                     },
                     {
@@ -520,15 +817,31 @@ export default [
                         name: 'newBank',
                         component: newBank,
                         meta: {
-                            title: '银行查询'
+                            title: '明细记录'
                         }
                     },
                     {
                         path: 'rollOut',
-                        name: 'rollOut',
+                        name: 'pingan',
                         component: rollOut,
                         meta: {
-                            title: '转出'
+                            title: '资金账户'
+                        }
+                    },
+                    {
+                        path: 'ecitic',
+                        name: 'ecitic',
+                        component: ecitic,
+                        meta: {
+                            title: '资金账户'
+                        }
+                    },
+                    {
+                        path: 'internalTransfer',
+                        name: 'internalTransfer',
+                        component: internalTransfer,
+                        meta: {
+                            title: '内部转账'
                         }
                     },
                     {
@@ -586,6 +899,14 @@ export default [
                                 meta: {
                                     title: '地址管理',
                                     itemId: ''
+                                }
+                            },
+                            {
+                                path: 'invoice/info',
+                                name: 'invoiceInfo',
+                                component: invoiceInfo,
+                                meta: {
+                                    title: '发票公司信息'
                                 }
                             }
                         ]
@@ -658,25 +979,25 @@ export default [
                         name: 'transportUser',
                         component: transportUser,
                         meta: {
-                            title: '司机/押运员管理',
+                            title: '驾驶员/押运员管理',
                             itemId: '3-0-1'
                         }
                     },
                     {
-                        path: 'transportUser/add',
-                        name: 'transportUserAdd',
-                        component: transportUserAdd,
+                        path: 'transportUser/transportInfo',
+                        name: 'transportUserInfo',
+                        component: transportUserInfo,
                         meta: {
-                            title: '司机/押运员管理',
+                            title: '驾驶员/押运员详情',
                             itemId: '3-0-1'
                         }
                     },
                     {
-                        path: 'transportUser/detail',
+                        path: 'transportUser/transportDetail',
                         name: 'transportUserDetail',
                         component: transportUserDetail,
                         meta: {
-                            title: '司机详情',
+                            title: '驾驶员/押运员管理',
                             itemId: '3-0-1'
                         }
                     },
@@ -704,6 +1025,15 @@ export default [
                         component: transparentOrder,
                         meta: {
                             title: '运输订单',
+                            itemId: '2-1'
+                        }
+                    },
+                    {
+                        path: 'order/billsManagement',
+                        name: 'transBillsManagement',
+                        component: transBillsManagement,
+                        meta: {
+                            title: '单据管理',
                             itemId: '2-1'
                         }
                     },
@@ -780,6 +1110,15 @@ export default [
                         }
                     },
                     {
+                        path: 'accept/dispatchEdit',
+                        name: 'transportDispatchEdit',
+                        component: transportDispatchEdit,
+                        meta: {
+                            title: '运输订单',
+                            itemId: '3-2'
+                        }
+                    },
+                    {
                         path: 'accept/dispatch/detail',
                         name: 'transportDispatchDetail',
                         component: transportDispatchDetail,
@@ -813,6 +1152,33 @@ export default [
                         meta: {
                             title: '发货通知单'
                         }
+                    },
+                    {
+                        path: 'boat/list',
+                        name: 'boatList',
+                        component: boatList,
+                        meta: {
+                            title: '船运需求单',
+                            itemId: '3-4'
+                        }
+                    },
+                    {
+                        path: 'boat/add',
+                        name: 'boatAdd',
+                        component: boatAdd,
+                        meta: {
+                            title: '发布船运需求',
+                            itemId: '3-4'
+                        }
+                    },
+                    {
+                        path: 'transmissionRange',
+                        name: 'transmissionRange',
+                        component: transmissionRange,
+                        meta: {
+                            title: '运输范围',
+                            itemId: '3-4'
+                        }
                     }
                 ]
             },
@@ -829,7 +1195,7 @@ export default [
                         name: 'supplyList',
                         component: supplyList,
                         meta: {
-                            title: '供应链申请单'
+                            title: '我的申请单'
                         }
                     },
                     {
@@ -846,6 +1212,22 @@ export default [
                         component: viewList,
                         meta: {
                             title: '供应链申请单详情'
+                        }
+                    },
+                    {
+                        path: 'applicationForm',
+                        name: 'customerApplicationForm',
+                        component: customerApplicationForm,
+                        meta: {
+                            title: '客户申请单'
+                        }
+                    },
+                    {
+                        path: 'customerList',
+                        name: 'customerList',
+                        component: customerList,
+                        meta: {
+                            title: '客户申请单'
                         }
                     }
                 ]
@@ -925,6 +1307,64 @@ export default [
                         }
                     }
                 ]
+            },
+            // 仓储
+            {
+                path: '/warehousing',
+                component: warehousing,
+                meta: {
+                    title: '仓储',
+                    itemId: ''
+                },
+                children: [
+                    {
+                        path: 'requisition',
+                        name: 'requisition',
+                        component: requisition,
+                        meta: {
+                            title: '仓储需求单',
+                            itemId: ''
+                        }
+                    },
+                    {
+                        path: 'requisition/add',
+                        name: 'requisitionAdd',
+                        component: requisitionAdd,
+                        meta: {
+                            title: '发布仓储需求',
+                            itemId: ''
+                        }
+                    }
+                ]
+            },
+            // 风控中心
+            {
+                path: '',
+                name: '',
+                component: Sub,
+                meta: {
+                    title: '风控中心'
+                },
+                children: [
+                    {
+                        path: 'businessAccess',
+                        name: 'businessAccess',
+                        component: businessAccess,
+                        meta: {
+                            title: '业务准入',
+                            itemId: ''
+                        }
+                    },
+                    {
+                        path: 'accessReplication',
+                        name: 'accessReplication',
+                        component: accessReplication,
+                        meta: {
+                            title: '评级详情',
+                            itemId: ''
+                        }
+                    }
+                ]
             }
         ]
     },
@@ -996,6 +1436,15 @@ export default [
         component: empty,
         meta: {
             title: '国烨网'
+        }
+    },
+    {
+        path: '/help',
+        name: 'help',
+        component: help,
+        meta: {
+            title: '消息',
+            unLogin: true
         }
     }
 ];

@@ -28,7 +28,7 @@
       </div>
       <div class="gy-form-group">
           <span class="l">业务人员</span>
-          <input type="text" placeholder="请输入" v-model="querForm.userName">
+          <input type="text" placeholder="请输入业务人员" v-model="querForm.userName">
           <span class="searchicon" @click="search"><i class="iconfont icon-search"></i></span>
       </div>
     </el-form>
@@ -52,7 +52,7 @@
           <td><span>{{item.bizType | businessTradeType}}</span></td>
           <td><span>{{item.productName}}</span></td>
           <td><span>{{item.userName}}</span><br>
-          <td>
+          <td class="caoz">
               <button class="gy-button-view edit" @click="dele(item.id)">删除</button>
           </td>
         </tr>
@@ -67,9 +67,9 @@
       @prev-click="prevClick('xref',$event)"
       @next-click="nextClick('xref',$event)">
     </el-pagination>
-    <el-dialog title="添加" :visible.sync="outerVisible"  width="450px">
+    <el-dialog title="添加" :visible.sync="outerVisible" class="addBizDlg" width="450px">
       <el-form :model="addUserForm">
-        <el-form-item label="业务类型"  class="el-form-item "  :label-width="formLabelWidth" >
+        <el-form-item label="业务类型" class="el-form-item" :label-width="formLabelWidth" >
           <el-select v-model="addUserForm.bizType" @change="changeBizType4Add()" clearable placeholder="请选择">
             <el-option
               v-for="item in $constant.bizType4CreateEss"
@@ -90,12 +90,12 @@
           </el-select>
         </el-form-item>
         <el-form-item  label="人员"  class="el-form-item"  :label-width="formLabelWidth">
-          <el-input placeholder="请点击选择人员" v-model="addUserForm.userName" @focus="openUsrSelDlg()"></el-input>
+          <input type="text" placeholder="请点击选择人员" v-model="addUserForm.userName" @click="openUsrSelDlg()" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="outerVisible = false">取 消</el-button>
-        <el-button type="primary"  @click="addXref">确 定</el-button>
+        <button class="gy-button-normal" @click="outerVisible = false">取 消</button>
+        <button class="gy-button-extra" @click="addXref">确 定</button>
       </div>
     </el-dialog>
     <userList ref="myUserDlg" @affirmUser="affirmUser"></userList>
@@ -146,7 +146,7 @@ export default {
     },
     methods: {
         openUsrSelDlg () {
-            this.$refs.myUserDlg.getUsers();
+            this.$refs.myUserDlg.getUsers(null, this.addUserForm.userId);
         },
         affirmUser (data) {
             // 0 取消 1 确定
@@ -274,3 +274,31 @@ export default {
     }
 };
 </script>
+<style lang="scss" scoped>
+  .dialog-footer {
+    button:nth-child(1) {
+      margin-right: 10px;
+    }
+  }
+  .caoz {
+      text-align: center !important;
+      padding: 0 10px !important;
+  }
+</style>
+<style lang="scss">
+  .flow-list {
+    .el-dialog__close {
+      position: absolute;
+      right: 1px;
+      top: -8px;
+    }
+    .el-form-item {
+      margin-bottom: 15px;
+    }
+    .addBizDlg {
+      .el-dialog__body {
+      padding-bottom: 10px;
+      }
+    }
+  }
+</style>

@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
     <div class="transport-wrap order">
         <div class="detail">
@@ -19,12 +20,7 @@
                     <div class="billStatus-active">{{item.name}}</div>
                 </gy-step>
                 <div class="tips cl">
-                    <span><strong>温馨提示：</strong>{{message}}</span>
-                    <router-link :to="{ name: 'transparentSettlementDetail', query: {view: true, orderId: orderId, status: orderInfo.consignmentNoteStatus} }" v-if="status === 2 && smallStatus > 4 && smallStatus < 8 && smallStatus !== 6" class="highlight">结算明细</router-link>
-                    <a href="javascript:;" @click="handleViewReason(1)" class="highlight" v-if="smallStatus === 9">查看终止理由</a>
-                    <a href="javascript:;" @click="handleViewReason(2)" class="highlight" v-if="smallStatus === 6">查看驳回理由</a>
-                    <a href="javascript:;" @click="handleViewReason(3)" class="highlight" v-if="smallStatus === 11">查看终止理由</a>
-                    <a href="javascript:;" class="link-approve" v-if="isApproving" @click="openApprListDlg">查看审批流程</a>
+                    <span><strong>温馨提示：</strong>{{message}}</span><router-link :to="{ name: 'transparentSettlementDetail', query: {view: true, orderId: orderId, status: orderInfo.consignmentNoteStatus} }" v-if="status === 2 && smallStatus > 4 && smallStatus < 8 && smallStatus !== 6" class="highlight">结算明细</router-link><a href="javascript:;" @click="handleViewReason(1)" class="gy-button-views" v-if="smallStatus === 9">查看终止理由</a><a href="javascript:;" @click="handleViewReason(2)" class="gy-button-views" v-if="smallStatus === 6">查看驳回理由</a><a href="javascript:;" @click="handleViewReason(3)" class="gy-button-views" v-if="smallStatus === 11">查看终止理由</a><a href="javascript:;" class="gy-button-views" v-if="isApproving" @click="openApprListDlg">查看审批流程</a>
                     <!--承运商操作-->
                     <div class="buttons" v-if="companyTypeId === 2">
                         <!--签约-->
@@ -108,7 +104,7 @@
                 </dl>
                 <dl>
                     <dt>期望发货日期</dt>
-                    <dd>{{orderInfo.estimatedLoadingDate | date}}</dd>
+                    <dd>{{orderInfo.estimatedLoadingDate | date(1)}}</dd>
                 </dl>
                 <dl>
                     <dt>车辆要求</dt>
@@ -116,11 +112,11 @@
                 </dl>
                 <dl>
                     <dt>托运方</dt>
-                    <dd>{{orderInfo.consignorName}}<a v-if="companyTypeId === 2" href="javascript:;" class="iconfont icon-im" @click="goIm(currentPhone, orderInfo.consignorImContactPhone)"></a></dd>
+                    <dd>{{orderInfo.consignorName}}<a v-if="companyTypeId === 2" href="javascript:;" class="iconfont icon-imnew" @click="goIm(currentPhone, orderInfo.consignorImContactPhone)"></a></dd>
                 </dl>
                 <dl>
                     <dt>承运方</dt>
-                    <dd>{{orderInfo.carrierName}}<a v-if="companyTypeId !== 2" href="javascript:;" class="iconfont icon-im" @click="goIm(currentPhone, orderInfo.carrierImContactMobile)"></a></dd>
+                    <dd>{{orderInfo.carrierName}}<a v-if="companyTypeId !== 2" href="javascript:;" class="iconfont icon-imnew" @click="goIm(currentPhone, orderInfo.carrierImContactMobile)"></a></dd>
                 </dl>
                 <dl>
                     <dt>托运方联系人</dt>
@@ -150,14 +146,6 @@
                     </dd>
                 </dl>
                 <dl>
-                    <dt>支付方式</dt>
-                    <dd>{{payWay[orderInfo.freightPaymentType]}}</dd>
-                </dl>
-                <dl>
-                    <dt>签约方式</dt>
-                    <dd>{{signType[orderInfo.consignmentSignType]}}</dd>
-                </dl>
-                <dl>
                     <dt>运费</dt>
                     <dd v-if="orderInfo.carriageFee">{{orderInfo.carriageFee + '元'}}</dd>
                     <dd v-else>未结算</dd>
@@ -178,6 +166,10 @@
                         </li>
                     </ul>
                     <div class="button-wrap" v-show="detailTabs[1].selected">
+                        <template v-if="companyTypeId === 2 && setConsignmentNoteStatus.includes(orderInfo.consignmentNoteStatus)">
+                            <button class="gy-button-normal" v-if="detailTabsChk[searchForm.pageNum] && detailTabsChk[searchForm.pageNum].isEdit" @click="subDetailTabs1">核单提交</button>
+                            <button class="gy-button-normal" v-else @click="detailTabs1Trag">批量核单</button>
+                        </template>
                         <button class="gy-button-extra exportDoc" @click="exportDoc">导出Excel</button>
                     </div>
                 </div>
@@ -195,7 +187,7 @@
                     <tr v-for="(list, index) in noticeDetailList" :key="index">
                         <td>{{ list.id }}</td>
                         <td>{{list.username + '/' +list.phone}}</td>
-                        <td>{{ list.skuQuantity || 0}}吨</td>
+                        <td class="juy">{{ list.skuQuantity || 0}}吨</td>
                         <td>{{list.estimatedLoadingDate | date(1)}}</td>
                         <td>{{list.estimatedUnloadingDate | date(1)}}</td>
                     </tr>
@@ -205,16 +197,17 @@
                 <table class="gy-table" v-show="detailTabs[1].selected">
                     <thead>
                     <tr>
-                        <td>序号</td>
+                        <td style="min-width:45px;">序号</td>
                         <td>调度单号</td>
                         <td>调度人</td>
                         <td>车辆</td>
                         <td>司机/电话/身份证</td>
-                        <td>状态</td>
-                        <td>操作</td>
-                        <td>调度量</td>
-                        <td>装货量</td>
-                        <td>卸货量</td>
+                        <td style="width:56px;">状态</td>
+                        <td style="width:90px;">操作</td>
+                        <td style="min-width:56px;">调度量</td>
+                        <td style="min-width:56px;">装货量</td>
+                        <td style="min-width:56px;">卸货量</td>
+                        <td style="min-width:80px;">实际卸货量</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -227,14 +220,18 @@
                         <td>{{list.dispatchNoteStatusvalue}}</td>
                         <td>
                             <button class="gy-button-view" @click="handleViewDispatch(list.id)">查看</button>
+                            <router-link v-if="companyTypeId == 2 && list.dispatchNoteStatus<=2" :to="{ name: 'transportDispatchEdit', query: {orderId: list.id} }" class="gy-button-view">编辑</router-link>
                             <button v-if="list.dispatchNoteStatus!=5&&companyTypeId==2" class="gy-button-view" @click="handleViewDispatchnew(list.dispatchNoteStatus,list.id)">{{list.dispatchNoteStatusvalue2}}</button>
                         </td>
-                        <td>{{ list.quantityPlanned || 0}}吨</td>
-                        <td>{{list.quantityLoading || 0}}吨</td>
-                        <td>{{list.quantityUnloading || 0}}吨</td>
+                        <td class="juy">{{list.quantityPlanned || 0}}吨</td>
+                        <td class="juy">{{list.quantityLoading || 0}}吨</td>
+                        <td class="juy">{{list.quantityUnloading || 0}}吨</td>
+                        <td class="juy"><template v-if="detailTabsChk[searchForm.pageNum] && detailTabsChk[searchForm.pageNum].isEdit && list.quantityUnloading * 1 > 0"><input
+                            type="text" style="width: 60px" class="gyInput" v-model="list.actualQuantityUnloading"> 吨</template><template
+                            v-else>{{list.actualQuantityUnloading + ' 吨' || '-'}}</template></td>
                     </tr>
                     <tr v-if="detailTabs[1].selected && traceDetailList.length === 0">
-                        <td colspan="10" style="text-align: center;">没有找到可显示的数据...</td>
+                        <td colspan="11" style="text-align: center;">没有找到可显示的数据...</td>
                     </tr>
                     <tr class="summation">
                         <td>合计</td>
@@ -244,9 +241,10 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>{{summations.quantityPlanned || 0}}吨</td>
-                        <td>{{summations.quantityLoading || 0}}吨</td>
-                        <td>{{summations.quantityUnloading || 0}}吨</td>
+                        <td class="juy">{{summations.quantityPlanned || 0}}吨</td>
+                        <td class="juy">{{summations.quantityLoading || 0}}吨</td>
+                        <td class="juy">{{summations.quantityUnloading || 0}}吨</td>
+                        <td class="juy">{{summations.actualQuantityUnloading || 0}}吨</td>
                     </tr>
                     </tbody>
                 </table>
@@ -266,10 +264,10 @@
                     <tr v-for="(list, index) in settleDetailList" :key="index">
                         <td>{{list.consignmentNoteCode}}</td>
                         <td v-for="pro in list.consignmentNoteItemList" :key="pro.skuName">{{pro.skuName}}</td>
-                        <td v-for="pro in list.consignmentNoteItemList" :key="pro.quantityLoading">{{pro.quantityLoading || 0}}</td>
-                        <td v-for="pro in list.consignmentNoteItemList" :key='pro.quantityUnloading + "a"'>{{pro.quantityUnloading || 0}}</td>
-                        <td v-for="pro in list.consignmentNoteItemList" :key="pro.freightUnitPrice">{{pro.freightUnitPrice}}</td>
-                        <td>{{list.freightFee || 0}}</td>
+                        <td class="juy" v-for="pro in list.consignmentNoteItemList" :key="pro.quantityLoading">{{pro.quantityLoading || 0}}</td>
+                        <td class="juy" v-for="pro in list.consignmentNoteItemList" :key='pro.quantityUnloading + "a"'>{{pro.quantityUnloading || 0}}</td>
+                        <td class="juy" v-for="pro in list.consignmentNoteItemList" :key="pro.freightUnitPrice">{{pro.freightUnitPrice}}</td>
+                        <td class="juy">{{list.freightFee || 0}}</td>
                         <td>{{chargeStatusValue[list.settleStatus]}}</td>
                     </tr>
                     </tbody>
@@ -283,22 +281,22 @@
                         <td>付款银行</td>
                         <td>收款银行</td>
                         <td>付款日期</td>
-                        <td>付款金额</td>
+                        <td>付款金额(元)</td>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-for="(item, index) in payDetailList" :key="index">
                         <td>{{item.payNumber}}</td>
-                        <td>{{Number(item.tradeMode) === 1 ? '在线支付' : '线下支付'}}</td>
+                        <td>{{Number(item.tradeMode) | tradeMode}}</td>
                         <td>{{item.buyerDepositBank}}</td>
                         <td>{{item.sellerDepositBank}}</td>
                         <td>{{item.payTime | date}}</td>
-                        <td>{{item.payTotal}}</td>
+                        <td class="juy">{{item.payTotal}}</td>
                     </tr>
                     </tbody>
                 </table>
                 <div class="null-msg" v-if="detailTabs[3].selected && payDetailList.length === 0">没有找到可显示的数据...</div>
-                <div class="total" v-show="detailTabs[1].selected">共计{{total}}条记录</div>
+                <div class="total" v-show="detailTabs[1].selected">共 {{total}} 条记录</div>
                 <!-- 分页 -->
                 <el-pagination
                     v-if="traceDetailList.length !== 0"
@@ -414,6 +412,12 @@ import approveHistory from '../../components/approveHistory';
 export default {
     data () {
         return {
+            setConsignmentNoteStatus: [
+                3, 9, 10, 11, 12, // 实施中
+                4 // 结算中(发起结算单之前)
+                // 5, 6 // 结算中
+            ],
+            detailTabsChk: [],
             total: 0,
             icon: require('@/assets/images/icon-piao.png'),
             orderId: null,
@@ -532,7 +536,8 @@ export default {
                 data: {
                     lgsConsignmentNoteId: this.$route.query.orderId
                 }
-            }
+            },
+            fileTypeId: ''
         };
     },
     components: {gyStep, contract, approveHistory
@@ -565,10 +570,53 @@ export default {
             this.getOrderInfo();
             this.getSum();
         },
+        subDetailTabs1 () {
+            this.detailTabsChk[this.searchForm.pageNum].data = this.traceDetailList;
+            let params = [];
+            for (let i of this.detailTabsChk.keys()) {
+                if (this.detailTabsChk[i]) {
+                    for (let j of this.detailTabsChk[i].data.keys()) {
+                        const AQU = this.detailTabsChk[i].data[j].actualQuantityUnloading * 1;
+                        if (!Number.isFinite(AQU) || !/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(AQU)) {
+                            this.$message.error('请输入正确实际卸货量');
+                            return;
+                        }
+                        params.push({id: this.detailTabsChk[i].data[j].id, actualQuantityUnloading: this.detailTabsChk[i].data[j].actualQuantityUnloading});
+                    }
+                }
+            }
+            this.$http.post(this.$api.transport.updateDNAQU, params)
+                .then((res) => {
+                    if (res.data.code === 0) {
+                        this.detailTabsChk = [];
+                        this.turnPage(this.searchForm.pageNum);
+                        return;
+                    }
+                    this.error(res.data.message);
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+        },
+        detailTabs1Trag () {
+            if (this.detailTabsChk[this.searchForm.pageNum]) {
+                this.$set(this.detailTabsChk, this.searchForm.pageNum, Object.assign({}, this.detailTabsChk[this.searchForm.pageNum], {isEdit: true}));
+            } else {
+                this.$set(this.detailTabsChk, this.searchForm.pageNum, {isEdit: true, data: this.traceDetailList});
+            }
+        },
         getTurnPage () {
             this.$http.post(this.$api.transport.pageInfo, this.searchForm)
                 .then(res => {
-                    this.traceDetailList = res.data.data.list;
+                    if (this.detailTabsChk[this.searchForm.pageNum]) {
+                        let dataList = [];
+                        for (let i of res.data.data.list.keys()) {
+                            dataList.push({...res.data.data.list[i], actualQuantityUnloading: this.detailTabsChk[this.searchForm.pageNum].data[i].actualQuantityUnloading});
+                        }
+                        this.traceDetailList = dataList;
+                    } else {
+                        this.traceDetailList = res.data.data.list;
+                    }
                     this.total = res.data.data.total;
                     this.getSum();
                     for (var i = 0; i < this.traceDetailList.length; i++) {
@@ -594,6 +642,11 @@ export default {
                 });
         },
         turnPage (val) {
+            if (this.detailTabsChk[this.searchForm.pageNum]) {
+                this.detailTabsChk[this.searchForm.pageNum].data = this.traceDetailList;
+            } else {
+                this.$set(this.detailTabsChk, this.searchForm.pageNum, {isEdit: false, data: this.traceDetailList});
+            }
             this.searchForm.pageNum = val;
             this.getTurnPage();
         },
@@ -604,7 +657,10 @@ export default {
                     this.status = res.data.data.consignmentNoteStatus;
                     this.getTransportStatus();
                     this.getTurnPage();
-                    this.logisticsed();
+                    if (this.status === 0 || this.status === 1) {
+                        // 只在签约阶段才查询审批信息
+                        this.logisticsed();
+                    }
                 });
         },
         getTransportStatus () {
@@ -709,28 +765,31 @@ export default {
                             this.message = '合同审批中,请在审批通过后进行签约';
                         }
                     }
-                }
-            });
 
-            // 检查审批状态，如果是正在审批中则显示'查看审批流程'的链接
-            let params = {targetId: this.orderId, targetType: 21, subSysType: 1};
-            let user = JSON.parse(localStorage.getItem('userInfo'));
-            if (user) {
-                params.affiliatedCompanyId = user.companyId;
-            }
-            if (params.affiliatedCompanyId == null || params.affiliatedCompanyId === undefined || params.affiliatedCompanyId === 0) {
-                this.$alert('未获取到当前用户所在公司信息，不能查询审批操作状态');
-                return false;
-            }
-            this.$http.post(this.$api.processes.bizApproveStatus, params).then((res) => {
-                if (res.data.code === 0) {
-                    if (res.data.data.rsltStatus === 1) {
-                        this.isApproving = true;
+                    // 检查审批状态，如果是正在审批中则显示'查看审批流程'的链接
+                    let params = {targetId: this.orderId, targetType: 21, subSysType: 1};
+                    let user = JSON.parse(localStorage.getItem('userInfo'));
+                    if (user) {
+                        params.affiliatedCompanyId = user.companyId;
                     }
-                } else {
-                    this.$message({
-                        type: 'error',
-                        message: res.data.message
+                    if (params.affiliatedCompanyId == null || params.affiliatedCompanyId === undefined || params.affiliatedCompanyId === 0) {
+                        this.$alert('未获取到当前用户所在公司信息，不能查询审批操作状态');
+                        return false;
+                    }
+                    this.$http.post(this.$api.processes.bizApproveStatus, params).then((res) => {
+                        if (res.data.code === 0) {
+                            if (res.data.data.rsltStatus === 1) {
+                                this.isApproving = true;
+                                if (res.data.data.controlStatus === 0) {
+                                    this.logisticsedsTrue = true;
+                                }
+                            }
+                        } else {
+                            this.$message({
+                                type: 'error',
+                                message: res.data.message
+                            });
+                        }
                     });
                 }
             });
@@ -1030,7 +1089,7 @@ export default {
                 'fileDisplayName': file[0].fileName,
                 'fileName': file[0].fileName,
                 'filePath': file[0].filePath,
-                'fileType': 0
+                'fileType': this.fileTypeId
             });
             console.log(this.allimg1);
         },
@@ -1048,6 +1107,7 @@ export default {
             this.thqhId = id;
             if (index === 2) {
                 this.$alert('点击"提货信息"后将不可撤销该操作，是否继续？', '提示').then(() => {
+                    this.fileTypeId = 0;
                     this.addthshow = true;
                     this.thtitle1 = '添加提货信息';
                     this.thtitle2 = '实际提货量';
@@ -1055,6 +1115,7 @@ export default {
                 });
             } else if (index === 4) {
                 this.$alert('点击"卸货信息"后将不可撤销该操作，是否继续？', '提示').then(() => {
+                    this.fileTypeId = 1;
                     this.addthshow = true;
                     this.thtitle1 = '添加卸货信息';
                     this.thtitle2 = '实际卸货量';
@@ -1189,6 +1250,7 @@ export default {
                         });
                     } else {
                         this.$message.error(res.data.message);
+                        this.allimg1 = [];
                     }
                 });
             }
@@ -1210,7 +1272,7 @@ export default {
             color: #666666;
             font-weight: bold;
             border-bottom: 1px solid #f2f2f2;
-            padding: 10px 0 10px 10px;
+            padding: 10px;
             line-height: 20px;
             font-size: 12px;
         }
@@ -1220,6 +1282,9 @@ export default {
         display: inline-block;
         float: right;
         bottom: 10px;
+        .gy-button-normal {
+            margin-right: 10px;
+        }
     }
     .null-msg {
         width: 100%;
@@ -1347,8 +1412,15 @@ export default {
         }
     }
     .link-approve{
-        color: $color-highlight;
+        color: $color-extra;
         margin-left: 50px;
         display: inline-block;
+    }
+    .gy-button-views{
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .juy {
+        text-align: right;
     }
 </style>

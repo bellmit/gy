@@ -49,6 +49,8 @@
                 </div>
             </div>
             <div class="createPayment-status-right fr">
+                <div  v-if="textfailure" class="fl"><span class="wxts">温馨提示：</span>双方达成退款协议，资金已退回。</div>
+                <div  v-if="decideWarm" class="fl"><span class="wxts">温馨提示：</span>对方已付款到担保账户，等待对方确认收货。</div>
                 <!--<button class="createPayment-status-right-submit btn-active">打印</button>-->
                 <br>
             </div>
@@ -58,7 +60,7 @@
                 <i class="el-icon-tickets"></i>
                 <span class="createPayment-detail-tit">收款信息</span>
             </div>
-            <div class="content-info">
+            <div class="content-info" v-if="tradeMode !== 3">
                 <el-row class="my-row">
                     <el-col :span="3" class="font-weight fontWidth" v-if="payMethod!=2">本次付款金额</el-col>
                     <el-col :span="3" class="font-weight" v-if="payMethod==2">本次支付保证金</el-col>
@@ -133,6 +135,29 @@
                     </el-col>
                 </el-row>
             </div>
+            <div class="content-info" v-else>
+                <el-row class="my-row">
+                    <el-col :span="3" class="font-weight fontWidth" v-if="payMethod!=2">本次付款金额</el-col>
+                    <el-col :span="3" class="font-weight" v-if="payMethod==2">本次支付保证金</el-col>
+                    <el-col :span="9"><span>{{amount}}</span> 元（积分支付）</el-col>
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">付款企业</el-col>
+                    <el-col :span="9">{{buyerCorpName}}&nbsp;</el-col>
+                </el-row>
+                <el-row class="my-row">
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">收款企业</el-col>
+                    <el-col :span="9">{{sellerCorpName}}</el-col>
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">收款银行</el-col>
+                    <el-col :span="9">{{sellerDepositBank}}</el-col>
+                </el-row>
+                <el-row class="my-row">
+                    <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">收款账号</el-col>
+                    <el-col :span="9">{{sellerAccount}}</el-col>
+                    <el-row class="my-row">
+                        <el-col :span="3" :class="payMethod!=2?'fontWidth':'font-weight'">备注</el-col>
+                        <el-col :span="9">{{remark}}</el-col>
+                    </el-row>
+                </el-row>
+            </div>
         </div>
     </div>
 </template>
@@ -182,7 +207,10 @@ export default {
             isSeniorSearch: true, // 高级搜索
             stepArr: [],
             tempStepArr1: [{collectionStatus: 10, text: '等待确认'}, {collectionStatus: 20, text: '已确认'}],
-            tempStepArr2: [{collectionStatus: 60, text: '状态失效'}]
+            tempStepArr2: [{collectionStatus: 60, text: '状态失效'}],
+            tradeMode: '',
+            decideWarm: false,
+            textfailure: false
         };
     },
     computed: {
@@ -212,7 +240,15 @@ export default {
                     me.payMethod = response.data.data.payMethod;
                     me.depositRatio = response.data.data.depositRatio;
                     me.amount = response.data.data.payTotal;
+                    me.tradeMode = response.data.data.tradeMode;
                     me.remark = response.data.data.remarks;
+                    // 担保支付的温馨提示
+                    if (response.data.data.guaranteed === 1 && me.payMethod === 1 && me.payStatus === 20 && response.data.data.guaranteeStatus === 1) {
+                        me.decideWarm = true;
+                    }
+                    if (response.data.data.guaranteed === 1 && me.payMethod === 1 && me.payStatus === 60 && response.data.data.guaranteeStatus === 3) {
+                        me.textfailure = true; // textfailure
+                    }
                     if (response.data.data.payBillType === 1) {
                         me.sellerId = response.data.data.sellerId;
                         me.sellerCorpName = response.data.data.sellerCorpName;
@@ -240,7 +276,11 @@ export default {
                     fileNames.forEach((item, index) => {
                         let obj = {};
                         let timestmp = (new Date()).valueOf();
-                        obj.url = process.env.API_ROOT_MAIN + me.$api.payment.paymentImage + '?filePath=' + item.fileUrl + '&t=' + timestmp;
+                        if (item.fileUrl.indexOf('http') !== -1) {
+                            obj.url = item.fileUrl;
+                        } else {
+                            obj.url = process.env.API_ROOT_MAIN + me.$api.payment.paymentImage + '?filePath=' + item.fileUrl + '&t=' + timestmp;
+                        }
                         me.fileList.push(obj);
                     });
                 }
@@ -295,6 +335,15 @@ export default {
         span {
             position: absolute;
             right: -12px;
+        }
+    }
+    .createPayment-status-right{
+        margin-top: 20px;
+        width:100%;
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
         }
     }
 
@@ -460,6 +509,13 @@ export default {
         margin: 20px 0 0 -20px;
         border: none;
     }
+    .font-weight {
+        color: #333333;
+    }
+    .fontWidth {
+        color: #333333;
+        width:104px;
+    }
 </style>
 <style lang="scss">
     .createPayment-main-tit-right {
@@ -500,13 +556,6 @@ export default {
             line-height: 40px;
             /*border:red solid 1px;*/
             color: #666666;
-        }
-        .font-weight {
-            color: #333333;
-        }
-        .fontWidth {
-            color: #333333;
-            width:104px;
         }
     }
 </style>

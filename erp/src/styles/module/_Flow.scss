@@ -1,4 +1,8 @@
 .flow-list {
+  margin-bottom: 30px;
+  .last-active {
+    width: 48.5% !important;
+  }
   header {
     div {
       display: inline-block;
@@ -25,7 +29,7 @@
   }
   .add-wrap {
     text-align: right;
-    margin: 20px 16px 30px;
+    margin: 20px 16px 10px;
   }
   .div {
     margin: 0 16px;

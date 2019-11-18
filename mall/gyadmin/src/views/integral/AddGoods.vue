@@ -227,5 +227,8 @@ export default {
         .ql-editor {
             min-height: 8em;
         }
+        .gy-form-button{
+            padding-top: 20px;
+        }
     }
 </style>

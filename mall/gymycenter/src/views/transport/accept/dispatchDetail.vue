@@ -1,30 +1,61 @@
 <template>
     <div class="transport-wrap">
-        <h2>调度单详情<span>调度单号：{{traceInfo.dispatchNoteCode}}</span></h2>
-        <div class="gy-form">
-            <div class="gy-form-group">
-                <span class="l">调度时间</span>
-                <span>{{traceInfo.createdDate | date(0)}}</span>
+        <h2>
+            调度单详情<span>调度单号：{{traceInfo.dispatchNoteCode}}</span>
+            <div class="buttons" v-if="hasPrev || hasNext">
+                <a href="javascript:;" @click="handleViewDispatch(0)" :class="hasPrev ? 'gy-button-extra' : 'gy-button-normal'">上一单</a><a href="javascript:;" @click="handleViewDispatch(1)" :class="hasNext ? 'gy-button-extra' : 'gy-button-normal'">下一单</a>
             </div>
-            <div class="gy-form-group">
-                <span class="l">车牌号</span>
-                <span>{{traceInfo.licensePlateNumber}}</span>
+        </h2>
+        <div class="form-bottom">
+            <h3><i class="iconfont icon-icon_shenqing"></i>基本信息</h3>
+            <div class="gy-form">
+                <div class="gy-form-group">
+                    <span class="l">调度时间</span>
+                    <span>{{traceInfo.createdDate | date(0)}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">车牌号</span>
+                    <span>{{traceInfo.licensePlateNumber}}</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">司机(电话)</span>
+                    <span>{{traceInfo.driverUsername}} ({{traceInfo.driverPhone}})</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">押运员(电话)</span>
+                    <span>{{traceInfo.escortUsername}} <span v-if="traceInfo.escortPhone">(</span>{{traceInfo.escortPhone}}<span v-if="traceInfo.escortPhone">)</span></span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">调度量</span>
+                    <span>{{traceInfo.quantityPlanned}}吨</span>
+                </div>
+                <div class="gy-form-group">
+                    <span class="l">单据凭证</span>
+                    <a href="javascript:;" class="iconfont icon-img" @click="handleShowImg"></a>
+                </div>
             </div>
-            <div class="gy-form-group">
-                <span class="l">司机（电话）</span>
-                <span>{{traceInfo.driverUsername}}({{traceInfo.driverPhone}})</span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">押运员（电话）</span>
-                <span>{{traceInfo.escortUsername}}<span v-if="traceInfo.escortPhone">(</span>{{traceInfo.escortPhone}}<span v-if="traceInfo.escortPhone">)</span></span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">调度量</span>
-                <span>{{traceInfo.quantityPlanned}}吨</span>
-            </div>
-            <div class="gy-form-group">
-                <span class="l">单据凭证</span>
-                <a href="javascript:;" class="iconfont icon-img" @click="handleShowImg"></a>
+        </div>
+        <div class="form-bottom" v-if="traceInfo.dispatchNoteChangeModelList && traceInfo.dispatchNoteChangeModelList.length != 0">
+            <h3><i class="iconfont icon-icon_shenqing"></i>变更记录<i class="iconfont icon_change" :class="isChange ? 'icon-arrow-down' : 'icon-arrow-up'" @click="isChange = !isChange"></i></h3>
+            <div class="change-list" v-for="(item, index) in traceInfo.dispatchNoteChangeModelList" :key="index">
+                <div class="gy-form" v-if="isChange">
+                    <div class="gy-form-group">
+                        <span class="l">变更记录时间</span>
+                        <span>{{item.createdDate | date(0)}}</span>
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">修改前车牌号</span>
+                        <span>{{item.lgsVehicleNumber}}</span>
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">修改前司机(电话)</span>
+                        <span>{{item.driverUserName}} <span v-if="item.driverUserPhone">({{item.driverUserPhone}})</span></span>
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">修改前押运员(电话)</span>
+                        <span>{{item.escortUserName}} <span v-if="item.escortUserPhone">({{item.escortUserPhone}})</span></span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="trace">
@@ -101,39 +132,16 @@ export default {
                 points: []
             },
             showImg: false,
-            stepList: [
-                {
-                    id: 0,
-                    time: null,
-                    name: '发车'
-                },
-                {
-                    id: 1,
-                    time: null,
-                    name: '到达装货点'
-                },
-                {
-                    id: 2,
-                    time: null,
-                    name: '装货完成'
-                },
-                {
-                    id: 3,
-                    time: null,
-                    name: '到达卸货点'
-                },
-                {
-                    id: 4,
-                    time: null,
-                    name: '卸货完成'
-                }
-            ],
+            stepList: [],
             activeList: [],
             traceInfo: {},
             dispatchCode: null,
             imagesList: {},
             bigImageUrl: null,
-            imgName: ['装货图', '卸货图']
+            imgName: ['装货图', '卸货图'],
+            hasPrev: false,
+            hasNext: false,
+            isChange: true
         };
     },
     components: {
@@ -141,14 +149,20 @@ export default {
         BmPointCollection
     },
     created () {
-        this.dispatchCode = this.$route.query.dispatchCode;
-        this.getTraceInfo();
-        this.getTraceDetail();
-        this.mapInit();
+        this.init();
     },
     mounted () {
     },
+    watch: {
+        $route: 'init'
+    },
     methods: {
+        init () {
+            this.dispatchCode = this.$route.query.dispatchCode;
+            this.getTraceInfo();
+            this.getTraceDetail();
+            this.mapInit();
+        },
         mapInit () {
             let pointList;
             let newPoint;
@@ -174,6 +188,33 @@ export default {
             }
         },
         getTraceDetail () {
+            this.stepList = [
+                {
+                    id: 0,
+                    time: null,
+                    name: '发车'
+                },
+                {
+                    id: 1,
+                    time: null,
+                    name: '到达装货点'
+                },
+                {
+                    id: 2,
+                    time: null,
+                    name: '装货完成'
+                },
+                {
+                    id: 3,
+                    time: null,
+                    name: '到达卸货点'
+                },
+                {
+                    id: 4,
+                    time: null,
+                    name: '卸货完成'
+                }
+            ];
             this.$http.get(this.$api.transport.dispatchDetail + '/' + this.dispatchCode)
                 .then(res => {
                     this.activeList = res.data.data;
@@ -186,6 +227,8 @@ export default {
             this.$http.get(this.$api.transport.diapatchTraceInfo + '/' + this.dispatchCode)
                 .then(res => {
                     this.traceInfo = res.data.data;
+                    this.hasPrev = this.traceInfo.prevId !== 0;
+                    this.hasNext = this.traceInfo.nextId !== 0;
                 });
         },
         handleShowImg () {
@@ -218,19 +261,69 @@ export default {
             let bdlng = z * Math.cos(theta) + 0.0065;
             let bdlat = z * Math.sin(theta) + 0.006;
             return [bdlng, bdlat];
+        },
+        handleViewDispatch (id) {
+            let dispatchId;
+            if (id === 0) {
+                if (this.traceInfo.prevId === 0) {
+                    this.$message.error('没有上一单啦');
+                } else {
+                    dispatchId = this.traceInfo.prevId;
+                }
+            } else {
+                if (this.traceInfo.nextId === 0) {
+                    this.$message.error('没有下一单啦');
+                } else {
+                    dispatchId = this.traceInfo.nextId;
+                }
+            }
+            this.$http.get(this.$api.transport.diapatchTraceInfo + '/' + dispatchId)
+                .then(res => {
+                    let positon = res.data.data.dispatchNotePositionModelList;
+                    window.localStorage.setItem('driverPosition', JSON.stringify(positon));
+                    this.$router.push({name: 'transportDispatchDetail', query: {dispatchCode: dispatchId}});
+                    setTimeout(this.mapInit(), 100);
+                });
         }
     }
 };
 </script>
 <style lang="scss" scoped>
+    .transport-wrap{
+        h2{
+            position: relative;
+            .buttons{
+                position: absolute;
+                right: 16px;
+                top: -1px;
+                a{
+                    line-height: 24px;
+                    font-size: 12px;
+                    font-weight: normal;
+                    padding: 0 10px;
+                    margin-left: 8px;
+                }
+            }
+        }
+        h3{
+            padding: 30px 30px 20px;
+            i{
+                top:30px;
+            }
+            .icon_change{
+                left:95px;
+                cursor: pointer;
+            }
+        }
+    }
     .gy-form {
         overflow: hidden;
-        padding: 20px 30px;
+        padding: 0 30px 20px;
         .gy-form-group {
-            padding-left: 115px;
+            padding-left: 140px;
         }
         .l {
-            width: 110px;
+            width: 125px;
             padding-left: 0;
         }
         .icon-img {
@@ -238,7 +331,22 @@ export default {
             font-size: 20px;
         }
     }
-
+    .form-bottom{
+        border-bottom: 8px solid #f5f5f5;
+        .change-list{
+            border-top: 1px solid #F5F5F5;
+            .gy-form{
+                padding: 10px 30px 10px;
+            }
+        }
+        .change-list:nth-of-type(1)
+        {
+            border-top: 0;
+            .gy-form{
+                padding: 0 30px 10px;
+            }
+        }
+    }
     .trace {
         padding: 0 30px 20px;
         .step {

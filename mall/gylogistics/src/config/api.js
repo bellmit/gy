@@ -17,20 +17,26 @@ const transport = {
     dispatchAmount: '/trade/logistics/v1/dispatchNotes/count/consignmentNote',
     driver: '/trade/logistics/v1/transportUsers?keywords=',
     dispatch: '/trade/logistics/v1/dispatchNotes',
-    viewContract: '/consignmentContracts'
+    viewContract: '/consignmentContracts',
+    bannerImg: '/trade/logistics/v1/advertising', // 获取物流banner
+    notLoginSearch: '/trade/logistics/v1/enquiryNotes/notLoginSearch', // 获取实时物流需求
+    messageSearch: '/trade/logistics/v1/dispatchNotes/notLoginSearch', // 获取实时运单信息
+    warehouse: '/trade/logistics/v1/companies/recommend' // 推荐物流公司
 };
 
 const account = {
     company_rel_xref: '/trade/account/v1/companies/xrefList',
     userInfo: '/trade/v1/users',
     area: '/trade/v1/areas/list',
+    newArea: '/trade/base/v1/region/parent',
     companyList: '/trade/v1/users/companies/all',
     upload: '/trade/v1/companies/uploadFile',
     auth: '/trade/v1/companies/auth',
     companyInfo: '/trade/v1/companies',
     companyDelete: '/trade/v1/users/delete/company',
     companyCa: '/trade/v1/companies/ca/auth',
-    companyBank: '/trade/v1/companies/bank/auth'
+    companyBank: '/trade/v1/companies/bank/auth',
+    addressLib: '/trade/logistics/v1/warehouse/address?keywords='
 };
 
 const global = {

@@ -11,6 +11,13 @@
                     <li :class="{'active' : (active === '当月')}" @click="chkData(resetData, 3)">当月</li>
                     <li :class="{'active' : (active === '总体')}" @click="chkData(resetData, 4)">总体</li>
                 </ul>
+                <!-- 客户组 -->
+                <ul v-if="titleType === 'dateCustomer'">
+                    <li :class="{'active' : (active === '当日')}" @click="chkData(resetData, 1)">当日</li>
+                    <li :class="{'active' : (active === '当周')}" @click="chkData(resetData, 2)">当周</li>
+                    <li :class="{'active' : (active === '当月')}" @click="chkData(resetData, 3)">当月</li>
+                    <li :class="{'active' : (active === '总体')}" @click="chkData(resetData, 4)">总体</li>
+                </ul>
                 <ul v-if="titleType === 'area'">
                     <li :class="{'active' : (active === '中国')}">中国</li>
                     <li :class="{'active' : (active === '全球')}">全球</li>
@@ -20,7 +27,10 @@
                     <li :class="{'active' : (active === '本年')}" @click="chkData(resetData, 2)">本年</li>
                 </ul>
                 <ul v-if="titleType === 'date2'">
-                    <li :class="{'active' : (active === '本月')}" @click="chkData(resetData, 3)">本月</li>
+                    <li :class="{'active' : (active === '当日')}" @click="chkData(resetData, 1)">当日</li>
+                    <li :class="{'active' : (active === '当周')}" @click="chkData(resetData, 2)">当周</li>
+                    <li :class="{'active' : (active === '当月')}" @click="chkData(resetData, 3)">当月</li>
+                    <li :class="{'active' : (active === '当年')}" @click="chkData(resetData, 5)">当年</li>
                     <li :class="{'active' : (active === '总体')}" @click="chkData(resetData, 4)">总体</li>
                 </ul>
                 <span class="isMore" v-if="titleType === 'router'" @click="$router.push({name : routerData.link})">{{routerData.text}}</span>
@@ -41,13 +51,20 @@ export default {
         active: String,
         titleType: String,
         resetData: Number,
-        routerData: Object
+        routerData: {
+            type: Object,
+            default () {
+                return {};
+            }
+        }
+    },
+    mounted () {
     },
     methods: {
         chkData (e, t) {
             switch (e) {
             case 1 :
-                this.resetList(1, t);
+                this.resetList(t);
                 break;
             case 2 :
                 this.resetList(2, t);

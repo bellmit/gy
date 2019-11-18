@@ -1,4 +1,4 @@
-.gy-button-normal, .gy-button-extra{
+.gy-button-normal, .gy-button-extra, .gy-button-views-comment{
     border-radius: $border-radius-small;
     padding: 0 16px;
     line-height: 28px;
@@ -71,4 +71,9 @@
     &:hover{
         color: $color-extra;
     }
+}
+.gy-button-views-comment{
+    color: $color-highlight;
+    border-color: $color-highlight;
+    background: #fff;
 }

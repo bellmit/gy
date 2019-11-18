@@ -3,7 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" src="http://api.map.baidu.com/getscript?v=2.0&ak=b4DGjmRcKL2uZDHY2cKoa5j8qOxCB9s9"></script>
+    <script>
+        const protocolStr = document.location.protocol; // document.location.protocol
+        switch (protocolStr) {
+        case 'https:':
+            window.HOST_TYPE = '2'
+            break
+        default:
+            break
+        }
+
+    </script>
+    <script type="text/javascript" src="https://api.map.baidu.com/getscript?v=2.0&ak=b4DGjmRcKL2uZDHY2cKoa5j8qOxCB9s9&s=1"></script>
     <title>国烨跨境电务</title>
       <link rel="icon" href="/favicon.ico">
   </head>
@@ -12,3 +23,4 @@
     <!-- built files will be auto injected -->
   </body>
 </html>
+

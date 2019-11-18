@@ -42,7 +42,7 @@
                 <button @click="attribute" class="gy-button-normal">属性</button>
                 <!--<button @click="param" class="gy-button-normal">参数</button>-->
                 <button @click="view" class="gy-button-normal">查看</button>
-                <button @click="view2" class="gy-button-normal">生成商品</button>
+                <button @click="view2" class="gy-button-normal mr0">生成商品</button>
             </div>
             <table class="gy-table">
                 <thead>
@@ -52,6 +52,7 @@
                     <td>前台类目</td>
                     <td>后台类目</td>
                     <td>产品描述</td>
+                    <td>排序</td>
                     <td>状态</td>
                 </tr>
                 </thead>
@@ -62,6 +63,7 @@
                     <td>{{item.catalogueName}}</td>
                     <td>{{item.categoryNames}}</td>
                     <td>{{item.productDescription}}</td>
+                    <td>{{item.displayOrder}}</td>
                     <td>{{item.valid === 1 ? '可用' : '不可用'}}</td>
                 </tr>
                 </tbody>

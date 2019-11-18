@@ -1,10 +1,10 @@
 <template>
-    <div class="page">
+    <div class="page sys-menu-list-wrapper">
         <div class="gy-h4">资源访问</div>
         <div class="btn-group">
             <button type="button" @click="$router.push({ path: 'manage'})" v-if="isAuth('sys:menu:add')" class="gy-button-extra">添加</button>
         </div>
-        <div class="m-panel gy-table">
+        <div class="m-panel gy-table my-table-c">
             <el-table
               :data="dataList"
               style="width: 100%;"
@@ -15,7 +15,6 @@
                   prop="id"
                   header-align="center"
                   width="90"
-                  align="center"
                   label="ID">
                 </el-table-column>
                 <table-tree-column
@@ -29,14 +28,12 @@
                   prop="parentName"
                   width="140"
                   header-align="center"
-                  align="center"
                   label="上级菜单">
                 </el-table-column>
                 <el-table-column
                   header-align="center"
                   prop="url"
                   width="160"
-                  align="center"
                   label="菜单URL">
                     <!--<template slot-scope="scope">-->
                     <!--<icon-svg :name="scope.row.icon || ''"></icon-svg>-->
@@ -46,19 +43,17 @@
                   prop="frontUrl"
                   width="120"
                   header-align="center"
-                  align="center"
                   label="前端路由">
                 </el-table-column>
                 <el-table-column
                   prop="isLeaf"
                   header-align="center"
                   width="140"
-                  align="center"
                   label="类型">
                     <template slot-scope="scope">
-                        <el-tag v-if="scope.row.isLeaf === 0" size="small">目录</el-tag>
-                        <el-tag v-else-if="scope.row.isLeaf === 1" size="small" type="success">资源访问</el-tag>
-                        <el-tag v-else-if="scope.row.isLeaf === 2" size="small" type="info">按钮</el-tag>
+                        <span v-if="scope.row.isLeaf === 0">目录</span>
+                        <span v-else-if="scope.row.isLeaf === 1">资源访问</span>
+                        <span v-else-if="scope.row.isLeaf === 2">按钮</span>
                     </template>
                 </el-table-column>
                 <!--<el-table-column-->
@@ -78,7 +73,6 @@
 
                 <el-table-column
                   header-align="center"
-                  align="center"
                   :show-overflow-tooltip="true"
                   width="100"
                   label="图标">
@@ -100,8 +94,8 @@
                   width="200"
                   label="操作">
                     <template slot-scope="scope">
-                        <button type="button" class="gy-button-extra" @click="$router.push({ path: 'manage', query: {id: scope.row.id}})" v-if="isAuth('sys:menu:edit')">编辑</button>
-                        <button type="button" class="gy-button-normal" @click="deleteGood(scope.row.id)" v-if="isAuth('sys:menu:delete')">删除</button>
+                        <span class="gy-button-view" @click="$router.push({ path: 'manage', query: {id: scope.row.id}})" v-if="isAuth('sys:menu:edit')">编辑</span>
+                        <span class="gy-button-view" @click="deleteGood(scope.row.id)" v-if="isAuth('sys:menu:delete')">删除</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -183,10 +177,26 @@ export default {
 };
 </script>
 <style lang="scss">
-.btn-group {
-  padding: 7px 0;
-  text-align: right;
-}
+  .sys-menu-list-wrapper {
+
+  }
+  .my-table-c {
+    #menu-table .header-row-cell {
+      padding: 0px;
+      line-height: 18px;
+    }
+    .el-table th>.cell {
+      line-height: 21px;
+      padding: 10px;
+    }
+  }
+  .btn-group {
+    padding: 7px 0;
+    text-align: right;
+  }
+  // .gy-table td, .gy-table th {
+  //   padding: 10px !important;
+  // }
     // #henry-breadcrumb>.el-breadcrumb__item.el-breadcrumb__inner{
     #menu-table .warning-row {
         /*background: oldlace;*/
@@ -207,10 +217,12 @@ export default {
         font-size: 12px;
         text-align: center;
     }
-.gy-table tr.selected, .gy-table tr:hover {
-  background-color: #fff;
-}
-.el-table__body tr.hover-row>td {
-  background-color: #f9f9f9;
-}
+    .sys-menu-list-wrapper {
+      .gy-table tr.selected, .gy-table tr:hover {
+        background-color: #fff;
+      }
+    }
+    .el-table__body tr.hover-row>td {
+      background-color: #f9f9f9;
+    }
 </style>

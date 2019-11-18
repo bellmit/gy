@@ -6,8 +6,9 @@ Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 10000;
 axios.defaults.baseURL = process.env.API_ROOT_MAIN;
+
 axios.interceptors.request.use(function (config) {
-    stores.dispatch('showloader');
+    !config.unLoading && stores.dispatch('showloader');
     return config;
 }, function (err) {
     return Promise.reject(err);

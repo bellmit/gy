@@ -18,7 +18,7 @@
                         <i  @click="getCollectionList(1)" class="iconfont icon-search"></i>
                     </div>
                     <span class="search-btn" @click="isSeniorSearch =!isSeniorSearch">高级搜索<i
-                            class="iconfont" :class="isSeniorSearch ? 'icon-arrow-up' : 'icon-arrow-down'" style="margin-left:5px;"></i></span>
+                            class="iconfont" :class="isSeniorSearch ? 'icon-arrow-up' : 'icon-arrow-down'"></i></span>
                 </div>
             </div>
             <div>
@@ -134,7 +134,7 @@
                                     <th>付款企业</th>
                                     <th>收款单状态</th>
                                     <th>订单编号</th>
-                                    <th>收款金额</th>
+                                    <th>收款金额(元)</th>
                                     <th>支付方式</th>
                                     <th>收款类型</th>
                                     <th>收款日期</th>
@@ -146,7 +146,7 @@
                                     <td><span class="nowrap">{{item.payCompanyName}}</span></td>
                                     <td>{{item.collectionStatus|collectionStatus}}</td>
                                     <td>{{item.orderNumber}}</td>
-                                    <td class="wid150">{{item.payTotal | numToCash(2) }}</td>
+                                    <td class="wid150 align-r">{{item.payTotal | numToCash(2) }}</td>
                                     <td>{{item.tradeMode|tradeMode}}</td>
                                     <td>{{item.payMethod|payMethod}}</td>
                                     <td>{{item.payTime === ''? '-' : item.payTime}}</td>
@@ -553,7 +553,7 @@ export default {
                 color: #666666;
                 &.active {
                     color: $color-a-active;
-                    border-bottom: 1px solid $color-a-active
+                    border-bottom: 2px solid $color-a-active
                 }
             }
             li:hover{
@@ -565,6 +565,10 @@ export default {
             }
             .search-btn {
                 font-size: 14px;
+                i{
+                    margin-left:5px;
+                    vertical-align: top;
+                }
             }
             .search-btn:hover{
                 cursor: pointer;

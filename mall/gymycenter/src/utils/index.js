@@ -7,6 +7,8 @@ export const paymentMethod = (transactionType, isBatchDelivery) => {
         str = '先款后货';
     } else if (transactionType === 1) {
         str = '先货后款';
+    } else if (transactionType === 10) {
+        str = '担保交易';
     }
     if (str.trim() === '') {
         if (isBatchDelivery === 0) {

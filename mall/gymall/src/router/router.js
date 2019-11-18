@@ -8,6 +8,8 @@ import help from '../views/help.vue';
 import searchPage from '../views/searchPage.vue';
 // 商品详情页
 import productDetail from '../views/productDetail.vue';
+// 热门商品
+import hotCommodity from '../views/hotCommodity.vue';
 
 // 卖家发起订单
 import creatdOrder from '../views/createOrder.vue';
@@ -16,7 +18,6 @@ import creatdOrder from '../views/createOrder.vue';
 import shop from '../views/shop/index.vue';
 // 店铺首页
 import shopHome from '../views/shop/shop_home.vue';
-import shopTest from '../views/shop/test.vue';
 import shopMore from '../views/shop/more.vue';
 // 公司介绍
 import shopProfile from '../views/shop/profile.vue';
@@ -201,6 +202,14 @@ export default [
         }
     },
     {
+        path: '/hotCommodity',
+        name: 'hotCommodity',
+        component: hotCommodity,
+        meta: {
+            title: '热门商品'
+        }
+    },
+    {
         path: '/search',
         name: 'search-page',
         component: searchPage,
@@ -226,7 +235,7 @@ export default [
                 name: 'shopHome',
                 component: shopHome,
                 meta: {
-                    title: '店铺首页',
+                    title: '销售中心首页',
                     isHeader: true
                 }
             },
@@ -235,7 +244,7 @@ export default [
                 name: 'shopMore',
                 component: shopMore,
                 meta: {
-                    title: '店铺',
+                    title: '销售中心',
                     isHeader: true
                 }
             },
@@ -245,15 +254,6 @@ export default [
                 component: shopProfile,
                 meta: {
                     title: '公司介绍',
-                    isHeader: true
-                }
-            },
-            {
-                path: 'test',
-                name: 'shopTest',
-                component: shopTest,
-                meta: {
-                    title: 'test',
                     isHeader: true
                 }
             }

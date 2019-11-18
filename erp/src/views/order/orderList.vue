@@ -3,32 +3,40 @@
         <div class="search-wrapper">
             <div class="search-form clearfix">
                 <div class="gy-form-group">
+                    <span class="l">合同要素ID</span>
+                    <input type="text" placeholder="请输入合同要素ID" v-model="orders.id">
+                </div>
+                <div class="gy-form-group">
                     <span class="l">产品名称</span>
-                    <input type="text" placeholder="请输入" v-model="orders.prodName">
+                    <input type="text" placeholder="请输入产品名称" v-model="orders.prodName">
                 </div>
                 <div class="gy-form-group">
                     <span class="l">业务操作人</span>
-                    <input type="text" placeholder="请输入" v-model="orders.businessManagerName">
+                    <input type="text" placeholder="请输入业务操作人" v-model="orders.businessManagerName">
                 </div>
                 <div class="gy-form-group">
-                    <span class="l">上游公司</span>
-                    <input type="text" placeholder="请输入" v-model="orders.sellerCompanyName">
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">下游公司</span>
-                    <input type="text" placeholder="请输入" v-model="orders.buyerCompanyName">
-                </div>
-                <div class="gy-form-group">
-                    <span class="l">合同编号</span>
-                    <input type="text" placeholder=" 请输入采购/销售合同编号" v-model="orders.contractCode">
-                    <span v-if="!isShowSearch" class="searchicon" @click="search()"><i class="iconfont icon-search"></i></span>
+                    <span class="l">执行操作人</span>
+                    <input type="text" placeholder="请输入执行操作人" v-model="orders.executiveName">
+                        <span v-if="!isShowSearch" class="searchicon" @click="search()"><i class="iconfont icon-search"></i></span>
                 </div>
                 <template v-if="isShowSearch">
                     <div class="gy-form-group">
+                        <span class="l">上游公司</span>
+                        <input type="text" placeholder="请输入上游公司" v-model="orders.sellerCompanyName">
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">下游公司</span>
+                        <input type="text" placeholder="请输入下游公司" v-model="orders.buyerCompanyName">
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">我方公司</span>
+                        <input type="text" placeholder="请输入我方公司" v-model="orders.targetCorpName">
+                    </div>
+                     <div class="gy-form-group">
                         <span class="l">业务类型</span>
-                        <el-select v-model="orders.bizType" placeholder="请选择">
+                        <el-select v-model="orders.bizType" clearable placeholder="请选择业务类型">
                             <el-option
-                                    v-for="item in payStatus"
+                                    v-for="item in $constant.bizType4CreateEss"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id">
@@ -52,6 +60,7 @@
                                         v-model="orders.endCreatedDate"
                                         type="date"
                                         value-format="timestamp"
+                                        @change="orders.endCreatedDate = $tools.convertDateEnd(orders.endCreatedDate)"
                                         placeholder="结束日期">
                                 </el-date-picker>
                             </div>
@@ -70,63 +79,87 @@
                     style="width: 100%">
                 <el-table-column
                         fixed
-                        v-bind:label="'ID\n产品名称'"
+                        v-bind:label="'ID\n产品名称'" :show-overflow-tooltip="true"
                         width="110">
-                    <template slot-scope="scope">
+                    <template slot-scope="scope"><div class="wid-overflow">
                         <span @click="orderClickDetail(scope.row)" style="color: #4A90E2;cursor: pointer">{{scope.row.id}}</span><br/>
-                        <span @click="orderClickDetail(scope.row)" style="color: #4A90E2;cursor: pointer;">{{scope.row.prodName}}</span>
+                        <span @click="orderClickDetail(scope.row)" style="color: #4A90E2;cursor: pointer;">{{scope.row.prodName}}</span></div>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    label="类别"
+                    width="70">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.contractType === 1">采购<br>销售</span>
+                        <span v-if="scope.row.contractType === 2">采购</span>
+                        <span v-if="scope.row.contractType === 3">销售</span>
                     </template>
                 </el-table-column>
                 <el-table-column
                         v-bind:label="'上游公司\n下游公司'"
-                        width="240">
+                        width="120">
                     <template slot-scope="scope">
-                        <span>{{scope.row.sellerCompanyName}}</span><br>
-                        <span>{{scope.row.buyerCompanyName}}</span>
+                        <el-tooltip placement="bottom" visible-arrow="false">
+                            <div slot="content">{{scope.row.sellerCompanyName}}<br/>{{scope.row.buyerCompanyName}}</div>
+                            <div class="wid-overflow">
+                                <span>{{scope.row.sellerCompanyName}}</span><br v-if="scope.row.sellerCompanyName">
+                                <span>{{scope.row.buyerCompanyName}}</span>
+                            </div>
+                        </el-tooltip>
                     </template>
                 </el-table-column>
                 <el-table-column
                         label="状态"
-                        width="180">
+                        width="110">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.sellerInfo !== null && scope.row.sellerInfo.operateDetailModel.orderExecuteSubStatusModel !== null">{{scope.row.sellerInfo.operateDetailModel.orderExecuteSubStatusModel.sellerMessage}}</span><br>
-                        <span v-if="scope.row.buyerInfo !== null && scope.row.buyerInfo.operateDetailModel.orderExecuteSubStatusModel !== null">{{scope.row.buyerInfo.operateDetailModel.orderExecuteSubStatusModel.buyerMessage}}</span>
+                        <span v-if="scope.row.upstreamInfo && scope.row.upstreamInfo.operateDetailModel && scope.row.upstreamInfo.operateDetailModel.orderExecuteSubStatusModel !== null">{{scope.row.upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.sellerMessage}}</span><br v-if="scope.row.upstreamInfo">
+                        <span v-if="scope.row.downstreamInfo && scope.row.downstreamInfo.operateDetailModel && scope.row.downstreamInfo.operateDetailModel.orderExecuteSubStatusModel !== null">{{scope.row.downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.buyerMessage}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        label="我方公司"
+                        width="120">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.targetCorpAbbrName}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
                         v-bind:label="'采购交割日期\n销售交割日期'"
-                        width="220">
+                        width="250">
                     <template slot-scope="scope">
-                        <span>{{scope.row.planBuyDlvyDate}}</span><br>
+                        <span>{{scope.row.planBuyDlvyDate}}</span><br v-if="scope.row.planBuyDlvyDate">
                         <span>{{scope.row.planSaleDlvyDate}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
                         label="总金额(元)"
+                        class-name="amount-right-el"
                         width="140">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.buyTotal">{{scope.row.buyTotal | numToCash}}</span><br>
-                        <span v-if="scope.row.saleTotal">{{scope.row.saleTotal | numToCash}}</span>
+                        <template v-if="scope.row.purchaseOrderId">
+                            <span v-if="scope.row.buySkuPriceType === 21 || scope.row.buySkuPriceType === 22">公式计价</span>
+                            <span v-else>{{scope.row.buyTotal | numToCash}}</span><br>
+                        </template>
+                        <template v-if="scope.row.saleOrderId">
+                            <span v-if="scope.row.saleSkuPriceType === 21 || scope.row.saleSkuPriceType === 22">公式计价</span>
+                            <span v-else>{{scope.row.saleTotal | numToCash}}</span>
+                        </template>
                     </template>
                 </el-table-column>
                 <el-table-column
                         label="数量(吨)"
+                        class-name="amount-right-el"
                         width="100">
                     <template slot-scope="scope">
-                        <span>{{scope.row.saleSkuQuantity}}</span><br>
-                        <span>{{scope.row.buySkuQuantity}}</span>
+                        <span v-if="scope.row.purchaseOrderId">{{scope.row.buySkuQuantity|numToQuantity}}</span><br v-if="scope.row.purchaseOrderId">
+                        <span v-if="scope.row.saleOrderId">{{scope.row.saleSkuQuantity|numToQuantity}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
                         label="交叉交割"
-                        width="90">
-                    <template slot-scope="scope">
-                        <!--<span v-if="scope.row.buyCrossDeliveryFlag === 0" style="display: inline-block;"><i class="el-icon-circle-check-outline" style="color: #4C97FC;position: absolute;top: 27px;"></i></span><br>-->
-                        <!--<span v-if="scope.row.buyCrossDeliveryFlag === 1" style="display: inline-block;"><i class="el-icon-remove-outline" style="color:#D9D9D9;position: absolute;top: 27px;height: 30px;width: 30px;"></i></span><br>-->
-                        <span v-if="scope.row.saleCrossDeliveryFlag === 1" style="display: inline-block;"><i
-                                class="el-icon-success" style="color: #4C97FC;position: absolute;top: 37px;"></i></span>
-                        <span v-if="scope.row.saleCrossDeliveryFlag === 0" style="display: inline-block;"><i
-                                class="el-icon-remove-outline" style="color:#D9D9D9;position: absolute;top: 37px;"></i></span>
+                        width="90"><template slot-scope="scope"><span v-if="scope.row.saleCrossDeliveryFlag === 1" style="display: inline-block;"><i
+                                class="el-icon-success" style="color: #4C97FC;"></i></span><span v-if="scope.row.saleCrossDeliveryFlag === 0" style="display: inline-block;"><i
+                                class="el-icon-remove-outline" style="color:#D9D9D9;"></i></span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -147,7 +180,7 @@
                         v-bind:label="'采购合同编号\n销售合同编号'"
                         width="200">
                     <template slot-scope="scope">
-                        <span>{{scope.row.phsContractCode}}</span><br>
+                        <span>{{scope.row.phsContractCode}}</span><br v-if="scope.row.phsContractCode">
                         <span>{{scope.row.saleContractCode}}</span>
                     </template>
                 </el-table-column>
@@ -158,10 +191,10 @@
                         <span>{{scope.row.createdDate | date(1)}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column fixed="right" label="操作" width="215">
+                <el-table-column fixed="right" label="操作" width="266">
                     <template slot-scope="scope">
-                        <div style="display: inline-block;width: 100%" v-if="scope.row.sellerInfo !== null && scope.row.sellerInfo.operateDetailModel.orderExecuteSubStatusModel !== null">
-                            <span v-for="(itemSales,index) in scope.row.sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList"
+                        <div style="display: inline-block;width: 100%;padding-left:0px" v-if="scope.row.upstreamInfo !== null && scope.row.upstreamInfo.operateDetailModel.orderExecuteSubStatusModel !== null">
+                            <span v-for="(itemSales,index) in scope.row.upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList"
                                   :key="index" style="display: inline-block;margin-left: 3px;">
                                 <button class="bgc" style="width: 55px"
                                         :class="{notComplete:itemSales.valid === 1,notOperable: itemSales.valid === 0}"
@@ -169,50 +202,48 @@
                                         @click="salesClick(itemSales.id, itemSales, scope.row)">{{itemSales.button}}
                                 </button>
                             </span>
+                            <span style="display: inline-block;margin-left: 3px;">
+                                <button class="bgc notComplete" style="width: 55px"
+                                        :class="{notComplete:scope.row.buySettleStatus === 1,notOperable: scope.row.buySettleStatus === 2}"
+                                        @click="purchaseSettle(scope.row.purchaseOrderId, scope.row)">采购结算</button>
+                            </span>
                         </div>
-                        <div style="display: inline-block;width: 100%" v-if="scope.row.buyerInfo !== null && scope.row.buyerInfo.operateDetailModel.orderExecuteSubStatusModel !== null">
-                            <span v-for="(itemPurse,index) in scope.row.buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList"
+                        <div style="display: inline-block;width: 100%;padding-left:0px" v-if="scope.row.downstreamInfo !== null && scope.row.downstreamInfo.operateDetailModel.orderExecuteSubStatusModel !== null">
+                            <span v-for="(itemPurse,index) in scope.row.downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList"
                                   :key="index" style="display: inline-block;margin-left: 3px;">
                                 <button class="bgc" style="width: 55px"
                                         :class="{notComplete:itemPurse.valid === 1,notOperable: itemPurse.valid === 0}"
                                         @click="purchaseClick(itemPurse.id, itemPurse, scope.row)">{{itemPurse.button}}
                                 </button>
                             </span>
+                            <span style="display: inline-block;margin-left: 3px;">
+                                <button class="bgc notComplete" style="width: 55px"
+                                        :class="{notComplete:scope.row.saleSettleStatus === 1,notOperable: scope.row.saleSettleStatus === 2}"
+                                        @click="salesSettle(scope.row.saleOrderId, scope.row)">销售结算</button>
+                            </span>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
-            <table class="gy-table">
-                <thead>
-                    <tr>
-                        <td> <el-radio v-model="radio" label="1" @change="getAllPageStatusCount">今日新增</el-radio></td>
-                        <td>采购成交数量(吨)   {{getAllPageStatusCountObj.approvaledBuySkuQuantity}}</td>
-                        <td>采购合同数量(吨)   {{getAllPageStatusCountObj.sealBuySkuQuantity}}</td>
-                        <td>采购交割数量(吨)   {{getAllPageStatusCountObj.approvaledBuyDeliveryQuantityCount}}</td>
-                        <td>付款金额(元)   {{getAllPageStatusCountObj.approvaledBuyPayTotalAll}}</td>
-                        <td>库存量(吨)   {{getAllPageStatusCountObj.inventorySkuQuantity}}</td>
-                    </tr>
-                    <tr>
-                        <td> <el-radio v-model="radio" label="2" @change="getAllPageStatusCount">本月累计</el-radio></td>
-                        <td>销售成交数量(吨)   {{getAllPageStatusCountObj.approvaledSellSkuQuantity}}</td>
-                        <td>销售合同数量(吨)   {{getAllPageStatusCountObj.sealSellSkuQuantity}}</td>
-                        <td>销售交割(吨)   {{getAllPageStatusCountObj.approvaledSellDeliveryQuantityCount}}</td>
-                        <td>收款金额(元)   {{getAllPageStatusCountObj.approvaledSellPayTotalAll}}</td>
-                    </tr>
-                </thead>
-            </table>
+            <listStatistics @toggleTabs="getAllPageStatusCount">
+                <div class="list-statistics-item">
+                    <div class="list-statistics-item-l"><span>采购数量(吨)</span><span>{{getAllPageStatusCountObj.approvaledBuySkuQuantity | numToQuantity}}</span></div>
+                    <div class="list-statistics-item-l"><span>采购交割(吨)</span><span>{{getAllPageStatusCountObj.approvaledBuyDeliveryQuantityCount | numToQuantity}}</span></div>
+                    <div class="list-statistics-item-l"><span>付款金额(元)</span><span class="span-money">{{getAllPageStatusCountObj.approvaledBuyPayTotalAll | numToCash}}</span></div>
+                    <div class="list-statistics-item-l"><span>销售数量(吨)</span><span>{{getAllPageStatusCountObj.approvaledSellSkuQuantity | numToQuantity}}</span></div>
+                    <div class="list-statistics-item-l"><span>销售交割(吨)</span><span>{{getAllPageStatusCountObj.approvaledSellDeliveryQuantityCount | numToQuantity}}</span></div>
+                    <div class="list-statistics-item-l"><span>收款金额(元)</span><span class="span-money">{{getAllPageStatusCountObj.approvaledSellPayTotalAll | numToCash}}</span></div>
+                </div>
+            </listStatistics>
         </div>
-        <gy-payment :order-data="orderBoolObj"
-                    :order-message="collectTicketsOpingList" :order-messagies="orderSaleMessage"
-                    :order-ids="orderlistDetail" :order-sale="orderSaleMessage" :order-purchase="orderPurchaseMessage"
-                    :initial-data="InitializationDataList" :new-bank="newPaymentBankList" @ivoiceList="getOrderlist" ref="paymentClick"></gy-payment>
-        <gy-delivery v-if="orderBoolObj.newSaledialog || orderBoolObj.purchaseDeliverydialog" :order-data="orderBoolObj"
-                     :order-message="salesDeliveryList" :order-ids="orderlistDetail" :order-sale="orderSaleMessage"
-                     :order-purchase="orderPurchaseMessage" @ivoiceList="getOrderlist"></gy-delivery>
-        <gy-invoice v-if="orderBoolObj.collectTicketsdialog || orderBoolObj.dialogVisibles" :order-data="orderBoolObj" :order-message="orderCreatMessage" :order-ids="orderlistDetail"
-                    :invoice-sale="invoiceOrderSaleMessage" :invoice-purchase="invoiceOrderPurchaseMessage"
-                    :initial-data="InitializationDataList" :commod-code="commodityTaxCodeList"
-                    :invoice-collection="invoiceDeliveryCollection" @ivoiceList="getOrderlist"></gy-invoice>
+        <!-- 新建收付款 -->
+        <gy-payment :order-data="orderBoolObj" :order-ids="orderlistDetail" :downstream-info="orderDownstreamMessage" :upstream-info="orderUpstreamMessage"
+                    @ivoiceList="getOrderlist" ref="paymentClick"></gy-payment>
+        <gy-delivery :order-data="orderBoolObj" :order-ids="orderlistDetail"
+                     @ivoiceList="getOrderlist" ref="deliveryClick"></gy-delivery>
+        <gy-invoice :order-data="orderBoolObj" :order-ids="orderlistDetail" :downstream-info="orderDownstreamMessage" :upstream-info="orderUpstreamMessage"
+                    @ivoiceList="getOrderlist" ref="invoiceClick"></gy-invoice>
+        <gy-settle :order-data="orderBoolObj" @ivoiceList="getOrderlist" ref="settleClick"></gy-settle>
         <!--</div>-->
         <!-- 翻页 -->
         <el-pagination
@@ -230,26 +261,18 @@
 import gyPayment from './orderDetail/paymentAssembly.vue';
 import gyDelivery from './orderDetail/deliveryAssembly.vue';
 import gyInvoice from './orderDetail/invoiceAssembly.vue';
+import gySettle from './orderDetail/settleAssembly.vue';
+import listStatistics from './../components/listStatistics';
 export default {
     components: {
         gyPayment,
         gyDelivery,
-        gyInvoice
+        gyInvoice,
+        gySettle,
+        listStatistics
     },
     data () {
         return {
-            payStatus: [
-                {
-                    name: '全部',
-                    status: 0,
-                    id: 0
-                },
-                {
-                    name: '高频交易',
-                    status: 1,
-                    id: 1
-                }
-            ],
             payMethod: [
                 {
                     type: '货款',
@@ -277,53 +300,59 @@ export default {
                 dialogVisibles: false, // 开票
                 collectTicketsdialog: false, // 收票
                 dialogVisible: false, // 新建付款
-                newReceiptsdialog: false // 新建收款
+                newReceiptsdialog: false, // 新建收款
+                salesSettledialog: false, // 采购结算
+                purchaseSettledialog: false // 销售结算
             },
-            orderCreatMessage: {}, // 显示对象
-            salesDeliveryList: {}, // 交割基本信息
-            collectTicketsOpingList: {},
-            paymentDetailList: {}, // 付款初始化信息
             orderlistDetail: {}, // 点击每行的基本信息,
-            orderSaleMessage: {}, // 销售基本信息
-            orderPurchaseMessage: {}, // 采购基本信息
-            invoiceOrderSaleMessage: {}, // 销售发票
-            invoiceOrderPurchaseMessage: {}, // 采购发票
-            InitializationDataList: {}, // 发票初始化数据
-            invoiceTotalAmount: null,
-            commodityTaxCodeList: [], // 商品税务编码
-            newPaymentBankList: [], // 新增收款银行
-            invoiceDeliveryCollection: {}, // 收票凭证
-            // paymentApplicationAmountObj: {}, // 付款申请金额
+            settlelistDetail: {}, // 结算的信息,
+            paymentInfo: null, // 付款明细
+            receiptInfo: {}, // 收款明细
+            orderUpstreamMessage: {}, // 采购基本信息
+            orderDownstreamMessage: {}, // 销售基本信息
             allowedFunctionsId: 0, // 审批ID
-            radio: '1',
             getAllPageStatusCountObj: {} // 统计接收对象
         };
     },
+    activated () {
+        if (!this.$route.meta.isBack) {
+            this.orders = {};
+            this.getOrderlist();
+        }
+        this.$route.meta.isBack = false;
+    },
     created () {
-        this.getOrderlist();
-        this.getAllPageStatusCount();
+        this.getAllPageStatusCount(1);
     },
     methods: {
         // 采购列表按钮
         purchaseClick (ids, data, item) {
-            // 付款 - 采购交割 - 收票
+            if (item.approveStatus === 12) {
+                this.$message.warning('该合同锁定中，请在修改合同要素完成后再操作');
+                return;
+            }
+            // 收款 - 销售交割 - 开票
             if (ids === 34) {
-                this.receivables(item, 4, 103, data);
+                this.receivables(item, 4, null, data);
             } else if (ids === 35) {
-                this.salesDelivery(item, 5, 101, data);
+                this.salesDelivery(item, 5, null, data);
             } else if (ids === 39) {
-                this.ticketOpening(item, 6, 104, data);
+                this.ticketOpening(item, 6, null, data);
             }
         },
         // 销售列表按钮
         salesClick (ids, data, item) {
-            // 收款 - 销售交割 - 开票
+            if (item.approveStatus === 12) {
+                this.$message.warning('该合同锁定中，请在修改合同要素完成后再操作');
+                return;
+            }
+            // 付款 - 采购交割 - 收票
             if (ids === 36) {
-                this.payment(item, 1, 102, data);
+                this.payment(item, 1, null, data);
             } else if (ids === 37) {
-                this.purchaseDelivery(item, 2, 100, data);
+                this.purchaseDelivery(item, 2, null, data);
             } else if (ids === 38) {
-                this.collectTickets(item, 3, 105, data);
+                this.collectTickets(item, 3, null, data);
             }
         },
         // 跳转详情
@@ -336,42 +365,42 @@ export default {
                 if (res.data.code === 0) {
                     this.total = res.data.data.total;
                     this.orderlist = res.data.data.rows;
-                    for (let j = 0; j < res.data.data.rows.length; j++) {
-                        // 销售 - 上游
-                        if (res.data.data.rows[j].sellerInfo !== null &&
-                            res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel !== null &&
-                            res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList !== null) {
-                            for (let i = 0; i < res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList.length; i++) {
+                    for (let j = 0; j < this.orderlist.length; j++) {
+                        // 销售 - 下游
+                        if (this.orderlist[j].downstreamInfo !== null && this.orderlist[j].downstreamInfo.operateDetailModel &&
+                            this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel !== null &&
+                            this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList !== null) {
+                            for (let i = 0; i < this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList.length; i++) {
                                 // 收款
-                                if (res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 34) {
-                                    res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueSeller = res.data.data.rows[j].collectionStatus;
+                                if (this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 34) {
+                                    this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueSeller = this.orderlist[j].collectionStatus;
                                 }
                                 // 销售交割
-                                if (res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 35) {
-                                    res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueSeller = res.data.data.rows[j].saleDlvyStatus;
+                                if (this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 35) {
+                                    this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueSeller = this.orderlist[j].saleDlvyStatus;
                                 }
                                 // 开票
-                                if (res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 39) {
-                                    res.data.data.rows[j].sellerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueSeller = res.data.data.rows[j].saleReceiptStatus;
+                                if (this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 39) {
+                                    this.orderlist[j].downstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueSeller = this.orderlist[j].saleReceiptStatus;
                                 }
                             }
                         }
-                        // 采购 - 下游
-                        if (res.data.data.rows[j].buyerInfo !== null &&
-                            res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel !== null &&
-                            res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList !== null) {
-                            for (let i = 0; i < res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList.length; i++) {
+                        // 采购 - 上游
+                        if (this.orderlist[j].upstreamInfo !== null && this.orderlist[j].upstreamInfo.operateDetailModel &&
+                            this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel !== null &&
+                            this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList !== null) {
+                            for (let i = 0; i < this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList.length; i++) {
                                 // 付款
-                                if (res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 36) {
-                                    res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueBuyer = res.data.data.rows[j].paymentStatus;
+                                if (this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 36) {
+                                    this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueBuyer = this.orderlist[j].paymentStatus;
                                 }
                                 // 采购交割
-                                if (res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 37) {
-                                    res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueBuyer = res.data.data.rows[j].buyDlvyStatus;
+                                if (this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 37) {
+                                    this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueBuyer = this.orderlist[j].buyDlvyStatus;
                                 }
                                 // 收票
-                                if (res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 38) {
-                                    res.data.data.rows[j].buyerInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueBuyer = res.data.data.rows[j].buyReceiptStatus;
+                                if (this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].id === 38) {
+                                    this.orderlist[j].upstreamInfo.operateDetailModel.orderExecuteSubStatusModel.allowedFunctionsModelList[i].statueBuyer = this.orderlist[j].buyReceiptStatus;
                                 }
                             }
                         }
@@ -388,11 +417,14 @@ export default {
             that.$http.get(that.$api.order.orderDetail + '/' + item.id)
                 .then(function (res) {
                     if (res.data.code === 0) {
-                        that.orderCreatMessage = res.data.data;
-                        that.orderSaleMessage = res.data.data.sellerInfo;
-                        that.orderPurchaseMessage = res.data.data.buyerInfo;
-                        that.invoiceOrderSaleMessage = res.data.data.sellerInfo; // 销售发票
-                        that.invoiceOrderPurchaseMessage = res.data.data.buyerInfo; // 采购发票
+                        that.orderUpstreamMessage = res.data.data.upstreamInfo; // 上游采购
+                        if (!that.orderUpstreamMessage) {
+                            that.orderUpstreamMessage = {};
+                        }
+                        that.orderDownstreamMessage = res.data.data.downstreamInfo; // 下游销售
+                        if (!that.orderDownstreamMessage) {
+                            that.orderDownstreamMessage = {};
+                        }
                         // 付款
                         if (val === 1) {
                             that.orderBoolObj.dialogVisible = true;
@@ -401,9 +433,7 @@ export default {
                             that.orderBoolObj.newReceiptsdialog = false;
                             that.orderBoolObj.newSaledialog = false;
                             that.orderBoolObj.dialogVisibles = false;
-                            that.InitializationData(item);
-                            that.newPaymentBank(item);
-                            // that.getpaymentApplicationAmount(item);
+                            that.$refs.paymentClick.initPaymentView(item.purchaseOrderId, item.sellerCompanyId);
                         }
                         // 采购交割
                         if (val === 2) {
@@ -413,6 +443,7 @@ export default {
                             that.orderBoolObj.newReceiptsdialog = false;
                             that.orderBoolObj.newSaledialog = false;
                             that.orderBoolObj.dialogVisibles = false;
+                            that.$refs.deliveryClick.initBuyDeliveryView(item.purchaseOrderId);
                         }
                         // 收票
                         if (val === 3) {
@@ -422,8 +453,7 @@ export default {
                             that.orderBoolObj.newReceiptsdialog = false;
                             that.orderBoolObj.newSaledialog = false;
                             that.orderBoolObj.dialogVisibles = false;
-                            that.invoiceTotalAmount = that.invoiceOrderSaleMessage.skuQuantity * that.invoiceOrderSaleMessage.skuPrice;
-                            that.invoiceOrderSaleMessage.invoiceTotalAmount = that.invoiceTotalAmount;
+                            that.$refs.invoiceClick.initCollectTicketsView(item.purchaseOrderId);
                         }
                         // 收款
                         if (val === 4) {
@@ -433,6 +463,7 @@ export default {
                             that.orderBoolObj.newReceiptsdialog = true;
                             that.orderBoolObj.newSaledialog = false;
                             that.orderBoolObj.dialogVisibles = false;
+                            that.$refs.paymentClick.initReceiptView(item.saleOrderId, item.sellerCompanyId);
                         }
                         // 销售交割
                         if (val === 5) {
@@ -442,6 +473,7 @@ export default {
                             that.orderBoolObj.newReceiptsdialog = false;
                             that.orderBoolObj.newSaledialog = true;
                             that.orderBoolObj.dialogVisibles = false;
+                            that.$refs.deliveryClick.initSaleDeliveryView(item.saleOrderId, item.productId);
                         }
                         // 开票
                         if (val === 6) {
@@ -451,41 +483,12 @@ export default {
                             that.orderBoolObj.newReceiptsdialog = false;
                             that.orderBoolObj.newSaledialog = false;
                             that.orderBoolObj.dialogVisibles = true;
-                            that.InitializationData(item);
-                            that.commodityTaxCode(item);
-                            that.getInvoiceDeliveryCollection(item.saleOrderId, item.purchaseOrderId);
+                            that.$refs.invoiceClick.initInvoiceView(item.purchaseOrderId, item.saleOrderId, item.productId, item.prodName, item.buyerCompanyId);
                         }
                     } else {
-                        that.$message({
-                            message: res.data.message,
-                            type: 'error'
-                        });
+                        that.$message.error(res.data.message);
                     }
                 });
-        },
-        // 新增付款银行
-        newPaymentBank (item) {
-            this.$http.post(this.$api.payment.newBank, {'companyId': item.sellerCompanyId}).then((res) => {
-                if (res.data.code === 0) {
-                    this.newPaymentBankList = res.data.data;
-                }
-            });
-        },
-        // 商品税务编码
-        commodityTaxCode (item) {
-            this.$http.post(this.$api.invoice.commodityCode, {'productId': item.productId}).then((res) => {
-                if (res.data.code === 0) {
-                    this.commodityTaxCodeList = res.data.data;
-                }
-            });
-        },
-        // 获取页面带取数据
-        InitializationData (item) {
-            this.$http.get(this.$api.invoice.pageBringInData + item.saleOrderId).then((res) => {
-                if (res.data.code === 0) {
-                    this.InitializationDataList = res.data.data;
-                }
-            });
         },
         ShowSearch () {
             this.isShowSearch = !this.isShowSearch;
@@ -494,7 +497,6 @@ export default {
             if (this.orders.bizType === 0) {
                 this.orders.bizType = null;
             }
-            this.orders.endCreatedDate = this.orders.endCreatedDate + 86399000;
             this.getOrderlist();
         },
         // 分页
@@ -502,213 +504,140 @@ export default {
             this.orders.pageNo = r;
             this.getOrderlist();
         },
-        showDetail (id) {
-            this.$router.push({
-                name: 'paymentDetail'
-            });
-        },
         // 付款
         payment (item, val, jur, valids) {
-            this.$refs.paymentClick.getpaymentApplicationAmount(item.purchaseOrderId);
             if (valids.valid !== 1) {
-                this.$message({
-                    message: '暂时无法执行该操作',
-                    type: 'warning'
-                });
+                this.$message.warning('暂时无法执行该操作');
                 return;
             }
             this.allowedFunctionsId = 36;
-            this.$http.post(this.$api.apprProc.hasBizPermission, {targetType: jur}).then((res) => {
-                if (res.data.code !== 0) {
-                    this.$message({
-                        message: res.data.message,
-                        type: 'error'
-                    });
-                } else {
-                    this.orderDetailList(item, val);
-                    this.orderlistDetail = item;
-                    this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
-                    // console.log(this.orderlistDetail);
-                    // this.orderlistDetail.payTotal = this.orderlistDetail.buyTotal - this.paymentApplicationAmountObj.;
-                }
-            });
+
+            if (this.$tools.hasBizAuth('to_payment')) {
+                this.orderDetailList(item, val);
+                this.orderlistDetail = item;
+                this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
+            } else {
+                this.$message.error('没有付款操作权限');
+            }
         },
         // 采购交割
         purchaseDelivery (item, val, jur, valids) {
             if (valids.valid !== 1) {
-                this.$message({
-                    message: '暂时无法执行该操作',
-                    type: 'warning'
-                });
+                this.$message.warning('暂时无法执行该操作');
                 return;
             }
             this.allowedFunctionsId = 37;
-            this.$http.post(this.$api.apprProc.hasBizPermission, {targetType: jur}).then((res) => {
-                if (res.data.code !== 0) {
-                    this.$message({
-                        message: res.data.message,
-                        type: 'error'
-                    });
-                } else {
-                    this.orderDetailList(item, val);
-                    this.salesDeliveryDetail(item.purchaseOrderId);
-                    this.orderlistDetail = item;
-                    this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
-                }
-            });
+
+            if (this.$tools.hasBizAuth('to_buy_dlvy')) {
+                this.orderDetailList(item, val);
+                this.orderlistDetail = item;
+                this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
+            } else {
+                this.$message.error('没有采购交割操作权限');
+            }
         },
         // 收票
         collectTickets (item, val, jur, valids) {
+            if (this.$refs.invoiceClick) {
+                this.$refs.invoiceClick.initUploadFileData();
+            }
             if (valids.valid !== 1) {
-                this.$message({
-                    message: '暂时无法执行该操作',
-                    type: 'warning'
-                });
+                this.$message.warning('暂时无法执行该操作');
                 return;
             }
             this.allowedFunctionsId = 38;
-            this.$http.post(this.$api.apprProc.hasBizPermission, {targetType: jur}).then((res) => {
-                if (res.data.code !== 0) {
-                    this.$message({
-                        message: res.data.message,
-                        type: 'error'
-                    });
-                } else {
-                    console.log(item);
-                    console.log(val);
-                    this.orderDetailList(item, val);
-                    this.orderlistDetail = item;
-                    this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
-                }
-            });
+
+            if (this.$tools.hasBizAuth('to_receipt_invoice')) {
+                this.orderDetailList(item, val);
+                this.orderlistDetail = item;
+                this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
+            } else {
+                this.$message.error('没有收票操作权限');
+            }
         },
         // 收款
         receivables (item, val, jur, valids) {
-            console.log(item);
-            this.$refs.paymentClick.getreceliveApplicationAmount(item.saleOrderId);
             if (valids.valid !== 1) {
-                this.$message({
-                    message: '暂时无法执行该操作',
-                    type: 'warning'
-                });
+                this.$message.warning('暂时无法执行该操作');
                 return;
             }
             this.allowedFunctionsId = 34;
-            this.$http.post(this.$api.apprProc.hasBizPermission, {targetType: jur}).then((res) => {
-                if (res.data.code !== 0) {
-                    this.$message({
-                        message: res.data.message,
-                        type: 'error'
-                    });
-                } else {
-                    this.orderDetailList(item, val);
-                    this.collectTicketsOping(item.saleOrderId);
-                    this.orderlistDetail = item;
-                    this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
-                }
-            });
+
+            if (this.$tools.hasBizAuth('to_collection')) {
+                this.orderDetailList(item, val);
+                this.orderlistDetail = item;
+                this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
+            } else {
+                this.$message.error('没有收款操作权限');
+            }
         },
         // 销售交割
         salesDelivery (item, val, jur, valids) {
             if (valids.valid !== 1) {
-                this.$message({
-                    message: '暂时无法执行该操作',
-                    type: 'warning'
-                });
+                this.$message.warning('暂时无法执行该操作');
                 return;
             }
             this.allowedFunctionsId = 35;
-            this.$http.post(this.$api.apprProc.hasBizPermission, {targetType: jur}).then((res) => {
-                if (res.data.code !== 0) {
-                    this.$message({
-                        message: res.data.message,
-                        type: 'error'
-                    });
-                } else {
-                    this.orderDetailList(item, val);
-                    this.salesDeliveryDetail(item.saleOrderId);
-                    this.orderlistDetail = item;
-                    this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
-                }
-            });
+
+            if (this.$tools.hasBizAuth('to_sale_dlvy')) {
+                this.orderDetailList(item, val);
+                this.orderlistDetail = item;
+                this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
+            } else {
+                this.$message.error('没有销售交割操作权限');
+            }
         },
         // 开票
         ticketOpening (item, val, jur, valids) {
             if (valids.valid !== 1) {
-                this.$message({
-                    message: '暂时无法执行该操作',
-                    type: 'warning'
-                });
+                this.$message.warning('暂时无法执行该操作');
                 return;
             }
             this.allowedFunctionsId = 39;
-            this.$http.post(this.$api.apprProc.hasBizPermission, {targetType: jur}).then((res) => {
-                if (res.data.code !== 0) {
-                    this.$message({
-                        message: res.data.message,
-                        type: 'error'
-                    });
-                } else {
-                    this.orderDetailList(item, val);
-                    this.orderlistDetail = item;
-                    this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
-                }
-            });
+
+            if (this.$tools.hasBizAuth('to_make_invoice')) {
+                this.orderDetailList(item, val);
+                this.orderlistDetail = item;
+                this.orderlistDetail.allowedFunctionsId = this.allowedFunctionsId;
+            } else {
+                this.$message.error('没有开票操作权限');
+            }
         },
-        // 新增采购-销售交割页面详情
-        salesDeliveryDetail (val) {
-            this.$http.get(this.$api.delivery.createDeliveryView + '/' + val).then((res) => {
-                if (res.data.code === 0) {
-                    this.salesDeliveryList = res.data.data;
-                    this.salesDeliveryList.surplusQuantitys = this.salesDeliveryList.surplusQuantity;
-                }
-            });
+        // 采购结算
+        purchaseSettle (OrderId, item) {
+            if (item.approveStatus === 12) {
+                this.$message.warning('该合同锁定中，请在修改合同要素完成后再操作');
+                return;
+            }
+            if (item.buySettleStatus === 2) {
+                this.$message.warning('暂时无法执行该操作');
+                return;
+            }
+            this.$refs.settleClick.initPurchaseView(OrderId, item);
         },
-        // 新建收款详情页面
-        collectTicketsOping (val) {
-            this.$http.get(this.$api.invoice.createCollectView + '/' + val).then((res) => {
-                if (res.data.code === 0) {
-                    this.collectTicketsOpingList = res.data.data;
-                    console.log(this.collectTicketsOpingList);
-                    this.collectTicketsOpingList.collectionAmount = this.collectTicketsOpingList.needCollectionAmount;
-                }
-            });
+        // 销售结算
+        salesSettle (OrderId, item) {
+            if (item.approveStatus === 12) {
+                this.$message.warning('该合同锁定中，请在修改合同要素完成后再操作');
+                return;
+            }
+            if (item.saleSettleStatus === 2) {
+                this.$message.warning('暂时无法执行该操作');
+                return;
+            }
+            this.$refs.settleClick.initSaleView(OrderId, item);
         },
-        // 获取收票交割凭证和收款凭证
-        getInvoiceDeliveryCollection (saleOrderId, purchaseOrderId) {
-            this.$http.post(this.$api.invoice.getInvoiceDeliveryCollection, {'salesOrderId': saleOrderId, 'purchaseOrderId': purchaseOrderId})
+        getAllPageStatusCount (idx) {
+            this.$http.get(this.$api.order.allPageStatusCount + '?countType=' + idx)
                 .then((res) => {
                     if (res.data.code === 0) {
-                        this.invoiceDeliveryCollection = res.data.data;
+                        this.getAllPageStatusCountObj = res.data.data;
                     }
+                })
+                .catch((e) => {
+                    console.log(e);
                 });
-        },
-        getAllPageStatusCount () {
-            let countType = this.radio;
-            this.$http.get(this.$api.order.allPageStatusCount + '?countType=' + countType).then((res) => {
-                if (res.data.code === 0) {
-                    this.getAllPageStatusCountObj = res.data.data;
-                }
-            });
         }
-        // 付款申请金额---
-        // getpaymentApplicationAmount (val) {
-        //     this.$http.get(this.$api.payment.paymentApplicationAmount + '/' + val.purchaseOrderId).then((res) => {
-        //         if (res.data.code === 0) {
-        //             this.paymentApplicationAmountObj = res.data.data;
-        //             if (this.paymentApplicationAmountObj.depositStatus === 1) {
-        //                 this.paymentApplicationAmountObj.payTotal = this.invoiceOrderSaleMessage.depositAmount;
-        //                 this.paymentApplicationAmountObj.payMethod = '2';
-        //             } else if (this.paymentApplicationAmountObj.appendDepositStatus === 1) {
-        //                 this.paymentApplicationAmountObj.payMethod = '5';
-        //                 this.paymentApplicationAmountObj.payTotal = this.paymentApplicationAmountObj.leftAmount;
-        //             } else if (this.paymentApplicationAmountObj.goodPaymentStatus === 1) {
-        //                 this.paymentApplicationAmountObj.payMethod = '1';
-        //                 this.paymentApplicationAmountObj.payTotal = this.paymentApplicationAmountObj.leftAmount;
-        //             }
-        //         }
-        //     });
-        // }
     }
 };
 </script>
@@ -793,13 +722,15 @@ export default {
         .gy-form-group{
             padding: 8px 30px 8px 109px;
         }
-        .gy-form-group .l{
-            width: 75px;
-        }
     }
 </style>
 <style lang="scss">
     .orderList{
+        .dh-over .cell span {
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap
+        }
         .gy-table{
             margin: 0 16px 0 16px;
             border-top: none;
@@ -824,6 +755,18 @@ export default {
                 .el-table__header{
                     .el-table_1_column_11{
                         text-align: center;
+                    }
+                }
+            }
+            .item-left-align {
+                padding-left: 30px;
+                text-align: left;
+            }
+            .Total{
+                thead {
+                    td{
+                        font-size: 14px;
+                        font-weight: 100!important;
                     }
                 }
             }

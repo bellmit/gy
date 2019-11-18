@@ -1,9 +1,10 @@
 <template>
-    <div class="new-order-fq">
+    <div>
+     <div class="new-order-fq" v-if="tab===0">
             <div class="new-title-public">
                 发起订单
             </div>
-                <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i><span class="top-span">基础信息</span></p>
+        <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i><span class="top-span">基础信息</span></p>
         <div class="center-div">
                 <el-row :gutter="60">
                     <el-col :span="12" class="top">
@@ -86,8 +87,8 @@
                     </el-col>
                     <el-col :span="12" class="top">
                         <el-row>
-                            <el-col :span="6" class="left-span left-span-i-jj">总金额</el-col>
-                            <el-col :span="18" class="right-span left-span-i-jj">￥{{ info.skuPrice * info.skuQuantity| numToCash}}元</el-col>
+                            <el-col :span="6" class="left-span left-span-i-jj">总金额(元)</el-col>
+                            <el-col :span="18" class="right-span left-span-i-jj">{{ sum| numToCash}}</el-col>
                         </el-row>
                     </el-col>
                 </el-row>
@@ -142,7 +143,7 @@
                     <el-col :span="12" class="top">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>免仓期</el-col>
-                            <el-col :span="18" class="right-span">
+                            <el-col :span="18" class="right-span" style="margin-top: -8px">
                                 <el-input-number v-model="info.warehouseFreeDays" :min="0" :step="1"></el-input-number>
                             </el-col>
                         </el-row>
@@ -198,7 +199,7 @@
                     <el-col :span="12" class="top">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>溢短装</el-col>
-                            <el-col :span="18" class="right-span">
+                            <el-col :span="18" class="right-span" style="margin-top: -8px">
                                 <el-input-number v-model="info.shortOverflowRate" :min="0" :step="1"></el-input-number>
                             </el-col>
                         </el-row>
@@ -206,20 +207,20 @@
                     <el-col :span="12" class="top">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>保证金(%)</el-col>
-                            <el-col :span="18" class="right-span">
-                                <el-input-number v-model="info.depositRatio" :min="0" :step="1"></el-input-number>
+                            <el-col :span="18" class="right-span" style="margin-top: -8px">
+                                <el-input-number v-model="info.depositRatio" :min="0" :max="100" :step="1"></el-input-number>
                             </el-col>
                         </el-row>
                     </el-col>
                     <el-col :span="12" class="top">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>追加保证金(%)</el-col>
-                            <el-col :span="1" class="right-span myb">跌</el-col>
-                            <el-col :span="7">
+                            <el-col :span="1" class="right-span myb"  style="margin-top: 1px">跌</el-col>
+                            <el-col :span="7" style="margin-top: -8px">
                                 <el-input-number v-model="info.depositRatioSubtract" :min="0" :step="1"></el-input-number>
                             </el-col>
-                            <el-col :span="2" class="myb">补</el-col>
-                            <el-col :span="8">
+                            <el-col :span="2" class="myb" style="margin-top: 1px">补</el-col>
+                            <el-col :span="8" style="margin-top: -8px">
                                 <el-input-number v-model="info.depositRatioAppend" :min="0" :step="1"></el-input-number>
                             </el-col>
                         </el-row>
@@ -258,7 +259,7 @@
                             </el-col>
                         </el-row>
                     </el-col>
-                    <el-col :span="12" class="top">
+                    <el-col :span="12" class="top" v-if="!(info.depositRatioSubtract === 0 && info.depositRatioAppend === 0)">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>追保基准</el-col>
                             <el-col :span="8" class="right-span">
@@ -342,10 +343,32 @@
                             </el-col>
                         </el-row>
                     </el-col>
+                    <el-col :span="12" class="top" v-if="(info.depositRatioSubtract === 0 && info.depositRatioAppend === 0)">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>合同模板</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.contractTemplateId" placeholder="请选择">
+                                    <el-option
+                                            v-for="item in tempOptions"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
                     <el-col :span="12" class="top">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>卖方联系人</el-col>
-                            <el-col :span="18" class="right-span"><input type="text" v-model="info.sellerContact"></el-col>
+                            <el-col :span="18" class="dw-f right-span">
+                                <input placeholder="请输入" type="text" @click="showSeller=false" class="gy-input" v-model="info.sellerContact"  @keyup.enter="getSeller">
+                                <ul v-show="showSeller">
+                                    <li v-for="(item, index) in sellerList" :key="index" @click="handleSeller(item)" v-if="sellerList.length > 0">{{item.contactName}}</li>
+                                    <li class="none-tips" v-if="sellerList.length === 0">没有搜到相关内容</li>
+                                </ul>
+                                <i class="iconfont icon-mySearch dw-c" @click="getSeller"></i>
+                            </el-col>
                         </el-row>
                     </el-col>
                     <el-col :span="12" class="top">
@@ -357,7 +380,14 @@
                     <el-col :span="12" class="top">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>买方联系人</el-col>
-                            <el-col :span="18" class="right-span"><input placeholder="请输入" type="text" v-model="info.buyerContact"></el-col>
+                            <el-col :span="18" class="dw-f right-span">
+                                <input placeholder="请输入" type="text" @click="showBuyer=false" class="gy-input" v-model="info.buyerContact"  @keyup.enter="getBuyer">
+                                <ul v-show="showBuyer">
+                                    <li v-for="(item, index) in buyerList" :key="index" @click="handleBuyer(item)" v-if="buyerList.length > 0">{{item.contactName}}</li>
+                                    <li class="none-tips" v-if="buyerList.length === 0">没有搜到相关内容</li>
+                                </ul>
+                                <i class="iconfont icon-mySearch dw-c" @click="getBuyer"></i>
+                            </el-col>
                         </el-row>
                     </el-col>
                     <el-col :span="12" class="top">
@@ -366,7 +396,7 @@
                             <el-col :span="18" class="right-span"><input placeholder="请输入" type="text" v-model="info.buyerContactMobile"></el-col>
                         </el-row>
                     </el-col>
-                    <el-col :span="12" class="top">
+                    <el-col :span="12" class="top" v-if="!(info.depositRatioSubtract === 0 && info.depositRatioAppend === 0)">
                         <el-row>
                             <el-col :span="6" class="left-span"><span class="left-span-i">*</span>合同模板</el-col>
                             <el-col :span="18" class="right-span">
@@ -383,11 +413,432 @@
                     </el-col>
                 </el-row>
         </div>
-                <el-row class="mybtn">
-                    <div class="gy-button-extra" @click="submitFormValid()"> 生成订单</div>
-                </el-row>
+         <div class="foot mybtn">
+             <div class="l"><span class="wxts">温馨提示：</span>请注意交易信息真实合规。如需配置订单审批流程，请联系客服热线：400-777-6777</div>
+             <div class="r">
+                 <div class="gy-button-extra" @click="submitFormValid()"> 生成订单</div>
+             </div>
+         </div>
     </div>
-</template>
+        <div class="new-order-fq" v-if="tab===1">
+            <div class="new-title-public">
+                再次发起订单
+            </div>
+            <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i><span class="top-span">基础信息</span></p>
+            <div class="center-div">
+                <el-row :gutter="60">
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col class="left-span left-span-i-jj" :span="6">品名</el-col>
+                            <el-col class="right-span left-span-i-jj" :span="18">{{info.skuName}}</el-col></el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>单价(元)</el-col>
+                            <el-col :span="18" class="right-span">
+                                <input class="gy-input" type="text" v-model="skuPrice">
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span "><span class="left-span-i">*</span>交割库</el-col>
+                            <el-col :span="18" class="dw-f right-span">
+                                <input type="text" class="gy-input" v-model="deliveryWarehouseName"  @keyup.enter="getWarehouses">
+                                <ul v-show="showListA">
+                                    <li v-for="(item, index) in warehousesList" :key="index" @click="handleSelectP(item)" v-if="warehousesList.length > 0">{{item.value}}</li>
+                                </ul>
+                                <i class="iconfont icon-mySearch dw-c" @click="getWarehouses"></i>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>数量</el-col>
+                            <el-col :span="18" class="right-span">
+                                <input type="text" v-model="skuQuantity" style="width: 70%;float: left;margin-top: -1px;">
+                                <el-select v-model="info.infUnitOfMeasureId" style="width: 30%;float: right;">
+                                    <el-option
+                                        v-for="item in options"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top" style="height: 65px;">
+                        <el-row>
+                            <el-col :span="6" class="left-span left-span-i-jj">交割时间</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-radio-group v-model="list.deliveryDateFlag">
+                                    <el-radio :label="1">时间段</el-radio>
+                                    <el-radio :label="2">时间点</el-radio>
+                                    <el-radio :label="3">自定义</el-radio>
+                                </el-radio-group>
+                                <el-date-picker v-if="list.deliveryDateFlag==1"
+                                                v-model="deliveryDate"
+                                                type="daterange"
+                                                align="right"
+                                                unlink-panels
+                                                range-separator="至"
+                                                :start-placeholder=info.deliveryBeginDate|date
+                                                :end-placeholder=info.deliveryEndDate|date
+                                                :picker-options="pickerOptions">
+                                </el-date-picker>
+                                <template v-if="list.deliveryDateFlag==2">
+                                    <el-row>
+                                        <el-col :span="21">
+                                            <el-date-picker
+                                                v-model="info.deliveryBeginDate"
+                                                type="date"
+                                                placeholder="选择日期">
+                                            </el-date-picker>
+                                        </el-col>
+                                        <el-col :span="3">以前</el-col>
+                                    </el-row>
+                                </template>
+                                <template v-if="list.deliveryDateFlag==3">
+                                    <el-input v-model="list.deliveryDateText"></el-input>
+                                </template>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span left-span-i-jj">总金额(元)</el-col>
+                            <el-col :span="18" class="right-span left-span-i-jj">{{ sum| numToCash}}</el-col>
+                        </el-row>
+                    </el-col>
+                </el-row>
+            </div>
+            <p class="mewmyp"><i class="iconfont icon-dingdanxinxi mewmyicon"></i> <span class="top-span">详细信息</span></p>
+            <div class="center-div">
+                <el-row :gutter="60">
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span left-span-i-jj">资源编号</el-col>
+                            <el-col :span="18" class="right-span left-span-i-jj">{{info.odrOfferSn}}</el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>买方公司名</el-col>
+                            <el-col :span="18" class="dw-f right-span">
+                                <input placeholder="请输入" type="text" class="gy-input" v-model="info.companyName"  @keyup.enter="getCompany">
+                                <ul v-show="showList">
+                                    <li v-for="(item, index) in list1" :key="index" @click="handleSelectA(item)" v-if="list1.length > 0">{{item.value}}</li>
+                                    <li class="none-tips" v-if="list1.length === 0">没有搜到相关公司</li>
+                                </ul>
+                                <i class="iconfont icon-mySearch dw-c" @click="getCompany"></i>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span left-span-i-jj">合同编号</el-col>
+                            <el-col :span="18" class="right-span left-span-i-jj">{{info.orderContractCode}}</el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>交付方式</el-col>
+                            <el-col :span="18" class="right-span"><el-select v-model="info.deliveryType" placeholder="请选择">
+                                <el-option
+                                    v-for="item in deliveryTypeOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select></el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>交割仓库地址</el-col>
+                            <el-col :span="18" class="right-span"><input type="text" v-model="info.deliveryDetailedAddress"></el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>免仓期</el-col>
+                            <el-col :span="18" class="right-span" style="margin-top: -8px">
+                                <el-input-number v-model="info.warehouseFreeDays" :min="0" :step="1"></el-input-number>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>付款方式</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.paymentType" placeholder="请选择">
+                                    <el-option
+                                        v-for="item in transactionOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                                <template v-if="info.paymentType===1" >
+                                    <el-col :span="8" class="left-span-i-jj">买方收到货后</el-col>
+                                    <el-col :span="9">
+                                        <el-input v-model="info.paymentTypeText"></el-input>
+                                    </el-col>
+                                    <el-col :span="7">个工作日付款</el-col>
+                                </template>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>是否分批</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.isBatchDelivery" placeholder="请选择">
+                                    <el-option
+                                        v-for="item in isBatchDeliveryo"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                                <template v-if="info.isBatchDelivery === 1">
+                                    <el-col :span="2"  class="left-span-i-jj">每</el-col>
+                                    <el-col :span="7">
+                                        <el-input v-model="info.batchDeliveryQuantity"></el-input>
+                                    </el-col>
+                                    <el-col :span="5">吨最多分</el-col>
+                                    <el-col :span="8">
+                                        <el-input v-model="info.batchDeliveryFrequency"></el-input>
+                                    </el-col>
+                                    批
+                                </template>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>溢短装</el-col>
+                            <el-col :span="18" class="right-span" style="margin-top: -8px">
+                                <el-input-number v-model="info.shortOverflowRate" :min="0" :step="1"></el-input-number>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>保证金(%)</el-col>
+                            <el-col :span="18" class="right-span" style="margin-top: -8px">
+                                <el-input-number v-model="info.depositRatio" :min="0" :max="100" :step="1"></el-input-number>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>追加保证金(%)</el-col>
+                            <el-col :span="1" class="right-span myb"  style="margin-top: 1px">跌</el-col>
+                            <el-col :span="7" style="margin-top: -8px">
+                                <el-input-number v-model="info.depositRatioSubtract" :min="0" :step="1"></el-input-number>
+                            </el-col>
+                            <el-col :span="2" class="myb" style="margin-top: 1px">补</el-col>
+                            <el-col :span="8" style="margin-top: -8px">
+                                <el-input-number v-model="info.depositRatioAppend" :min="0" :step="1"></el-input-number>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>合同回签时间</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.contractBackSignDate">
+                                    <el-option
+                                        v-for="item in SignDateOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>发票</el-col>
+                            <el-col :span="8" class="right-span">
+                                <el-select v-model="provideInvoiceType" placeholder="请选择">
+                                    <el-option
+                                        v-for="item in provideInvoiceOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="1" class="left-span">或</el-col>
+                            <el-col :span="9" class="right-span">
+                                <el-input v-model="info.provideInvoiceText" placeholder="输入" @focus="changeInvoiceText"></el-input>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top" v-if="!(info.depositRatioSubtract === 0 && info.depositRatioAppend === 0)">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>追保基准</el-col>
+                            <el-col :span="8" class="right-span">
+                                <el-autocomplete
+                                    class="inline-input"
+                                    v-model="info.depositAppendBenchmark"
+                                    :fetch-suggestions="querySearch1"
+                                    placeholder="请输入或选择"
+                                    @select="handleSelect"></el-autocomplete>
+                            </el-col>
+                            <el-col :span="8" class="right-span">
+                                <el-autocomplete
+                                    class="inline-input"
+                                    v-model="info.depositAppendArea"
+                                    :fetch-suggestions="querySearch2"
+                                    placeholder="请输入或选择"
+                                    @select="handleSelect"></el-autocomplete>
+                            </el-col>
+                            <el-col :span="2" class="right-span">
+                                地区
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>结算数量</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.acceptanceStandard">
+                                    <el-option
+                                        v-for="item in acceptanceOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>货源</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.skuOrigin" placeholder="请选择">
+                                    <el-option
+                                        v-for="item in skuOriginOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>质量标准</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.qualityStandard">
+                                    <el-option
+                                        v-for="item in qualityStandardOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>包装标准</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.packagingStandard">
+                                    <el-option
+                                        v-for="item in packagingOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top" v-if="(info.depositRatioSubtract === 0 && info.depositRatioAppend === 0)">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>合同模板</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.contractTemplateId" placeholder="请选择">
+                                    <el-option
+                                            v-for="item in tempOptions"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>卖方联系人</el-col>
+                            <el-col :span="18" class="dw-f right-span">
+                                <input placeholder="请输入" type="text" @click="showSeller=false" class="gy-input" v-model="info.sellerContact"  @keyup.enter="getSeller">
+                                <ul v-show="showSeller">
+                                    <li v-for="(item, index) in sellerList" :key="index" @click="handleSeller(item)" v-if="sellerList.length > 0">{{item.contactName}}</li>
+                                    <li class="none-tips" v-if="sellerList.length === 0">没有搜到相关内容</li>
+                                </ul>
+                                <i class="iconfont icon-mySearch dw-c" @click="getSeller"></i>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>卖方联系方式</el-col>
+                            <el-col :span="18" class="right-span"><input type="text" v-model="info.sellerContactMobile"></el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>买方联系人</el-col>
+                            <el-col :span="18" class="dw-f right-span">
+                                <input placeholder="请输入" type="text" @click="showBuyer=false" class="gy-input" v-model="info.buyerContact"  @keyup.enter="getBuyer">
+                                <ul v-show="showBuyer">
+                                    <li v-for="(item, index) in buyerList" :key="index" @click="handleBuyer(item)" v-if="buyerList.length > 0">{{item.contactName}}</li>
+                                    <li class="none-tips" v-if="buyerList.length === 0">没有搜到相关内容</li>
+                                </ul>
+                                <i class="iconfont icon-mySearch dw-c" @click="getBuyer"></i>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>买方联系方式</el-col>
+                            <el-col :span="18" class="right-span"><input placeholder="请输入" type="text" v-model="info.buyerContactMobile"></el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col :span="12" class="top" v-if="!(info.depositRatioSubtract === 0 && info.depositRatioAppend === 0)">
+                        <el-row>
+                            <el-col :span="6" class="left-span"><span class="left-span-i">*</span>合同模板</el-col>
+                            <el-col :span="18" class="right-span">
+                                <el-select v-model="info.contractTemplateId" placeholder="请选择">
+                                    <el-option
+                                        v-for="item in tempOptions"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                </el-row>
+            </div>
+            <el-row class="mybtn">
+                <div class="gy-button-extra" @click="submitFormValid()"> 生成订单</div>
+            </el-row>
+        </div>
+    </div>
+  </template>
 <script>
 export default {
     name: 'sellerOrder',
@@ -428,12 +879,13 @@ export default {
         return {
             value5: '',
             info: {
+                orderType: 1,
                 skuQuantity: 0,
                 orderItemList: [],
                 infUnitOfMeasureId: '',
                 qualityStandard: '国标',
                 packagingStandard: 0,
-                depositRatio: 5,
+                depositRatio: 0,
                 paymentType: 0,
                 batchDeliveryQuantity: '',
                 batchDeliveryFrequency: '',
@@ -450,8 +902,8 @@ export default {
                 warehouseFreeDays: 5, // 免仓期
                 acceptanceStandard: 0,
                 contractBackSignDate: 0,
-                depositRatioSubtract: 5,
-                depositRatioAppend: 5,
+                depositRatioSubtract: 0,
+                depositRatioAppend: 0,
                 contractCode: '',
                 deliveryBeginDate: '',
                 paymentTypeText: '',
@@ -465,6 +917,8 @@ export default {
             restListB: [],
             tempOptions: [],
             provideInvoiceType: '',
+            typeId: 0,
+            tab: 0,
             ruleForm: {
                 companyName: [{required: true, message: '请输入并选择买家公司名', trigger: 'blur'}], // 买家公司名
                 skuQuantity: [{required: true, message: '请输入数量', trigger: 'blur'}], // 可供量
@@ -605,12 +1059,17 @@ export default {
                         picker.$emit('pick', [start, end]);
                     }
                 }]
-            }
+            },
+            showSeller: false,
+            sellerList: [],
+            showBuyer: false,
+            buyerList: []
         };
     },
     created () {
         this.offerId = this.$route.query.offerId;
-        this.offerId && this.getInfo();
+        this.typeId = this.$route.query.typeId;
+        this.offerId && this.getInfos();
         this.measures();
     },
     watch: {
@@ -621,12 +1080,21 @@ export default {
             if (val === '') {
                 this.info.deliveryDetailedAddress = '';
             }
+        },
+        depositRatio: function (val) {
+            if (val === 0) {
+                this.info.depositRatioSubtract = 0;
+                this.info.depositRatioAppend = 0;
+            }
         }
     },
     computed: {
-        // sum () {
-        //     return parseFloat() * parseFloat(this.info.skuQuantity);
-        // }
+        sum () {
+            return parseFloat(this.info.skuPrice) * parseFloat(this.info.skuQuantity);
+        },
+        depositRatio () {
+            return this.info.depositRatio;
+        }
     },
     methods: {
         getcontractCode () {
@@ -667,7 +1135,7 @@ export default {
         changeInvoiceText () {
             this.provideInvoiceType = '';
         },
-        getInfo () {
+        getInfos () {
             let that = this;
             that.$http.get(that.$api.offers.resources + '/' + that.offerId).then(function (res) {
                 if (res.data.code === 0) {
@@ -689,11 +1157,12 @@ export default {
                     that.getTem();
                     that.getcontractCode();
                 } else {
-                    that.$message('服务器繁忙');
+                    that.$message(res.data.message);
                 }
             });
         },
         submitFormValid () {
+            console.log(this.info.shortOverflowRate);
             if (!this.info.skuPrice) {
                 this.$message.error('单价不能为空');
                 return;
@@ -718,10 +1187,10 @@ export default {
                 this.$message.error('交割仓库地址不能为空');
                 return;
             }
-            if (!this.info.warehouseFreeDays) {
-                this.$message.error('免仓期不能为空');
-                return;
-            }
+            // if (!this.info.warehouseFreeDays) {
+            //     this.$message.error('免仓期不能为空');
+            //     return;
+            // }
             if (this.info.paymentType === 1 && this.info.paymentTypeText === '') {
                 this.$message.error('请填写几个工作日付款');
                 return;
@@ -730,7 +1199,7 @@ export default {
                 this.$message.error('请输入吨数和批次');
                 return;
             }
-            if (!this.info.shortOverflowRate) {
+            if (this.info.shortOverflowRate === undefined || this.info.shortOverflowRate === null || this.info.shortOverflowRate === '') {
                 this.$message.error('溢短装不能为空');
                 return;
             }
@@ -738,18 +1207,18 @@ export default {
                 this.$message.error('请选择发票或输入发票备注');
                 return;
             }
-            if (!this.info.depositRatio) {
-                this.$message.error('保证金不能为空');
-                return;
-            }
-            if (!this.info.depositRatioSubtract) {
-                this.$message.error('追加保证金不能为空');
-                return;
-            }
-            if (!this.info.depositRatioAppend) {
-                this.$message.error('追加保证金不能为空');
-                return;
-            }
+            // if (!this.info.depositRatio) {
+            //     this.$message.error('保证金不能为空');
+            //     return;
+            // }
+            // if (!this.info.depositRatioSubtract) {
+            //     this.$message.error('追加保证金不能为空');
+            //     return;
+            // }
+            // if (!this.info.depositRatioAppend) {
+            //     this.$message.error('追加保证金不能为空');
+            //     return;
+            // }
             if (this.info.depositRatioAppend || this.info.depositRatioSubtract) {
                 if (!this.info.depositAppendBenchmark || !this.info.depositAppendArea) {
                     this.$message.error('请填写追保基准和地区');
@@ -784,6 +1253,10 @@ export default {
             this.submitForm();
         },
         submitForm () {
+            if (this.skuQuantity <= 0) {
+                this.$message('资源单数量为0，不能创建订单');
+                return false;
+            }
             if (this.skuQuantity < this.info.skuQuantity) {
                 this.$confirm('您输入的数量大于资源单发布的数量, 是否继续?', '提示', {
                     confirmButtonText: '继续',
@@ -825,6 +1298,8 @@ export default {
                 .then(function (res) {
                     if (res.data.code === 0) {
                         that.$router.push({name: 'salesList'});
+                    } else {
+
                     }
                 }).catch(() => {
                     console.log('服务器繁忙');
@@ -937,6 +1412,52 @@ export default {
                     console.log('商品服务器繁忙');
                 }
             });
+        },
+        getSeller () {
+            var companyId = JSON.parse(localStorage.getItem('userInfo')) && JSON.parse(localStorage.getItem('userInfo')).companyId;
+            var that = this;
+            that.showSeller = true;
+            that.sellerList = [];
+            this.$http.post(that.$api.order.orderContact, {
+                sellerCompanyId: companyId,
+                buyerCompanyId: this.info.buyerCompanyId,
+                confirmCompanyId: companyId,
+                contactName: that.info.sellerContact
+            }).then(function (res) {
+                if (res.data.code === 0) {
+                    that.sellerList = res.data.data ? res.data.data : [];
+                } else {
+                    that.$message.error(res.data.message);
+                }
+            });
+        },
+        handleSeller (item) {
+            this.info.sellerContact = item.contactName;
+            this.info.sellerContactMobile = item.contactMobile;
+            this.showSeller = false;
+        },
+        getBuyer () {
+            var that = this;
+            var companyId = JSON.parse(localStorage.getItem('userInfo')) && JSON.parse(localStorage.getItem('userInfo')).companyId;
+            that.showBuyer = true;
+            that.buyerList = [];
+            this.$http.post(that.$api.order.orderContact, {
+                sellerCompanyId: companyId,
+                buyerCompanyId: this.info.buyerCompanyId,
+                confirmCompanyId: this.info.buyerCompanyId,
+                contactName: that.info.buyerContact
+            }).then(function (res) {
+                if (res.data.code === 0) {
+                    that.buyerList = res.data.data ? res.data.data : [];
+                } else {
+                    that.$message.error(res.data.message);
+                }
+            });
+        },
+        handleBuyer (item) {
+            this.info.buyerContact = item.contactName;
+            this.info.buyerContactMobile = item.contactMobile;
+            this.showBuyer = false;
         }
     },
     mounted () {
@@ -1018,6 +1539,24 @@ export default {
                 }
             }
         }
+        .wxts {
+            color: #EEA443;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .foot {
+            display: flex;
+            .l{
+                width: 70%;
+                padding-left: 40px;
+                line-height: 30px;
+                text-align: left;
+            }
+            .r{
+                width: 30%;
+                text-align: right;
+            }
+        }
     }
 </style>
 <style lang="scss">
@@ -1050,6 +1589,10 @@ export default {
             position: relative;
             display: inline-block;
             width: 121px;
+         .el-input__inner{
+             padding-left: 0;
+             padding-right: 0;
+          }
      }
     }
 </style>

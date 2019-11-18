@@ -12,76 +12,76 @@
       </ul>
       <div class="right">
         <div class="search-box">
-          <input type="search" v-model="keywords" placeholder="请输入品名/单号">
-          <button @click="search">搜索</button>
+          <input type="search" v-model="keywords" placeholder="请输入品名/单号/公司名">
+          <i class="iconfont icon-search" @click="search"></i>
         </div>
-        <span class="search-btn"  @click="toggleSelect =!toggleSelect">高级搜索<i class="iconfont icon-arrow-down"></i></span>
+        <span class="search-btn" @click="toggleSelect =!toggleSelect">高级搜索<i class="iconfont icon-arrow-down"></i></span>
       </div>
     </div>
     <div class="selected-box" v-show="toggleSelect">
       <el-form label-width="105px" size="mini">
         <el-row :gutter="40">
-          <el-col :span="10">
+          <el-col :span="12">
             <el-row>
-              <el-col :span="4">
-                卖方公司
-              </el-col>
+              <el-col :span="4">卖方公司</el-col>
               <el-col :span="19">
-                <input @click="blur11" type="text" class="gy-input" v-model="CompaniesCony" @keyup.enter="onelist1click">
+                <input @click="blur11" type="text" placeholder="请选择" class="gy-input" v-model="CompaniesCony" @keyup.enter="onelist1click">
               </el-col>
-                <ul class="listul"  v-show="onelist1Show">
-                  <li v-for="(item,index) in onelist1" :key="index" @click="onelist1select(item)" v-if="onelist1.length>0">
-                    {{item.companyName}}
-                  </li>
-                  <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
-                </ul>
               <el-col :span="1">
-                <i class="iconfont icon-search"  @click="onelist1click"></i>
+                <i class="iconfont icon-mySearch" @click="onelist1click"></i>
               </el-col>
+              <ul class="listul" v-show="onelist1Show">
+                <li v-for="(item,index) in onelist1" :key="index" @click="onelist1select(item)" v-if="onelist1.length>0">
+                  {{item.companyName}}
+                </li>
+                <li class="none-tips" v-if="onelist1.length === 0">没有搜到相关公司</li>
+              </ul>
             </el-row>
           </el-col>
-          <el-col :span="10">
+          <el-col :span="12">
             <el-row>
-              <el-col :span="4">
-                买方公司
-              </el-col>
+              <el-col :span="4">买方公司</el-col>
               <el-col :span="19">
-                <input @click="blur22" type="text" class="gy-input" v-model="buyCompaniesCony" @keyup.enter="onelist1click2">
+                <input @click="blur22" placeholder="请选择" type="text" class="gy-input" v-model="buyCompaniesCony"
+                       @keyup.enter="onelist1click2">
               </el-col>
-              <ul class="listul"  v-show="onelist2Show">
-                <li v-for="(item2,index) in onelist2" :key="index" @click="onelist1select2(item2)" v-if="onelist2.length>0">
-                  {{item2.companyName}}
+              <el-col :span="1"><i class="iconfont icon-mySearch" @click="onelist1click2"></i></el-col>
+              <ul class="listul" v-show="onelist2Show">
+                <li v-for="(item,index) in onelist2" :key="index" @click="onelist1select2(item)" v-if="onelist2.length>0">
+                  {{item.companyName}}
                 </li>
                 <li class="none-tips" v-if="onelist2.length === 0">没有搜到相关公司</li>
               </ul>
-              <el-col :span="1">
-                <i class="iconfont icon-search"  @click="onelist1click2"></i>
-              </el-col>
             </el-row>
           </el-col>
         </el-row>
-        <el-row :gutter="40" style="margin-top: 20px">
-          <el-col :span="10">
-            <el-form-item label="订单日期">
-              <el-date-picker
-                v-model="createDate"
-                type="daterange"
-                align="right"
-                unlink-panels
-                range-separator="至"
-                start-placeholder = '开始时间'
-                end-placeholder= '结束时间'
-                :picker-options="pickerOptions">
-              </el-date-picker>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10">
+        <el-row :gutter="40" style="margin-top: 15px;">
+          <el-col :span="12">
             <el-row>
-              <el-col :span="4">交割仓库</el-col>
-              <el-col :span="19"><input type="text" v-model="deliveryWarehouseName"></el-col>
-              <el-col :span="1"><i class="iconfont icon-search" @click.stop.prevent="search"></i></el-col>
+              <el-col :span="4">订单日期</el-col>
+              <el-col :span="19">
+                <el-date-picker
+                        v-model="createDate"
+                        type="daterange"
+                        align="right"
+                        unlink-panels
+                        range-separator="至"
+                        start-placeholder='开始时间'
+                        end-placeholder='结束时间'
+                        :picker-options="pickerOptions">
+                </el-date-picker>
+              </el-col>
             </el-row>
           </el-col>
+          <el-col :span="12">
+            <el-row>
+              <el-col :span="4">交割仓库</el-col>
+              <el-col :span="19">
+                <input type="text" placeholder="请输入交割仓库" v-model="deliveryWarehouseName">
+              </el-col>
+            </el-row>
+          </el-col>
+          <i class="iconfont icon-search search_icon" @click.stop.prevent="search"></i>
         </el-row>
       </el-form>
     </div>
@@ -93,17 +93,17 @@
       <table class="gy-table">
         <thead>
           <tr class="title">
-            <th style="width:280px">商品</th>
-            <th style="width:243px">卖方公司</th>
-            <th style="width:243px">买方公司</th>
-            <th>总金额</th>
-            <th style="width:100px">状态</th>
+            <th>商品</th>
+            <th>卖方公司</th>
+            <th>买方公司</th>
+            <th style="text-align: center;width:280px;">总金额(元)</th>
+            <th style="text-align: center;width:120px">状态</th>
             <th style="width:90px">操作</th>
           </tr>
         </thead>
         <tbody v-for="(item , index) in orderList" :key="index">
         <tr class="update-title">
-          <td colspan="8">单号：{{item.odrOrderSn}} <i class="iconfont icon-copy" @click="copy"></i><span class="right">{{item.createdDate |date}}</span></td>
+          <td colspan="8">单号：{{item.odrOrderSn}} <i class="iconfont icon-copy" @click="copy"></i><span class="right">{{item.createdDate |date(1)}}</span></td>
         </tr>
         <tr >
           <td class="tleft">
@@ -113,7 +113,7 @@
           </td>
           <td  class="tleft">{{item.sellerCompanyName}}<br>{{item.sellerContact}}<br>{{item.sellerContactMobile}}</td>
           <td  class="tleft">{{item.buyerCompanyName}}<br>{{item.buyerContact}}<br>{{item.buyerContactMobile}}</td>
-          <td>{{item.totalAmount}}元</td>
+          <td class="align-r">{{item.totalAmount}}</td>
           <td>{{item.orderStatus |orderState}}</td>
           <td>
             <div class="btns-group">
@@ -257,9 +257,9 @@ export default {
         // 修改全部公司获得接口
         onelist1click () {
             this.onelist1Show = true;
-            this.$http.post(this.$api.orders.creatOrderCompanies2, {
-                'companyTypeId': 1, // 1:交易公司  2：承运商
-                'name': this.CompaniesCony
+            this.$http.post(this.$api.orders.creatcompanynew, {
+                'category': 1, // 1:交易公司  2：承运商
+                'companyName': this.CompaniesCony
             })
                 .then((res) => {
                     this.onelist1 = res.data.data;
@@ -271,9 +271,9 @@ export default {
         },
         onelist1click2 () {
             this.onelist2Show = true;
-            this.$http.post(this.$api.orders.creatOrderCompanies2, {
-                'companyTypeId': 1, // 1:交易公司  2：承运商
-                'name': this.buyCompaniesCony
+            this.$http.post(this.$api.orders.creatcompanynew, {
+                'category': 1, // 1:交易公司  2：承运商
+                'companyName': this.buyCompaniesCony
             })
                 .then((res) => {
                     this.onelist2 = res.data.data;
@@ -320,7 +320,7 @@ export default {
             this.parameter.data.createdEndDate = new Date(this.createDate[1]).getTime();
             this.searchList(this.parameter);
             if (state === 1) {
-                this.$tools.downloadFile(this, 'platform/v1/orders/matchListExport', this.parameter.data);
+                this.$tools.downloadFile(this, 'platform/v1/orders/matchListExport', this.parameter.data, '补录订单');
             }
         },
         toggleTabs (index) { // 状态筛选
@@ -427,7 +427,8 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  @import './../../styles/module/OrderList';
   .my-order-list {
     padding-top: 15px;
     .export {
@@ -435,6 +436,38 @@ export default {
       margin-bottom: 10px;
       margin-top: 20px;
     }
+    .icon-mySearch{
+      position: relative;
+      right:25px;
+    }
+    .selected-box{
+      padding: 15px 0 12px 14px;
+    }
+    .el-input__inner{
+      height:30px;
+    }
+    /deep/ .el-range-separator{
+      line-height: 24px !important;
+    }
+    /deep/ .el-input__icon{
+      line-height: 24px !important;
+    }
+    .search_icon{
+      position: absolute;
+      top:0;
+      right:20px;
+    }
+    .gy-table td{
+      padding:6px;
+    }
   }
-  @import './../../styles/module/OrderList';
+  .order-list .selected{
+    .search-btn{
+      cursor: pointer;
+      color:#666;
+    }
+    .search-box input{
+      width:180px;
+    }
+  }
 </style>

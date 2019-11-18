@@ -9,41 +9,55 @@
     </div>
     <div class="btn-groups">
         <button type="button" class="gy-button-extra" @click="addMan">新增</button>
-        <button type="button" class="gy-button-normal" @click="deleteManager">批量删除</button>
+        <button type="button" class="gy-button-normal" @click="deleteManager">删除</button>
     </div>
     <div class="table-content">
         <div class="gy-table">
             <table class="gy-table">
                 <thead>
                 <tr>
-                    <th style="width: 55px"><el-checkbox v-model="chkAll" @change="managerChkAll"></el-checkbox></th>
-                    <th style="width: 55px">ID</th>
-                    <th style="width: 120px">岗位名称</th>
+                    <th style="width: 30px;max-width: 30px"><el-checkbox v-model="chkAll" @change="managerChkAll"></el-checkbox></th>
+                    <!--<th style="width: 50px;max-width: 50px">ID</th>-->
+                    <th style="width: 120px;max-width: 120px">岗位名称</th>
                     <th>岗位描述</th>
                     <th>备注</th>
-                    <th style="width: 100px">操作</th>
+                    <th style="width: 96px">操作</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-if="manageList && manageList.length === 0"><td colspan="6" style="text-align: center">暂无数据</td></tr>
                 <tr v-else v-for="(item, index) of manageList" :key="index">
-                    <td>
+                    <td style="width: 36px;max-width: 36px" class="align-c">
                         <el-checkbox v-model="item.isDelete" :true-label="1" :false-label="0"></el-checkbox>
                     </td>
-                    <td>{{index + 1}}</td>
-                    <td>{{item.name}}</td>
-                    <td style="max-width: 350px">{{item.positionDesc ? item.positionDesc : '-'}}</td>
-                    <td style="max-width: 350px">{{item.remark ? item.remark : '-'}}</td>
-                    <td>
-                        <span class="gy-button-view" @click="editManager(item)">编辑</span>
-                        <span class="gy-button-view" @click="managerDetail(item)">查看</span>
+                    <!--<td style="width: 50px;max-width: 50px">{{index + 1}}</td>-->
+                    <td style="width: 170px;max-width: 170px">
+                        <el-tooltip :disabled="(item.name && item.name.replace(/[^x00-xff]/g, 'aa').length > 25)? disabled : !disabled" placement="top" effect="light">
+                            <div class="tootip" slot="content">{{item.name}}</div>
+                            <div>{{item.name}}</div>
+                        </el-tooltip>
+                    </td>
+                    <td style="width:308px;max-width: 308px">
+                        <el-tooltip :disabled="(item.positionDesc && item.positionDesc.replace(/[^x00-xff]/g, 'aa').length > 47)? disabled : !disabled" placement="top" effect="light">
+                            <div class="tootip" slot="content">{{item.positionDesc}}</div>
+                            <div>{{item.positionDesc ? item.positionDesc : '-'}}</div>
+                        </el-tooltip>
+                    </td>
+                    <td style="width:315px;max-width: 315px">
+                        <el-tooltip poper-class="test" :content="item.remark" :disabled="(item.remark && item.remark.replace(/[^x00-xff]/g, 'aa').length > 47)? disabled : !disabled" placement="top" effect="light">
+                            <div>{{item.remark ? item.remark : '-'}}</div>
+                        </el-tooltip>
+                    </td>
+                    <td style="width: 96px;max-width: 96px" class="align-c">
+                        <button type="button" class="gy-button-view" @click="managerDetail(item)">查看</button>
+                        <button type="button" class="gy-button-view" @click="editManager(item)">编辑</button>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
         <div class="pagination-wrapper" v-if="total > 0">
-            <div class="pagination-total">共 {{total}} 条</div>
+            <div class="pagination-total">共 {{total}} 条记录</div>
             <!-- 翻页 -->
             <el-pagination
                 background
@@ -53,7 +67,8 @@
             </el-pagination>
         </div>
     </div>
-    <el-dialog width="800px" title="岗位详情" :visible.sync="detailAddManager">
+    <el-dialog width="800px" title="岗位详情" :visible.sync="detailAddManager" :close-on-click-modal="false"
+               :close-on-press-escape="false">
         <div class="detailAddManager">
             <div class="gy-form-group">
                 <span class="l"><strong>*</strong>岗位名称</span>{{dialogManager.name}}
@@ -81,6 +96,7 @@ export default {
     name: 'postManagement',
     data () {
         return {
+            disabled: false,
             detailAddManager: false,
             manageList: [
                 // {
@@ -126,6 +142,7 @@ export default {
                 return;
             }
             this.$confirm('确认删除所选岗位?', '提示', {
+                type: 'warning',
                 confirmButtonText: '确定',
                 confirmButtonClass: 'gy-button-extra',
                 cancelButtonText: '取消',
@@ -316,4 +333,15 @@ export default {
             }
         }
     }
+
+    .gy-table button {
+        background-color: #fff;
+    }
+    /deep/.el-tooltip{
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<style lang="scss">
+
 </style>

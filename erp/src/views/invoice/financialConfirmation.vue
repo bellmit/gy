@@ -1,6 +1,6 @@
 <template>
     <div class="financialConfirmation my-invoice financial_add">
-        <gy-contract type='1' :query="params"></gy-contract>
+        <gy-contract :query="form"></gy-contract>
         <div class="title">收票信息</div>
         <div class="block-wrap clearfix">
           <div class="gy-form-group">
@@ -17,7 +17,7 @@
           </div>
           <div class="gy-form-group">
               <span class="l">数量(吨)</span>
-              <span>{{ticketFinancialInformations.quantity}}</span>
+              <span>{{ticketFinancialInformations.quantity|numToQuantity}}</span>
           </div>
           <div class="gy-form-group">
               <span class="l">发票总金额(元)</span>
@@ -25,7 +25,8 @@
           </div>
           <div class="gy-form-group">
               <span class="l">单价(元/吨)</span>
-              <span>{{ticketFinancialInformations.productUnitPrice | numToCash}}</span>
+              <span v-if="ticketFinancialInformations.skuPriceType === 21 || ticketFinancialInformations.skuPriceType === 22">公式计价</span>
+              <span v-else>{{ticketFinancialInformations.productUnitPrice | numToCash(true)}}</span>
           </div>
           <div class="gy-form-group">
               <span class="l">创建日期</span>
@@ -34,7 +35,7 @@
           <div class="gy-form-group">
               <span class="l">收票凭证</span>
               <span v-if="ticketFinancialInformations.receiptInvoiceUrlList.length !== 0">
-                <i class="iconfont icon-photo" @click="isShowImg(1)"></i>
+                <i class="iconfont icon-photo" @click="isShowImg(ticketFinancialInformations.receiptInvoiceUrlList)"></i>
               </span>
               <span v-else>
                 <i class="iconfont icon-photo-null"></i>
@@ -47,7 +48,7 @@
           <div class="gy-form-group" style="width: 100%">
               <span class="l">采购合同</span>
               <span>
-                <i v-if="ticketFinancialInformations.purchaseContractUrl && ticketFinancialInformations.purchaseContractUrl.length !== 0" class="iconfont icon-photo" @click="isShowImg(2)"></i>
+                <i v-if="ticketFinancialInformations.purchaseContractUrl && ticketFinancialInformations.purchaseContractUrl.length !== 0" class="iconfont icon-photo" @click="isShowImg(ticketFinancialInformations.purchaseContractUrl)"></i>
                 <i v-else class="iconfont icon-photo-null"></i>
               </span>
           </div>
@@ -56,58 +57,27 @@
           <button class="gy-button-normal" @click="callBack()">返回</button>
           <button v-if="ticketFinancialInformations.status === 10 && (doneFlg === '0' || doneFlg === 0)" class="gy-button-extra" @click="approvedClick(item =1)">财务确认</button>
         </div>
-        <div class="title">操作流程</div>
-        <div class="padding_small">
-            <table class="gy-table">
-                <thead>
-                <tr>
-                    <th>序号</th>
-                    <th>操作人</th>
-                    <th>操作时间</th>
-                    <th>操作结果</th>
-                    <th>备注</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in invoiceHistory" :key="index">
-                    <td>{{index+1}}</td>
-                    <td>{{item.username}}</td>
-                    <td>{{item.createdDate | date(item.createdDate)}}</td>
-                    <td>{{$constant.approveType[item.resultCode]}}</td>
-                    <td>{{item.msg}}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <gy-operation-history ref="operationHis"></gy-operation-history>
         <!-- 预览图片 -->
-        <el-dialog class="ConfirmationImg" title="图片预览" :visible.sync="visible" width="1000px" custom-class="dialog-erp-cont">
-            <el-carousel arrow="always" trigger="click" :autoplay="false">
-                <el-carousel-item v-for="(item, index) in imgLists" :key="index">
-                    <!--<img class="previewer-img-detail" :src="item" style="width: 100%;height: 100%">-->
-                    <img v-if="$constant.imgType.indexOf(item.split('.').pop()) !== -1" :src="item" alt="" width="100%" height="auto">
-                    <iframe v-if="item.split('.').pop() === 'pdf'" :src="item" frameborder="0" id="contractIframe" width="100%" style="min-height: 490px"></iframe>
-                    <iframe v-if="$constant.fileType.indexOf(item.split('.').pop().toLowerCase()) !== -1" :src="'https://view.officeapps.live.com/op/view.aspx?src='+ item" frameborder='0' width="100%" style="min-height: 490px"></iframe>
-                </el-carousel-item>
-            </el-carousel>
-        </el-dialog>
+        <gy-file-view ref="contFileView"></gy-file-view>
     </div>
 </template>
 
 <script>
 import gyContract from '../components/contractBasic.vue';
+import gyFileView from '../components/gyFileView';
+import gyOperationHistory from './../../components/gyOperationHistoryComment';
+
 export default {
     name: 'financialConfirmation',
-    components: {gyContract},
+    components: {gyContract, gyFileView, gyOperationHistory},
     data () {
         return {
             ticketFinancialInformations: {
                 receiptInvoiceUrlList: []
             },
             saleOrderId: null,
-            id: null,
-            params: {
-                contEssId: null
-            },
+            contEssId: null,
             purchaseOrderId: null,
             approvedList: {},
             basicInformationDeliveryList: [],
@@ -120,57 +90,40 @@ export default {
             invoiceHistoryObj: {},
             doneFlg: null,
             sellerInfo: {},
-            buyerInfo: {}
+            buyerInfo: {},
+            form: {}
         };
     },
     mounted () {
-        this.id = this.$route.query.id;
-        this.$route.query.contEssId = this.id;
+        this.contEssId = this.$route.query.id;
 
         this.saleOrderId = this.$route.query.saleOrderId;
         this.purchaseOrderId = this.$route.query.purchaseOrderId;
         this.doneFlg = this.$route.query.doneFlg;
         this.ticketInformation();
-        this.basicInformationDelivery();
-        // this.contrtactBase();
-    },
-    created () {
-        this.params.contEssId = this.$route.query.id;
+        this.contrtactBase();
     },
     methods: {
-        isShowImg (type) {
-            // 收票凭证
-            if (type === 1) {
-                this.imgLists = this.ticketFinancialInformations.receiptInvoiceUrlList;
-            }
-            // 查看采购合同
-            if (type === 2) {
-                this.imgLists = this.ticketFinancialInformations.purchaseContractUrl;
-                console.log(this.imgLists);
-            }
-            this.visible = true;
+        // 合同要素基本信息
+        contrtactBase () {
+            this.$http.get(this.$api.order.orderDetail + '/' + this.contEssId).then((res) => {
+                if (res.data.code === 0) {
+                    this.form = res.data.data;
+                }
+            });
+        },
+        isShowImg (list) {
+            this.$refs.contFileView.open4MultiFile(list);
         },
         // 返回
         callBack () {
             this.$router.go(-1);
         },
-        // 交割采购基本信息
-        basicInformationDelivery () {
-            this.$http.get(this.$api.delivery.getBuyDetail + '/' + this.purchaseOrderId).then((res) => {
-                if (res.data.code === 0) {
-                    this.basicInformationDeliveryList = res.data.data;
-                }
-            });
-        },
         // 操作历史记录
         invoiceHistoryClick () {
             this.invoiceHistoryObj.targetId = this.ticketFinancialInformations.invoiceReceiptId;
             this.invoiceHistoryObj.targetType = 6;
-            this.$http.post(this.$api.invoice.getInvoiceHistory, this.invoiceHistoryObj).then((res) => {
-                if (res.data.code === 0) {
-                    this.invoiceHistory = res.data.data;
-                }
-            });
+            this.$refs.operationHis.display(this.$api.contract.approve1History, this.invoiceHistoryObj);
         },
         // 收票信息
         ticketInformation () {
@@ -187,7 +140,7 @@ export default {
         // 确认
         approvedClick (item) {
             this.approvedList.invoiceReceiptId = this.ticketFinancialInformations.invoiceReceiptId;
-            this.approvedList.contEssId = this.$route.query.id;
+            this.approvedList.contEssId = this.contEssId;
             this.approvedList.todoId = this.$route.query.todoId;
             this.approvedList.allowedFunctionsId = 38;
             this.$http.post(this.$api.invoice.financialSure, this.approvedList).then((res) => {
@@ -199,18 +152,6 @@ export default {
                     this.$router.go(-1);
                 }
             });
-        // },
-        // // 合同要素基本信息
-        // contrtactBase () {
-        //     this.$http.get(this.$api.contract.getdetail + '/' + this.id).then((res) => {
-        //         if (res.data.code === 0) {
-        //             this.form = res.data.data;
-        //             this.skuQuantity = this.form.buyerInfo.skuQuantity;
-        //             this.odrContactName = this.form.buyerInfo.odrContactName;
-        //             this.buyerInfo = this.form.buyerInfo;
-        //             this.sellerInfo = this.form.sellerInfo;
-        //         }
-        //     });
         }
     }
 };
@@ -262,9 +203,9 @@ export default {
     }
     .financial_add{
         .gy-form-group{
-            padding:8px 30px 8px 134px;
+            padding:8px 30px 8px 144px;
             .l{
-                width:100px;
+                width:125px;
             }
         }
     }

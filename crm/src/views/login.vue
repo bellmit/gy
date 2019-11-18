@@ -3,7 +3,6 @@
         <div class="login-header">
             <div class="inner">
                 <a href="/" class="logo"><img src="../assets/images/gy-logo.png" alt=""></a>
-                <span>CRM</span>
             </div>
         </div>
         <div class="login-center">
@@ -81,7 +80,10 @@ export default {
                         //     }
                         // };
                         // firstlist(navData);
-                        // console.log(frontUrl);
+                        if (res.data.data.roles.find((n) => n === 'platformStat')) {
+                            this.$router.push({name: 'echarts'});
+                            return;
+                        }
                         if (res.data.data.menuList.length === 0) {
                             this.$router.push({name: 'container'});
                             return;
@@ -112,9 +114,7 @@ export default {
                 vertical-align: top;
             }
             img {
-                width: 146px;
-                height: auto;
-                margin-right: 20px;
+                height: 28px;
             }
             span {
                 font-family: PingFangSC-Medium;

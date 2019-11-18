@@ -15,11 +15,11 @@
                     <div class="gy-form-group">
                         <span class="l">客户名称</span>
                         <!-- TODO -->
-                        <input class="gy-input" v-model="searchfrom.customerName" placeholder="请输入" type="text">
+                        <input class="gy-input" v-model="searchfrom.data.customerName" placeholder="请输入" type="text">
                     </div>
                     <div class="gy-form-group">
                         <span class="l">客户经理</span>
-                        <el-select v-model="searchfrom.customerManagerId">
+                        <el-select v-model="searchfrom.data.customerManagerId">
                             <el-option label="全部" value=""></el-option>
                             <el-option
                                 v-for="item in customerManagerList"
@@ -30,22 +30,10 @@
                         </el-select>
                     </div>
                     <div class="gy-form-group cl">
-                        <span class="l">跟进状态</span>
-                        <el-select v-model="searchfrom.trackStatusDictId">
-                            <el-option label="全部" value=""></el-option>
-                            <el-option
-                                v-for="item in tradeModeOptionStatus"
-                                :key="item.dictId"
-                                :label="item.dictName"
-                                :value="item.dictId">
-                            </el-option>
-                        </el-select>
-                    </div>
-                    <div class="gy-form-group">
                         <span class="l">跟进开始时间</span>
                         <div class="date-picker">
                             <el-date-picker
-                                v-model="searchfrom.startDate"
+                                v-model="searchfrom.data.startDate"
                                 type="datetime"
                                 @focus="handleFocus"
                                 :picker-options="startDateOptions"
@@ -54,25 +42,41 @@
                             </el-date-picker>
                         </div>
                     </div>
-                    <div class="gy-form-group last">
+                    <div class="gy-form-group">
                         <span class="l">跟进结束时间</span>
                         <div class="date-picker">
                             <el-date-picker
-                                v-model="searchfrom.endDate"
+                                v-model="searchfrom.data.endDate"
                                 type="datetime"
                                 @focus="handleFocus"
                                 :picker-options="endDateOptions"
                                 value-format="yyyy-MM-dd HH:mm:ss"
                                 placeholder="请选择">
                             </el-date-picker>
-                            <span class="searchicon" @click="getCollectionList()"><i class="iconfont icon-search"></i></span>
                         </div>
+                    </div>
+                    <div class="gy-form-group cl">
+                        <span class="l">跟进状态</span>
+                        <el-select v-model="searchfrom.data.trackStatusDictId">
+                            <el-option
+                                v-for="item in tradeModeOptionStatus"
+                                :key="item.dictId"
+                                :label="item.dictName"
+                                :value="item.dictId">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div class="gy-form-group last">
+                        <span class="l">跟进记录</span>
+                        <!-- TODO -->
+                        <input class="gy-input" v-model="searchfrom.data.content" placeholder="请输入" type="text">
+                        <span class="searchicon" @click="getCollectionList()"><i class="iconfont icon-search"></i></span>
                     </div>
                 </div>
             </div>
             <div class="customertrack-account-query-btns">
-                <button class="gy-button-extra mr10" @click="addCustomer('add', '', customertit = '新增客户跟进')">新增</button>
-                <button class="gy-button-normal" @click="deladdAll(customertit = '删除客户跟进')">删除</button>
+                <button class="gy-button-extra mr10" @click="addCustomer('add', '', customertit = '新增跟进')">新增</button>
+                <button class="gy-button-normal" @click="deladdAll(customertit = '删除跟进')">删除</button>
             </div>
             <!-- 列表 -->
             <div class="table-box table-wrap">
@@ -80,54 +84,87 @@
                     <thead>
                         <tr>
                             <th>
-                                <input name="" type="checkbox" :checked="companySelectedList.length === followList.length && companySelectedList.length>0" @change="handleCheckAllChange" /><span>#</span>
+                                <input name="" type="checkbox" :checked="companySelectedList.length === followList.length && companySelectedList.length>0" @change="handleCheckAllChange" />
                             </th>
-                            <th>跟进时间</th>
-                            <th>客户名称</th>
+                            <th>最新跟进时间</th>
+                            <th>企业名称</th>
                             <th>联系人</th>
                             <th>联系人电话</th>
-                            <th>跟进状态</th>
-                            <th>跟进记录</th>
+                            <th>最新跟进状态</th>
+                            <th>跟进次数</th>
                             <th>客户经理</th>
                             <th>跟进人</th>
                             <th>操作</th>
                         </tr>
                     </thead>
-                    <tbody v-if="followList.length !== 0">
-                        <tr v-for="(item, index) in followList" :key="index">
-                            <td class="wid70"><input name="" type="checkbox" :checked="companySelectedList.indexOf(item.id) >= 0" @change="handleCheckChange(item.id)" /><span>{{index + 1}}</span></td>
-                            <td class="wid150">{{item.trackDate?item.trackDate:"-"}}</td>
-                            <td>{{item.customerName?item.customerName:"-"}}</td>
-                            <td>{{item.contactUserName?item.contactUserName:"-"}}</td>
-                            <td>{{item.contactUserMobile?item.contactUserMobile:"-"}}</td>
-                            <td>{{item.trackStatusDictName?item.trackStatusDictName:"-"}}</td>
-                            <td class="wid150"><span class="nowrap">{{item.content?item.content:"-"}}</span></td>
-                            <td>
-                                <span v-if="item.customerManagers.length !== 0" v-for="(itemList, indexList) in item.customerManagers" :key="indexList">{{itemList.userName}}
+                    <tbody v-for="(item, index) in followList" :key="index">
+                        <tr>
+                            <td @click="lookCustomer(item.customerId)" style="text-align:center;"><input name="" type="checkbox" :checked="companySelectedList.indexOf(item.customerId) >= 0" @change="handleCheckChange(item.customerId)" /></td>
+                            <td @click="lookCustomer(item.customerId)" class="wid150">{{item.createdDate | date()}}</td>
+                            <td @click="lookCustomer(item.customerId)">{{item.customerName | showline}}</td>
+                            <td @click="lookCustomer(item.customerId)">{{item.contactUserName | showline}}</td>
+                            <td @click="lookCustomer(item.customerId)">{{item.contactUserMobile | showline}}</td>
+                            <td @click="lookCustomer(item.customerId)">{{item.trackStatusDictName | showline}}</td>
+                            <td @click="lookCustomer(item.customerId)" class="wid150"><span class="nowrap">{{item.trackNum}}</span></td>
+                            <td @click="lookCustomer(item.customerId)">
+                                <span v-for="(itemList, indexList) in item.customerManagers" :key="indexList">{{itemList.userName}}
                                     <span v-if="item.customerManagers.length > indexList + 1 ">,</span>
                                 </span>
                                 <span v-if="item.customerManagers.length === 0">-</span>
                             </td>
-                            <td>{{item.trackUserName?item.trackUserName:"-"}}</td>
+                            <td @click="lookCustomer(item.customerId)">{{item.trackUserName | showline}}</td>
                             <td>
-                                <button class="gy-button-view" @click="addCustomer('look', item, customertit = '查看客户跟进')">查看</button>
-                                <button class="gy-button-view" v-show="item.trackUserId===saveid" @click="addCustomer('save', item, customertit = '编辑客户跟进')">编辑</button>
+                                <button class="gy-button-view" @click="lookCustomer(item.customerId)">查看</button>
+                                <button class="gy-button-view" @click="addCustomer('add', '', customertit = '新增跟进', item.customerName)">跟进</button>
                             </td>
                         </tr>
+                        <tr class="tdtable" v-if =" recordId === item.customerId && detailfollow">
+                        <td colspan="10">
+                            <table class="gy-table followdetail">
+                                <thead>
+                                    <!-- <th style="width:190px;"></th> -->
+                                    <th style="width:206px;">跟进时间</th>
+                                    <th style="width:70px;">联系人</th>
+                                    <th style="width:123px;">跟进状态</th>
+                                    <th style="width:458px;">跟进记录</th>
+                                    <th style="width:158px;">跟进人</th>
+                                    <th>操作</th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in recordList" :key="index">
+                                        <!-- <td style="text-align:right;"><i class="iconfont icon-shanchu" @click="removefollow(item.id)"></i></td> -->
+                                        <td>{{item.createdDate | date(true)}}</td>
+                                        <td>{{item.contactUserName}}</td>
+                                        <td>{{item.trackStatusDictName}}</td>
+                                        <td class="wid450">
+                                            <!-- <span class="nowrap">{{item.content?item.content:"-"}}</span> -->
+                                            <el-tooltip poper-class="test" :content="item.content" :disabled="(item.content && item.content.replace(/[^x00-xff]/g, 'aa').length > 12)? disabled : !disabled" placement="top" effect="light">
+                                                <span class="nowrap">{{item.content?item.content:"-"}}</span>
+                                            </el-tooltip>
+                                        </td>
+                                        <td>{{item.trackUserName}}</td>
+                                        <td>
+                                            <button class="gy-button-view" v-show="item.trackUserId===saveid" @click="addCustomer('save', item, customertit = '编辑')">编辑</button>
+                                            <button class="gy-button-view" v-show="item.trackUserId===saveid" @click="removefollow(item.id)">删除</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        </tr>
                     </tbody>
-                    <tbody v-else>
+                    <tbody v-if="followList.length === 0">
                         <tr>
                             <td colspan="15" class="null-td" style="text-align:center">没有找到可显示的数据...</td>
                         </tr>
                     </tbody>
                 </table>
+                <div class="departmentName">共计{{itemTotal}}条记录</div>
             </div>
-            <div class="departmentName" style="padding-left:16px;">共计{{itemTotal}}条记录</div>
             <div>
                 <el-pagination
-                    v-if="followList.length !== 0"
+                    v-if="itemTotal !== 0"
                     class="pagination-box"
-                    style="margin: 20px 0 30px 0;"
                     background
                     @current-change="changeSelect"
                     @size-change="sizeChange"
@@ -143,14 +180,14 @@
                 <!-- 删除 -->
                 <div class="dele-wrap" v-if="dialog.type === 0">
                     <img src="../../assets/images/warning.png" alt="">
-                    <div>请确认是否删除该条跟进信息。</div>
+                    <div>请确认是否删除跟进信息。</div>
                 </div>
                 <!-- 开始 -->
                 <div class="adrd-warp clearfix" v-if="dialog.type === 1">
                     <div class="gy-form-group" v-if="input_disabled">
                         <span class="l" :class="{'isrequired':!input_disabled}">客户经理</span>
                         <div class="nowrap">
-                        <span v-if="addForm.customerManagers.length !== 0" v-for="(itemList, indexList) in addForm.customerManagers" :key="indexList">{{itemList.userName}}
+                        <span v-for="(itemList, indexList) in addForm.customerManagers" :key="indexList">{{itemList.userName}}
                             <span v-if="addForm.customerManagers.length > indexList + 1 ">,</span>
                         </span>
                         <span v-if="addForm.customerManagers.length === 0">-</span>
@@ -159,7 +196,26 @@
                     <div class="gy-form-group">
                         <span class="l" :class="{'isrequired':!input_disabled}">客户名称</span>
                         <span class="nowrap" v-if="input_disabled">{{addForm.customerId}}</span>
-                        <el-select v-if="!input_disabled" v-model="addForm.customerId" value-key="id" @change="customerSel" placeholder="请选择">
+                        <!-- 1 -->
+                        <div class="product-list">
+                            <input  placeholder="请输入"  type="text" class="gy-input" v-model="keywords" @keyup="getList"  @keyup.13="handleGetList" @click="empty" :disabled="forbidden">
+                            <ul v-show="showList" v-clickOutside="handleHiddenList">
+                                <li v-for="(item, index) in list" :key="index" @click="handleList(item)" v-if="list.length > 0">{{item.customerName}}</li>
+                                <li class="none-tips" v-if="list.length === 0">没有搜到相关公司</li>
+                            </ul>
+                            <i v-if="!forbidden" class="iconfont icon-mySearch my-icon-jj" @click="handleGetList"></i>
+                        </div>
+                        <!-- 2 -->
+                        <!-- <el-select
+                            filterable
+                            remote
+                            :remote-method="remoteMethod"
+                            v-if="!input_disabled"
+                            :disabled="forbidden"
+                            v-model="addForm.customerId"
+                            value-key="id"
+                            @change="customerSel"
+                            placeholder="请选择">
                             <el-option
                                 v-for="item in tradeModeOptions"
                                 :key="item.id"
@@ -167,12 +223,12 @@
                                 :value="item.id">
                             </el-option>
                         </el-select>
+                        <i class="iconfont icon-mySearch my-icon-jj"></i> -->
                     </div>
                     <div class="gy-form-group">
                         <span class="l" :class="{'isrequired':!input_disabled}">跟进状态</span>
                         <span v-if="input_disabled">{{addForm.trackStatusDictName}}</span>
-                        <el-select v-if="!input_disabled" v-model="addForm.trackStatusDictId">
-                            <!-- <el-option label="全部" value=""></el-option> -->
+                        <el-select v-if="!input_disabled" v-model="addForm.trackStatusDictId"  placeholder="请选择">
                             <el-option
                                 v-for="item in tradeModeOptionStatus"
                                 :key="item.dictId"
@@ -180,6 +236,10 @@
                                 :value="item.dictId">
                             </el-option>
                         </el-select>
+                    </div>
+                    <div class="gy-form-group" v-if="input_disabled">
+                        <span class="l" :class="{'isrequired':!input_disabled}">联系人电话</span>
+                        <div class="nowrap">{{addForm.contactUserMobile}}</div>
                     </div>
                     <div class="gy-form-group">
                         <span class="l" :class="{'isrequired':!input_disabled}">联系人</span>
@@ -193,14 +253,9 @@
                             </el-option>
                         </el-select>
                     </div>
-                    <div class="gy-form-group" v-if="input_disabled">
-                        <span class="l" :class="{'isrequired':!input_disabled}">联系人电话</span>
-                        <div class="nowrap">{{addForm.contactUserMobile}}</div>
-                    </div>
-                    <div class="gy-form-group">
-                        <span class="l" :class="{'isrequired':!input_disabled}">跟进时间</span>
+                    <!-- <div class="gy-form-group">
+                        <span class="l">提醒时间</span>
                         <span v-if="input_disabled">{{addForm.trackDate}}</span>
-
                             <el-date-picker
                                 v-if="!input_disabled"
                                 v-model="addForm.trackDate"
@@ -210,8 +265,7 @@
                                 value-format="yyyy-MM-dd HH:mm:ss"
                                 placeholder="请选择">
                             </el-date-picker>
-
-                    </div>
+                    </div> -->
                     <div class="gy-form-group" v-if="input_disabled">
                         <span class="l" :class="{'isrequired':!input_disabled}">跟进人</span>
                         <div class="nowrap">{{addForm.trackUserName}}</div>
@@ -226,7 +280,7 @@
                 <div class="adddialog-footer" v-if="lookdispaly">
                     <span slot="footer" class="dialog-footer fr">
                         <!-- 新增确定 -->
-                        <button class="gy-button-extra confirmations" v-if="dialog.type === 1" @click="notarizefloow('addform')">确定</button>
+                        <button class="gy-button-extra confirmations" v-if="dialog.type === 1 && queding" @click="notarizefloow('addform')">确定</button>
                         <!-- 删除确定 -->
                         <button class="gy-button-extra confirmations" v-if="dialog.type === 0" @click="romovefloow('addform')">确定</button>
                         <button class="gy-button-normal" @click="dialogVisible = false">取消</button>
@@ -239,16 +293,51 @@
 
 <script>
 import filters from '@/config/filter';
+
+const clickOutside = {
+    bind (el, binding) {
+        function documentHandler (e) {
+            if (el.contains(e.target)) {
+                return false;
+            }
+            if (binding.expression) {
+                binding.value(e);
+            }
+        }
+        el.vueClickOutside = documentHandler;
+        document.addEventListener('click', documentHandler);
+    },
+    unbind (el) {
+        document.removeEventListener('click', el.vueClickOutside);
+        delete el.vueClickOutside;
+    }
+};
 export default {
     name: 'customertrack',
+    directives: {
+        clickOutside
+    },
     data () {
         return {
+            list: [],
+            keywords: '',
+            showList: false,
+            lastTime: null,
+            differentUrl: this.$api.customer.customerSearchList,
+            selectedProduct: {},
+            defaultProduct: '',
+            queding: true,
+            forbidden: false,
+            disabled: false,
             isrequired: {
                 input_disabled: false
             },
             lookdispaly: true,
             input_disabled: false,
+            detailfollow: false,
             companySelectedList: [],
+            recordId: null,
+            recordList: [],
             checkAll: false,
             compileTrackId: '',
             customertit: '',
@@ -269,13 +358,18 @@ export default {
             tradeModeOptionStatus: [],
             customerManagerList: [],
             searchfrom: {
-                customerId: '',
-                customerManagerId: null,
-                customerName: '',
-                startDate: '',
-                endDate: '',
-                trackStatusDictId: null,
-                keywords: ''
+                data: {
+                    customerId: '',
+                    customerManagerId: null,
+                    customerName: '',
+                    startDate: '',
+                    endDate: '',
+                    trackStatusDictId: null,
+                    content: ''
+                },
+                pageNum: 1,
+                pageSize: 10,
+                keywords: null
             },
             addForm: {
                 contactUserId: '',
@@ -299,23 +393,72 @@ export default {
                 // }
             },
             endDateOptions: {
-                // disabledDate: (time) => {
-                //     if (this.startDate) {
-                //         return time.getTime() < this.s;
-                //     }
-                //     return time.getTime() > Date.now();
-                // }
+                disabledDate: (time) => {
+                    if (this.searchfrom.startDate) {
+                        return time.getTime() < this.searchfrom.startDate;
+                    }
+                    return time.getTime() < this.searchfrom.startDate;
+                }
             }
 
         };
     },
+    watch: {
+        recordId (newval, oldval) {
+            this.detailfollow = true;
+        }
+    },
     created () {
         this.getCollectionList(); // 跟进列表
-        this.getCompanyLinkman(); // 获得公司
         this.getControllerStatus(); // 获得跟进状态
         this.getCustomerManager(); // 获得经理
     },
     methods: {
+        // 2
+        getList (e) {
+            this.lastTime = e.timeStamp;
+            setTimeout(() => {
+                if (this.lastTime === e.timeStamp && this.keywords && this.keywords.length > 2) {
+                    this.handleGetList();
+                }
+            }, 500);
+        },
+        handleGetList (vlaue) {
+            this.$http.get(this.$api.customer.customerSearchList + '?name=' + encodeURI(this.keywords)).then(res => {
+                this.list = res.data.data.data;
+                if (vlaue === 'false') {
+                    this.showList = false;
+                    this.tradeModeOptionsList = this.list[0].contacts;
+                    this.addForm.customerName = this.list[0].customerName;
+                    this.addForm.customerId = this.list[0].id;
+                } else {
+                    this.showList = true;
+                }
+            });
+        },
+        handleList (value) {
+            this.keywords = value.customerName;
+            this.addForm.customerName = value.customerName;
+            this.addForm.customerId = value.id;
+            this.showList = false;
+            if (value.contacts) {
+                this.tradeModeOptionsList = value.contacts;
+            } else {
+                this.tradeModeOptionsList = [];
+                this.addForm.contactUserId = '';
+            }
+        },
+        empty () {
+            this.keywords = '';
+            this.addForm.customerName = null;
+            this.addForm.customerId = null;
+            this.tradeModeOptionsList = [];
+            this.addForm.contactUserId = '';
+            this.showList = false;
+        },
+        handleHiddenList () {
+            this.showList = false;
+        },
         // 获得经理
         getCustomerManager () {
             const me = this;
@@ -324,7 +467,6 @@ export default {
             };
             me.$http.post(me.$api.customer.customermanager, params)
                 .then(function (response) {
-                    console.log(response);
                     if (response.data.code === 0) {
                         me.customerManagerList = response.data.data;
                     }
@@ -345,35 +487,44 @@ export default {
                 });
         },
         // 获得公司
-        getCompanyLinkman () {
+        getCompanyLinkman (row) {
             const me = this;
-            me.$http.get(me.$api.customer.customerList)
+            me.$http.get(me.$api.customer.customerSearchList + '?name=' + encodeURI(row.customerName))
                 .then(function (response) {
-                    // console.log(response);
                     if (response.data.code === 0) {
                         me.tradeModeOptions = response.data.data.data;
+                        if (me.tradeModeOptions.length !== 0) {
+                            me.queding = true;
+                            for (let i = 0; i < me.tradeModeOptions.length; i++) {
+                                if (me.tradeModeOptions[i].id === row.customerId) {
+                                    console.log('ab');
+                                    me.addForm.customerId = Number(row.customerId);
+                                    console.log(me.addForm.customerId);
+                                    me.addForm.contactUserId = Number(row.contactUserId);
+                                }
+                            }
+                        } else {
+                            console.log('abcd');
+                            me.addForm.customerId = '';
+                            me.addForm.contactUserId = '';
+                            me.queding = false;
+                        }
+                        console.log(response.data.data.data);
+                        me.tradeModeOptionsList = response.data.data.data[0].contacts;
                     }
                 }).catch(function (error) {
                     console.log(error);
                 });
         },
+        // 客户搜索
+        remoteMethod (query) {
+            console.log(query);
+            this.getCompanyLinkman(query);
+        },
         // 跟进列表
         getCollectionList () {
             const me = this;
-            let params = {
-                data: {
-                    customerId: this.searchfrom.contactUserId, // 公司名称
-                    customerManagerId: this.searchfrom.customerManagerId, // 客户经理id
-                    customerName: this.searchfrom.customerName, // 客户名称
-                    startDate: this.searchfrom.startDate, // 开始时间
-                    endDate: this.searchfrom.endDate, // 结束时间
-                    trackStatusDictId: this.searchfrom.trackStatusDictId // 跟进状态id
-                },
-                pageNum: me.pageNum,
-                pageSize: me.pageSize,
-                keywords: me.searchfrom.keywords
-            };
-            me.$http.post(me.$api.customer.customersearch, params)
+            me.$http.post(me.$api.customer.customersearch, me.searchfrom)
                 .then(function (response) {
                     if (response.data.code === 0) {
                         let resData = response.data.data.list;
@@ -391,6 +542,18 @@ export default {
                     console.log(error);
                 });
         },
+        // 根据客户id获取客户跟
+        lookCustomer (customerId) {
+            this.recordId = customerId;
+            this.detailfollow = !this.detailfollow;
+            const me = this;
+            me.$http.get(me.$api.customer.amendcustomer + customerId)
+                .then(function (response) {
+                    me.recordList = response.data.data;
+                }).catch(function (error) {
+                    console.log(error);
+                });
+        },
         // 显示
         seniorSearch () {
             this.isSeniorSearch = !this.isSeniorSearch;
@@ -400,14 +563,15 @@ export default {
             this.isMonth = false;
         },
         // 弹框
-        addCustomer (option, row, formName) {
-            console.log(option);
+        addCustomer (option, row, formName, value) {
             this.dialog.kwidth = '50%';
             this.dialog.type = 1;
             if (option === 'add') {
+                this.empty();
                 this.lookdispaly = true;
                 this.input_disabled = false;
                 this.dialogVisible = true;
+                this.forbidden = false;
                 this.addForm = {
                     contactUserId: null,
                     content: null,
@@ -415,17 +579,20 @@ export default {
                     trackDate: null,
                     trackStatusDictId: null
                 };
+                if (value) {
+                    this.keywords = value;
+                    this.handleGetList('false');
+                }
             } else if (option === 'save') {
                 this.lookdispaly = true;
                 this.input_disabled = false;
-                console.log(row.trackUserId);
+                this.forbidden = true;
                 if (this.saveid === row.trackUserId) {
                     this.dialogVisible = true;
                     this.addForm = Object.assign({}, row);
-                    this.addForm.customerId = Number(row.customerId);
-                    this.addForm.contactUserId = Number(row.contactUserId);
-                    this.customerSel(row.customerId, 'save');
-                    console.log(row);
+                    this.handleList(this.addForm);
+                    this.addForm.trackDate = filters.date(this.addForm.trackDate, true);
+                    this.customerSel(row, 'save');
                     this.compileTrackId = row.id;
                 } else {
                     this.$message.error('只能编辑自己录入的跟进信息');
@@ -434,7 +601,6 @@ export default {
                 this.lookdispaly = false;
                 console.log(row);
                 this.input_disabled = true;
-                console.log('aa');
                 this.dialogVisible = true;
                 this.addForm = Object.assign({}, row);
                 this.addForm.customerId = row.customerName;
@@ -442,23 +608,23 @@ export default {
             }
         },
         // 动态获取公司里面的员工
-        customerSel (val, save) {
-            console.log(save);
+        customerSel (row, save) {
+            this.getCompanyLinkman(row);
+            console.log(this.tradeModeOptions);
             if (save !== 'save') {
-                console.log('aa');
                 this.addForm.contactUserId = '';
             }
-            this.getCompanyLinkman();
-            let value = this.tradeModeOptions.filter(function (x) {
-                return x.id === val;
-            });
-            if (value[0].contacts) {
-                this.tradeModeOptionsList = value[0].contacts;
-            }
-            console.log(this.tradeModeOptionsList);
+            // console.log(this.tradeModeOptions);
+            // let value = this.tradeModeOptions.filter(function (x) {
+            //     return x.id === val;
+            // });
+            // if (value[0].contacts) {
+            //     this.tradeModeOptionsList = value[0].contacts;
+            // }
+            // console.log(this.tradeModeOptionsList);
         },
         changeSelect (pageNum) {
-            this.pageNum = pageNum;
+            this.searchfrom.pageNum = pageNum;
             this.getCollectionList();
         },
         sizeChange (val) {
@@ -471,7 +637,7 @@ export default {
                 {value: this.addForm.customerId, msg: '客户名称不能为空'},
                 {value: this.addForm.trackStatusDictId, msg: '跟进状态不能为空'},
                 {value: this.addForm.contactUserId, msg: '联系人不能为空'},
-                {value: this.addForm.trackDate, msg: '时间不能为空'},
+                // {value: this.addForm.trackDate, msg: '时间不能为空'},
                 {value: this.addForm.content, msg: '跟进记录不能为空'}
             ];
             for (let i = 0; i < data.length; i++) {
@@ -483,13 +649,36 @@ export default {
             }
             return flag;
         },
+        // 删除单个记录
+        removefollow (id) {
+            this.$confirm('请确认是否删除该条跟进信息。', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                cancelButtonClass: 'btn-custom-cancel',
+                type: 'warning'
+            }).then(() => {
+                this.$http.put(this.$api.customer.customerdelete,
+                    [id]
+                ).then(res => {
+                    console.log(res);
+                    if (res.data.code === 0) {
+                        this.getCollectionList();
+                        this.$message({message: '成功', type: 'success'});
+                    } else {
+                        this.$message({
+                            message: res.data.message,
+                            type: 'error'
+                        });
+                    }
+                });
+            });
+        },
         // 新增
         notarizefloow (addform, saveId) {
             if (!this.checkDialogData()) {
                 return false;
             }
-            if (this.customertit === '编辑客户跟进') {
-                console.log(saveId);
+            if (this.customertit === '编辑') {
                 this.$http.put(this.$api.customer.amendcustomer + this.compileTrackId, {
                     contactUserId: this.addForm.contactUserId,
                     content: this.addForm.content,
@@ -497,14 +686,14 @@ export default {
                     trackDate: this.addForm.trackDate,
                     trackStatusDictId: this.addForm.trackStatusDictId
                 }).then(res => {
-                    // console.log(res.data);
                     if (res.data.code === 0) {
                         this.$message({
-                            message: '编辑成功',
+                            message: '修改成功',
                             type: 'success'
                         });
                         this.dialogVisible = false;
                         this.getCollectionList();
+                        this.lookCustomer();
                     } else {
                         this.$message.error(res.data.message);
                     }
@@ -517,7 +706,6 @@ export default {
                     trackDate: this.addForm.trackDate,
                     trackStatusDictId: this.addForm.trackStatusDictId
                 }).then(res => {
-                    // console.log(res);
                     if (res.data.code === 0) {
                         this.$message({
                             message: '添加成功',
@@ -525,6 +713,7 @@ export default {
                         });
                         this.dialogVisible = false;
                         this.getCollectionList();
+                        this.lookCustomer();
                     } else {
                         this.$message.error(res.data.message);
                     }
@@ -542,57 +731,27 @@ export default {
             if (this.checkAll) {
                 this.companySelectedList = [];
                 this.followList.forEach(item => {
-                    this.companySelectedList.push(item.id);
+                    this.companySelectedList.push(item.customerId);
                 }, this);
-                console.log(this.companySelectedList);
                 return;
             }
             this.companySelectedList = [];
         },
         // 批量删除
         deladdAll () {
-            console.log(this.companySelectedList.length === 0);
             if (this.companySelectedList.length === 0) {
                 this.$message({message: '请选择删除跟进客户', type: 'warning'});
-                // .then(() => {
-                // });
             } else {
                 this.dialog.type = 0;
                 this.dialogVisible = true;
                 this.dialog.kwidth = '30%';
-                // this.$alert('确认删除该角色？', '提示')
-                // this.$confirm('请确认是否删除该条客户跟进信息', '提示', {
-                //     confirmButtonText: '确定',
-                //     confirmButtonClass: 'gy-button-extra',
-                //     cancelButtonText: '取消',
-                //     cancelButtonClass: 'gy-button-normal',
-                //     type: 'warning'
-                // })
-                //     .then(() => {
-                //         this.$http.put(this.$api.customer.customerdelete,
-                //             this.companySelectedList
-                //         ).then(res => {
-                //             this.companySelectedList = [];
-                //             if (res.data.code === 0) {
-                //             // this.$alert('删除客户跟进信息成功', '提示')
-                //             // .then(() => {
-                //                 this.getCollectionList();
-                //                 this.checkAll = false;
-                //             // });
-                //             } else {
-                //                 this.$alert(res.data.message, '提示')
-                //                     .then(() => {
-                //                         this.checkAll = false;
-                //                     });
-                //             }
-                //         });
-                //     });
             }
         },
         romovefloow () {
-            this.$http.put(this.$api.customer.customerdelete,
+            this.$http.put(this.$api.customer.ccustomerIddelete,
                 this.companySelectedList
             ).then(res => {
+                // console.log(res);
                 this.companySelectedList = [];
                 if (res.data.code === 0) {
                     this.getCollectionList();
@@ -617,8 +776,13 @@ export default {
         .mr10{
             margin-right: 10px;
         }
+        .tdtable{
+            &:hover{
+                background: none;
+            }
+        }
         .customertrack-warp{
-            padding: 20px 0;
+            padding-top: 20px;
             .search-btn {
                 padding: 0 30px 0 0;
                 text-align: right;
@@ -641,6 +805,7 @@ export default {
                 cursor: pointer;
             }
             .clearfixx {
+                padding-right: 16px;
                 .gy-form-group{
                     padding: 6px 30px 6px 124px;
                     min-height: 35px;
@@ -653,7 +818,7 @@ export default {
                     position: relative;
                     .searchicon {
                         position: absolute;
-                        right: 0;
+                        right: 5px;
                         bottom: 7px;
                         .icon-search:before {
                             color: #000;
@@ -692,10 +857,10 @@ export default {
         }
         .table-wrap {
             width: 1123px;
-            overflow-x: auto;
+            // overflow-x: auto;
             .gy-table {
                 min-width: 100%;
-                overflow: auto;
+                overflow-x: auto;
                 td, th {
                     white-space: nowrap;
                 }
@@ -706,6 +871,17 @@ export default {
             input, span {
                 vertical-align: middle;
             }
+            .gy-table {
+                tr{
+                    cursor: pointer;
+                }
+                .wid60{
+                    width: 50px;
+                }
+                .wid150{
+                    width: 150px;
+                }
+            }
             .nowrap {
                 width: 150px;
                 display: block;
@@ -713,8 +889,28 @@ export default {
                 text-overflow:ellipsis;
                 white-space: nowrap;
             }
+            .departmentName{
+                margin-top: 20px;
+                font-size: 12px;
+                color: #666;
+            }
+        }
+        .followdetail{
+            th{
+                background: #fbfbfc;
+            }
+            .nowrap {
+                width: 450px;
+                display: block;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+            }
         }
         .addDialog {
+            input::-ms-clear, input::-ms-reveal{
+                display: none;
+            }
             .isrequired::before {
                 left: 0px;
             }
@@ -723,7 +919,7 @@ export default {
                 .l{
                     padding-left: 0;
                 }
-                .nowrap {
+                 .nowrap {
                     width: 332px;
                     display: block;
                     overflow: hidden;
@@ -741,20 +937,60 @@ export default {
                 margin-right: 10px;
             }
         }
-
+        .product-list{
+            position: relative;
+            ul{
+                background-color: #fff;
+                width: 100%;
+                max-height: 190px;
+                overflow: auto;
+                position: absolute;
+                left: 0;
+                top: 32px;
+                z-index: 9;
+                border: 1px solid $color-border;
+                border-top: none;
+                li{
+                    padding: 5px 10px;
+                    cursor: pointer;
+                    &:hover{
+                        background-color: #f5f7fa;
+                        color: $color-extra;
+                    }
+                    &.none-tips{
+                        font-size: $small-font;
+                        text-align: center;
+                    }
+                }
+            }
+            .my-icon-jj{
+                cursor:pointer;
+                position: absolute;
+                right: 7px;
+                top: 0px;
+            }
+        }
     }
 
 </style>
 <style lang="scss">
-    .AddressManagement .el-dialog__header {
-        border-bottom: 1px solid #DCE0E4;
-        padding: 15px;
+.btn-custom-cancel {
+    float: right;
+    margin-left: 10px;
+}
+.customertrack{
+    .AddressManagement{
+        .el-dialog__header {
+            border-bottom: 1px solid #DCE0E4;
+            padding: 15px;
+        }
+        .el-dialog__body {
+            padding: 10px 0px 15px 30px;
+        }
+        .el-message-box__wrapper .el-button--primary{
+            background:#e0370f;
+            border-color:#e0370f;
+        }
     }
-    .customertrack .el-dialog__body {
-        padding: 10px 0px 15px 30px;
-    }
-    .el-message-box__wrapper .el-button--primary{
-        background:#e0370f;
-        border-color:#e0370f;
-    }
+}
 </style>

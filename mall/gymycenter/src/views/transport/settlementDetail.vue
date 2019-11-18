@@ -25,39 +25,91 @@
             </div>
             <div class="gy-form-group">
                 <span class="l">期望支付方式</span>
-                <label><input type="radio" :disabled="companyTypeId !== 2" v-model="chargeData.freightPaymentType"
+                <label><input type="radio" :disabled="companyTypeId !== 2 || isView" v-model="chargeData.freightPaymentType"
                               name="payway" value="0">在线支付</label>
-                <label><input type="radio" :disabled="companyTypeId !== 2" v-model="chargeData.freightPaymentType"
+                <label><input type="radio" :disabled="companyTypeId !== 2 || isView" v-model="chargeData.freightPaymentType"
                               name="payway" value="1">线下支付</label>
             </div>
             <div class="gy-form-group">
                 <span class="l">装货量</span>
-                <span v-if="companyTypeId !== 2 || isView">{{quantityLoading}}</span>
+                <span v-if="companyTypeId !== 2 || isView">{{quantityLoading}}吨</span>
                 <input v-else type="text" v-model="quantityLoading" @keyup="transportCost">
-                <span class="unit" v-for="item in chargeInfo.consignmentNoteItemList" :key="item.id">{{item.infUnitOfMeasureName}}</span>
+                <span v-if="companyTypeId === 2 && !isView" class="unit" v-for="item in chargeInfo.consignmentNoteItemList" :key="item.id">{{item.infUnitOfMeasureName}}</span>
             </div>
             <div class="gy-form-group">
                 <span class="l">卸货量</span>
-                <span v-if="companyTypeId !== 2 || isView">{{quantityUnloading}}</span>
+                <span v-if="companyTypeId !== 2 || isView">{{quantityUnloading}}吨</span>
                 <input v-else type="text" v-model="quantityUnloading" @keyup="transportCost">
-                <span class="unit" v-for="item in chargeInfo.consignmentNoteItemList" :key="item.id">{{item.infUnitOfMeasureName}}</span>
+                <span v-if="companyTypeId === 2 && !isView" class="unit" v-for="item in chargeInfo.consignmentNoteItemList" :key="item.id">{{item.infUnitOfMeasureName}}</span>
             </div>
             <div class="gy-form-group">
                 <span class="l">非合理损耗</span>
-                {{wastage}}
-                <span class="unit" v-for="item in chargeInfo.consignmentNoteItemList" :key="item.id">{{item.infUnitOfMeasureName}}</span>
+                {{wastage}}<span v-for="item in chargeInfo.consignmentNoteItemList" :key="item.id">{{item.infUnitOfMeasureName}}</span>
             </div>
             <div class="gy-form-group">
                 <span class="l">运费金额</span>
-                <span v-if="companyTypeId !== 2 || isView">{{chargeData.carriageFee}}</span>
+                <span v-if="companyTypeId !== 2 || isView">{{chargeData.carriageFee}}元</span>
                 <input v-else type="text" v-model="chargeData.carriageFee" @keyup="countTotalCharge">
-                <span class="unit">元</span>
+                <span v-if="companyTypeId === 2 && !isView" class="unit">元</span>
             </div>
-            <div class="gy-form-group single-row">
+            <div class="gy-form-group">
+                <span class="l">合同编号</span>
+                <span>{{chargeInfo.consignmentContractCode}}</span>
+            </div>
+            <div class="gy-form-group">
                 <span class="l">备注</span>
                 <span v-if="companyTypeId !== 2 || isView">{{chargeData.settleRemark}}</span>
                 <textarea v-else class="gy-textarea" v-model="chargeData.settleRemark"></textarea>
             </div>
+        </div>
+        <h3><i class="iconfont icon-info"></i>运输详情</h3>
+        <div class="trace-data">
+            <table class="gy-table">
+                <thead>
+                <tr>
+                    <td>序号</td>
+                    <td>调度单号</td>
+                    <td>车辆</td>
+                    <td>调度量</td>
+                    <td>装货量</td>
+                    <td>卸货量</td>
+                    <td>实际卸货量</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(list, index) in traceDetail.list" :key="index">
+                    <td>{{index + 1}}</td>
+                    <td>{{ list.dispatchNoteCode }}</td>
+                    <td>{{list.licensePlateNumber}}</td>
+                    <td class="align-r">{{list.quantityPlanned || 0}}吨</td>
+                    <td class="align-r">{{list.quantityLoading || 0}}吨</td>
+                    <td class="align-r">{{list.quantityUnloading || 0}}吨</td>
+                    <td class="align-r">{{list.actualQuantityUnloading || 0}}吨</td>
+                </tr>
+                <tr v-if="traceDetail.list.length === 0">
+                    <td colspan="7" class="align-c">没有找到可显示的数据...</td>
+                </tr>
+                <tr class="summation">
+                    <td>合计</td>
+                    <td></td>
+                    <td></td>
+                    <td class="align-r">{{summations.quantityPlanned || 0}}吨</td>
+                    <td class="align-r">{{summations.quantityLoading || 0}}吨</td>
+                    <td class="align-r">{{summations.quantityUnloading || 0}}吨</td>
+                    <td class="align-r">{{summations.actualQuantityUnloading || 0}}吨</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="trace-total">共 {{traceDetail.total}} 条记录</div>
+            <!-- 分页 -->
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :current-page.sync="traceDetail.pageNum"
+              :page-size="traceDetail.pageSize"
+              :total="traceDetail.total"
+              @current-change="getTraceDetail">
+            </el-pagination>
         </div>
         <h3><i class="iconfont icon-info"></i>其他费用</h3>
         <div class="gy-form other-charge" v-for="(item, index) in chargeData.consignmentChargesList" :key="index">
@@ -110,7 +162,18 @@ export default {
                 consignmentNoteItemList: []
             },
             isView: false,
-            wastageValue: null
+            wastageValue: null,
+            traceDetail: {
+                list: []
+            },
+            searchForm: {
+                pageNum: 1,
+                pageSize: 10,
+                data: {
+                    lgsConsignmentNoteId: this.$route.query.orderId
+                }
+            },
+            summations: {}
         };
     },
     created () {
@@ -119,6 +182,7 @@ export default {
         this.chargeData.id = this.chargeId;
         this.isView = this.$route.query.view === true;
         this.getChargeInfo();
+        this.getTraceDetail();
     },
     computed: {
         wastage () {
@@ -154,6 +218,19 @@ export default {
                     this.quantityUnloading = this.chargeData.consignmentNoteItemList[0].quantityUnloading;
                     this.countTotalCharge();
                     this.transportCost();
+                });
+        },
+        getTraceDetail () {
+            this.$http.post(this.$api.transport.pageInfo, this.searchForm)
+                .then(res => {
+                    this.traceDetail = res.data.data;
+                    this.getSummations();
+                });
+        },
+        getSummations () {
+            this.$http.get(`${this.$api.transport.transportTotal}/${this.chargeId}`)
+                .then(res => {
+                    this.summations = res.data.data;
                 });
         },
         transportCost () {
@@ -271,6 +348,24 @@ export default {
         strong {
             font-size: 16px;
             font-weight: normal;
+        }
+    }
+    .trace-data{
+        padding: 0 16px 20px;
+        .trace-total{
+            font-size: 12px;
+            margin: 20px 0;
+        }
+        .summation {
+            td {
+                background-color: #edf3f7 !important;
+                color: #666666;
+                font-weight: bold;
+                border-bottom: 1px solid #f2f2f2;
+                padding: 10px;
+                line-height: 20px;
+                font-size: 12px;
+            }
         }
     }
 </style>

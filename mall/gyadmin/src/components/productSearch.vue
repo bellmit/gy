@@ -1,11 +1,11 @@
 <template>
     <div class="product-list">
-        <input type="text" class="gy-input" placeholder="请输入品名" v-model="keywords" @keyup="getList" :disabled="defaultProduct">
+        <input type="text" class="gy-input" placeholder="请输入品名" v-model="keywords" @keyup.13="handleGetList" :disabled="defaultProduct">
         <ul v-show="showList" v-clickOutside="handleHiddenList">
             <li v-for="(item, index) in list" :key="index" @click="handleList(item)" v-if="list.length > 0">{{item.goodsName}}</li>
             <li class="none-tips" v-if="list.length === 0">没有搜到相关产品</li>
         </ul>
-        <i class="iconfont icon-search" @click="handleGetList"></i>
+        <i class="iconfont icon-mySearch" @click="handleGetList"></i>
     </div>
 </template>
 
@@ -47,7 +47,8 @@ export default {
             type: Object,
             defalult: {}
         },
-        defaultProduct: String
+        defaultProduct: String,
+        offerId: String
     },
     created () {
         this.defaultProduct && (this.keywords = this.defaultProduct);
@@ -70,6 +71,7 @@ export default {
         handleList (value) {
             this.keywords = value.goodsName;
             this.$emit('update:selected', value);
+            this.$emit('updateselected', value);
             this.showList = false;
         },
         handleHiddenList () {
@@ -106,7 +108,7 @@ export default {
                 }
             }
         }
-        .icon-search{
+        .icon-mySearch{
             position: absolute;
             right: 0;
             top: 0;

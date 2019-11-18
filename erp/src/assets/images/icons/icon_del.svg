@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56 (81588) - https://sketch.com -->
+    <title>icon/文本/展开收起/收起备份</title>
+    <desc>Created with Sketch.</desc>
+    <g id="icon/文本/展开收起/收起备份" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon/收起" transform="translate(1.000000, 1.000000)">
+            <path d="M11.25,12 C11.6636719,12 12,11.6630254 12,11.2485323 L12,0.75146771 C12,0.335812133 11.6636719,2.67235679e-16 11.25,2.67235679e-16 L0.75,0 C0.336328125,0 0,0.336986301 0,0.75146771 L0,11.2485323 C0,11.6630254 0.336328125,12 0.75,12 L11.25,12 L11.25,12 Z M11.25,11.2485323 L0.75,11.2485323 L0.75,0.75146771 L11.25,0.75146771 L11.25,11.2485323 L11.25,11.2485323 Z" id="Shape" fill="#E0370F"></path>
+            <rect id="矩形" stroke="#E0370F" x="2.5" y="6" width="7" height="1"></rect>
+        </g>
+    </g>
+</svg>

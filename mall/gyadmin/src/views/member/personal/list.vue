@@ -19,7 +19,7 @@
     <div class="btn-group">
       <button class="gy-button-extra" @click="editAll" v-if="isAuth('member:personal:edit')">编辑</button>
       <button class="gy-button-normal" @click="deleteAll" v-if="isAuth('member:personal:batch_stop')">批量停用</button>
-      <button class="gy-button-normal" @click="startAll" v-if="isAuth('member:personal:batch_start')">批量启用</button>
+      <button class="gy-button-normal mr0" @click="startAll" v-if="isAuth('member:personal:batch_start')">批量启用</button>
       <!--<router-link :to="{ name: 'sysRoleManage',}"><button class="gy-button-normal">添加</button></router-link>&nbsp;-->
     </div>
     <div class="m-panel">
@@ -37,13 +37,15 @@
           <th>邮件</th>
           <th>手机号</th>
           <th>性别</th>
-          <th>密码修改</th>
+          <th>注册时间</th>
+          <th>注册来源</th>
           <th>是否停用</th>
+          <th>操作</th>
           <!--<th>操作</th>-->
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(item, index) in list" :key="index">
+        <tr v-for="(item, index) in list" :key="index" @dblclick='$tools.dbCheckItem(item, checkModel)'>
           <td>
             <label class="u-checkbox">
               <input type="checkbox" v-model="checkModel" :value="item.id">
@@ -56,14 +58,16 @@
           <td>{{item.email}}</td>
           <td>{{item.phone}}</td>
           <td>
-            <el-tag v-if="item.sex === 0" size="small" type="success">男</el-tag>
-            <el-tag v-else-if="item.sex === 1" size="small" type="warning">女</el-tag>
+            <span v-if="item.sex === 0">男</span>
+            <span v-else-if="item.sex === 1">女</span>
           </td>
-          <td><a href="javascript:;" @click="setPassWord(item)">重置密码</a></td>
+          <td>{{item.createDate | date(1)}}</td>
+          <td>{{item.source}}</td>
           <td>
-            <el-tag v-if="item.valid === 0" size="danger">停用</el-tag>
-            <el-tag v-if="item.valid === 1" size="success">启用</el-tag>
+            <span v-if="item.valid === 0">停用</span>
+            <span v-if="item.valid === 1">启用</span>
           </td>
+          <td style="text-align: center;"><span @click="setPassWord(item)" class="gy-button-view">重置密码</span></td>
           <!--<td>-->
           <!--<router-link :to="{ path: 'manage', query: {id: item.id}}">-->
           <!--<button class="gy-button-normal warning">修改</button>-->
@@ -135,6 +139,9 @@ export default {
                 .then((data) => {
                     if (data.data.code === 0) {
                         this.list = data.data.data.list;
+                        this.list.forEach(item => {
+                            item['flag'] = false;
+                        });
                         // 设置分页信息
                         this.total = data.data.data.total;
                         this.currentPage = data.data.data.pageNum;
@@ -253,5 +260,8 @@ export default {
     width: 72px;
     padding-left: 30px;
   }
+}
+.search-wrapper .icon-search{
+    right: 0;
 }
 </style>

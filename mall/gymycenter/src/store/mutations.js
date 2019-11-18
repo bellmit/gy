@@ -11,7 +11,9 @@ const state = {
     loginBeforeRoute: Object,
     breadcrumb: String,
     userInfo: {},
-    currentRoute: String
+    currentRoute: String,
+    newIndex: 1,
+    contentKey: new Date()
 };
 
 const mutations = {
@@ -44,6 +46,12 @@ const mutations = {
     },
     setCurrentRoute (state, route) {
         state.currentRoute = route;
+    },
+    setNewIndex (state, val) {
+        state.newIndex = val;
+    },
+    updateContentKey (state, time) {
+        state.contentKey = time;
     }
 };
 
@@ -69,6 +77,12 @@ const getters = {
     },
     currentRoute (state) {
         return state.currentRoute;
+    },
+    newIndex (state) {
+        return state.newIndex;
+    },
+    contentKey (state) {
+        return state.contentKey;
     }
 };
 

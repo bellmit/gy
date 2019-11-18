@@ -57,7 +57,6 @@ export default {
 <style lang="scss">
   .gy-menu {
     height: 100%;
-    background-color: #5a5959;
 
     .el-menu {
       flex: 1;
@@ -91,6 +90,9 @@ export default {
     .el-menu-item-group__title {
       padding: 0;
     }
+      .el-submenu__title .el-submenu__icon-arrow{
+          color: #fff;
+      }
 
   }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="commodity-main detail">
     <div class="gy-h4">{{categoryId ? '类目编辑' : '类目添加'}}</div>
-    <form action="javascript:;" name="categoryAdd" style="padding: 0 14px">
+    <form action="javascript:;" name="categoryAdd">
       <el-row :gutter="60">
         <el-col :span="12">
           <el-row>
@@ -12,7 +12,7 @@
         <el-col :span="12">
           <el-row>
             <el-col :span="3" class="pt-5"><span class="l">上级类目</span></el-col>
-            <el-col :span="20">
+            <el-col :span="21">
               <el-cascader style="width: 100%"
                            change-on-select
                            :options="lmlists"

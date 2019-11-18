@@ -299,12 +299,12 @@ export default {
                     }
                     .gy-form-group-phone-code {
                         display: inline-block;
-                        width: 120px;
+                        width: 110px;
                         height: 40px;
                         background: #D1D2D5;
                         position: absolute;
                         top: 10px;
-                        left: 512px;
+                        left: 566px;
                         text-align: center;
                         line-height: 40px;
                         cursor: pointer;
@@ -361,7 +361,8 @@ export default {
                     }
                     .gy-submit {
                         position: absolute;
-                        left: 568px;
+                        left: 613px;
+                        top:20px;
                     }
                 }
             }

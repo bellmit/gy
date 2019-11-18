@@ -3,46 +3,43 @@
         <div class="detail-info">
             <el-form ref="form" :model="form" label-width="70px" :rules="rules">
                 <el-row>
-                    <el-col :span="11">
-                        <el-form-item label="账户" prop="account">
-                            <el-input v-model="form.account" placeholder="请输入账户"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="2">&nbsp;</el-col>
-                    <el-col :span="11">
-                        <el-form-item label="用户名" prop="username">
-                            <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
-                        </el-form-item>
-                    </el-col>
+                    <div class="gy-form-group">
+                        <span class="l"> <strong>*</strong>账户</span>
+                        <input type="text" v-model="form.account" placeholder="请输入账户">
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l"> <strong>*</strong>用户名</span>
+                        <input type="text" v-model="form.username" placeholder="请输入用户名">
+                    </div>
                 </el-row>
                 <el-row>
-                    <el-col :span="11">
-                        <el-form-item label="手机号">
-                            <el-input v-model="form.phone" placeholder="请输入手机号"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="2">&nbsp;</el-col>
-                    <el-col :span="11">
-                        <el-form-item label="邮箱" prop="email">
-                            <el-input v-model="form.email" placeholder="请输入邮箱"></el-input>
-                        </el-form-item>
-                    </el-col>
+                    <div class="gy-form-group">
+                        <span class="l">手机号</span>
+                        <input type="text" v-model="form.phone" placeholder="请输入手机号">
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l"><strong>*</strong>邮箱</span>
+                        <input type="text" v-model="form.email" placeholder="请输入邮箱">
+                    </div>
                 </el-row>
                 <el-row>
-                    <el-col :span="11">
-                        <el-form-item label="性别">
-                            <el-radio-group v-model="form.sex">
-                                <el-radio :label="0">男</el-radio>
-                                <el-radio :label="1">女</el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="2">&nbsp;</el-col>
-                    <el-col :span="11">
-                        <el-form-item label="备注">
-                            <el-input v-model="form.remark" placeholder="请输入备注"></el-input>
-                        </el-form-item>
-                    </el-col>
+                    <div class="gy-form-group">
+                        <span class="l">性别</span>
+                        <el-radio-group v-model="form.sex">
+                            <el-radio :label="0">男</el-radio>
+                            <el-radio :label="1">女</el-radio>
+                        </el-radio-group>
+                    </div>
+                    <div class="gy-form-group">
+                        <span class="l">备注</span>
+                        <span>
+                            <textarea class="gy-textarea" placeholder="请输入备注" v-model="form.remark"></textarea>
+                        </span>
+                        <!--<input type="text" v-model="form.remark" placeholder="请输入备注">-->
+                        <!--<el-form-item label="  备注">-->
+                            <!--<el-input v-model="form.remark" placeholder="请输入备注"></el-input>-->
+                        <!--</el-form-item>-->
+                    </div>
                 </el-row>
                 <el-row>
                     <el-col :span="24">
@@ -126,7 +123,9 @@ export default {
                 if (data.code === 0) {
                     this.$router.push({path: 'list'});
                     this.$message.success('保存成功!');
+                    return;
                 }
+                this.$message.error(data.message);
             }).catch((e) => {
             });
         },
@@ -156,5 +155,20 @@ export default {
 }
 .el-form-item__label {
     width: 65px;
+}
+.gy-form-group{
+    padding-left: 60px;
+    padding-right: 30px;
+    .l{padding-left:10px}
+}
+.gy-form-group:nth-child(even) {
+    padding-left: 90px;
+    padding-right: 0;
+    .l {
+        padding-left: 30px;
+        strong{
+            left:20px;
+        }
+    }
 }
 </style>

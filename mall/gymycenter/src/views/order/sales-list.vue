@@ -23,7 +23,7 @@
                         <i  @click="search" class="iconfont icon-search"></i>
                     </div>
                     <span class="search-btn" @click="toggleSelect =!toggleSelect">高级搜索<i
-                        class="iconfont icon-arrow-down"></i></span>
+                            class="iconfont" :class="toggleSelect ? 'icon-arrow-up' : 'icon-arrow-down'"></i></span>
                 </div>
             </div>
             <div class="selected-box" v-show="toggleSelect">
@@ -112,15 +112,18 @@
                 </el-form>
             </div>
             <div class="mytable">
-                <table>
+                <div class="right my_right">
+                    <router-link :to="{ name: 'edit', query: {type: 2} }" class="gy-button-extra">发起订单</router-link>
+                </div>
+                <table class="gy-table">
                     <thead>
                     <tr class="title">
                         <td style="width:25%">商品</td>
-                        <td style="width:15%">买方公司</td>
-                        <td style="width:15%">总金额</td>
+                        <td >买方公司</td>
+                        <td style="width:15%">总金额(元)</td>
                         <td style="width:15%">交付方式</td>
                         <td style="width:15%">状态</td>
-                        <td style="width:15%">操作</td>
+                        <td style="width:100px">操作</td>
                     </tr>
                     </thead>
                     <tbody v-for="(item , index) in data.orderList" :key="index">
@@ -135,24 +138,35 @@
                                 | numToCash(3)}}{{items.infUnitOfMeasureDisplayName}}
                             </div>
                         </td>
-                        <td style="width:15%" class="tleft">{{item.buyerCompanyName}}<br></td>
-                        <td style="width:15%">{{item.intCurrencyMark}}{{items.skuTotalAmount|numToCash}}元</td>
-                        <td style="width:15%">{{item.deliveryType === 1 ? '买家自提' : item.deliveryType === 2? '卖家送货':'全部支持'}}</td>
-                        <td style="width:15%">
+                        <td class="tleft">{{item.buyerCompanyName}}<br></td>
+                        <td class="align-r">{{item.intCurrencyMark}}{{items.skuTotalAmount|numToCash}}</td>
+                        <td >{{item.deliveryType === 1 ? '买家自提' : item.deliveryType === 2? '卖家送货':'全部支持'}}</td>
+                        <td>
                             <span v-if="item.orderStatus===1">签约</span>
                             <span v-else-if="item.orderStatus===2">收款与交割</span>
                             <span v-else-if="item.orderStatus===3">结算与复核</span>
                             <span v-else-if="item.orderStatus===4">已完成</span>
                             <span v-else-if="item.orderStatus===5">已失效</span>
                         </td>
-                        <td style="width:15%">
+                        <td class="align-c">
                             <a @click="goPage(item)" class="gy-button-view">查看</a>
+                            <a @click="cancelItem(item)" class="gy-button-view" v-if="item.currentOrderExecuteStageModel &&  item.currentOrderExecuteStageModel.id === 1 && item.currentOrderExecuteStageModel.orderExecuteSubStatusModel && item.currentOrderExecuteStageModel.orderExecuteSubStatusModel.id === 1">取消</a>
+                            <div v-if="item.showBillIcon">
+                                <router-link target="_blank" :to="{ name: 'saleschaseBills', query: {odrOrderSn: item.odrOrderSn, orderId: item.id, showBillIcon: item.showBillIcon} }"
+                                class="gy-button-view">单据管理
+                                </router-link>
+                                <el-tooltip poper-class="test" :content="item.billRemark || reminder" placement="top" effect="light">
+                                    <i v-if="item.showBillIcon === 1" style="color: #BEBEBE!important;position: absolute;right:18px;" class="iconfont icon-tishi2"></i>
+                                    <i v-if="item.showBillIcon === 2" style="color: red;position: absolute;right:18px;" class="iconfont icon-fail"></i>
+                                </el-tooltip>
+                            </div>
+                            <a @click="goReAdd(item.id)" style="margin-right:2px;" class="gy-button-view" v-if="item.orderType !== 4 && item.orderType !== 5">再次发起</a>
                         </td>
                     </tr>
                     </tbody>
                 </table>
                 <div class="totaljl">
-                    共{{data.total}}条记录
+                    共 {{data.total}} 条记录
                 </div>
                 <div class="totalfy">
                     <el-pagination
@@ -169,6 +183,7 @@
 <script>export default {
     data () {
         return {
+            reminder: '请提供准确真实的单据，否则会影响您在国烨网的信誉及后续交易。',
             src: require('../../assets/images/default1.jpg'),
             offerCode: '',
             searchCode: '', // 查询订单号
@@ -212,6 +227,10 @@
             {
                 value: 1,
                 label: '先货后款'
+            },
+            {
+                value: 10,
+                label: '担保交易'
             }],
             state: {},
             seniorParam: {},
@@ -257,7 +276,7 @@
     // TODO 突击修改
     mounted () {
         this.phone = JSON.parse(localStorage.userInfo).phone;
-        this.url = 'http://trade.chinayie.net/im/index.html#type=0&username=' + this.phone + '&touser=1';
+        // this.url = 'http://trade.chinayie.net/im/index.html#type=0&username=' + this.phone + '&touser=1';
         console.log(localStorage);
     },
     methods: {
@@ -312,6 +331,7 @@
             // 0：上架，1：下架，2：作废
             this.stateCode = index;
             this.parameter.data.orderStatus = index;
+            this.parameter.pageNum = 1; // 点击tab页数返回第一页
             this.getInfo(this.parameter);
         },
         handleCurrentChange (val) { // 分页
@@ -372,8 +392,35 @@
         },
         goPage (data) {
             let name = data.orderStatus > 2 && data.orderStatus !== 5 ? 'sellerSettle' : 'salesDetail';
-
-            this.$router.push({name: name, query: {orderId: data.id}});
+            const {href} = this.$router.resolve({name: name, query: {orderId: data.id, showBillIcon: data.showBillIcon}});
+            window.open(href, '_blank');
+        },
+        goReAdd (data) {
+            this.$router.push({name: 'reAdd', query: {orderId: data, typeId: 1}});
+        },
+        // 点击取消
+        cancelItem (item) {
+            this.$confirm('订单取消后将无法恢复, 是否确认?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$http.get(this.$api.order.cancelValid + '/' + item.id).then((res) => {
+                    if (res.data.code === 0) {
+                        this.$message({
+                            type: 'success',
+                            message: '操作成功'
+                        });
+                        this.getInfo();
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            message: res.data.message
+                        });
+                    }
+                });
+            }).catch(() => {
+            });
         }
     }
 };
@@ -387,6 +434,9 @@
         }
         tbody{
             border: 1px solid #e7ecf1;
+        }
+        .my_right{
+            padding-bottom: 10px;
         }
     }
     .my-order-list {
@@ -427,7 +477,7 @@
                     height: 20px;
                     margin-left: 10px;
                     border: 1px solid $color-border;
-                    border-radius: $border-radius-small;
+                    border-radius:  $border-radius-small;
                     cursor: pointer;
                 }
             }
@@ -477,11 +527,11 @@
             }
             li {
                 float: left;
-                padding: 0 6px;
+                padding: 0 5px;
                 color: #666;
                 &.active {
                     color: $color-a-active;
-                    border-bottom: 1px solid $color-a-active
+                    border-bottom: 2px solid $color-a-active
                 }
             }
             li:hover{
@@ -489,10 +539,14 @@
             }
             ul li:not(:first-child) {
                 position: relative;
-                margin-left: 20px;
+                margin-left: 10px;
             }
             .search-btn {
                 margin-right: 10px;
+                i{
+                    margin-left:5px;
+                    vertical-align: top;
+                }
             }
             .search-btn:hover{
                 cursor: pointer;
@@ -527,9 +581,10 @@
             border-collapse: collapse;
             td {
                 color: $color-main;
-                text-align: center;
+                text-align: left;
                 font-size: 12px
             }
+            thead td{text-align: center}
             tr:not(:nth-child(2)) td {
                 padding: 9px;
             }

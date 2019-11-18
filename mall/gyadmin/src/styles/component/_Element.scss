@@ -23,6 +23,12 @@
             color: $color-minor;
         }
     }
+    .el-tooltip__popper.is-light {
+      max-width: 420px;
+      line-height: 1.8;
+      border: 1px solid #e6eaea;
+      word-break: break-all;
+  }
     .el-input__inner {
         border-radius: 0;
         border: none;
@@ -78,10 +84,10 @@
         height: 30px !important;
     }
     .el-pagination.is-background .el-pager li:not(.disabled).active{
-        background-color: $color-extra;
+        background-color: #d4d4d4;
     }
     .el-pagination li:hover {
-        background-color: #4a90e2;
+        background-color: #d4d4d4;
         color: #fff !important;
     }
     .el-date-editor.el-input, .el-date-editor.el-input__inner{
@@ -104,7 +110,7 @@
     }
 }
 .el-main {
-  padding: 0 16px;
+  padding: 0 28px;
 }
 .el-breadcrumb__inner {
   color: $color-minor;
@@ -182,6 +188,11 @@
 }
 .el-radio+.el-radio {
   margin-left: 60px;
+}
+.my-warehouse {
+  .el-radio {
+    min-width: 100px;
+  }
 }
 .el-form-item {
   margin-bottom: 0;
@@ -278,6 +289,9 @@
      margin-right: 10px;
   }
 }
+.el-select .el-select__tags>span{
+  display: contents;
+}
 .my-warehouse {
   .el-select__tags {
     .el-select__input {
@@ -285,5 +299,16 @@
       background: none !important;
     }
   }
+  .registeredCapital .el-input__inner {
+    padding-right: 16px;
+  }
 }
-
+.el-table__fixed, .el-table__fixed-right {
+  box-shadow: 0 0;
+}
+.el-table__row--striped td{
+  background: #ffffff!important;
+}
+.el-table--enable-row-hover .el-table__body tr:hover>td{
+  background: #f9f9f9!important;
+}

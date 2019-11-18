@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page memberList">
     <div class="gy-h4">企业用户</div>
     <div class="search-wrapper gy-form">
       <div class="gy-form-group">
@@ -73,7 +73,7 @@
       <button class="gy-button-extra" @click="editAll" v-if="isAuth('member:company:edit')">编辑</button>
       <button class="gy-button-normal" @click="verifyAll" v-if="isAuth('member:company:auditing')">审核</button>
       <button class="gy-button-normal" @click="deleteAll" v-if="isAuth('member:company:batch_stop')">停用</button>
-      <button class="gy-button-normal" @click="startAll" v-if="isAuth('member:company:batch_start')">启用</button>
+      <button class="gy-button-normal mr0" @click="startAll" v-if="isAuth('member:company:batch_start')">启用</button>
     </div>
     <div class="">
       <table class="gy-table">
@@ -94,11 +94,10 @@
           <th>审核日期</th>
           <th>电话号码</th>
           <th>启用状态</th>
-          <!--<th>操作</th>-->
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(item, index) in list" :key="index">
+        <tr v-for="(item, index) in list" :key="index" @dblclick='$tools.dbCheckItem(item, checkModel)'>
           <td>
             <label class="u-checkbox">
               <input type="checkbox" v-model="checkModel" :value="item.id">
@@ -108,38 +107,22 @@
           </td>
           <td>{{item.name}}</td>
           <td>{{item.username}}</td>
+          <td>{{item.companyTypeName}}</td>
           <td>
-            <el-tag size="info">{{item.companyTypeName}}</el-tag>
+            <span :style="colors[item.authStatus]">{{item.authStatus | authStatus}}</span>
           </td>
           <td>
-            <el-tag v-if="item.authStatus === 1" size="warning">待审核</el-tag>
-            <el-tag v-if="item.authStatus === 2" size="small">已通过</el-tag>
-            <el-tag v-if="item.authStatus === 3" size="danger">已驳回</el-tag>
+            <span :style="colors[item.caAuthStatus]">{{item.caAuthStatus | authStatus}}</span>
           </td>
           <td>
-            <el-tag v-if="item.caAuthStatus === 0" size="info">未认证</el-tag>
-            <el-tag v-if="item.caAuthStatus === 1" size="warning">待审核</el-tag>
-            <el-tag v-if="item.caAuthStatus === 2" size="small">已通过</el-tag>
-            <el-tag v-if="item.caAuthStatus === 3" size="danger">已驳回</el-tag>
-          </td>
-          <td>
-            <el-tag v-if="item.bankAuthStatus === 0" size="info">未认证</el-tag>
-            <el-tag v-if="item.bankAuthStatus === 1" size="warning">待审核</el-tag>
-            <el-tag v-if="item.bankAuthStatus === 2" size="small">已通过</el-tag>
-            <el-tag v-if="item.bankAuthStatus === 3" size="danger">已驳回</el-tag>
+            <span :style="colors[item.bankAuthStatus]">{{item.bankAuthStatus | authStatus}}</span>
           </td>
           <td>{{item.authDate | date(true)}}</td>
           <td>{{item.phone}}</td>
           <td>
-            <el-tag v-if="item.valid === 0" size="danger">停用</el-tag>
-            <el-tag v-if="item.valid === 1" size="success">启用</el-tag>
+            <span v-if="item.valid === 0">停用</span>
+            <span v-if="item.valid === 1">启用</span>
           </td>
-          <!--<td>-->
-          <!--<router-link :to="{ path: 'manage', query: {id: item.id}}">-->
-          <!--<button class="gy-button-normal warning">修改</button>-->
-          <!--</router-link>&nbsp;&nbsp;&nbsp;-->
-          <!--<button class="gy-button-normal selected" @click="deleteGood(item.id)">删除</button>-->
-          <!--</td>-->
         </tr>
         </tbody>
       </table>
@@ -197,7 +180,13 @@ export default {
             valid: null,
             companyTypeName: '',
             companyTypeList: [],
-            companyType: ''
+            companyType: '',
+            colors: {
+                0: 'color: #909399!important', // 未认证
+                1: 'color: #e6a23c!important', // 待审核
+                2: 'color: #409eff!important', // 已通过
+                3: 'color: #f56c6c!important' // 已驳回
+            }
         };
     },
     watch: {
@@ -210,7 +199,7 @@ export default {
     },
     methods: {
         getCompanyType () {
-            this.$http.get(this.$api.memberCompany.companyType)
+            this.$http.get(this.$api.orders.companyType + '1')
                 .then((res) => {
                     this.companyTypeList = res.data.data;
                 });
@@ -219,12 +208,14 @@ export default {
             if (this.checkModel.length !== 1) {
                 this.$message.warning('不能多选且只能选择一个编辑项！');
             } else {
-                this.$router.push({path: 'manage', query: {id: this.checkModel.toString()}});
+                this.goNewPage('/index/member/company/manage', this.checkModel.toString());
+                // this.$router.push({path: 'manage', query: {id: this.checkModel.toString()}});
             }
         },
         getList (currentPage) {
             if (!this.isAuth('member:company:list')) return;
             let setPara = {
+                'companyCategory': 1, // 公司类别 （1：交易类型的公司   2：物流类型公司   3：仓储类型公司 ）
                 'pageNum': currentPage,
                 'pageSize': this.pageSize,
                 'name': this.searchName,
@@ -238,6 +229,9 @@ export default {
             this.$http.post(this.$api.memberCompany.list, setPara).then((data) => {
                 if (data.data.code === 0) {
                     this.list = data.data.data.list;
+                    this.list.forEach(item => {
+                        item['flag'] = false;
+                    });
                     // 设置分页信息
                     this.total = data.data.data.total;
                     this.currentPage = data.data.data.pageNum;
@@ -320,11 +314,18 @@ export default {
             }).catch((e) => {
             });
         },
+        goNewPage (url, id) {
+            let routeUrl = this.$router.resolve({
+                path: url,
+                query: {id}
+            });
+            window.open(routeUrl.href, '_blank');
+        },
         verifyAll () {
             if (this.checkModel.length !== 1) {
                 this.$message.warning('只能选择一个审核项！');
             } else {
-                this.$router.push({path: 'view', query: {id: this.checkModel.toString()}});
+                this.goNewPage('/index/member/company/view', this.checkModel.toString());
             }
         },
         cancelCheck (e) {
@@ -349,9 +350,7 @@ export default {
 </script>
 <style scoped lang="scss">
 @import './../../../styles/module/list';
-.gy-table{
-  min-width: 1300px;
-}
+
 .gy-form-group {
   padding-left: 94px;
   .l {
@@ -370,6 +369,11 @@ export default {
 }
 .search-wrapper .icon-search {
   top: 3px;
-   right: 10px;
+   right: 0;
 }
+</style>
+<style>
+  .memberList .el-input__inner{
+    line-height: 40px!important;
+  }
 </style>
