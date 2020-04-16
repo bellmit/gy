@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import tuodong from '@/components/tuodong'
 import flexBox from '@/components/flexbox'
+import shoufengqin from '@/components/shoufengqin'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/flexBox',
       name: 'flexBox',
       component: flexBox
+    },
+    {
+      path: '/shoufengqin',
+      name: 'shoufengqin',
+      component: shoufengqin
     }
   ]
 })

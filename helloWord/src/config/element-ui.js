@@ -1,5 +1,7 @@
 import Vue from 'vue';
-import {Message, Radio, Row, Col, Menu, Submenu, Tooltip, MenuItem, MenuItemGroup, Container, Header, Aside, Main, Footer, Breadcrumb, BreadcrumbItem, Form, FormItem, Input, InputNumber, Select, Option, OptionGroup, Checkbox, CheckboxButton, CheckboxGroup, DatePicker, TimePicker, RadioGroup, Button, ButtonGroup, Pagination, MessageBox, Tree, Upload, Dialog, Table, TableColumn, Tag, Cascader, Tabs, TabPane, Carousel, CarouselItem, Popover, Step, Steps, Switch, Autocomplete} from 'element-ui';
+import {Collapse, CollapseItem, Message, Radio, Row, Col, Menu, Submenu, Tooltip, MenuItem, MenuItemGroup, Container, Header, Aside, Main, Footer, Breadcrumb, BreadcrumbItem, Form, FormItem, Input, InputNumber, Select, Option, OptionGroup, Checkbox, CheckboxButton, CheckboxGroup, DatePicker, TimePicker, RadioGroup, Button, ButtonGroup, Pagination, MessageBox, Tree, Upload, Dialog, Table, TableColumn, Tag, Cascader, Tabs, TabPane, Carousel, CarouselItem, Popover, Step, Steps, Switch, Autocomplete} from 'element-ui';
+Vue.component(Collapse.name, Collapse);
+Vue.component(CollapseItem.name, CollapseItem);
 Vue.component(Message.name, Message);
 Vue.component(Radio.name, Radio);
 Vue.component(Row.name, Row);
