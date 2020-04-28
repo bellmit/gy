@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import tuodong from '@/components/tuodong'
 import flexBox from '@/components/flexbox'
 import shoufengqin from '@/components/shoufengqin'
+import sync from '@/components/sync'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/shoufengqin',
       name: 'shoufengqin',
       component: shoufengqin
+    },
+    {
+      path: '/sync',
+      name: 'sync',
+      component: sync
     }
   ]
 })

@@ -7,5 +7,6 @@ module.exports = merge(prodEnv, {
     ENV_CONFIG: '"dev"',
     API_ROOT_MAIN: '"http://192.168.10.132:8082"'
     // API_ROOT_MAIN: '"http://192.168.33.229:8082"'
+    // API_ROOT_MAIN: '"https://uat1.chinayie.com/api/platform-mgmt/"'
 
 });
